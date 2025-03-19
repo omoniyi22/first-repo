@@ -1,13 +1,11 @@
 
-import Hero from '@/components/home/Hero';
-import Process from '@/components/home/Process';
-import Benefits from '@/components/home/Benefits';
-import Testimonials from '@/components/home/Testimonials';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
+import MissionSection from '@/components/about/MissionSection';
+import TeamSection from '@/components/about/TeamSection';
 import { useEffect } from 'react';
 
-const Index = () => {
+const About = () => {
   // Initialize scroll reveal for animations
   useEffect(() => {
     const initScrollReveal = () => {
@@ -37,20 +35,21 @@ const Index = () => {
     };
     
     initScrollReveal();
+    
+    // Scroll to top on page load
+    window.scrollTo(0, 0);
   }, []);
 
   return (
     <div className="min-h-screen">
       <Navbar />
-      <main>
-        <Hero />
-        <Process />
-        <Benefits />
-        <Testimonials />
+      <main className="pt-20">
+        <MissionSection />
+        <TeamSection />
       </main>
       <Footer />
     </div>
   );
 };
 
-export default Index;
+export default About;

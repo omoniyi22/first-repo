@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -12,9 +13,13 @@ export default {
 	theme: {
 		container: {
 			center: true,
-			padding: '2rem',
+			padding: '1.5rem',
 			screens: {
-				'2xl': '1400px'
+				'sm': '640px',
+				'md': '768px',
+				'lg': '1024px',
+				'xl': '1280px',
+				'2xl': '1536px',
 			}
 		},
 		extend: {
@@ -24,6 +29,32 @@ export default {
 				ring: 'hsl(var(--ring))',
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
+				navy: {
+					50: '#f0f5ff',
+					100: '#e0ebff',
+					200: '#c7d6f9',
+					300: '#a4b9f2',
+					400: '#8092e8',
+					500: '#6370dd',
+					600: '#4a4fd0',
+					700: '#3d3fb1',
+					800: '#33378d',
+					900: '#2c2f71',
+					950: '#1c1e40',
+				},
+				silver: {
+					50: '#f7f7f8',
+					100: '#eeeef0',
+					200: '#d8d9df',
+					300: '#b6b8c2',
+					400: '#8f93a2',
+					500: '#737787',
+					600: '#5e616e',
+					700: '#4c4e59',
+					800: '#41424b',
+					900: '#3a3a41',
+					950: '#212126',
+				},
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
 					foreground: 'hsl(var(--primary-foreground))'
@@ -52,16 +83,10 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
-				sidebar: {
-					DEFAULT: 'hsl(var(--sidebar-background))',
-					foreground: 'hsl(var(--sidebar-foreground))',
-					primary: 'hsl(var(--sidebar-primary))',
-					'primary-foreground': 'hsl(var(--sidebar-primary-foreground))',
-					accent: 'hsl(var(--sidebar-accent))',
-					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
-					border: 'hsl(var(--sidebar-border))',
-					ring: 'hsl(var(--sidebar-ring))'
-				}
+			},
+			fontFamily: {
+				sans: ['Inter var', 'Inter', 'sans-serif'],
+				serif: ['Playfair Display', 'serif'],
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -70,26 +95,49 @@ export default {
 			},
 			keyframes: {
 				'accordion-down': {
-					from: {
-						height: '0'
-					},
-					to: {
-						height: 'var(--radix-accordion-content-height)'
-					}
+					from: { height: '0' },
+					to: { height: 'var(--radix-accordion-content-height)' }
 				},
 				'accordion-up': {
-					from: {
-						height: 'var(--radix-accordion-content-height)'
-					},
-					to: {
-						height: '0'
-					}
-				}
+					from: { height: 'var(--radix-accordion-content-height)' },
+					to: { height: '0' }
+				},
+				'fade-in': {
+					'0%': { opacity: '0', transform: 'translateY(20px)' },
+					'100%': { opacity: '1', transform: 'translateY(0)' }
+				},
+				'fade-in-right': {
+					'0%': { opacity: '0', transform: 'translateX(20px)' },
+					'100%': { opacity: '1', transform: 'translateX(0)' }
+				},
+				'fade-in-left': {
+					'0%': { opacity: '0', transform: 'translateX(-20px)' },
+					'100%': { opacity: '1', transform: 'translateX(0)' }
+				},
+				'slide-in-bottom': {
+					'0%': { opacity: '0', transform: 'translateY(50px)' },
+					'100%': { opacity: '1', transform: 'translateY(0)' }
+				},
+				'scale-in': {
+					'0%': { opacity: '0', transform: 'scale(0.95)' },
+					'100%': { opacity: '1', transform: 'scale(1)' }
+				},
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
-			}
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'fade-in': 'fade-in 0.7s ease-out forwards',
+				'fade-in-right': 'fade-in-right 0.7s ease-out forwards',
+				'fade-in-left': 'fade-in-left 0.7s ease-out forwards',
+				'slide-in-bottom': 'slide-in-bottom 0.7s ease-out forwards',
+				'scale-in': 'scale-in 0.5s ease-out forwards',
+			},
+			boxShadow: {
+				'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.07)',
+			},
+			backdropBlur: {
+				'glass': '10px',
+			},
 		}
 	},
 	plugins: [require("tailwindcss-animate")],

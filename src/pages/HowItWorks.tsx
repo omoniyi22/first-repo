@@ -1,13 +1,11 @@
 
-import Hero from '@/components/home/Hero';
-import Process from '@/components/home/Process';
-import Benefits from '@/components/home/Benefits';
-import Testimonials from '@/components/home/Testimonials';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
+import StepsSection from '@/components/howitworks/StepsSection';
+import FaqSection from '@/components/howitworks/FaqSection';
 import { useEffect } from 'react';
 
-const Index = () => {
+const HowItWorks = () => {
   // Initialize scroll reveal for animations
   useEffect(() => {
     const initScrollReveal = () => {
@@ -37,20 +35,21 @@ const Index = () => {
     };
     
     initScrollReveal();
+    
+    // Scroll to top on page load
+    window.scrollTo(0, 0);
   }, []);
 
   return (
     <div className="min-h-screen">
       <Navbar />
-      <main>
-        <Hero />
-        <Process />
-        <Benefits />
-        <Testimonials />
+      <main className="pt-20">
+        <StepsSection />
+        <FaqSection />
       </main>
       <Footer />
     </div>
   );
 };
 
-export default Index;
+export default HowItWorks;
