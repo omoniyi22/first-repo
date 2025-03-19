@@ -141,7 +141,7 @@ const TeamSection = () => {
                     </div>
                     <div>
                       <h4 className="font-medium text-navy-900">Sarah Johnson</h4>
-                      <p className="text-navy-600 text-sm mb-2">Olympic Gold Medalist, Dressage</p>
+                      <p className="text-navy-600 text-sm mb-2">Gold Medalist, Dressage</p>
                       <p className="text-navy-700 text-sm">
                         Provides expert guidance on training methodology and test requirements at the elite level.
                       </p>
