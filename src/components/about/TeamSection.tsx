@@ -1,4 +1,3 @@
-
 import AnimatedSection from '../ui/AnimatedSection';
 
 interface TeamMember {
@@ -27,7 +26,7 @@ const TeamSection = () => {
     {
       name: "Olivia Rodriguez",
       role: "Head of Dressage Education",
-      bio: "FEI 5* judge and Olympic medal-winning coach, Olivia ensures that our AI recommendations align with classical dressage principles and effective training methodologies.",
+      bio: "FEI 5* judge and medal-winning coach, Olivia ensures that our AI recommendations align with classical dressage principles and effective training methodologies.",
       image: "https://randomuser.me/api/portraits/women/33.jpg"
     },
     {
