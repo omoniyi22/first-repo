@@ -15,7 +15,7 @@ const TeamSection = () => {
       name: "Jenny Stanley",
       role: "Founder & CEO",
       bio: "Former international dressage competitor with a passion for innovation. Jenny combined her dedication to dressage and expertise in technology to create a revolutionary training platform.",
-      image: "https://randomuser.me/api/portraits/women/23.jpg",
+      image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
       linkedin: "https://www.linkedin.com/in/jenny-stanley/"
     },
     {
