@@ -115,7 +115,7 @@
   }
   
   .outline-button {
-    @apply bg-transparent border-2 border-navy-800 text-navy-800 
+    @apply bg-white border-2 border-navy-800 text-navy-800 
            font-medium px-6 py-[10px] rounded-lg shadow-sm 
            transition-all duration-300 hover:bg-navy-50 
            hover:shadow-md active:scale-[0.98];
@@ -134,12 +134,12 @@
   
   /* Animated underline for nav links */
   .nav-link {
-    @apply relative text-navy-900 text-sm font-medium transition-colors;
+    @apply relative text-sm font-medium transition-colors;
   }
   
   .nav-link::after {
     content: '';
-    @apply absolute left-0 bottom-0 w-0 h-[2px] bg-navy-600 
+    @apply absolute left-0 bottom-0 w-0 h-[2px] bg-white 
            transition-all duration-300 ease-in-out;
   }
   

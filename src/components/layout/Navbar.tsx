@@ -79,7 +79,7 @@ const Navbar = () => {
             <Link to="/sign-in">
               <Button 
                 variant="outline" 
-                className={`ml-3 ${isScrolled ? 'border-white text-navy-950 bg-white hover:bg-navy-50' : 'border-navy-50 text-navy-50 hover:bg-navy-800/50'}`}
+                className={`ml-3 ${isScrolled ? 'border-white text-navy-950 bg-white hover:bg-navy-50' : 'border-white bg-white text-navy-950 hover:bg-navy-50'}`}
               >
                 Sign In
               </Button>
