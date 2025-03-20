@@ -1,3 +1,4 @@
+
 import AnimatedSection from '../ui/AnimatedSection';
 
 interface TeamMember {
@@ -151,16 +152,16 @@ const TeamSection = () => {
                   <div className="flex items-start">
                     <div className="w-12 h-12 rounded-full overflow-hidden bg-navy-100 mr-4 flex-shrink-0">
                       <img 
-                        src="https://randomuser.me/api/portraits/men/52.jpg" 
-                        alt="Dr. Robert Chen"
+                        src="https://images.unsplash.com/photo-1452378174528-3090a4bba7b2?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" 
+                        alt="Thomas Weber"
                         className="w-full h-full object-cover"
                       />
                     </div>
                     <div>
-                      <h4 className="font-medium text-navy-900">Dr. Robert Chen</h4>
-                      <p className="text-navy-600 text-sm mb-2">AI Research Director, Stanford University</p>
+                      <h4 className="font-medium text-navy-900">Thomas Weber</h4>
+                      <p className="text-navy-600 text-sm mb-2">Professional Dressage Rider & Trainer</p>
                       <p className="text-navy-700 text-sm">
-                        Advises on the latest developments in artificial intelligence and machine learning.
+                        Active competitor with multiple Grand Prix victories who tests and provides feedback on our training recommendations.
                       </p>
                     </div>
                   </div>
@@ -169,15 +170,15 @@ const TeamSection = () => {
                     <div className="w-12 h-12 rounded-full overflow-hidden bg-navy-100 mr-4 flex-shrink-0">
                       <img 
                         src="https://randomuser.me/api/portraits/women/67.jpg" 
-                        alt="Maria Sanchez"
+                        alt="Elena Martinez"
                         className="w-full h-full object-cover"
                       />
                     </div>
                     <div>
-                      <h4 className="font-medium text-navy-900">Maria Sanchez</h4>
-                      <p className="text-navy-600 text-sm mb-2">FEI 5* Judge</p>
+                      <h4 className="font-medium text-navy-900">Elena Martinez</h4>
+                      <p className="text-navy-600 text-sm mb-2">International Dressage Rider & Instructor</p>
                       <p className="text-navy-700 text-sm">
-                        Ensures our recommendations align with current judging standards and expectations.
+                        Brings practical riding expertise and helps translate classical principles into our AI coaching system.
                       </p>
                     </div>
                   </div>
