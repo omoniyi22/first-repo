@@ -54,25 +54,25 @@ const Navbar = () => {
           <nav className="hidden md:flex items-center space-x-8">
             <Link 
               to="/" 
-              className={`nav-link ${isActive('/') ? 'active' : ''} ${isScrolled ? 'text-white' : 'text-navy-50'}`}
+              className={`nav-link ${isActive('/') ? 'active' : ''} ${isScrolled ? 'text-white' : 'text-white'}`}
             >
               Home
             </Link>
             <Link 
               to="/how-it-works" 
-              className={`nav-link ${isActive('/how-it-works') ? 'active' : ''} ${isScrolled ? 'text-white' : 'text-navy-50'}`}
+              className={`nav-link ${isActive('/how-it-works') ? 'active' : ''} ${isScrolled ? 'text-white' : 'text-white'}`}
             >
               How It Works
             </Link>
             <Link 
               to="/pricing" 
-              className={`nav-link ${isActive('/pricing') ? 'active' : ''} ${isScrolled ? 'text-white' : 'text-navy-50'}`}
+              className={`nav-link ${isActive('/pricing') ? 'active' : ''} ${isScrolled ? 'text-white' : 'text-white'}`}
             >
               Pricing
             </Link>
             <Link 
               to="/about" 
-              className={`nav-link ${isActive('/about') ? 'active' : ''} ${isScrolled ? 'text-white' : 'text-navy-50'}`}
+              className={`nav-link ${isActive('/about') ? 'active' : ''} ${isScrolled ? 'text-white' : 'text-white'}`}
             >
               About
             </Link>
