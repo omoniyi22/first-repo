@@ -32,13 +32,20 @@ const Navbar = () => {
   return (
     <header 
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? 'bg-white/80 backdrop-blur-md shadow-sm' : 'bg-transparent'
+        isScrolled ? 'bg-navy-950/90 backdrop-blur-md shadow-md' : 'bg-transparent'
       }`}
     >
-      <div className="container mx-auto px-6 py-4">
+      <div className="container mx-auto px-6 py-3">
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center">
-            <h1 className="text-navy-900 font-serif text-2xl font-semibold">
+            <div className="h-12 w-auto mr-3">
+              <img 
+                src="/lovable-uploads/79f64a37-cb8e-4627-b743-c5330837a1b0.png" 
+                alt="AI Dressage Trainer Logo" 
+                className="h-full object-contain"
+              />
+            </div>
+            <h1 className={`font-serif text-xl font-semibold ${isScrolled ? 'text-white' : 'text-navy-50'}`}>
               AI Dressage Trainer
             </h1>
           </Link>
@@ -47,38 +54,38 @@ const Navbar = () => {
           <nav className="hidden md:flex items-center space-x-8">
             <Link 
               to="/" 
-              className={`nav-link ${isActive('/') ? 'active' : ''}`}
+              className={`nav-link ${isActive('/') ? 'active' : ''} ${isScrolled ? 'text-white' : 'text-navy-50'}`}
             >
               Home
             </Link>
             <Link 
               to="/how-it-works" 
-              className={`nav-link ${isActive('/how-it-works') ? 'active' : ''}`}
+              className={`nav-link ${isActive('/how-it-works') ? 'active' : ''} ${isScrolled ? 'text-white' : 'text-navy-50'}`}
             >
               How It Works
             </Link>
             <Link 
               to="/pricing" 
-              className={`nav-link ${isActive('/pricing') ? 'active' : ''}`}
+              className={`nav-link ${isActive('/pricing') ? 'active' : ''} ${isScrolled ? 'text-white' : 'text-navy-50'}`}
             >
               Pricing
             </Link>
             <Link 
               to="/about" 
-              className={`nav-link ${isActive('/about') ? 'active' : ''}`}
+              className={`nav-link ${isActive('/about') ? 'active' : ''} ${isScrolled ? 'text-white' : 'text-navy-50'}`}
             >
               About
             </Link>
             <Link to="/sign-in">
               <Button 
                 variant="outline" 
-                className="ml-3 border-navy-800 text-navy-800 hover:bg-navy-50"
+                className={`ml-3 ${isScrolled ? 'border-white text-white hover:bg-navy-800' : 'border-navy-50 text-navy-50 hover:bg-navy-800/50'}`}
               >
                 Sign In
               </Button>
             </Link>
             <Link to="/sign-in?signup=true">
-              <Button className="bg-navy-700 hover:bg-navy-800">
+              <Button className="bg-navy-700 hover:bg-navy-800 text-white">
                 Get Started
               </Button>
             </Link>
@@ -91,9 +98,9 @@ const Navbar = () => {
             aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
           >
             {isMobileMenuOpen ? (
-              <X className="h-6 w-6 text-navy-800" />
+              <X className={`h-6 w-6 ${isScrolled ? 'text-white' : 'text-navy-50'}`} />
             ) : (
-              <Menu className="h-6 w-6 text-navy-800" />
+              <Menu className={`h-6 w-6 ${isScrolled ? 'text-white' : 'text-navy-50'}`} />
             )}
           </button>
         </div>
@@ -101,29 +108,29 @@ const Navbar = () => {
       
       {/* Mobile navigation */}
       {isMobileMenuOpen && (
-        <div className="md:hidden bg-white shadow-lg animate-fade-in">
+        <div className="md:hidden bg-navy-950/95 shadow-lg animate-fade-in">
           <nav className="container mx-auto px-6 py-4 flex flex-col space-y-4">
             <Link 
               to="/" 
-              className={`text-navy-900 text-lg font-medium ${isActive('/') ? 'text-navy-600' : ''}`}
+              className={`text-white text-lg font-medium ${isActive('/') ? 'text-navy-300' : ''}`}
             >
               Home
             </Link>
             <Link 
               to="/how-it-works" 
-              className={`text-navy-900 text-lg font-medium ${isActive('/how-it-works') ? 'text-navy-600' : ''}`}
+              className={`text-white text-lg font-medium ${isActive('/how-it-works') ? 'text-navy-300' : ''}`}
             >
               How It Works
             </Link>
             <Link 
               to="/pricing" 
-              className={`text-navy-900 text-lg font-medium ${isActive('/pricing') ? 'text-navy-600' : ''}`}
+              className={`text-white text-lg font-medium ${isActive('/pricing') ? 'text-navy-300' : ''}`}
             >
               Pricing
             </Link>
             <Link 
               to="/about" 
-              className={`text-navy-900 text-lg font-medium ${isActive('/about') ? 'text-navy-600' : ''}`}
+              className={`text-white text-lg font-medium ${isActive('/about') ? 'text-navy-300' : ''}`}
             >
               About
             </Link>
@@ -131,13 +138,13 @@ const Navbar = () => {
               <Link to="/sign-in" className="w-full">
                 <Button 
                   variant="outline" 
-                  className="w-full border-navy-800 text-navy-800 hover:bg-navy-50"
+                  className="w-full border-white text-white hover:bg-navy-800"
                 >
                   Sign In
                 </Button>
               </Link>
               <Link to="/sign-in?signup=true" className="w-full">
-                <Button className="w-full bg-navy-700 hover:bg-navy-800">
+                <Button className="w-full bg-navy-700 hover:bg-navy-800 text-white">
                   Get Started
                 </Button>
               </Link>
