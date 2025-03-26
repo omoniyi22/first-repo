@@ -16,11 +16,11 @@ const Hero = () => {
     <section className="relative min-h-screen flex items-center overflow-hidden pt-20">
       {/* Background with the dressage image */}
       <div className="absolute inset-0 bg-navy-950 -z-10">
-        <div className="absolute inset-0 opacity-30 bg-gradient-to-r from-navy-950 via-navy-900/80 to-navy-950">
+        <div className="absolute inset-0 opacity-20 bg-gradient-to-r from-navy-950 via-navy-900/90 to-navy-950">
           <img 
             src="/lovable-uploads/79f64a37-cb8e-4627-b743-c5330837a1b0.png" 
             alt="Dressage illustration"
-            className="w-full h-full object-cover object-center opacity-70"
+            className="w-full h-full object-cover object-center opacity-60"
           />
         </div>
       </div>
@@ -37,19 +37,19 @@ const Hero = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div className={`transition-all duration-1000 transform ${loaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
             <AnimatedSection animation="fade-in" delay="delay-100">
-              <span className="inline-block px-3 py-1 bg-navy-700/30 text-navy-100 rounded-full text-sm font-medium mb-6 backdrop-blur-sm border border-navy-400/20">
+              <span className="inline-block px-3 py-1 bg-navy-700/60 text-white rounded-full text-sm font-medium mb-6 backdrop-blur-sm border border-navy-400/30">
                 Next Generation Dressage Training
               </span>
             </AnimatedSection>
             
             <AnimatedSection animation="fade-in" delay="delay-200">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-semibold leading-tight text-white mb-6">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-semibold leading-tight text-white mb-6 drop-shadow-md">
                 Transform Your Dressage Training with AI
               </h1>
             </AnimatedSection>
             
             <AnimatedSection animation="fade-in" delay="delay-300">
-              <p className="text-lg text-navy-100 mb-8 max-w-lg">
+              <p className="text-lg text-white mb-8 max-w-lg drop-shadow-sm">
                 Upload your score sheets, get AI-powered analysis, and receive personalized training recommendations to improve your performance.
               </p>
             </AnimatedSection>
@@ -63,7 +63,7 @@ const Hero = () => {
                   </Button>
                 </Link>
                 <Link to="/how-it-works">
-                  <Button variant="outline" className="outline-button text-base border-navy-200 bg-white/80 text-navy-800 hover:bg-navy-800/50 hover:text-navy-100">
+                  <Button variant="outline" className="outline-button text-base border-navy-200 bg-white/90 text-navy-800 hover:bg-navy-800/50 hover:text-navy-100">
                     How It Works
                   </Button>
                 </Link>
@@ -91,7 +91,7 @@ const Hero = () => {
                       </svg>
                     ))}
                   </div>
-                  <p className="text-sm text-navy-200 font-medium">
+                  <p className="text-sm text-white font-medium drop-shadow-sm">
                     500+ riders love our platform
                   </p>
                 </div>
@@ -105,7 +105,7 @@ const Hero = () => {
                 <div className="absolute -top-6 -right-6 -bottom-6 -left-6 rounded-xl bg-navy-500/5 -z-10 transform rotate-3" />
                 <div className="absolute -top-6 -right-6 -bottom-6 -left-6 rounded-xl bg-navy-300/10 -z-10 transform -rotate-2" />
                 
-                <div className="glass-card bg-navy-900/70 border border-navy-700/50 backdrop-blur-md overflow-hidden">
+                <div className="glass-card bg-navy-900/80 border border-navy-700/50 backdrop-blur-md overflow-hidden shadow-lg">
                   <div className="bg-navy-800 px-6 py-4 flex justify-between items-center">
                     <h3 className="text-white font-medium">AI Analysis Dashboard</h3>
                     <div className="flex space-x-2">
