@@ -68,7 +68,8 @@ const Benefits = () => {
           ))}
         </div>
         
-        <AnimatedSection animation="fade-in" delay="delay-500" className="mt-16">
+        {/* Reduced mt-16 to mt-8 to fix the spacing gap */}
+        <AnimatedSection animation="fade-in" delay="delay-500" className="mt-8">
           <div className="bg-white rounded-xl p-8 border border-silver-100 overflow-hidden relative">
             <div className="absolute -bottom-8 -right-8 w-48 h-48 bg-navy-50 rounded-full opacity-50" />
             <div className="absolute -top-12 -left-12 w-64 h-64 bg-navy-50 rounded-full opacity-30" />

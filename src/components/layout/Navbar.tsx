@@ -45,7 +45,7 @@ const Navbar = () => {
                 className="h-full object-contain"
               />
             </div>
-            <h1 className={`font-serif text-xl font-semibold ${isScrolled ? 'text-white' : 'text-navy-50'}`}>
+            <h1 className={`font-serif text-xl font-semibold text-white`}>
               AI Dressage Trainer
             </h1>
           </Link>
@@ -54,32 +54,32 @@ const Navbar = () => {
           <nav className="hidden md:flex items-center space-x-8">
             <Link 
               to="/" 
-              className={`nav-link ${isActive('/') ? 'active' : ''} ${isScrolled ? 'text-white' : 'text-white'}`}
+              className={`nav-link ${isActive('/') ? 'active' : ''} text-white`}
             >
               Home
             </Link>
             <Link 
               to="/how-it-works" 
-              className={`nav-link ${isActive('/how-it-works') ? 'active' : ''} ${isScrolled ? 'text-white' : 'text-white'}`}
+              className={`nav-link ${isActive('/how-it-works') ? 'active' : ''} text-white`}
             >
               How It Works
             </Link>
             <Link 
               to="/pricing" 
-              className={`nav-link ${isActive('/pricing') ? 'active' : ''} ${isScrolled ? 'text-white' : 'text-white'}`}
+              className={`nav-link ${isActive('/pricing') ? 'active' : ''} text-white`}
             >
               Pricing
             </Link>
             <Link 
               to="/about" 
-              className={`nav-link ${isActive('/about') ? 'active' : ''} ${isScrolled ? 'text-white' : 'text-white'}`}
+              className={`nav-link ${isActive('/about') ? 'active' : ''} text-white`}
             >
               About
             </Link>
             <Link to="/sign-in">
               <Button 
                 variant="outline" 
-                className={`ml-3 ${isScrolled ? 'border-white text-navy-950 bg-white hover:bg-navy-50' : 'border-white bg-white text-navy-950 hover:bg-navy-50'}`}
+                className="ml-3 border-white text-navy-950 bg-white hover:bg-navy-50"
               >
                 Sign In
               </Button>
@@ -98,9 +98,9 @@ const Navbar = () => {
             aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
           >
             {isMobileMenuOpen ? (
-              <X className={`h-6 w-6 ${isScrolled ? 'text-white' : 'text-navy-50'}`} />
+              <X className="h-6 w-6 text-white" />
             ) : (
-              <Menu className={`h-6 w-6 ${isScrolled ? 'text-white' : 'text-navy-50'}`} />
+              <Menu className="h-6 w-6 text-white" />
             )}
           </button>
         </div>
