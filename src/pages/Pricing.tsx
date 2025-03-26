@@ -2,6 +2,7 @@
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import PricingTiers from '@/components/pricing/PricingTiers';
+import PricingFaq from '@/components/pricing/PricingFaq';
 import { useEffect } from 'react';
 
 const Pricing = () => {
@@ -44,6 +45,7 @@ const Pricing = () => {
       <Navbar />
       <main className="pt-20">
         <PricingTiers />
+        <PricingFaq />
       </main>
       <Footer />
     </div>
