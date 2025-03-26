@@ -31,9 +31,9 @@ const Benefits = () => {
   ];
 
   return (
-    <section className="py-20 bg-silver-50">
+    <section className="py-16 bg-silver-50">
       <div className="container mx-auto px-6">
-        <AnimatedSection animation="fade-in" className="text-center max-w-3xl mx-auto mb-12">
+        <AnimatedSection animation="fade-in" className="text-center max-w-3xl mx-auto mb-10">
           <h2 className="text-3xl md:text-4xl font-serif font-semibold text-navy-900 mb-4">
             Benefits That Transform Your Training
           </h2>
@@ -42,14 +42,15 @@ const Benefits = () => {
           </p>
         </AnimatedSection>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
           {benefits.map((benefit, index) => (
             <AnimatedSection 
               key={index}
               animation="slide-in-bottom"
               delay={benefit.delay as any}
+              className="h-full"
             >
-              <div className="bg-white rounded-xl p-8 shadow-sm border border-silver-100 h-full flex items-start hover:shadow-md transition-shadow group">
+              <div className="bg-white rounded-xl p-6 shadow-sm border border-silver-100 h-full flex items-start hover:shadow-md transition-shadow group">
                 <div className="bg-navy-100/50 w-16 h-16 rounded-xl flex items-center justify-center shrink-0 mr-6 transition-colors duration-300 group-hover:bg-navy-200/50">
                   {benefit.icon}
                 </div>
