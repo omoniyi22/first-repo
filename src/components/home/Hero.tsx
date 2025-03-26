@@ -63,7 +63,7 @@ const Hero = () => {
                   </Button>
                 </Link>
                 <Link to="/how-it-works">
-                  <Button variant="outline" className="outline-button text-base border-navy-200 text-navy-100 hover:bg-navy-800/50">
+                  <Button variant="outline" className="outline-button text-base border-navy-200 bg-white/80 text-navy-800 hover:bg-navy-800/50 hover:text-navy-100">
                     How It Works
                   </Button>
                 </Link>
