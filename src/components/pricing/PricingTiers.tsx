@@ -1,13 +1,15 @@
+
 import { useState } from 'react';
-import { Check, X } from 'lucide-react';
+import { Check } from 'lucide-react';
 import PricingToggle from './PricingToggle';
 import AnimatedSection from '../ui/AnimatedSection';
 import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 
 interface Plan {
   id: string;
   name: string;
-  description: string;
+  tagline: string;
   monthlyPrice: number;
   annualPrice: number;
   features: {
@@ -16,7 +18,6 @@ interface Plan {
   }[];
   highlighted?: boolean;
   buttonText: string;
-  isFree?: boolean;
 }
 
 const PricingTiers = () => {
@@ -24,55 +25,35 @@ const PricingTiers = () => {
   
   const plans: Plan[] = [
     {
-      id: 'free',
-      name: 'Free Trial',
-      description: 'Try our AI analysis with one free test per phone number, no credit card required.',
-      monthlyPrice: 0,
-      annualPrice: 0,
-      isFree: true,
-      features: [
-        { text: '1 free score sheet analysis', included: true },
-        { text: 'Basic performance analysis', included: true },
-        { text: 'Sample exercise recommendations', included: true },
-        { text: 'Single horse profile', included: true },
-        { text: 'Community support', included: true },
-        { text: 'Advanced analytics dashboard', included: false },
-        { text: 'Full exercise library access', included: false },
-        { text: 'Multiple horse profiles', included: false },
-        { text: 'Training progress tracking', included: false },
-        { text: 'Trainer collaboration tools', included: false },
-      ],
-      buttonText: 'Start Free Trial',
-    },
-    {
       id: 'basic',
       name: 'Basic',
-      description: 'Perfect for individual riders looking to improve with limited analysis.',
+      tagline: 'Try before you commit with one free test included',
       monthlyPrice: 9.99,
       annualPrice: 7.99,
       features: [
-        { text: '1 score sheet upload per month', included: true },
+        { text: 'First score sheet analysis FREE', included: true },
+        { text: '1 additional score sheet upload per month', included: true },
         { text: 'Basic performance analysis', included: true },
         { text: 'Core exercise recommendations', included: true },
         { text: 'Single horse profile', included: true },
         { text: 'Email support', included: true },
         { text: 'Advanced analytics dashboard', included: false },
-        { text: 'Full exercise library access', included: false },
-        { text: 'Multiple horse profiles', included: false },
         { text: 'Training progress tracking', included: false },
+        { text: 'Custom training programs', included: false },
         { text: 'Trainer collaboration tools', included: false },
       ],
-      buttonText: 'Get Started',
+      buttonText: 'Start Free',
     },
     {
       id: 'premium',
       name: 'Premium',
-      description: 'Ideal for dedicated riders seeking comprehensive training support.',
+      tagline: 'Ideal for dedicated riders seeking comprehensive training support',
       monthlyPrice: 19.99,
       annualPrice: 15.99,
       highlighted: true,
       features: [
-        { text: '3 score sheet uploads per month', included: true },
+        { text: 'First score sheet analysis FREE', included: true },
+        { text: '3 additional score sheet uploads per month', included: true },
         { text: 'Detailed performance analysis', included: true },
         { text: 'Full exercise library access', included: true },
         { text: 'Up to 3 horse profiles', included: true },
@@ -81,17 +62,17 @@ const PricingTiers = () => {
         { text: 'Training progress tracking', included: true },
         { text: 'Custom training programs', included: true },
         { text: 'Trainer collaboration tools', included: false },
-        { text: 'API access for integrations', included: false },
       ],
       buttonText: 'Choose Premium',
     },
     {
       id: 'professional',
       name: 'Professional',
-      description: 'Designed for trainers and professional riders managing multiple horses.',
+      tagline: 'Designed for trainers and professional riders managing multiple horses',
       monthlyPrice: 39.99,
       annualPrice: 31.99,
       features: [
+        { text: 'First score sheet analysis FREE', included: true },
         { text: 'Unlimited score sheet uploads', included: true },
         { text: 'Comprehensive analysis suite', included: true },
         { text: 'Full exercise library access', included: true },
@@ -121,82 +102,76 @@ const PricingTiers = () => {
         
         <PricingToggle onChange={setIsAnnual} />
         
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {plans.map((plan, index) => (
             <AnimatedSection 
               key={plan.id}
               animation="fade-in"
               delay={`delay-${(index + 1) * 100}` as any}
-              className="relative"
+              className={`relative ${plan.highlighted ? 'md:-mt-4 md:mb-4' : ''}`}
             >
               {plan.highlighted && (
-                <div className="absolute top-0 -translate-y-1/2 inset-x-0 flex justify-center">
-                  <span className="bg-navy-700 text-white px-4 py-1 rounded-full text-sm font-medium">
+                <div className="absolute top-0 inset-x-0 -translate-y-1/2 flex justify-center">
+                  <span className="bg-navy-700 text-white px-4 py-1.5 rounded-full text-sm font-semibold shadow-md">
                     Most Popular
                   </span>
                 </div>
               )}
               
-              <div className={`h-full border rounded-xl p-6 flex flex-col relative z-10 ${
+              <div className={`h-full rounded-xl p-8 flex flex-col relative z-10 ${
                 plan.highlighted 
-                  ? 'border-navy-500 shadow-lg shadow-navy-100' 
-                  : plan.isFree 
-                  ? 'border-navy-200 bg-navy-50/50'
-                  : 'border-silver-200'
+                  ? 'border-2 border-navy-600 shadow-xl bg-white' 
+                  : 'border border-silver-200 bg-white shadow-md'
               }`}>
-                <div className="mb-6">
-                  <h2 className="text-xl font-serif font-semibold text-navy-900 mb-2">
+                <div className="mb-8">
+                  <h2 className="text-2xl font-serif font-semibold text-navy-900 mb-2">
                     {plan.name}
                   </h2>
                   
-                  <p className="text-navy-700 mb-6 text-sm">
-                    {plan.description}
+                  <p className="text-navy-700 mb-6 text-sm h-12">
+                    {plan.tagline}
                   </p>
                   
-                  <div className="flex items-baseline">
-                    <span className="text-3xl font-bold text-navy-900">
+                  <div className="flex items-baseline mb-1">
+                    <span className="text-4xl font-bold text-navy-900">
                       ${isAnnual ? plan.annualPrice : plan.monthlyPrice}
                     </span>
-                    <span className="text-navy-600 ml-2 text-sm">
-                      {plan.isFree ? '' : '/month'}
+                    <span className="text-navy-600 ml-2 text-base">
+                      /month
                     </span>
                   </div>
                   
-                  {isAnnual && !plan.isFree && (
-                    <p className="text-sm text-navy-600 mt-1">
+                  {isAnnual && (
+                    <p className="text-sm text-navy-600 mb-6">
                       Billed annually (${(isAnnual ? plan.annualPrice : plan.monthlyPrice) * 12}/year)
                     </p>
                   )}
                 </div>
                 
-                <Link to="/sign-in?signup=true" className="block mb-6">
-                  <button 
-                    className={`w-full py-3 rounded-lg font-medium transition-colors ${
+                <Link to="/sign-in?signup=true" className="block mb-8">
+                  <Button 
+                    className={`w-full py-6 rounded-lg text-base ${
                       plan.highlighted 
-                        ? 'bg-navy-700 hover:bg-navy-800 text-white' 
-                        : plan.isFree
-                        ? 'bg-navy-700 hover:bg-navy-800 text-white'
-                        : 'bg-navy-50 hover:bg-navy-100 text-navy-800'
+                        ? 'bg-navy-700 hover:bg-navy-800 text-white font-semibold shadow-md h-auto' 
+                        : plan.id === 'basic'
+                        ? 'bg-navy-600 hover:bg-navy-700 text-white font-medium h-auto'
+                        : 'bg-navy-50 hover:bg-navy-100 text-navy-800 font-medium border border-navy-200 h-auto'
                     }`}
                   >
                     {plan.buttonText}
-                  </button>
+                  </Button>
                 </Link>
                 
-                <div className="space-y-3 mt-auto">
-                  <h3 className="font-medium text-navy-900 text-sm">
+                <div className="space-y-4 mt-auto">
+                  <h3 className="font-medium text-navy-900 border-b border-silver-200 pb-2">
                     Features include:
                   </h3>
                   
-                  <ul className="space-y-2">
+                  <ul className="space-y-3">
                     {plan.features.map((feature, i) => (
-                      <li key={i} className="flex items-start">
-                        {feature.included ? (
-                          <Check className="h-4 w-4 text-navy-600 mr-2 mt-0.5 flex-shrink-0" />
-                        ) : (
-                          <X className="h-4 w-4 text-silver-400 mr-2 mt-0.5 flex-shrink-0" />
-                        )}
-                        <span className={`text-sm ${feature.included ? 'text-navy-700' : 'text-silver-500'}`}>
+                      <li key={i} className={`flex items-start ${!feature.included ? 'opacity-60' : ''}`}>
+                        <Check className={`h-5 w-5 mr-3 mt-0.5 flex-shrink-0 ${feature.included ? 'text-navy-600' : 'text-silver-400'}`} />
+                        <span className="text-sm text-navy-800">
                           {feature.text}
                         </span>
                       </li>
@@ -208,7 +183,7 @@ const PricingTiers = () => {
           ))}
         </div>
         
-        <AnimatedSection animation="fade-in" className="mt-16 bg-navy-50 rounded-xl p-8 md:p-12">
+        <AnimatedSection animation="fade-in" className="mt-20 bg-navy-50 rounded-xl p-8 md:p-12">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div>
               <h2 className="text-2xl md:text-3xl font-serif font-semibold text-navy-900 mb-4">
@@ -221,7 +196,7 @@ const PricingTiers = () => {
                     How does the free trial work?
                   </h3>
                   <p className="text-navy-700">
-                    You can upload one dressage test score sheet for free analysis after verifying your phone number. No credit card required to get started.
+                    You can upload one dressage test score sheet for free analysis after creating an account. No credit card required to get started.
                   </p>
                 </div>
                 
@@ -263,13 +238,13 @@ const PricingTiers = () => {
                 </p>
                 
                 <div className="space-y-4">
-                  <button className="w-full bg-navy-700 hover:bg-navy-800 text-white py-3 rounded-lg font-medium transition-colors">
+                  <Button className="w-full bg-navy-700 hover:bg-navy-800 text-white py-3 rounded-lg font-medium transition-colors h-auto">
                     Schedule a Demo
-                  </button>
+                  </Button>
                   
-                  <button className="w-full bg-transparent border border-navy-600 text-navy-700 py-3 rounded-lg font-medium transition-colors hover:bg-navy-50">
+                  <Button variant="outline" className="w-full bg-transparent border border-navy-600 text-navy-700 py-3 rounded-lg font-medium transition-colors hover:bg-navy-50 h-auto">
                     Contact Support
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>
