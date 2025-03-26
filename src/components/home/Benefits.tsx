@@ -33,7 +33,7 @@ const Benefits = () => {
   return (
     <section className="py-20 bg-silver-50">
       <div className="container mx-auto px-6">
-        <AnimatedSection animation="fade-in" className="text-center max-w-3xl mx-auto mb-16">
+        <AnimatedSection animation="fade-in" className="text-center max-w-3xl mx-auto mb-12">
           <h2 className="text-3xl md:text-4xl font-serif font-semibold text-navy-900 mb-4">
             Benefits That Transform Your Training
           </h2>
@@ -42,7 +42,7 @@ const Benefits = () => {
           </p>
         </AnimatedSection>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
           {benefits.map((benefit, index) => (
             <AnimatedSection 
               key={index}
@@ -68,8 +68,7 @@ const Benefits = () => {
           ))}
         </div>
         
-        {/* Reduced mt-16 to mt-8 to fix the spacing gap */}
-        <AnimatedSection animation="fade-in" delay="delay-500" className="mt-8">
+        <AnimatedSection animation="fade-in" delay="delay-500">
           <div className="bg-white rounded-xl p-8 border border-silver-100 overflow-hidden relative">
             <div className="absolute -bottom-8 -right-8 w-48 h-48 bg-navy-50 rounded-full opacity-50" />
             <div className="absolute -top-12 -left-12 w-64 h-64 bg-navy-50 rounded-full opacity-30" />
