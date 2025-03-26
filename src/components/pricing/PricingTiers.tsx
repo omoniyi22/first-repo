@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Check } from 'lucide-react';
 import PricingToggle from './PricingToggle';
@@ -238,10 +237,6 @@ const PricingTiers = () => {
                 </p>
                 
                 <div className="space-y-4">
-                  <Button className="w-full bg-navy-700 hover:bg-navy-800 text-white py-3 rounded-lg font-medium transition-colors h-auto">
-                    Schedule a Demo
-                  </Button>
-                  
                   <Button variant="outline" className="w-full bg-transparent border border-navy-600 text-navy-700 py-3 rounded-lg font-medium transition-colors hover:bg-navy-50 h-auto">
                     Contact Support
                   </Button>
