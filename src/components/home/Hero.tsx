@@ -121,6 +121,48 @@ const Hero = () => {
                       <span className="text-sm text-navy-200">Score: 68.2%</span>
                     </div>
                     
+                    {/* Dressage Test Sheet Preview */}
+                    <div className="mb-6 bg-white p-3 rounded-lg shadow-sm">
+                      <div className="border border-navy-200 rounded overflow-hidden">
+                        <div className="bg-navy-50 border-b border-navy-200 px-3 py-2 flex justify-between items-center">
+                          <span className="text-xs font-semibold text-navy-800">USDF Second Level - Test 3</span>
+                          <span className="text-xs text-navy-600">Judge: A. Roberts</span>
+                        </div>
+                        <div className="py-2 px-3">
+                          <table className="w-full text-left text-xs">
+                            <thead>
+                              <tr className="border-b border-navy-100">
+                                <th className="py-1 w-8 text-navy-700">#</th>
+                                <th className="py-1 text-navy-700">Movement</th>
+                                <th className="py-1 w-10 text-navy-700">Mark</th>
+                                <th className="py-1 text-navy-700">Remarks</th>
+                              </tr>
+                            </thead>
+                            <tbody className="text-navy-800">
+                              <tr className="border-b border-navy-100 bg-navy-50/50">
+                                <td className="py-1">1</td>
+                                <td className="py-1">Enter collected trot</td>
+                                <td className="py-1 font-medium">7</td>
+                                <td className="py-1 italic text-navy-600">Straight entry, good halt</td>
+                              </tr>
+                              <tr className="border-b border-navy-100">
+                                <td className="py-1">2</td>
+                                <td className="py-1">Shoulder-in right</td>
+                                <td className="py-1 font-medium">6</td>
+                                <td className="py-1 italic text-navy-600">Needs more bend</td>
+                              </tr>
+                              <tr className="border-b border-navy-100 bg-navy-50/50">
+                                <td className="py-1">3</td>
+                                <td className="py-1">Medium trot</td>
+                                <td className="py-1 font-medium">8</td>
+                                <td className="py-1 italic text-navy-600">Good extension</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                    
                     <div className="space-y-4 mb-6">
                       <div className="space-y-2">
                         <div className="flex justify-between items-center">
