@@ -1,6 +1,7 @@
 
 import { Shield, Zap, Users, LineChart } from 'lucide-react';
 import AnimatedSection from '../ui/AnimatedSection';
+import { Button } from '../ui/button';
 
 const Benefits = () => {
   const benefits = [
@@ -31,9 +32,9 @@ const Benefits = () => {
   ];
 
   return (
-    <section className="py-16 bg-silver-50">
+    <section className="py-12 bg-silver-50">
       <div className="container mx-auto px-6">
-        <AnimatedSection animation="fade-in" className="text-center max-w-3xl mx-auto mb-10">
+        <AnimatedSection animation="fade-in" className="text-center max-w-3xl mx-auto mb-8">
           <h2 className="text-3xl md:text-4xl font-serif font-semibold text-navy-900 mb-4">
             Benefits That Transform Your Training
           </h2>
@@ -42,7 +43,7 @@ const Benefits = () => {
           </p>
         </AnimatedSection>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
           {benefits.map((benefit, index) => (
             <AnimatedSection 
               key={index}
@@ -106,9 +107,9 @@ const Benefits = () => {
                   </div>
                 </div>
                 
-                <button className="bg-navy-700 hover:bg-navy-800 text-white px-6 py-3 rounded-lg transition-colors">
+                <Button className="bg-navy-700 hover:bg-navy-800 text-white">
                   Explore Analytics
-                </button>
+                </Button>
               </div>
               
               <div className="lg:col-span-2 relative">
