@@ -14,7 +14,7 @@ const Hero = () => {
   }, []);
 
   return (
-    <section className="relative pt-16 pb-24 flex items-center overflow-hidden">
+    <section className="relative py-16 flex items-center overflow-hidden">
       {/* Background pattern */}
       <div className="absolute inset-0 opacity-[0.03] -z-10">
         <div className="absolute inset-0" style={{
@@ -45,7 +45,7 @@ const Hero = () => {
             </AnimatedSection>
             
             <AnimatedSection animation="fade-in" delay="delay-400">
-              <div className="flex flex-col sm:flex-row gap-4 mb-6">
+              <div className="flex flex-col sm:flex-row gap-4 mb-8">
                 <Link to="/sign-in?signup=true">
                   <Button className="group flex items-center gap-2 text-base bg-purple-700 hover:bg-purple-800 text-white">
                     Get Started
@@ -90,7 +90,7 @@ const Hero = () => {
           </div>
           
           <div className={`transition-all duration-1000 delay-300 transform ${loaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
-            <AnimatedSection animation="fade-in-left" delay="delay-500" className="relative h-full flex justify-center items-center">
+            <AnimatedSection animation="fade-in-left" delay="delay-500" className="relative h-full flex justify-end">
               <div className="w-full max-w-xl">
                 <div className="rounded-xl overflow-hidden shadow-xl border-4 border-white relative">
                   <img 
@@ -100,7 +100,8 @@ const Hero = () => {
                     onLoad={() => setImageLoaded(true)}
                     style={{
                       display: 'block',
-                      minHeight: '300px'
+                      minHeight: '300px',
+                      maxHeight: '450px'
                     }}
                   />
                   {!imageLoaded && (
