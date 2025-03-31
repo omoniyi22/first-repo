@@ -4,6 +4,7 @@ import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import AnimatedSection from '../ui/AnimatedSection';
+import { Skeleton } from '../ui/skeleton';
 
 const Hero = () => {
   const [loaded, setLoaded] = useState(false);
@@ -93,22 +94,19 @@ const Hero = () => {
             <AnimatedSection animation="fade-in-left" delay="delay-500" className="relative h-full flex justify-end">
               <div className="w-full max-w-xl">
                 <div className="rounded-xl overflow-hidden shadow-xl border-4 border-white relative">
+                  {!imageLoaded && (
+                    <Skeleton className="w-full h-[450px] bg-purple-100" />
+                  )}
                   <img 
                     src="/lovable-uploads/7c32e2d9-4fce-4ed5-abba-0fb12abe96eb.png" 
                     alt="Dressage rider performing"
-                    className="w-full h-auto object-cover"
+                    className={`w-full h-auto object-cover ${imageLoaded ? 'block' : 'hidden'}`}
                     onLoad={() => setImageLoaded(true)}
                     style={{
-                      display: 'block',
                       minHeight: '300px',
                       maxHeight: '450px'
                     }}
                   />
-                  {!imageLoaded && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-purple-50">
-                      <div className="animate-pulse text-purple-800">Loading image...</div>
-                    </div>
-                  )}
                 </div>
               </div>
             </AnimatedSection>
