@@ -35,6 +35,15 @@ const Benefits = () => {
   return (
     <section className="py-24 bg-purple-50">
       <div className="container mx-auto px-6">
+        <AnimatedSection animation="fade-in" delay="delay-100" className="mb-16">
+          <h2 className="text-3xl md:text-4xl font-serif font-semibold text-purple-900 text-center mb-4">
+            Benefits That Make a Difference
+          </h2>
+          <p className="text-purple-700 text-center max-w-3xl mx-auto mb-12">
+            Our AI-powered platform helps riders of all levels achieve their goals faster with data-driven insights and personalized recommendations.
+          </p>
+        </AnimatedSection>
+      
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
           {benefits.map((benefit, index) => (
             <AnimatedSection 
