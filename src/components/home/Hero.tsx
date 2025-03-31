@@ -14,17 +14,6 @@ const Hero = () => {
 
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden pt-20">
-      {/* Background with the new dressage image */}
-      <div className="absolute inset-0 bg-purple-900 -z-10">
-        <div className="absolute inset-0 opacity-20 bg-gradient-to-r from-purple-950 via-purple-900/90 to-purple-950">
-          <img 
-            src="/lovable-uploads/141a866f-fe45-4edc-aa64-b95d2c7f1d6c.png" 
-            alt="Dressage rider with horse"
-            className="w-full h-full object-cover object-center opacity-80"
-          />
-        </div>
-      </div>
-      
       {/* Background pattern */}
       <div className="absolute inset-0 opacity-[0.03] -z-10">
         <div className="absolute inset-0" style={{
@@ -43,13 +32,13 @@ const Hero = () => {
             </AnimatedSection>
             
             <AnimatedSection animation="fade-in" delay="delay-200">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-semibold leading-tight text-white mb-6 drop-shadow-md">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-semibold leading-tight text-purple-900 mb-6">
                 Transform Your Dressage Training with AI
               </h1>
             </AnimatedSection>
             
             <AnimatedSection animation="fade-in" delay="delay-300">
-              <p className="text-lg text-white mb-8 max-w-lg drop-shadow-sm">
+              <p className="text-lg text-purple-800 mb-8 max-w-lg">
                 Upload your score sheets, get AI-powered analysis, and receive personalized training recommendations to improve your performance.
               </p>
             </AnimatedSection>
@@ -91,7 +80,7 @@ const Hero = () => {
                       </svg>
                     ))}
                   </div>
-                  <p className="text-sm text-white font-medium drop-shadow-sm">
+                  <p className="text-sm text-purple-800 font-medium">
                     500+ riders love our platform
                   </p>
                 </div>
@@ -101,113 +90,12 @@ const Hero = () => {
           
           <div className={`transition-all duration-1000 delay-300 transform ${loaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
             <AnimatedSection animation="fade-in-left" delay="delay-500" className="relative">
-              <div className="relative">
-                <div className="absolute -top-6 -right-6 -bottom-6 -left-6 rounded-xl bg-purple-500/5 -z-10 transform rotate-3" />
-                <div className="absolute -top-6 -right-6 -bottom-6 -left-6 rounded-xl bg-purple-300/10 -z-10 transform -rotate-2" />
-                
-                <div className="glass-card bg-purple-900/80 border border-purple-700/50 backdrop-blur-md overflow-hidden shadow-lg">
-                  <div className="bg-purple-800 px-6 py-4 flex justify-between items-center">
-                    <h3 className="text-white font-medium">AI Analysis Dashboard</h3>
-                    <div className="flex space-x-2">
-                      <div className="w-3 h-3 rounded-full bg-red-500" />
-                      <div className="w-3 h-3 rounded-full bg-yellow-500" />
-                      <div className="w-3 h-3 rounded-full bg-green-500" />
-                    </div>
-                  </div>
-                  
-                  <div className="p-6">
-                    <div className="flex justify-between items-center mb-4">
-                      <h4 className="text-purple-100 font-medium">Recent Test: Level 2 - Test 3</h4>
-                      <span className="text-sm text-purple-200">Score: 68.2%</span>
-                    </div>
-                    
-                    {/* Dressage Test Sheet Preview */}
-                    <div className="mb-6 bg-white p-3 rounded-lg shadow-sm">
-                      <div className="border border-purple-200 rounded overflow-hidden">
-                        <div className="bg-purple-50 border-b border-purple-200 px-3 py-2 flex justify-between items-center">
-                          <span className="text-xs font-semibold text-purple-800">USDF Second Level - Test 3</span>
-                          <span className="text-xs text-purple-600">Judge: A. Roberts</span>
-                        </div>
-                        <div className="py-2 px-3">
-                          <table className="w-full text-left text-xs">
-                            <thead>
-                              <tr className="border-b border-purple-100">
-                                <th className="py-1 w-8 text-purple-700">#</th>
-                                <th className="py-1 text-purple-700">Movement</th>
-                                <th className="py-1 w-10 text-purple-700">Mark</th>
-                                <th className="py-1 text-purple-700">Remarks</th>
-                              </tr>
-                            </thead>
-                            <tbody className="text-purple-800">
-                              <tr className="border-b border-purple-100 bg-purple-50/50">
-                                <td className="py-1">1</td>
-                                <td className="py-1">Enter collected trot</td>
-                                <td className="py-1 font-medium">7</td>
-                                <td className="py-1 italic text-purple-600">Straight entry, good halt</td>
-                              </tr>
-                              <tr className="border-b border-purple-100">
-                                <td className="py-1">2</td>
-                                <td className="py-1">Shoulder-in right</td>
-                                <td className="py-1 font-medium">6</td>
-                                <td className="py-1 italic text-purple-600">Needs more bend</td>
-                              </tr>
-                              <tr className="border-b border-purple-100 bg-purple-50/50">
-                                <td className="py-1">3</td>
-                                <td className="py-1">Medium trot</td>
-                                <td className="py-1 font-medium">8</td>
-                                <td className="py-1 italic text-purple-600">Good extension</td>
-                              </tr>
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-4 mb-6">
-                      <div className="space-y-2">
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-purple-300">Collection</span>
-                          <span className="text-sm font-medium text-purple-200">72%</span>
-                        </div>
-                        <div className="h-2 bg-purple-800 rounded-full overflow-hidden">
-                          <div className="h-full bg-purple-400 rounded-full" style={{ width: '72%' }}></div>
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-purple-300">Transitions</span>
-                          <span className="text-sm font-medium text-purple-200">64%</span>
-                        </div>
-                        <div className="h-2 bg-purple-800 rounded-full overflow-hidden">
-                          <div className="h-full bg-purple-400 rounded-full" style={{ width: '64%' }}></div>
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-purple-300">Rhythm</span>
-                          <span className="text-sm font-medium text-purple-200">83%</span>
-                        </div>
-                        <div className="h-2 bg-purple-800 rounded-full overflow-hidden">
-                          <div className="h-full bg-purple-400 rounded-full" style={{ width: '83%' }}></div>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="bg-purple-800/80 p-4 rounded-lg mb-6 border border-purple-700/50">
-                      <h5 className="text-purple-100 font-medium mb-2">AI Recommendation</h5>
-                      <p className="text-purple-300 text-sm">
-                        Focus on smoother transitions between trot and canter. 
-                        Try exercise #42 from our library to improve collection during transitions.
-                      </p>
-                    </div>
-                    
-                    <button className="w-full bg-purple-700 hover:bg-purple-600 text-white py-2 rounded-lg transition-colors">
-                      View Detailed Analysis
-                    </button>
-                  </div>
-                </div>
+              <div className="relative h-[600px] flex items-center justify-center">
+                <img 
+                  src="/lovable-uploads/141a866f-fe45-4edc-aa64-b95d2c7f1d6c.png" 
+                  alt="Dressage rider with horse"
+                  className="w-full h-full object-cover object-center rounded-2xl shadow-xl"
+                />
               </div>
             </AnimatedSection>
           </div>
