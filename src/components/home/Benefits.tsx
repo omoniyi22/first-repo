@@ -35,44 +35,46 @@ const Benefits = () => {
   return (
     <section className="py-16 bg-purple-50">
       <div className="container mx-auto px-6">
-        <div className="mb-8 max-w-3xl mx-auto text-center">
+        <div className="mb-8 max-w-3xl mx-auto">
           <AnimatedSection animation="fade-in" delay="delay-100">
-            <h2 className="text-3xl md:text-4xl font-serif font-semibold text-purple-900 mb-4">
-              Benefits That Make a Difference
-            </h2>
-            <p className="text-purple-700 mb-6">
-              Our AI-powered platform helps riders of all levels achieve their goals faster with data-driven insights and personalized recommendations.
-            </p>
-            <ul className="space-y-3 mb-6 inline-block text-left">
-              <li className="flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-purple-600"></div>
-                <span className="text-purple-700">Advanced movement analysis and scoring prediction</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-purple-600"></div>
-                <span className="text-purple-700">Personalized training plans based on your test results</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-purple-600"></div>
-                <span className="text-purple-700">Track improvements over time with detailed metrics</span>
-              </li>
-            </ul>
-            <Link to="/how-it-works" className="inline-block">
-              <Button className="bg-purple-700 hover:bg-purple-800 text-white">
-                Learn How It Works
-              </Button>
-            </Link>
-            
-            <div className="mt-6 mb-4">
-              <AnimatedSection animation="fade-in" delay="delay-300">
-                <div className="rounded-xl overflow-hidden shadow-lg border-4 border-white mx-auto max-w-2xl">
+            <div className="flex flex-col md:flex-row gap-8 items-center">
+              <div className="md:w-1/3 mb-4 md:mb-0">
+                <div className="rounded-xl overflow-hidden shadow-lg border-4 border-white">
                   <img 
                     src="/lovable-uploads/0e3ca532-c34f-4dc4-aedf-f34da66897ee.png" 
                     alt="White horse in dressage arena" 
                     className="w-full h-auto"
                   />
                 </div>
-              </AnimatedSection>
+              </div>
+              
+              <div className="md:w-2/3 text-center md:text-left">
+                <h2 className="text-3xl md:text-4xl font-serif font-semibold text-purple-900 mb-4">
+                  Benefits That Make a Difference
+                </h2>
+                <p className="text-purple-700 mb-6">
+                  Our AI-powered platform helps riders of all levels achieve their goals faster with data-driven insights and personalized recommendations.
+                </p>
+                <ul className="space-y-3 mb-6 inline-block text-left">
+                  <li className="flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-purple-600"></div>
+                    <span className="text-purple-700">Advanced movement analysis and scoring prediction</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-purple-600"></div>
+                    <span className="text-purple-700">Personalized training plans based on your test results</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-purple-600"></div>
+                    <span className="text-purple-700">Track improvements over time with detailed metrics</span>
+                  </li>
+                </ul>
+                <Link to="/how-it-works" className="inline-block">
+                  <Button className="bg-purple-700 hover:bg-purple-800 text-white">
+                    Learn How It Works
+                  </Button>
+                </Link>
+              </div>
             </div>
           </AnimatedSection>
         </div>
