@@ -92,9 +92,9 @@ const Hero = () => {
             <AnimatedSection animation="fade-in-left" delay="delay-500" className="relative">
               <div className="relative h-[600px] flex items-center justify-center">
                 <img 
-                  src="/lovable-uploads/fc2e6814-c8fd-4b8e-934f-1b2204eedf53.png" 
+                  src="/lovable-uploads/987a3f3b-1917-439f-a3a9-8fabc609cffa.png" 
                   alt="Dressage rider with horse"
-                  className="w-full h-full object-cover object-center rounded-2xl shadow-xl"
+                  className="w-full h-full object-contain object-right"
                 />
               </div>
             </AnimatedSection>
