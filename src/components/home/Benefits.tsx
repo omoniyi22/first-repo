@@ -33,9 +33,9 @@ const Benefits = () => {
   ];
 
   return (
-    <section className="py-24 bg-purple-50">
+    <section className="py-16 bg-purple-50">
       <div className="container mx-auto px-6">
-        <div className="mb-16 max-w-3xl mx-auto text-center">
+        <div className="mb-8 max-w-3xl mx-auto text-center">
           <AnimatedSection animation="fade-in" delay="delay-100">
             <h2 className="text-3xl md:text-4xl font-serif font-semibold text-purple-900 mb-4">
               Benefits That Make a Difference
@@ -57,13 +57,13 @@ const Benefits = () => {
                 <span className="text-purple-700">Track improvements over time with detailed metrics</span>
               </li>
             </ul>
-            <Link to="/how-it-works" className="inline-block mt-4">
+            <Link to="/how-it-works" className="inline-block">
               <Button className="bg-purple-700 hover:bg-purple-800 text-white">
                 Learn How It Works
               </Button>
             </Link>
             
-            <div className="mt-10">
+            <div className="mt-6 mb-4">
               <AnimatedSection animation="fade-in" delay="delay-300">
                 <div className="rounded-xl overflow-hidden shadow-lg border-4 border-white mx-auto max-w-2xl">
                   <img 
@@ -77,7 +77,7 @@ const Benefits = () => {
           </AnimatedSection>
         </div>
       
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {benefits.map((benefit, index) => (
             <AnimatedSection 
               key={index}
@@ -104,7 +104,7 @@ const Benefits = () => {
           ))}
         </div>
         
-        <AnimatedSection animation="fade-in" delay="delay-500">
+        <AnimatedSection animation="fade-in" delay="delay-500" className="mt-10">
           <div className="bg-white rounded-xl p-8 border border-purple-100 overflow-hidden relative">
             <div className="absolute -bottom-8 -right-8 w-48 h-48 bg-purple-50 rounded-full opacity-50" />
             <div className="absolute -top-12 -left-12 w-64 h-64 bg-purple-50 rounded-full opacity-30" />
