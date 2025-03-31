@@ -15,11 +15,11 @@ const Hero = () => {
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden pt-20">
       {/* Background with the dressage image */}
-      <div className="absolute inset-0 bg-navy-950 -z-10">
-        <div className="absolute inset-0 opacity-20 bg-gradient-to-r from-navy-950 via-navy-900/90 to-navy-950">
+      <div className="absolute inset-0 bg-purple-950 -z-10">
+        <div className="absolute inset-0 opacity-20 bg-gradient-to-r from-purple-950 via-purple-900/90 to-purple-950">
           <img 
-            src="/lovable-uploads/79f64a37-cb8e-4627-b743-c5330837a1b0.png" 
-            alt="Dressage illustration"
+            src="/lovable-uploads/fc2e6814-c8fd-4b8e-934f-1b2204eedf53.png" 
+            alt="Dressage rider with horse"
             className="w-full h-full object-cover object-center opacity-60"
           />
         </div>
@@ -37,7 +37,7 @@ const Hero = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div className={`transition-all duration-1000 transform ${loaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
             <AnimatedSection animation="fade-in" delay="delay-100">
-              <span className="inline-block px-3 py-1 bg-navy-700/60 text-white rounded-full text-sm font-medium mb-6 backdrop-blur-sm border border-navy-400/30">
+              <span className="inline-block px-3 py-1 bg-purple-700/60 text-white rounded-full text-sm font-medium mb-6 backdrop-blur-sm border border-purple-400/30">
                 Next Generation Dressage Training
               </span>
             </AnimatedSection>
@@ -57,13 +57,13 @@ const Hero = () => {
             <AnimatedSection animation="fade-in" delay="delay-400">
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link to="/sign-in?signup=true">
-                  <Button className="navy-button group flex items-center gap-2 text-base bg-navy-700 hover:bg-navy-800 text-white">
+                  <Button className="group flex items-center gap-2 text-base bg-purple-700 hover:bg-purple-800 text-white">
                     Get Started
                     <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                   </Button>
                 </Link>
                 <Link to="/how-it-works">
-                  <Button variant="outline" className="outline-button text-base border-navy-200 bg-white/90 text-navy-800 hover:bg-navy-800/50 hover:text-navy-100">
+                  <Button variant="outline" className="outline-button text-base border-purple-200 bg-white/90 text-purple-800 hover:bg-purple-800/50 hover:text-purple-100">
                     How It Works
                   </Button>
                 </Link>
@@ -74,7 +74,7 @@ const Hero = () => {
               <div className="mt-12 flex items-center">
                 <div className="flex -space-x-2">
                   {[1, 2, 3, 4].map((i) => (
-                    <div key={i} className="w-10 h-10 rounded-full border-2 border-navy-800 overflow-hidden">
+                    <div key={i} className="w-10 h-10 rounded-full border-2 border-purple-800 overflow-hidden">
                       <img 
                         src={`https://randomuser.me/api/portraits/women/${i + 20}.jpg`}
                         alt="User" 
@@ -102,11 +102,11 @@ const Hero = () => {
           <div className={`transition-all duration-1000 delay-300 transform ${loaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
             <AnimatedSection animation="fade-in-left" delay="delay-500" className="relative">
               <div className="relative">
-                <div className="absolute -top-6 -right-6 -bottom-6 -left-6 rounded-xl bg-navy-500/5 -z-10 transform rotate-3" />
-                <div className="absolute -top-6 -right-6 -bottom-6 -left-6 rounded-xl bg-navy-300/10 -z-10 transform -rotate-2" />
+                <div className="absolute -top-6 -right-6 -bottom-6 -left-6 rounded-xl bg-purple-500/5 -z-10 transform rotate-3" />
+                <div className="absolute -top-6 -right-6 -bottom-6 -left-6 rounded-xl bg-purple-300/10 -z-10 transform -rotate-2" />
                 
-                <div className="glass-card bg-navy-900/80 border border-navy-700/50 backdrop-blur-md overflow-hidden shadow-lg">
-                  <div className="bg-navy-800 px-6 py-4 flex justify-between items-center">
+                <div className="glass-card bg-purple-900/80 border border-purple-700/50 backdrop-blur-md overflow-hidden shadow-lg">
+                  <div className="bg-purple-800 px-6 py-4 flex justify-between items-center">
                     <h3 className="text-white font-medium">AI Analysis Dashboard</h3>
                     <div className="flex space-x-2">
                       <div className="w-3 h-3 rounded-full bg-red-500" />
@@ -117,45 +117,45 @@ const Hero = () => {
                   
                   <div className="p-6">
                     <div className="flex justify-between items-center mb-4">
-                      <h4 className="text-navy-100 font-medium">Recent Test: Level 2 - Test 3</h4>
-                      <span className="text-sm text-navy-200">Score: 68.2%</span>
+                      <h4 className="text-purple-100 font-medium">Recent Test: Level 2 - Test 3</h4>
+                      <span className="text-sm text-purple-200">Score: 68.2%</span>
                     </div>
                     
                     {/* Dressage Test Sheet Preview */}
                     <div className="mb-6 bg-white p-3 rounded-lg shadow-sm">
-                      <div className="border border-navy-200 rounded overflow-hidden">
-                        <div className="bg-navy-50 border-b border-navy-200 px-3 py-2 flex justify-between items-center">
-                          <span className="text-xs font-semibold text-navy-800">USDF Second Level - Test 3</span>
-                          <span className="text-xs text-navy-600">Judge: A. Roberts</span>
+                      <div className="border border-purple-200 rounded overflow-hidden">
+                        <div className="bg-purple-50 border-b border-purple-200 px-3 py-2 flex justify-between items-center">
+                          <span className="text-xs font-semibold text-purple-800">USDF Second Level - Test 3</span>
+                          <span className="text-xs text-purple-600">Judge: A. Roberts</span>
                         </div>
                         <div className="py-2 px-3">
                           <table className="w-full text-left text-xs">
                             <thead>
-                              <tr className="border-b border-navy-100">
-                                <th className="py-1 w-8 text-navy-700">#</th>
-                                <th className="py-1 text-navy-700">Movement</th>
-                                <th className="py-1 w-10 text-navy-700">Mark</th>
-                                <th className="py-1 text-navy-700">Remarks</th>
+                              <tr className="border-b border-purple-100">
+                                <th className="py-1 w-8 text-purple-700">#</th>
+                                <th className="py-1 text-purple-700">Movement</th>
+                                <th className="py-1 w-10 text-purple-700">Mark</th>
+                                <th className="py-1 text-purple-700">Remarks</th>
                               </tr>
                             </thead>
-                            <tbody className="text-navy-800">
-                              <tr className="border-b border-navy-100 bg-navy-50/50">
+                            <tbody className="text-purple-800">
+                              <tr className="border-b border-purple-100 bg-purple-50/50">
                                 <td className="py-1">1</td>
                                 <td className="py-1">Enter collected trot</td>
                                 <td className="py-1 font-medium">7</td>
-                                <td className="py-1 italic text-navy-600">Straight entry, good halt</td>
+                                <td className="py-1 italic text-purple-600">Straight entry, good halt</td>
                               </tr>
-                              <tr className="border-b border-navy-100">
+                              <tr className="border-b border-purple-100">
                                 <td className="py-1">2</td>
                                 <td className="py-1">Shoulder-in right</td>
                                 <td className="py-1 font-medium">6</td>
-                                <td className="py-1 italic text-navy-600">Needs more bend</td>
+                                <td className="py-1 italic text-purple-600">Needs more bend</td>
                               </tr>
-                              <tr className="border-b border-navy-100 bg-navy-50/50">
+                              <tr className="border-b border-purple-100 bg-purple-50/50">
                                 <td className="py-1">3</td>
                                 <td className="py-1">Medium trot</td>
                                 <td className="py-1 font-medium">8</td>
-                                <td className="py-1 italic text-navy-600">Good extension</td>
+                                <td className="py-1 italic text-purple-600">Good extension</td>
                               </tr>
                             </tbody>
                           </table>
@@ -166,44 +166,44 @@ const Hero = () => {
                     <div className="space-y-4 mb-6">
                       <div className="space-y-2">
                         <div className="flex justify-between items-center">
-                          <span className="text-sm text-navy-300">Collection</span>
-                          <span className="text-sm font-medium text-navy-200">72%</span>
+                          <span className="text-sm text-purple-300">Collection</span>
+                          <span className="text-sm font-medium text-purple-200">72%</span>
                         </div>
-                        <div className="h-2 bg-navy-800 rounded-full overflow-hidden">
-                          <div className="h-full bg-navy-400 rounded-full" style={{ width: '72%' }}></div>
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-navy-300">Transitions</span>
-                          <span className="text-sm font-medium text-navy-200">64%</span>
-                        </div>
-                        <div className="h-2 bg-navy-800 rounded-full overflow-hidden">
-                          <div className="h-full bg-navy-400 rounded-full" style={{ width: '64%' }}></div>
+                        <div className="h-2 bg-purple-800 rounded-full overflow-hidden">
+                          <div className="h-full bg-purple-400 rounded-full" style={{ width: '72%' }}></div>
                         </div>
                       </div>
                       
                       <div className="space-y-2">
                         <div className="flex justify-between items-center">
-                          <span className="text-sm text-navy-300">Rhythm</span>
-                          <span className="text-sm font-medium text-navy-200">83%</span>
+                          <span className="text-sm text-purple-300">Transitions</span>
+                          <span className="text-sm font-medium text-purple-200">64%</span>
                         </div>
-                        <div className="h-2 bg-navy-800 rounded-full overflow-hidden">
-                          <div className="h-full bg-navy-400 rounded-full" style={{ width: '83%' }}></div>
+                        <div className="h-2 bg-purple-800 rounded-full overflow-hidden">
+                          <div className="h-full bg-purple-400 rounded-full" style={{ width: '64%' }}></div>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-purple-300">Rhythm</span>
+                          <span className="text-sm font-medium text-purple-200">83%</span>
+                        </div>
+                        <div className="h-2 bg-purple-800 rounded-full overflow-hidden">
+                          <div className="h-full bg-purple-400 rounded-full" style={{ width: '83%' }}></div>
                         </div>
                       </div>
                     </div>
                     
-                    <div className="bg-navy-800/80 p-4 rounded-lg mb-6 border border-navy-700/50">
-                      <h5 className="text-navy-100 font-medium mb-2">AI Recommendation</h5>
-                      <p className="text-navy-300 text-sm">
+                    <div className="bg-purple-800/80 p-4 rounded-lg mb-6 border border-purple-700/50">
+                      <h5 className="text-purple-100 font-medium mb-2">AI Recommendation</h5>
+                      <p className="text-purple-300 text-sm">
                         Focus on smoother transitions between trot and canter. 
                         Try exercise #42 from our library to improve collection during transitions.
                       </p>
                     </div>
                     
-                    <button className="w-full bg-navy-700 hover:bg-navy-600 text-white py-2 rounded-lg transition-colors">
+                    <button className="w-full bg-purple-700 hover:bg-purple-600 text-white py-2 rounded-lg transition-colors">
                       View Detailed Analysis
                     </button>
                   </div>
