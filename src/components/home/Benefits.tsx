@@ -36,6 +36,16 @@ const Benefits = () => {
     <section className="py-24 bg-purple-50">
       <div className="container mx-auto px-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
+          <AnimatedSection animation="fade-in-right" delay="delay-300" className="flex justify-center">
+            <div className="rounded-xl overflow-hidden shadow-lg border-4 border-white">
+              <img 
+                src="/lovable-uploads/15df63d0-27e1-486c-98ee-bcf44eb600f4.png" 
+                alt="Dressage rider with horse and data points" 
+                className="w-full h-auto max-h-[400px] object-cover"
+              />
+            </div>
+          </AnimatedSection>
+          
           <AnimatedSection animation="fade-in" delay="delay-100">
             <h2 className="text-3xl md:text-4xl font-serif font-semibold text-purple-900 mb-4">
               Benefits That Make a Difference
@@ -62,16 +72,6 @@ const Benefits = () => {
                 Learn How It Works
               </Button>
             </Link>
-          </AnimatedSection>
-          
-          <AnimatedSection animation="fade-in-left" delay="delay-300" className="flex justify-end">
-            <div className="rounded-xl overflow-hidden shadow-lg border-4 border-white">
-              <img 
-                src="/lovable-uploads/15df63d0-27e1-486c-98ee-bcf44eb600f4.png" 
-                alt="Dressage rider with horse and data points" 
-                className="w-full h-auto max-h-[400px] object-cover"
-              />
-            </div>
           </AnimatedSection>
         </div>
       
