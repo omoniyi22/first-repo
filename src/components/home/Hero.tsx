@@ -91,7 +91,7 @@ const Hero = () => {
           </div>
           
           <div className={`transition-all duration-1000 delay-300 transform ${loaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
-            <AnimatedSection animation="fade-in-left" delay="delay-500" className="relative h-full flex justify-end">
+            <AnimatedSection animation="fade-in-left" delay="delay-500" className="relative h-full flex justify-center lg:justify-end">
               <div className="w-full max-w-xl">
                 <div className="rounded-xl overflow-hidden shadow-xl border-4 border-white relative">
                   {!imageLoaded && (
