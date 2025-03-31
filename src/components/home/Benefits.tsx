@@ -35,27 +35,6 @@ const Benefits = () => {
   return (
     <section className="py-24 bg-purple-50">
       <div className="container mx-auto px-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center mb-12">
-          <AnimatedSection animation="fade-in" className="max-w-xl">
-            <h2 className="text-3xl md:text-4xl font-serif font-semibold text-purple-900 mb-4">
-              Transform Your Dressage Training
-            </h2>
-            <p className="text-lg text-purple-700">
-              Our AI-powered platform helps riders of all levels achieve their goals faster with data-driven insights and personalized recommendations
-            </p>
-          </AnimatedSection>
-          
-          <AnimatedSection animation="fade-in-left" delay="delay-300" className="flex justify-center">
-            <div className="rounded-xl overflow-hidden shadow-lg border-4 border-white">
-              <img 
-                src="/lovable-uploads/4c938b42-7713-4f2d-947a-1e70c3caca32.png" 
-                alt="Dressage rider with AI analytics overlay"
-                className="object-cover w-full h-auto"
-              />
-            </div>
-          </AnimatedSection>
-        </div>
-        
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
           {benefits.map((benefit, index) => (
             <AnimatedSection 
