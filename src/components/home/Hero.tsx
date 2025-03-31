@@ -15,7 +15,7 @@ const Hero = () => {
   }, []);
 
   return (
-    <section className="relative py-16 flex items-center overflow-hidden">
+    <section className="relative pt-24 pb-16 flex items-center overflow-hidden">
       {/* Background pattern */}
       <div className="absolute inset-0 opacity-[0.03] -z-10">
         <div className="absolute inset-0" style={{
