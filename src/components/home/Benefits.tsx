@@ -79,12 +79,12 @@ const Benefits = () => {
                 
                 <p className="text-purple-700 mb-6">
                   Our comprehensive analytics track your improvement across multiple tests, helping you see exactly where you're making progress. 
-                  Our users report average score improvements of 5-10 percentage points in their first three months.
+                  Our users report average score improvements of 2-5 percentage points in their first three months.
                 </p>
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                   <div className="bg-purple-50 p-4 rounded-lg">
-                    <div className="text-2xl font-semibold text-purple-900 mb-1">8.2%</div>
+                    <div className="text-2xl font-semibold text-purple-900 mb-1">3%</div>
                     <div className="text-sm text-purple-600">Avg. Score Increase</div>
                   </div>
                   
