@@ -7,13 +7,14 @@ import AnimatedSection from '../ui/AnimatedSection';
 
 const Hero = () => {
   const [loaded, setLoaded] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   useEffect(() => {
     setLoaded(true);
   }, []);
 
   return (
-    <section className="relative pt-16 pb-8 flex items-center overflow-hidden">
+    <section className="relative pt-16 pb-24 flex items-center overflow-hidden">
       {/* Background pattern */}
       <div className="absolute inset-0 opacity-[0.03] -z-10">
         <div className="absolute inset-0" style={{
@@ -89,15 +90,24 @@ const Hero = () => {
           </div>
           
           <div className={`transition-all duration-1000 delay-300 transform ${loaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
-            <AnimatedSection animation="fade-in-left" delay="delay-500" className="relative">
-              <div className="flex items-center justify-center">
-                {/* This is where we'll add the image that was in the Benefits section */}
-                <div className="rounded-xl overflow-hidden shadow-xl border-4 border-white">
+            <AnimatedSection animation="fade-in-left" delay="delay-500" className="relative h-full flex justify-center items-center">
+              <div className="w-full max-w-xl">
+                <div className="rounded-xl overflow-hidden shadow-xl border-4 border-white relative">
                   <img 
                     src="/lovable-uploads/7c32e2d9-4fce-4ed5-abba-0fb12abe96eb.png" 
                     alt="Dressage rider performing"
-                    className="object-cover w-full h-auto"
+                    className="w-full h-auto object-cover"
+                    onLoad={() => setImageLoaded(true)}
+                    style={{
+                      display: 'block',
+                      minHeight: '300px'
+                    }}
                   />
+                  {!imageLoaded && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-purple-50">
+                      <div className="animate-pulse text-purple-800">Loading image...</div>
+                    </div>
+                  )}
                 </div>
               </div>
             </AnimatedSection>
