@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -38,13 +37,6 @@ const Navbar = () => {
       <div className="container mx-auto px-6 py-3">
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center">
-            <div className="h-12 w-auto mr-3">
-              <img 
-                src="/lovable-uploads/79f64a37-cb8e-4627-b743-c5330837a1b0.png" 
-                alt="AI Dressage Trainer Logo" 
-                className="h-full object-contain"
-              />
-            </div>
             <h1 className={`font-serif text-xl font-semibold text-white`}>
               AI Dressage Trainer
             </h1>
