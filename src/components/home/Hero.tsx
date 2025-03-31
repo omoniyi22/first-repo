@@ -17,7 +17,7 @@ const Hero = () => {
       {/* Background pattern */}
       <div className="absolute inset-0 opacity-[0.03] -z-10">
         <div className="absolute inset-0" style={{
-          backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)',
+          backgroundImage: 'radial-gradient(#9b87f5 1px, transparent 1px)',
           backgroundSize: '30px 30px'
         }} />
       </div>
@@ -92,7 +92,7 @@ const Hero = () => {
             <AnimatedSection animation="fade-in-left" delay="delay-500" className="relative">
               <div className="relative h-[600px] flex items-center justify-center">
                 <img 
-                  src="/lovable-uploads/141a866f-fe45-4edc-aa64-b95d2c7f1d6c.png" 
+                  src="/lovable-uploads/fc2e6814-c8fd-4b8e-934f-1b2204eedf53.png" 
                   alt="Dressage rider with horse"
                   className="w-full h-full object-cover object-center rounded-2xl shadow-xl"
                 />

@@ -32,7 +32,7 @@ const Navbar = () => {
   return (
     <header 
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? 'bg-navy-950/90 backdrop-blur-md shadow-md' : 'bg-navy-950/50 backdrop-blur-sm'
+        isScrolled ? 'bg-purple-950/90 backdrop-blur-md shadow-md' : 'bg-purple-950/50 backdrop-blur-sm'
       }`}
     >
       <div className="container mx-auto px-6 py-3">
@@ -79,13 +79,13 @@ const Navbar = () => {
             <Link to="/sign-in">
               <Button 
                 variant="outline" 
-                className="ml-3 border-white text-navy-950 bg-white hover:bg-navy-50"
+                className="ml-3 border-white text-purple-950 bg-white hover:bg-purple-50"
               >
                 Sign In
               </Button>
             </Link>
             <Link to="/sign-in?signup=true">
-              <Button className="bg-navy-700 hover:bg-navy-800 text-white">
+              <Button className="bg-purple-700 hover:bg-purple-800 text-white">
                 Get Started
               </Button>
             </Link>
@@ -108,29 +108,29 @@ const Navbar = () => {
       
       {/* Mobile navigation */}
       {isMobileMenuOpen && (
-        <div className="md:hidden bg-navy-950/95 shadow-lg animate-fade-in">
+        <div className="md:hidden bg-purple-950/95 shadow-lg animate-fade-in">
           <nav className="container mx-auto px-6 py-4 flex flex-col space-y-4">
             <Link 
               to="/" 
-              className={`text-white text-lg font-medium ${isActive('/') ? 'text-navy-300' : ''}`}
+              className={`text-white text-lg font-medium ${isActive('/') ? 'text-purple-300' : ''}`}
             >
               Home
             </Link>
             <Link 
               to="/how-it-works" 
-              className={`text-white text-lg font-medium ${isActive('/how-it-works') ? 'text-navy-300' : ''}`}
+              className={`text-white text-lg font-medium ${isActive('/how-it-works') ? 'text-purple-300' : ''}`}
             >
               How It Works
             </Link>
             <Link 
               to="/pricing" 
-              className={`text-white text-lg font-medium ${isActive('/pricing') ? 'text-navy-300' : ''}`}
+              className={`text-white text-lg font-medium ${isActive('/pricing') ? 'text-purple-300' : ''}`}
             >
               Pricing
             </Link>
             <Link 
               to="/about" 
-              className={`text-white text-lg font-medium ${isActive('/about') ? 'text-navy-300' : ''}`}
+              className={`text-white text-lg font-medium ${isActive('/about') ? 'text-purple-300' : ''}`}
             >
               About
             </Link>
@@ -138,13 +138,13 @@ const Navbar = () => {
               <Link to="/sign-in" className="w-full">
                 <Button 
                   variant="outline" 
-                  className="w-full border-white text-navy-950 bg-white hover:bg-navy-50"
+                  className="w-full border-white text-purple-950 bg-white hover:bg-purple-50"
                 >
                   Sign In
                 </Button>
               </Link>
               <Link to="/sign-in?signup=true" className="w-full">
-                <Button className="w-full bg-navy-700 hover:bg-navy-800 text-white">
+                <Button className="w-full bg-purple-700 hover:bg-purple-800 text-white">
                   Get Started
                 </Button>
               </Link>

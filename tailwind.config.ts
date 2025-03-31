@@ -55,6 +55,19 @@ export default {
 					900: '#3a3a41',
 					950: '#212126',
 				},
+				purple: {
+					50: '#f6f4ff',
+					100: '#ede9ff',
+					200: '#d9d2fe',
+					300: '#bcabfc',
+					400: '#a487f8',
+					500: '#9b87f5',
+					600: '#7658ec',
+					700: '#6942d7',
+					800: '#5835b0',
+					900: '#492d8f',
+					950: '#2c1a5c',
+				},
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
 					foreground: 'hsl(var(--primary-foreground))'
