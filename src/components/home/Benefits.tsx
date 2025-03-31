@@ -38,12 +38,12 @@ const Benefits = () => {
         <div className="mb-8 max-w-3xl mx-auto">
           <AnimatedSection animation="fade-in" delay="delay-100">
             <div className="flex flex-col md:flex-row gap-8 items-center">
-              <div className="md:w-1/3 mb-4 md:mb-0">
-                <div className="rounded-xl overflow-hidden shadow-lg border-4 border-white">
+              <div className="md:w-1/3 mb-4 md:mb-0 self-start">
+                <div className="rounded-xl overflow-hidden shadow-lg border-4 border-white max-h-72">
                   <img 
                     src="/lovable-uploads/0e3ca532-c34f-4dc4-aedf-f34da66897ee.png" 
                     alt="White horse in dressage arena" 
-                    className="w-full h-auto"
+                    className="w-full h-full object-cover"
                   />
                 </div>
               </div>
@@ -69,12 +69,15 @@ const Benefits = () => {
                     <span className="text-purple-700">Track improvements over time with detailed metrics</span>
                   </li>
                 </ul>
-                <Link to="/how-it-works" className="inline-block">
-                  <Button className="bg-purple-700 hover:bg-purple-800 text-white">
-                    Learn How It Works
-                  </Button>
-                </Link>
               </div>
+            </div>
+            
+            <div className="text-center mt-6">
+              <Link to="/how-it-works">
+                <Button className="bg-purple-700 hover:bg-purple-800 text-white mx-auto">
+                  Learn How It Works
+                </Button>
+              </Link>
             </div>
           </AnimatedSection>
         </div>
