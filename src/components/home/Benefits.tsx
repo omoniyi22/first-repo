@@ -108,7 +108,16 @@ const Benefits = () => {
             <div className="absolute -top-12 -left-12 w-64 h-64 bg-purple-50 rounded-full opacity-30" />
             
             <div className="relative grid grid-cols-1 lg:grid-cols-5 gap-8 items-center">
-              <div className="lg:col-span-3">
+              <div className="lg:col-span-2 relative order-2 lg:order-1">
+                <img 
+                  src="/lovable-uploads/ed21d62b-c117-47e7-98ac-e263ba9821e7.png" 
+                  alt="Horse legs with data points" 
+                  className="w-full h-auto rounded-lg shadow-md"
+                />
+                <div className="absolute inset-0 bg-purple-600/10 rounded-lg pointer-events-none" />
+              </div>
+              
+              <div className="lg:col-span-3 order-1 lg:order-2">
                 <span className="inline-block px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium mb-4">
                   Results You Can Measure
                 </span>
@@ -144,15 +153,6 @@ const Benefits = () => {
                     See How It Works
                   </Button>
                 </Link>
-              </div>
-              
-              <div className="lg:col-span-2 relative">
-                <img 
-                  src="/lovable-uploads/ed21d62b-c117-47e7-98ac-e263ba9821e7.png" 
-                  alt="Horse legs with data points" 
-                  className="w-full h-auto rounded-lg shadow-md"
-                />
-                <div className="absolute inset-0 bg-purple-600/10 rounded-lg pointer-events-none" />
               </div>
             </div>
           </div>
