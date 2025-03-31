@@ -35,7 +35,7 @@ const Benefits = () => {
   return (
     <section className="py-16 bg-purple-50">
       <div className="container mx-auto px-6">
-        <div className="mb-8 max-w-3xl mx-auto">
+        <div className="mb-12 max-w-full mx-auto">
           <AnimatedSection animation="fade-in" delay="delay-100">
             <div className="flex flex-col md:flex-row gap-8 items-stretch">
               <div className="md:w-2/3 text-center md:text-left">
@@ -59,10 +59,18 @@ const Benefits = () => {
                     <span className="text-purple-700">Track improvements over time with detailed metrics</span>
                   </li>
                 </ul>
+                
+                <div className="text-center md:text-left mt-6">
+                  <Link to="/how-it-works">
+                    <Button className="bg-purple-700 hover:bg-purple-800 text-white">
+                      Learn How It Works
+                    </Button>
+                  </Link>
+                </div>
               </div>
               
-              <div className="md:w-1/3 mb-4 md:mb-0 flex items-center">
-                <div className="rounded-xl overflow-hidden shadow-lg border-4 border-white h-full">
+              <div className="md:w-1/3">
+                <div className="h-full rounded-xl overflow-hidden shadow-lg border-4 border-white">
                   <img 
                     src="/lovable-uploads/0e3ca532-c34f-4dc4-aedf-f34da66897ee.png" 
                     alt="White horse in dressage arena" 
@@ -70,14 +78,6 @@ const Benefits = () => {
                   />
                 </div>
               </div>
-            </div>
-            
-            <div className="text-center mt-6">
-              <Link to="/how-it-works">
-                <Button className="bg-purple-700 hover:bg-purple-800 text-white mx-auto">
-                  Learn How It Works
-                </Button>
-              </Link>
             </div>
           </AnimatedSection>
         </div>
@@ -115,16 +115,7 @@ const Benefits = () => {
             <div className="absolute -top-12 -left-12 w-64 h-64 bg-purple-50 rounded-full opacity-30" />
             
             <div className="relative grid grid-cols-1 lg:grid-cols-5 gap-8 items-center">
-              <div className="lg:col-span-2 relative order-2 lg:order-1">
-                <img 
-                  src="/lovable-uploads/ed21d62b-c117-47e7-98ac-e263ba9821e7.png" 
-                  alt="Horse legs with data points" 
-                  className="w-full h-auto rounded-lg shadow-md"
-                />
-                <div className="absolute inset-0 bg-purple-600/10 rounded-lg pointer-events-none" />
-              </div>
-              
-              <div className="lg:col-span-3 order-1 lg:order-2">
+              <div className="lg:col-span-3 order-1">
                 <span className="inline-block px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium mb-4">
                   Results You Can Measure
                 </span>
@@ -160,6 +151,15 @@ const Benefits = () => {
                     See How It Works
                   </Button>
                 </Link>
+              </div>
+              
+              <div className="lg:col-span-2 relative order-2">
+                <img 
+                  src="/lovable-uploads/ed21d62b-c117-47e7-98ac-e263ba9821e7.png" 
+                  alt="Horse legs with data points" 
+                  className="w-full h-auto rounded-lg shadow-md"
+                />
+                <div className="absolute inset-0 bg-purple-600/10 rounded-lg pointer-events-none" />
               </div>
             </div>
           </div>

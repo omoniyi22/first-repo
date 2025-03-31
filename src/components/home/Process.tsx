@@ -5,25 +5,25 @@ import AnimatedSection from '../ui/AnimatedSection';
 const Process = () => {
   const steps = [
     {
-      icon: <Upload className="w-8 h-8 text-navy-600" />,
+      icon: <Upload className="w-8 h-8 text-purple-600" />,
       title: "Upload Score Sheets",
       description: "Take a photo or upload your dressage test score sheets through our intuitive interface.",
       delay: "delay-100"
     },
     {
-      icon: <CloudLightning className="w-8 h-8 text-navy-600" />,
+      icon: <CloudLightning className="w-8 h-8 text-purple-600" />,
       title: "AI Processing",
       description: "Our advanced AI analyzes your scores, identifying patterns and areas for improvement.",
       delay: "delay-200"
     },
     {
-      icon: <BarChart3 className="w-8 h-8 text-navy-600" />,
+      icon: <BarChart3 className="w-8 h-8 text-purple-600" />,
       title: "Detailed Analysis",
       description: "Receive comprehensive breakdowns of your performance with visual analytics.",
       delay: "delay-300"
     },
     {
-      icon: <Lightbulb className="w-8 h-8 text-navy-600" />,
+      icon: <Lightbulb className="w-8 h-8 text-purple-600" />,
       title: "Custom Recommendations",
       description: "Get personalized training exercises tailored to your specific improvement areas.",
       delay: "delay-400"
@@ -34,10 +34,10 @@ const Process = () => {
     <section className="py-20 bg-white">
       <div className="container mx-auto px-6">
         <AnimatedSection animation="fade-in" className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-3xl md:text-4xl font-serif font-semibold text-navy-900 mb-4">
+          <h2 className="text-3xl md:text-4xl font-serif font-semibold text-purple-900 mb-4">
             How AI Dressage Trainer Works
           </h2>
-          <p className="text-lg text-navy-700">
+          <p className="text-lg text-purple-700">
             Our innovative platform uses advanced AI to transform how you approach dressage training
           </p>
         </AnimatedSection>
@@ -52,22 +52,22 @@ const Process = () => {
             >
               <div className="glass-card h-full p-6 relative overflow-hidden group">
                 {/* Subtle animated border effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-navy-200/30 via-navy-400/30 to-navy-200/30 opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-0" style={{ backgroundSize: '200% 100%', animation: 'shimmer 2s infinite linear', }} />
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-200/30 via-purple-400/30 to-purple-200/30 opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-0" style={{ backgroundSize: '200% 100%', animation: 'shimmer 2s infinite linear', }} />
                 
                 <div className="relative z-10">
-                  <div className="bg-navy-100/50 w-16 h-16 rounded-xl flex items-center justify-center mb-4">
+                  <div className="bg-purple-100/50 w-16 h-16 rounded-xl flex items-center justify-center mb-4">
                     {step.icon}
                   </div>
                   
-                  <div className="absolute top-4 right-4 w-8 h-8 rounded-full bg-navy-100/50 flex items-center justify-center">
-                    <span className="font-medium text-navy-800">{index + 1}</span>
+                  <div className="absolute top-4 right-4 w-8 h-8 rounded-full bg-purple-100/50 flex items-center justify-center">
+                    <span className="font-medium text-purple-800">{index + 1}</span>
                   </div>
                   
-                  <h3 className="text-xl font-serif font-medium text-navy-900 mb-3">
+                  <h3 className="text-xl font-serif font-medium text-purple-900 mb-3">
                     {step.title}
                   </h3>
                   
-                  <p className="text-navy-700">
+                  <p className="text-purple-700">
                     {step.description}
                   </p>
                 </div>
