@@ -62,6 +62,18 @@ const Benefits = () => {
                 Learn How It Works
               </Button>
             </Link>
+            
+            <div className="mt-10">
+              <AnimatedSection animation="fade-in" delay="delay-300">
+                <div className="rounded-xl overflow-hidden shadow-lg border-4 border-white mx-auto max-w-2xl">
+                  <img 
+                    src="/lovable-uploads/0e3ca532-c34f-4dc4-aedf-f34da66897ee.png" 
+                    alt="White horse in dressage arena" 
+                    className="w-full h-auto"
+                  />
+                </div>
+              </AnimatedSection>
+            </div>
           </AnimatedSection>
         </div>
       
