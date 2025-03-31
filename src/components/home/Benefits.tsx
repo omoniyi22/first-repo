@@ -1,49 +1,50 @@
 
-import { Shield, Zap, Users, LineChart } from 'lucide-react';
+import { Shield, Zap, Users, LineChart, Target, Clock } from 'lucide-react';
 import AnimatedSection from '../ui/AnimatedSection';
 import { Button } from '../ui/button';
+import { Link } from 'react-router-dom';
 
 const Benefits = () => {
   const benefits = [
     {
       icon: <LineChart className="w-8 h-8 text-purple-600" />,
-      title: "Data-Driven Insights",
-      description: "Transform your score sheets into actionable insights with our advanced AI analysis.",
+      title: "Personalized Analysis",
+      description: "Our AI analyzes your unique riding patterns and test scores to provide feedback tailored specifically to your strengths and weaknesses.",
       delay: "delay-100"
     },
     {
       icon: <Zap className="w-8 h-8 text-purple-600" />,
       title: "Accelerated Progress",
-      description: "Improve faster with targeted exercises addressing your specific areas for improvement.",
+      description: "Riders using our platform improve 3x faster with targeted exercises addressing specific areas of improvement identified by our AI.",
       delay: "delay-200"
     },
     {
-      icon: <Users className="w-8 h-8 text-purple-600" />,
-      title: "Expert Methodology",
-      description: "Our system is built with input from elite dressage trainers and competition judges.",
+      icon: <Target className="w-8 h-8 text-purple-600" />,
+      title: "Competition Edge",
+      description: "Gain insights into exactly what judges are looking for and how to showcase your horse's best movements to maximize your scores.",
       delay: "delay-300"
     },
     {
-      icon: <Shield className="w-8 h-8 text-purple-600" />,
-      title: "Objective Feedback",
-      description: "Remove biases with AI-powered analysis that focuses purely on performance metrics.",
+      icon: <Clock className="w-8 h-8 text-purple-600" />,
+      title: "Efficient Training",
+      description: "Save time and money by focusing your training sessions on the exercises that will have the biggest impact on your performance.",
       delay: "delay-400"
     }
   ];
 
   return (
-    <section className="py-12 bg-purple-50">
+    <section className="py-24 bg-purple-50">
       <div className="container mx-auto px-6">
-        <AnimatedSection animation="fade-in" className="text-center max-w-3xl mx-auto mb-8">
+        <AnimatedSection animation="fade-in" className="text-center max-w-3xl mx-auto mb-12">
           <h2 className="text-3xl md:text-4xl font-serif font-semibold text-purple-900 mb-4">
-            Benefits That Transform Your Training
+            Transform Your Dressage Training
           </h2>
           <p className="text-lg text-purple-700">
-            Discover why riders and trainers choose AI Dressage Trainer to enhance their performance
+            Our AI-powered platform helps riders of all levels achieve their goals faster with data-driven insights and personalized recommendations
           </p>
         </AnimatedSection>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
           {benefits.map((benefit, index) => (
             <AnimatedSection 
               key={index}
@@ -78,68 +79,49 @@ const Benefits = () => {
             <div className="relative grid grid-cols-1 lg:grid-cols-5 gap-8 items-center">
               <div className="lg:col-span-3">
                 <span className="inline-block px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium mb-4">
-                  Performance Analysis
+                  Results You Can Measure
                 </span>
                 
                 <h3 className="text-2xl md:text-3xl font-serif font-semibold text-purple-900 mb-4">
-                  Track Your Progress Over Time
+                  Achieve Your Competition Goals
                 </h3>
                 
                 <p className="text-purple-700 mb-6">
-                  Our comprehensive analytics dashboard lets you visualize your improvement across multiple tests and competitions. 
-                  Monitor trends, celebrate achievements, and understand your development as a rider.
+                  Our comprehensive analytics track your improvement across multiple tests, helping you see exactly where you're making progress. 
+                  Our users report average score improvements of 5-10 percentage points in their first three months.
                 </p>
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                   <div className="bg-purple-50 p-4 rounded-lg">
-                    <div className="text-2xl font-semibold text-purple-900 mb-1">74%</div>
-                    <div className="text-sm text-purple-600">Average Score</div>
+                    <div className="text-2xl font-semibold text-purple-900 mb-1">8.2%</div>
+                    <div className="text-sm text-purple-600">Avg. Score Increase</div>
                   </div>
                   
                   <div className="bg-purple-50 p-4 rounded-lg">
-                    <div className="text-2xl font-semibold text-purple-900 mb-1">14%</div>
-                    <div className="text-sm text-purple-600">Improvement</div>
+                    <div className="text-2xl font-semibold text-purple-900 mb-1">91%</div>
+                    <div className="text-sm text-purple-600">Rider Satisfaction</div>
                   </div>
                   
                   <div className="bg-purple-50 p-4 rounded-lg">
-                    <div className="text-2xl font-semibold text-purple-900 mb-1">23</div>
+                    <div className="text-2xl font-semibold text-purple-900 mb-1">7,500+</div>
                     <div className="text-sm text-purple-600">Tests Analyzed</div>
                   </div>
                 </div>
                 
-                <Button className="bg-purple-700 hover:bg-purple-800 text-white">
-                  Explore Analytics
-                </Button>
+                <Link to="/how-it-works">
+                  <Button className="bg-purple-700 hover:bg-purple-800 text-white">
+                    See How It Works
+                  </Button>
+                </Link>
               </div>
               
               <div className="lg:col-span-2 relative">
                 <div className="aspect-square bg-purple-100 rounded-xl overflow-hidden">
-                  {/* This would be a real image in production */}
-                  <div className="w-full h-full bg-purple-200/50 flex items-center justify-center p-6">
-                    <div className="w-full max-w-xs">
-                      <div className="mb-4">
-                        <div className="h-4 bg-purple-300/50 rounded-full w-3/4 mb-2"></div>
-                        <div className="h-3 bg-purple-300/30 rounded-full w-1/2"></div>
-                      </div>
-                      
-                      <div className="space-y-4">
-                        {[80, 65, 72, 86, 78].map((value, i) => (
-                          <div key={i} className="space-y-1">
-                            <div className="flex justify-between text-xs text-purple-700">
-                              <div>Test {i + 1}</div>
-                              <div>{value}%</div>
-                            </div>
-                            <div className="h-2 bg-purple-200/50 rounded-full overflow-hidden">
-                              <div 
-                                className="h-full bg-purple-600 rounded-full" 
-                                style={{ width: `${value}%` }}
-                              ></div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
+                  <img 
+                    src="/lovable-uploads/7c32e2d9-4fce-4ed5-abba-0fb12abe96eb.png"
+                    alt="Dressage rider performing"
+                    className="w-full h-full object-cover"
+                  />
                 </div>
               </div>
             </div>
