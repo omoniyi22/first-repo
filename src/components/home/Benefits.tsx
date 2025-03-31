@@ -106,8 +106,13 @@ const Benefits = () => {
                 </Link>
               </div>
               
-              <div className="lg:col-span-2">
-                {/* Empty div where the image was */}
+              <div className="lg:col-span-2 relative">
+                <img 
+                  src="/lovable-uploads/ed21d62b-c117-47e7-98ac-e263ba9821e7.png" 
+                  alt="Horse legs with data points" 
+                  className="w-full h-auto rounded-lg shadow-md"
+                />
+                <div className="absolute inset-0 bg-purple-600/10 rounded-lg pointer-events-none" />
               </div>
             </div>
           </div>
