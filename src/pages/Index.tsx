@@ -42,7 +42,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-100 to-white">
       <Navbar />
-      <main>
+      <main className="pt-0">
         <Hero />
         <Process />
         <Benefits />

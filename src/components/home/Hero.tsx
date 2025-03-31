@@ -100,7 +100,7 @@ const Hero = () => {
                   <img 
                     src="/lovable-uploads/7c32e2d9-4fce-4ed5-abba-0fb12abe96eb.png" 
                     alt="Dressage rider performing"
-                    className={`w-full h-auto object-cover ${imageLoaded ? 'block' : 'hidden'}`}
+                    className={`w-full h-auto object-cover transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
                     onLoad={() => setImageLoaded(true)}
                     style={{
                       minHeight: '300px',
