@@ -90,11 +90,12 @@ const Hero = () => {
           
           <div className={`transition-all duration-1000 delay-300 transform ${loaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
             <AnimatedSection animation="fade-in-left" delay="delay-500" className="relative">
-              <div className="relative h-[600px] flex items-center justify-center">
+              <div className="relative h-[600px] w-full">
                 <img 
                   src="/lovable-uploads/7c32e2d9-4fce-4ed5-abba-0fb12abe96eb.png" 
                   alt="Dressage rider with horse"
-                  className="w-full h-full object-contain object-right"
+                  className="w-full h-full object-contain z-10"
+                  style={{maxHeight: '600px'}}
                 />
               </div>
             </AnimatedSection>
