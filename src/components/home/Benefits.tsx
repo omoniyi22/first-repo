@@ -48,8 +48,8 @@ const Benefits = () => {
           <AnimatedSection animation="fade-in-left" delay="delay-300" className="flex justify-center">
             <div className="rounded-xl overflow-hidden shadow-lg border-4 border-white">
               <img 
-                src="/lovable-uploads/987a3f3b-1917-439f-a3a9-8fabc609cffa.png" 
-                alt="Dressage training with AI"
+                src="/lovable-uploads/4c938b42-7713-4f2d-947a-1e70c3caca32.png" 
+                alt="Dressage rider with AI analytics overlay"
                 className="object-cover w-full h-auto"
               />
             </div>
