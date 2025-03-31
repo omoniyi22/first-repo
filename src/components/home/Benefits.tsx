@@ -39,14 +39,14 @@ const Benefits = () => {
           <AnimatedSection animation="fade-in-right" delay="delay-300" className="flex justify-center">
             <div className="rounded-xl overflow-hidden shadow-lg border-4 border-white">
               <img 
-                src="/lovable-uploads/15df63d0-27e1-486c-98ee-bcf44eb600f4.png" 
-                alt="Dressage rider with horse and data points" 
-                className="w-full h-auto max-h-[400px] object-cover"
+                src="/lovable-uploads/3b7c24a2-ef67-42cc-9b46-875418451128.png" 
+                alt="Dressage rider with white horse" 
+                className="w-full h-auto max-h-[450px] object-cover"
               />
             </div>
           </AnimatedSection>
           
-          <AnimatedSection animation="fade-in" delay="delay-100">
+          <AnimatedSection animation="fade-in-left" delay="delay-100">
             <h2 className="text-3xl md:text-4xl font-serif font-semibold text-purple-900 mb-4">
               Benefits That Make a Difference
             </h2>
