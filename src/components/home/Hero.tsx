@@ -14,13 +14,13 @@ const Hero = () => {
 
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden pt-20">
-      {/* Background with the dressage image */}
-      <div className="absolute inset-0 bg-purple-950 -z-10">
+      {/* Background with the new dressage image */}
+      <div className="absolute inset-0 bg-purple-900 -z-10">
         <div className="absolute inset-0 opacity-20 bg-gradient-to-r from-purple-950 via-purple-900/90 to-purple-950">
           <img 
-            src="/lovable-uploads/fc2e6814-c8fd-4b8e-934f-1b2204eedf53.png" 
+            src="/lovable-uploads/141a866f-fe45-4edc-aa64-b95d2c7f1d6c.png" 
             alt="Dressage rider with horse"
-            className="w-full h-full object-cover object-center opacity-60"
+            className="w-full h-full object-cover object-center opacity-80"
           />
         </div>
       </div>
