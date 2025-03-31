@@ -22,8 +22,8 @@ const Hero = () => {
         }} />
       </div>
       
-      <div className="container mx-auto px-6 py-24 md:py-32">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+      <div className="container mx-auto px-6 py-16 md:py-20">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div className={`transition-all duration-1000 transform ${loaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
             <AnimatedSection animation="fade-in" delay="delay-100">
               <span className="inline-block px-3 py-1 bg-purple-700/60 text-white rounded-full text-sm font-medium mb-6 backdrop-blur-sm border border-purple-400/30">
@@ -60,7 +60,7 @@ const Hero = () => {
             </AnimatedSection>
             
             <AnimatedSection animation="fade-in" delay="delay-500">
-              <div className="mt-12 flex items-center">
+              <div className="mt-6 flex items-center">
                 <div className="flex -space-x-2">
                   {[1, 2, 3, 4].map((i) => (
                     <div key={i} className="w-10 h-10 rounded-full border-2 border-purple-800 overflow-hidden">
