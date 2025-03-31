@@ -39,8 +39,8 @@ const Benefits = () => {
           <AnimatedSection animation="fade-in-right" delay="delay-300" className="flex justify-center">
             <div className="rounded-xl overflow-hidden shadow-lg border-4 border-white">
               <img 
-                src="/lovable-uploads/3b7c24a2-ef67-42cc-9b46-875418451128.png" 
-                alt="Dressage rider with white horse" 
+                src="/lovable-uploads/0e3ca532-c34f-4dc4-aedf-f34da66897ee.png" 
+                alt="Dressage rider with white horse in arena" 
                 className="w-full h-auto max-h-[450px] object-cover"
               />
             </div>
