@@ -13,7 +13,7 @@ const Hero = () => {
   }, []);
 
   return (
-    <section className="relative py-16 flex items-center overflow-hidden">
+    <section className="relative pt-16 pb-8 flex items-center overflow-hidden">
       {/* Background pattern */}
       <div className="absolute inset-0 opacity-[0.03] -z-10">
         <div className="absolute inset-0" style={{
@@ -91,11 +91,14 @@ const Hero = () => {
           <div className={`transition-all duration-1000 delay-300 transform ${loaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
             <AnimatedSection animation="fade-in-left" delay="delay-500" className="relative">
               <div className="flex items-center justify-center">
-                <img 
-                  src="/lovable-uploads/7c32e2d9-4fce-4ed5-abba-0fb12abe96eb.png" 
-                  alt="Dressage rider with horse"
-                  className="object-contain max-h-[500px] w-auto"
-                />
+                {/* This is where we'll add the image that was in the Benefits section */}
+                <div className="rounded-xl overflow-hidden shadow-xl border-4 border-white">
+                  <img 
+                    src="/lovable-uploads/7c32e2d9-4fce-4ed5-abba-0fb12abe96eb.png" 
+                    alt="Dressage rider performing"
+                    className="object-cover w-full h-auto"
+                  />
+                </div>
               </div>
             </AnimatedSection>
           </div>

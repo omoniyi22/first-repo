@@ -115,14 +115,8 @@ const Benefits = () => {
                 </Link>
               </div>
               
-              <div className="lg:col-span-2 relative">
-                <div className="aspect-square bg-purple-100 rounded-xl overflow-hidden">
-                  <img 
-                    src="/lovable-uploads/7c32e2d9-4fce-4ed5-abba-0fb12abe96eb.png"
-                    alt="Dressage rider performing"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
+              <div className="lg:col-span-2">
+                {/* Empty div where the image was */}
               </div>
             </div>
           </div>
