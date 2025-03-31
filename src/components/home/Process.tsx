@@ -75,21 +75,6 @@ const Process = () => {
             </AnimatedSection>
           ))}
         </div>
-        
-        <AnimatedSection animation="fade-in" delay="delay-500" className="mt-16">
-          <div className="relative overflow-hidden rounded-2xl">
-            <div className="aspect-video bg-navy-100 rounded-2xl overflow-hidden">
-              <div className="w-full h-full flex flex-col items-center justify-center text-navy-800">
-                <div className="w-20 h-20 bg-white/80 rounded-full flex items-center justify-center mb-4 cursor-pointer hover:bg-white transition-colors">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M8 5V19L19 12L8 5Z" fill="#1c1e40" />
-                  </svg>
-                </div>
-                <p className="text-lg font-medium">Watch how it works</p>
-              </div>
-            </div>
-          </div>
-        </AnimatedSection>
       </div>
     </section>
   );
