@@ -43,7 +43,7 @@ const Benefits = () => {
             <p className="text-purple-700 max-w-2xl mb-6">
               Our AI-powered platform helps riders of all levels achieve their goals faster with data-driven insights and personalized recommendations.
             </p>
-            <ul className="space-y-3">
+            <ul className="space-y-3 mb-6">
               <li className="flex items-center gap-2">
                 <div className="h-2 w-2 rounded-full bg-purple-600"></div>
                 <span className="text-purple-700">Advanced movement analysis and scoring prediction</span>
@@ -57,6 +57,11 @@ const Benefits = () => {
                 <span className="text-purple-700">Track improvements over time with detailed metrics</span>
               </li>
             </ul>
+            <Link to="/how-it-works" className="inline-block">
+              <Button className="bg-purple-700 hover:bg-purple-800 text-white">
+                Learn How It Works
+              </Button>
+            </Link>
           </AnimatedSection>
           
           <AnimatedSection animation="fade-in-left" delay="delay-300" className="flex justify-end">
@@ -70,7 +75,7 @@ const Benefits = () => {
           </AnimatedSection>
         </div>
       
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
           {benefits.map((benefit, index) => (
             <AnimatedSection 
               key={index}
@@ -78,8 +83,8 @@ const Benefits = () => {
               delay={benefit.delay as any}
               className="h-full"
             >
-              <div className="bg-white rounded-xl p-6 shadow-sm border border-purple-100 h-full flex items-start hover:shadow-md transition-shadow group">
-                <div className="bg-purple-100/50 w-16 h-16 rounded-xl flex items-center justify-center shrink-0 mr-6 transition-colors duration-300 group-hover:bg-purple-200/50">
+              <div className="bg-white rounded-xl p-6 shadow-sm border border-purple-100 h-full flex flex-col items-start hover:shadow-md transition-shadow group">
+                <div className="bg-purple-100/50 w-16 h-16 rounded-xl flex items-center justify-center shrink-0 mb-4 transition-colors duration-300 group-hover:bg-purple-200/50">
                   {benefit.icon}
                 </div>
                 
