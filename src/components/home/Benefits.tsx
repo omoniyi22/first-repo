@@ -60,7 +60,7 @@ const Benefits = () => {
                   </li>
                 </ul>
                 
-                <div className="text-center md:text-left mt-6">
+                <div className="text-center md:text-left">
                   <Link to="/how-it-works">
                     <Button className="bg-purple-700 hover:bg-purple-800 text-white">
                       Learn How It Works
