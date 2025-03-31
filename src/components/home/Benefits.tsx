@@ -37,17 +37,7 @@ const Benefits = () => {
       <div className="container mx-auto px-6">
         <div className="mb-8 max-w-3xl mx-auto">
           <AnimatedSection animation="fade-in" delay="delay-100">
-            <div className="flex flex-col md:flex-row gap-8 items-center">
-              <div className="md:w-1/3 mb-4 md:mb-0 self-start">
-                <div className="rounded-xl overflow-hidden shadow-lg border-4 border-white max-h-72">
-                  <img 
-                    src="/lovable-uploads/0e3ca532-c34f-4dc4-aedf-f34da66897ee.png" 
-                    alt="White horse in dressage arena" 
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              </div>
-              
+            <div className="flex flex-col md:flex-row gap-8 items-stretch">
               <div className="md:w-2/3 text-center md:text-left">
                 <h2 className="text-3xl md:text-4xl font-serif font-semibold text-purple-900 mb-4">
                   Benefits That Make a Difference
@@ -69,6 +59,16 @@ const Benefits = () => {
                     <span className="text-purple-700">Track improvements over time with detailed metrics</span>
                   </li>
                 </ul>
+              </div>
+              
+              <div className="md:w-1/3 mb-4 md:mb-0 flex items-center">
+                <div className="rounded-xl overflow-hidden shadow-lg border-4 border-white h-full">
+                  <img 
+                    src="/lovable-uploads/0e3ca532-c34f-4dc4-aedf-f34da66897ee.png" 
+                    alt="White horse in dressage arena" 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
               </div>
             </div>
             
