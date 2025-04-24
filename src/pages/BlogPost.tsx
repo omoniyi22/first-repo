@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
@@ -80,7 +79,6 @@ const BlogPost = () => {
   const [relatedPosts, setRelatedPosts] = useState<any[]>([]);
   const { toast } = useToast();
   
-  // Add state for interaction buttons
   const [isLiked, setIsLiked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [showCommentField, setShowCommentField] = useState(false);
@@ -120,7 +118,6 @@ const BlogPost = () => {
           url: window.location.href,
         });
       } else {
-        // Fallback for browsers that don't support the Web Share API
         navigator.clipboard.writeText(window.location.href);
         toast({
           title: "Link copied!",
@@ -132,7 +129,6 @@ const BlogPost = () => {
     }
   };
 
-  // Handle like button click
   const handleLike = () => {
     setIsLiked(!isLiked);
     toast({
@@ -141,7 +137,6 @@ const BlogPost = () => {
     });
   };
 
-  // Handle save button click
   const handleSave = () => {
     setIsSaved(!isSaved);
     toast({
@@ -150,7 +145,6 @@ const BlogPost = () => {
     });
   };
 
-  // Handle comment submission
   const handleCommentSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (commentText.trim()) {
@@ -237,13 +231,14 @@ const BlogPost = () => {
             <div 
               className="prose prose-purple prose-lg max-w-none mb-8 
                          prose-headings:text-purple-700
-                         prose-h2:text-purple-700
-                         prose-h2:font-semibold
-                         prose-h2:mt-8
+                         prose-h1:text-purple-800 
+                         prose-h2:text-purple-700 
+                         prose-h2:font-semibold 
+                         prose-h2:mt-8 
                          prose-h2:mb-4
-                         prose-h1:text-purple-800
                          prose-p:mb-6 
                          prose-p:leading-relaxed
+                         prose-li:text-purple-700
                          prose-li:mb-2
                          prose-strong:text-purple-700"
               dangerouslySetInnerHTML={{ __html: post.content }}
