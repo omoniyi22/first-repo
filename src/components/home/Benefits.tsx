@@ -1,4 +1,3 @@
-
 import { Shield, Zap, Users, LineChart, Target, Clock } from 'lucide-react';
 import AnimatedSection from '../ui/AnimatedSection';
 import { Button } from '../ui/button';
@@ -82,7 +81,6 @@ const Benefits = () => {
           </AnimatedSection>
         </div>
       
-        {/* Grid of benefits */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
           {benefits.map((benefit, index) => (
             <AnimatedSection 
@@ -110,8 +108,7 @@ const Benefits = () => {
           ))}
         </div>
         
-        {/* Reduced margin on this section */}
-        <AnimatedSection animation="fade-in" delay="delay-500" className="mt-0">
+        <AnimatedSection animation="fade-in" delay="delay-500" className="mt-0 sm:mt-[-2rem]">
           <div className="bg-white rounded-xl p-8 border border-purple-100 overflow-hidden relative">
             <div className="absolute -bottom-8 -right-8 w-48 h-48 bg-purple-50 rounded-full opacity-50" />
             <div className="absolute -top-12 -left-12 w-64 h-64 bg-purple-50 rounded-full opacity-30" />
