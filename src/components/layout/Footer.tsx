@@ -1,3 +1,4 @@
+
 import { Link } from 'react-router-dom';
 import { 
   Facebook, 
@@ -53,6 +54,11 @@ const Footer = () => {
               <li>
                 <Link to="/pricing" className="text-purple-300 hover:text-white transition-colors text-sm">
                   Pricing
+                </Link>
+              </li>
+              <li>
+                <Link to="/blog" className="text-purple-300 hover:text-white transition-colors text-sm">
+                  Blog
                 </Link>
               </li>
               <li>

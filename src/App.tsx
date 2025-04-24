@@ -12,6 +12,8 @@ import SignIn from "./pages/SignIn";
 import NotFound from "./pages/NotFound";
 import TermsOfService from "./pages/TermsOfService";
 import Privacy from "./pages/Privacy";
+import Blog from "./pages/Blog";
+import BlogPost from "./pages/BlogPost";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +31,8 @@ const App = () => (
           <Route path="/sign-in" element={<SignIn />} />
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="/privacy" element={<Privacy />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/blog/:slug" element={<BlogPost />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </TooltipProvider>

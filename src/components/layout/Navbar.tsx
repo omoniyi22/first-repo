@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -26,7 +27,7 @@ const Navbar = () => {
     setIsMobileMenuOpen(false);
   }, [location.pathname]);
   
-  const isActive = (path: string) => location.pathname === path;
+  const isActive = (path: string) => location.pathname === path || (path !== '/' && location.pathname.startsWith(path));
   
   return (
     <header 
@@ -61,6 +62,12 @@ const Navbar = () => {
               className={`nav-link ${isActive('/pricing') ? 'active' : ''} text-white`}
             >
               Pricing
+            </Link>
+            <Link 
+              to="/blog" 
+              className={`nav-link ${isActive('/blog') ? 'active' : ''} text-white`}
+            >
+              Blog
             </Link>
             <Link 
               to="/about" 
@@ -119,6 +126,12 @@ const Navbar = () => {
               className={`text-white text-lg font-medium ${isActive('/pricing') ? 'text-purple-300' : ''}`}
             >
               Pricing
+            </Link>
+            <Link 
+              to="/blog" 
+              className={`text-white text-lg font-medium ${isActive('/blog') ? 'text-purple-300' : ''}`}
+            >
+              Blog
             </Link>
             <Link 
               to="/about" 
