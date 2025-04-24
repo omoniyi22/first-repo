@@ -1,13 +1,10 @@
-
 import { Link } from 'react-router-dom';
 import { 
   Facebook, 
   Instagram, 
   Twitter, 
   Linkedin, 
-  Mail, 
-  Phone, 
-  MapPin 
+  Mail 
 } from 'lucide-react';
 
 const Footer = () => {
@@ -105,18 +102,6 @@ const Footer = () => {
                 <a href="mailto:info@aidressagetrainer.com" className="text-purple-300 hover:text-white transition-colors text-sm">
                   info@aidressagetrainer.com
                 </a>
-              </li>
-              <li className="flex items-start">
-                <Phone size={16} className="mr-2 mt-1 text-purple-300" />
-                <a href="tel:+1234567890" className="text-purple-300 hover:text-white transition-colors text-sm">
-                  +1 (234) 567-890
-                </a>
-              </li>
-              <li className="flex items-start">
-                <MapPin size={16} className="mr-2 mt-1 text-purple-300" />
-                <span className="text-purple-300 text-sm">
-                  123 Equestrian Lane, Wellington, FL 33414
-                </span>
               </li>
             </ul>
             
