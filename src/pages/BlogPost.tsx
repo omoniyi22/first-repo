@@ -4,7 +4,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator, BreadcrumbPage } from '@/components/ui/breadcrumb';
-import { ArrowLeft, Bookmark, Share2, MessageSquare, ThumbsUp } from 'lucide-react';
+import { ArrowLeft, Bookmark, Share2, MessageSquare, ThumbsUp, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 
@@ -80,6 +80,12 @@ const BlogPost = () => {
   const [relatedPosts, setRelatedPosts] = useState<any[]>([]);
   const { toast } = useToast();
   
+  // Add state for interaction buttons
+  const [isLiked, setIsLiked] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+  const [showCommentField, setShowCommentField] = useState(false);
+  const [commentText, setCommentText] = useState('');
+  
   useEffect(() => {
     const currentPost = blogPosts.find(post => post.slug === slug);
     
@@ -123,6 +129,43 @@ const BlogPost = () => {
       }
     } catch (error) {
       console.error("Error sharing:", error);
+    }
+  };
+
+  // Handle like button click
+  const handleLike = () => {
+    setIsLiked(!isLiked);
+    toast({
+      title: isLiked ? "Removed like" : "Article liked!",
+      description: isLiked ? "You've removed your like from this article." : "Thanks for appreciating this article!",
+    });
+  };
+
+  // Handle save button click
+  const handleSave = () => {
+    setIsSaved(!isSaved);
+    toast({
+      title: isSaved ? "Removed from saved" : "Article saved!",
+      description: isSaved ? "This article has been removed from your saved items." : "This article has been added to your saved items.",
+    });
+  };
+
+  // Handle comment submission
+  const handleCommentSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (commentText.trim()) {
+      toast({
+        title: "Comment posted!",
+        description: "Your comment has been posted successfully.",
+      });
+      setCommentText('');
+      setShowCommentField(false);
+    } else {
+      toast({
+        title: "Empty comment",
+        description: "Please write something before posting.",
+        variant: "destructive"
+      });
     }
   };
   
@@ -193,11 +236,12 @@ const BlogPost = () => {
             
             <div 
               className="prose prose-purple prose-lg max-w-none mb-8 
-                         prose-headings:text-purple-800 
-                         prose-h2:text-purple-700 
+                         prose-headings:text-purple-700
+                         prose-h2:text-purple-700
+                         prose-h2:font-semibold
                          prose-h2:mt-8
                          prose-h2:mb-4
-                         prose-h1:text-purple-900 
+                         prose-h1:text-purple-800
                          prose-p:mb-6 
                          prose-p:leading-relaxed
                          prose-li:mb-2
@@ -218,17 +262,26 @@ const BlogPost = () => {
             
             <div className="flex items-center justify-between border-t border-b border-gray-200 py-4 my-8">
               <div className="flex items-center space-x-4">
-                <button className="flex items-center text-gray-600 hover:text-purple-800">
-                  <ThumbsUp className="h-5 w-5 mr-1" />
-                  <span className="text-sm">Like</span>
+                <button 
+                  className={`flex items-center ${isLiked ? 'text-purple-700' : 'text-gray-600 hover:text-purple-800'}`}
+                  onClick={handleLike}
+                >
+                  <ThumbsUp className={`h-5 w-5 mr-1 ${isLiked ? 'fill-purple-700' : ''}`} />
+                  <span className="text-sm">{isLiked ? 'Liked' : 'Like'}</span>
                 </button>
-                <button className="flex items-center text-gray-600 hover:text-purple-800">
+                <button 
+                  className={`flex items-center ${showCommentField ? 'text-purple-700' : 'text-gray-600 hover:text-purple-800'}`}
+                  onClick={() => setShowCommentField(!showCommentField)}
+                >
                   <MessageSquare className="h-5 w-5 mr-1" />
                   <span className="text-sm">Comment</span>
                 </button>
-                <button className="flex items-center text-gray-600 hover:text-purple-800">
-                  <Bookmark className="h-5 w-5 mr-1" />
-                  <span className="text-sm">Save</span>
+                <button 
+                  className={`flex items-center ${isSaved ? 'text-purple-700' : 'text-gray-600 hover:text-purple-800'}`}
+                  onClick={handleSave}
+                >
+                  <Bookmark className={`h-5 w-5 mr-1 ${isSaved ? 'fill-purple-700' : ''}`} />
+                  <span className="text-sm">{isSaved ? 'Saved' : 'Save'}</span>
                 </button>
               </div>
               <button 
@@ -239,6 +292,30 @@ const BlogPost = () => {
                 <span className="text-sm">Share</span>
               </button>
             </div>
+
+            {showCommentField && (
+              <form onSubmit={handleCommentSubmit} className="mb-8">
+                <textarea 
+                  value={commentText}
+                  onChange={(e) => setCommentText(e.target.value)}
+                  placeholder="Write your comment..." 
+                  className="w-full px-4 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 mb-4"
+                  rows={3}
+                ></textarea>
+                <div className="flex justify-end gap-3">
+                  <Button 
+                    type="button" 
+                    variant="outline"
+                    onClick={() => setShowCommentField(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button type="submit" className="bg-purple-700 hover:bg-purple-800">
+                    Post Comment
+                  </Button>
+                </div>
+              </form>
+            )}
           </div>
         </article>
         
