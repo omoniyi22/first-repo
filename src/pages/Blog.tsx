@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from '@/components/ui/breadcrumb';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator, BreadcrumbPage } from '@/components/ui/breadcrumb';
 import { BookOpen } from 'lucide-react';
 
 // Sample blog posts data
@@ -80,15 +80,17 @@ const Blog = () => {
         {/* SEO-optimized heading structure */}
         <div className="mb-6">
           <Breadcrumb className="mb-4">
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/">
-                <Link to="/">Home</Link>
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>Blog</BreadcrumbPage>
-            </BreadcrumbItem>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link to="/">Home</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>Blog</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
           </Breadcrumb>
           <h1 className="text-4xl md:text-5xl font-serif font-bold text-purple-900 mb-4">Equestrian Excellence Blog</h1>
           <p className="text-xl text-purple-700 max-w-3xl">
