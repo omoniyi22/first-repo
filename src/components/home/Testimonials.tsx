@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import AnimatedSection from '../ui/AnimatedSection';
@@ -71,7 +70,7 @@ const Testimonials = () => {
                         
                         <div>
                           <svg className="h-8 w-8 text-navy-300 mb-4" fill="currentColor" viewBox="0 0 32 32">
-                            <path d="M9.352 4C4.456 7.456 1 13.12 1 19.36c0 5.088 3.072 8.064 6.624 8.064 3.36 0 5.856-2.688 5.856-5.856 0-3.168-2.208-5.472-5.088-5.472-.576 0-1.344.096-1.536.192.48-3.264 3.552-7.104 6.624-9.024L9.352 4zm16.512 0c-4.8 3.456-8.256 9.12-8.256 15.36 0 5.088 3.072 8.064 6.624 8.064 3.264 0 5.856-2.688 5.856-5.856 0-3.168-2.304-5.472-5.184-5.472-.576 0-1.248.096-1.44.192.48-3.264 3.456-7.104 6.528-9.024L25.864 4z" />
+                            <path d="M9.352 4C4.456 7.456 1 13.12 1 19.36c0 5.088 3.072 8.064 6.624 8.064 3.36 0 5.856-2.688 5.856-5.856 0-3.168-2.208-5.472-5.088-5.472-.576 0-1.344.096-1.536.192.48-3.264 3.552-7.104-6.624-9.024L9.352 4zm16.512 0c-4.8 3.456-8.256 9.12-8.256 15.36 0 5.088 3.072 8.064 6.624 8.064 3.264 0 5.856-2.688 5.856-5.856 0-3.168-2.304-5.472-5.184-5.472-.576 0-1.248.096-1.44.192.48-3.264 3.456-7.104 6.528-9.024L25.864 4z" />
                           </svg>
                           
                           <p className="text-lg md:text-xl text-navy-800 mb-6">
@@ -142,10 +141,6 @@ const Testimonials = () => {
                 <div className="space-y-4 md:space-y-0 md:flex md:space-x-4">
                   <button className="w-full md:w-auto bg-white text-navy-800 px-6 py-3 rounded-lg font-medium hover:bg-navy-50 transition-colors">
                     Start Free Trial
-                  </button>
-                  
-                  <button className="w-full md:w-auto bg-transparent border border-white text-white px-6 py-3 rounded-lg font-medium hover:bg-navy-700 transition-colors">
-                    Schedule Demo
                   </button>
                 </div>
               </div>
