@@ -81,16 +81,18 @@ const Blog = () => {
         <div className="mb-6">
           <Breadcrumb className="mb-4">
             <BreadcrumbItem>
-              <BreadcrumbLink as={Link} to="/">Home</BreadcrumbLink>
+              <BreadcrumbLink href="/">
+                <Link to="/">Home</Link>
+              </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
               <BreadcrumbPage>Blog</BreadcrumbPage>
             </BreadcrumbItem>
           </Breadcrumb>
-          <h1 className="text-4xl md:text-5xl font-serif font-bold text-purple-900 mb-4">Dressage Training Blog</h1>
+          <h1 className="text-4xl md:text-5xl font-serif font-bold text-purple-900 mb-4">Equestrian Excellence Blog</h1>
           <p className="text-xl text-purple-700 max-w-3xl">
-            Expert insights, training tips, and the latest innovations in dressage training and AI-assisted equestrian development.
+            Expert insights, training tips, and the latest innovations in equestrian sports.
           </p>
         </div>
         
@@ -182,7 +184,7 @@ const Blog = () => {
           <div className="md:flex items-center justify-between">
             <div className="md:w-2/3 mb-6 md:mb-0">
               <h2 className="text-2xl md:text-3xl font-serif font-bold text-purple-900 mb-4">Subscribe to Our Newsletter</h2>
-              <p className="text-purple-700">Get the latest dressage training tips, insights, and updates delivered straight to your inbox.</p>
+              <p className="text-purple-700">Get the latest equestrian insights and updates delivered straight to your inbox.</p>
             </div>
             <div className="md:w-1/3">
               <form className="flex flex-col sm:flex-row gap-3">

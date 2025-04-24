@@ -6,6 +6,7 @@ import Footer from '@/components/layout/Footer';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from '@/components/ui/breadcrumb';
 import { ArrowLeft, Bookmark, Share2, MessageSquare, ThumbsUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 
 const blogPosts = [
   {
@@ -35,7 +36,6 @@ const blogPosts = [
     excerpt: "Master the basics of dressage with these expert tips that will help you establish a solid foundation.",
     date: "April 22, 2025",
     author: "Emma Richardson",
-    authorBio: "Emma is a USDF Gold Medalist with over 20 years of dressage training experience. She specializes in developing young horses and helping amateur riders achieve their goals.",
     category: "Training",
     imageUrl: "/lovable-uploads/79f64a37-cb8e-4627-b743-c5330837a1b0.png",
     slug: "essential-dressage-tips",
@@ -48,7 +48,6 @@ const blogPosts = [
     excerpt: "Learn how dressage tests are scored and what specific elements judges evaluate during your performance.",
     date: "April 18, 2025",
     author: "Michael Peterson",
-    authorBio: "Michael is an FEI 4* judge with extensive experience judging international competitions.",
     category: "Competition",
     imageUrl: "/lovable-uploads/987a3f3b-1917-439f-a3a9-8fabc609cffa.png",
     slug: "dressage-test-scoring",
@@ -61,7 +60,6 @@ const blogPosts = [
     excerpt: "Discover how artificial intelligence is revolutionizing dressage training methods and improving rider performance.",
     date: "April 15, 2025",
     author: "Sarah Johnson",
-    authorBio: "Sarah is a technology specialist and dressage enthusiast who bridges the gap between equestrian sports and modern technology.",
     category: "Technology",
     imageUrl: "/lovable-uploads/15df63d0-27e1-486c-98ee-bcf44eb600f4.png",
     slug: "ai-dressage-technology",
@@ -80,6 +78,7 @@ const BlogPost = () => {
   const navigate = useNavigate();
   const [post, setPost] = useState<any>(null);
   const [relatedPosts, setRelatedPosts] = useState<any[]>([]);
+  const { toast } = useToast();
   
   useEffect(() => {
     const currentPost = blogPosts.find(post => post.slug === slug);
@@ -88,7 +87,7 @@ const BlogPost = () => {
       setPost(currentPost);
       setRelatedPosts(getRelatedPosts(currentPost.id, currentPost.category));
       
-      document.title = `${currentPost.title} | AI Dressage Trainer Blog`;
+      document.title = `${currentPost.title} | Equestrian Excellence Blog`;
       
       const metaDescription = document.querySelector('meta[name="description"]');
       if (metaDescription) {
@@ -106,6 +105,27 @@ const BlogPost = () => {
     window.scrollTo(0, 0);
   }, [slug, navigate]);
   
+  const handleShare = async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: post.title,
+          text: post.excerpt,
+          url: window.location.href,
+        });
+      } else {
+        // Fallback for browsers that don't support the Web Share API
+        navigator.clipboard.writeText(window.location.href);
+        toast({
+          title: "Link copied!",
+          description: "The article link has been copied to your clipboard.",
+        });
+      }
+    } catch (error) {
+      console.error("Error sharing:", error);
+    }
+  };
+  
   if (!post) {
     return null;
   }
@@ -117,11 +137,15 @@ const BlogPost = () => {
         <div className="mb-8">
           <Breadcrumb>
             <BreadcrumbItem>
-              <BreadcrumbLink as={Link} to="/">Home</BreadcrumbLink>
+              <BreadcrumbLink href="/">
+                <Link to="/">Home</Link>
+              </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbLink as={Link} to="/blog">Blog</BreadcrumbLink>
+              <BreadcrumbLink href="/blog">
+                <Link to="/blog">Blog</Link>
+              </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
@@ -162,10 +186,7 @@ const BlogPost = () => {
               <div className="mr-4 bg-purple-200 text-purple-800 rounded-full h-12 w-12 flex items-center justify-center">
                 {post.author.split(' ').map((n: string) => n[0]).join('')}
               </div>
-              <div>
-                <div className="font-medium text-purple-900">{post.author}</div>
-                <div className="text-sm text-gray-500">{post.authorBio}</div>
-              </div>
+              <div className="font-medium text-purple-900">{post.author}</div>
             </div>
             
             <div 
@@ -204,7 +225,10 @@ const BlogPost = () => {
                   <span className="text-sm">Save</span>
                 </button>
               </div>
-              <button className="flex items-center text-gray-600 hover:text-purple-800">
+              <button 
+                className="flex items-center text-gray-600 hover:text-purple-800"
+                onClick={handleShare}
+              >
                 <Share2 className="h-5 w-5 mr-1" />
                 <span className="text-sm">Share</span>
               </button>
