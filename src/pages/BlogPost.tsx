@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
@@ -7,7 +6,6 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator } from 
 import { ArrowLeft, Bookmark, Share2, MessageSquare, ThumbsUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-// Sample blog posts data - in a real app, this would come from an API or CMS
 const blogPosts = [
   {
     id: 1,
@@ -70,7 +68,6 @@ const blogPosts = [
   }
 ];
 
-// Related posts recommendation function
 const getRelatedPosts = (currentPostId: number, category: string) => {
   return blogPosts
     .filter(post => post.id !== currentPostId && post.category === category)
@@ -84,18 +81,14 @@ const BlogPost = () => {
   const [relatedPosts, setRelatedPosts] = useState<any[]>([]);
   
   useEffect(() => {
-    // Find the post with the matching slug
     const currentPost = blogPosts.find(post => post.slug === slug);
     
     if (currentPost) {
       setPost(currentPost);
-      // Get related posts based on category
       setRelatedPosts(getRelatedPosts(currentPost.id, currentPost.category));
       
-      // Set page title for SEO
       document.title = `${currentPost.title} | AI Dressage Trainer Blog`;
       
-      // Add meta description for SEO
       const metaDescription = document.querySelector('meta[name="description"]');
       if (metaDescription) {
         metaDescription.setAttribute('content', currentPost.excerpt);
@@ -106,15 +99,12 @@ const BlogPost = () => {
         document.head.appendChild(meta);
       }
     } else {
-      // If post not found, redirect to blog index
       navigate('/blog');
     }
     
-    // Scroll to top when viewing a new post
     window.scrollTo(0, 0);
   }, [slug, navigate]);
   
-  // Early return if post not found
   if (!post) {
     return null;
   }
@@ -123,7 +113,6 @@ const BlogPost = () => {
     <div className="min-h-screen bg-gradient-to-b from-purple-100 to-white">
       <Navbar />
       <main className="container mx-auto px-6 pt-32 pb-16">
-        {/* Breadcrumbs for Navigation and SEO */}
         <div className="mb-8">
           <Breadcrumb>
             <BreadcrumbItem>
@@ -140,7 +129,6 @@ const BlogPost = () => {
           </Breadcrumb>
         </div>
         
-        {/* Back to Blog button */}
         <div className="mb-8">
           <Link to="/blog">
             <Button variant="outline" className="text-purple-800 border-purple-800 hover:bg-purple-50">
@@ -151,7 +139,6 @@ const BlogPost = () => {
         </div>
         
         <article className="bg-white rounded-xl overflow-hidden shadow-lg mb-12">
-          {/* Featured Image */}
           <div className="relative">
             <img 
               src={post.imageUrl} 
@@ -169,9 +156,7 @@ const BlogPost = () => {
             </div>
           </div>
           
-          {/* Article Content */}
           <div className="p-8 md:p-12">
-            {/* Author info */}
             <div className="flex items-center mb-8 pb-8 border-b border-gray-200">
               <div className="mr-4 bg-purple-200 text-purple-800 rounded-full h-12 w-12 flex items-center justify-center">
                 {post.author.split(' ').map((n: string) => n[0]).join('')}
@@ -182,13 +167,16 @@ const BlogPost = () => {
               </div>
             </div>
             
-            {/* Article body with proper structure for SEO */}
             <div 
-              className="prose prose-purple prose-lg max-w-none mb-8"
+              className="prose prose-purple prose-lg max-w-none mb-8 
+                         prose-headings:text-purple-800 
+                         prose-h2:text-purple-700 
+                         prose-h1:text-purple-900 
+                         prose-p:mb-4 
+                         prose-p:leading-relaxed"
               dangerouslySetInnerHTML={{ __html: post.content }}
             />
             
-            {/* Tags for SEO */}
             <div className="flex flex-wrap gap-2 mb-8">
               {post.tags.map((tag: string) => (
                 <span 
@@ -200,7 +188,6 @@ const BlogPost = () => {
               ))}
             </div>
             
-            {/* Social Sharing and Engagement */}
             <div className="flex items-center justify-between border-t border-b border-gray-200 py-4 my-8">
               <div className="flex items-center space-x-4">
                 <button className="flex items-center text-gray-600 hover:text-purple-800">
@@ -224,7 +211,6 @@ const BlogPost = () => {
           </div>
         </article>
         
-        {/* Related Articles */}
         {relatedPosts.length > 0 && (
           <div className="mb-12">
             <h2 className="text-2xl font-serif font-bold text-purple-900 mb-6">Related Articles</h2>
@@ -262,7 +248,6 @@ const BlogPost = () => {
           </div>
         )}
         
-        {/* Comment Section Placeholder */}
         <div className="bg-white rounded-xl p-8 shadow-md">
           <h3 className="text-xl font-serif font-bold text-purple-900 mb-4">Join the Discussion</h3>
           <p className="text-gray-700 mb-6">Share your thoughts and experiences related to this article.</p>
