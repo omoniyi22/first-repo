@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
@@ -193,9 +192,12 @@ const BlogPost = () => {
               className="prose prose-purple prose-lg max-w-none mb-8 
                          prose-headings:text-purple-800 
                          prose-h2:text-purple-700 
+                         prose-h2:mt-8
+                         prose-h2:mb-4
                          prose-h1:text-purple-900 
-                         prose-p:mb-4 
-                         prose-p:leading-relaxed"
+                         prose-p:mb-6 
+                         prose-p:leading-relaxed
+                         prose-li:mb-2"
               dangerouslySetInnerHTML={{ __html: post.content }}
             />
             
