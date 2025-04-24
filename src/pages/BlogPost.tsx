@@ -197,7 +197,8 @@ const BlogPost = () => {
                          prose-h1:text-purple-900 
                          prose-p:mb-6 
                          prose-p:leading-relaxed
-                         prose-li:mb-2"
+                         prose-li:mb-2
+                         prose-strong:text-purple-700"
               dangerouslySetInnerHTML={{ __html: post.content }}
             />
             
