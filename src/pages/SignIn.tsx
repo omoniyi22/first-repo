@@ -3,6 +3,7 @@ import AuthForm from '@/components/auth/AuthForm';
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { useEffect } from 'react';
+import { Toaster } from '@/components/ui/toaster';
 
 const SignIn = () => {
   // Scroll to top on page load
@@ -19,6 +20,7 @@ const SignIn = () => {
         </Link>
       </div>
       <AuthForm />
+      <Toaster />
     </div>
   );
 };

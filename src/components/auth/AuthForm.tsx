@@ -1,10 +1,11 @@
 
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Check, X } from 'lucide-react';
+import { Check, X, Loader2 } from 'lucide-react';
 import AnimatedSection from '../ui/AnimatedSection';
+import { useToast } from '@/hooks/use-toast';
 
 const AuthForm = () => {
   const [searchParams] = useSearchParams();
@@ -13,6 +14,10 @@ const AuthForm = () => {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [passwordFocused, setPasswordFocused] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formErrors, setFormErrors] = useState<{email?: string; password?: string; name?: string}>({});
+  const { toast } = useToast();
+  const navigate = useNavigate();
   
   useEffect(() => {
     setIsSignUp(searchParams.get('signup') === 'true');
@@ -20,12 +25,82 @@ const AuthForm = () => {
   
   const toggleMode = () => {
     setIsSignUp(!isSignUp);
+    setFormErrors({});
+  };
+
+  const validateForm = () => {
+    const errors: {email?: string; password?: string; name?: string} = {};
+    
+    // Email validation
+    if (!email) {
+      errors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      errors.email = 'Please enter a valid email address';
+    }
+    
+    // Password validation
+    if (!password) {
+      errors.password = 'Password is required';
+    } else if (isSignUp) {
+      if (password.length < 8) {
+        errors.password = 'Password must be at least 8 characters';
+      }
+    }
+    
+    // Name validation (only for sign up)
+    if (isSignUp && !name) {
+      errors.name = 'Full name is required';
+    }
+    
+    return errors;
   };
   
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, this would connect to your authentication system
-    console.log({ isSignUp, email, password, name });
+    
+    const errors = validateForm();
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+    
+    setIsSubmitting(true);
+    setFormErrors({});
+    
+    try {
+      // In a real app, this would connect to your authentication system
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      if (isSignUp) {
+        // Simulate successful account creation
+        console.log('Account created:', { email, password, name });
+        toast({
+          title: "Account created successfully!",
+          description: "Welcome to AI Dressage Trainer.",
+        });
+        // Redirect to dashboard or home after signup
+        navigate('/');
+      } else {
+        // Simulate successful login
+        console.log('Logged in:', { email, password });
+        toast({
+          title: "Signed in successfully!",
+          description: "Welcome back to AI Dressage Trainer.",
+        });
+        // Redirect to dashboard or home after login
+        navigate('/');
+      }
+    } catch (error) {
+      console.error('Authentication error:', error);
+      toast({
+        title: "Authentication failed",
+        description: isSignUp ? "Unable to create account. Please try again." : "Invalid email or password.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
   
   // Password validation
@@ -68,8 +143,12 @@ const AuthForm = () => {
                       required
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      className="w-full"
+                      className={`w-full ${formErrors.name ? 'border-red-500' : ''}`}
+                      aria-invalid={formErrors.name ? 'true' : 'false'}
                     />
+                    {formErrors.name && (
+                      <p className="mt-1 text-sm text-red-600">{formErrors.name}</p>
+                    )}
                   </div>
                 </div>
               )}
@@ -87,8 +166,12 @@ const AuthForm = () => {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full"
+                    className={`w-full ${formErrors.email ? 'border-red-500' : ''}`}
+                    aria-invalid={formErrors.email ? 'true' : 'false'}
                   />
+                  {formErrors.email && (
+                    <p className="mt-1 text-sm text-red-600">{formErrors.email}</p>
+                  )}
                 </div>
               </div>
 
@@ -107,8 +190,12 @@ const AuthForm = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     onFocus={() => setPasswordFocused(true)}
                     onBlur={() => setPasswordFocused(false)}
-                    className="w-full"
+                    className={`w-full ${formErrors.password ? 'border-red-500' : ''}`}
+                    aria-invalid={formErrors.password ? 'true' : 'false'}
                   />
+                  {formErrors.password && (
+                    <p className="mt-1 text-sm text-red-600">{formErrors.password}</p>
+                  )}
                 </div>
                 
                 {isSignUp && passwordFocused && (
@@ -198,8 +285,16 @@ const AuthForm = () => {
                 <Button
                   type="submit"
                   className="w-full bg-navy-700 hover:bg-navy-800 py-6"
+                  disabled={isSubmitting}
                 >
-                  {isSignUp ? 'Create Account' : 'Sign In'}
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      {isSignUp ? 'Creating account...' : 'Signing in...'}
+                    </>
+                  ) : (
+                    <>{isSignUp ? 'Create Account' : 'Sign In'}</>
+                  )}
                 </Button>
               </div>
             </form>
