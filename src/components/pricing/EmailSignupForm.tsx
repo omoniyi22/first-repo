@@ -73,7 +73,7 @@ const EmailSignupForm = () => {
           disabled={isSubmitting}
           className="bg-purple-600 hover:bg-purple-700"
         >
-          Notify Me
+          {isSubmitting ? 'Sending...' : 'Notify Me'}
         </Button>
       </div>
     </form>
