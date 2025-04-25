@@ -15,22 +15,27 @@ const EmailSignupForm = () => {
     setIsSubmitting(true);
     
     try {
-      // Check if we should use Supabase or just log
-      const useSupabaseIntegration = import.meta.env.PROD || true;
+      // First save to Supabase
+      const { error: dbError } = await supabase
+        .from('subscription_interests')
+        .insert([{ email }]);
       
-      if (!useSupabaseIntegration) {
-        // If not in production or testing mode, just log
-        console.log(`Subscription Interest Email: ${email}`);
-        console.log('NOTE: Please configure your Supabase URL and key in src/lib/supabase.ts');
-      } else {
-        // Use Supabase integration
-        const { error } = await supabase
-          .from('subscription_interests')
-          .insert([{ email }]);
-        
-        if (error) throw error;
+      if (dbError) throw dbError;
+
+      // Then trigger welcome email
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-welcome-email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to send welcome email');
       }
-      
+
       toast({
         title: "Thanks for your interest!",
         description: "We'll send your details to Jenny at Appetite Creative.",
@@ -38,10 +43,10 @@ const EmailSignupForm = () => {
       
       setEmail('');
     } catch (error) {
-      console.error('Error saving email:', error);
+      console.error('Error:', error);
       toast({
         title: "Oops!",
-        description: "There was a problem saving your email. Please try again.",
+        description: "There was a problem processing your request. Please try again.",
         variant: "destructive",
       });
     } finally {
