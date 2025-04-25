@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Mail } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 
 const EmailSignupForm = () => {
   const [email, setEmail] = useState('');
@@ -15,6 +15,17 @@ const EmailSignupForm = () => {
     setIsSubmitting(true);
     
     try {
+      // Check if Supabase is configured
+      if (!isSupabaseConfigured()) {
+        // If not in production or Supabase isn't configured, show a preview message
+        toast({
+          title: "Development Mode",
+          description: "This would send an email in production. Supabase connection not configured yet.",
+        });
+        setEmail('');
+        return;
+      }
+      
       // First save to Supabase
       const { error: dbError } = await supabase
         .from('subscription_interests')
