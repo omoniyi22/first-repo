@@ -6,6 +6,8 @@ import Testimonials from '@/components/home/Testimonials';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { useEffect } from 'react';
+import SupabaseConnectionTest from '@/components/ui/SupabaseConnectionTest';
+import { isSupabaseConfigured } from '@/lib/supabase';
 
 const Index = () => {
   // Initialize scroll reveal for animations
@@ -39,10 +41,14 @@ const Index = () => {
     initScrollReveal();
   }, []);
 
+  // Check if we're in development or if Supabase is not configured
+  const showConnectionTest = process.env.NODE_ENV !== 'production' || !isSupabaseConfigured();
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-100 to-white">
       <Navbar />
       <main className="pt-0">
+        {showConnectionTest && <SupabaseConnectionTest />}
         <Hero />
         <Process />
         <Benefits />
