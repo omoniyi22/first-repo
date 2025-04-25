@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Mail } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 
 const EmailSignupForm = () => {
   const [email, setEmail] = useState('');
@@ -13,16 +14,29 @@ const EmailSignupForm = () => {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Log the email for now
-    console.log(`Subscription Interest Email: ${email}`);
-    
-    toast({
-      title: "Thanks for your interest!",
-      description: "We'll send your details to Jenny at Appetite Creative.",
-    });
-    
-    setEmail('');
-    setIsSubmitting(false);
+    try {
+      const { error } = await supabase
+        .from('subscription_interests')
+        .insert([{ email }]);
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Thanks for your interest!",
+        description: "We'll send your details to Jenny at Appetite Creative.",
+      });
+      
+      setEmail('');
+    } catch (error) {
+      console.error('Error saving email:', error);
+      toast({
+        title: "Oops!",
+        description: "There was a problem saving your email. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
