@@ -15,29 +15,26 @@ const EmailSignupForm = () => {
     setIsSubmitting(true);
     
     try {
-      // Check if Supabase URL and key are properly configured
-      if (supabase.supabaseUrl === 'https://your-supabase-url.supabase.co') {
-        // If not configured, just log and show a success message for now
+      // Check if we should use Supabase or just log
+      const useSupabaseIntegration = import.meta.env.PROD || true;
+      
+      if (!useSupabaseIntegration) {
+        // If not in production or testing mode, just log
         console.log(`Subscription Interest Email: ${email}`);
         console.log('NOTE: Please configure your Supabase URL and key in src/lib/supabase.ts');
-        
-        toast({
-          title: "Thanks for your interest!",
-          description: "We'll send your details to Jenny at Appetite Creative.",
-        });
       } else {
-        // If configured, try to insert into Supabase
+        // Use Supabase integration
         const { error } = await supabase
           .from('subscription_interests')
           .insert([{ email }]);
         
         if (error) throw error;
-        
-        toast({
-          title: "Thanks for your interest!",
-          description: "We'll send your details to Jenny at Appetite Creative.",
-        });
       }
+      
+      toast({
+        title: "Thanks for your interest!",
+        description: "We'll send your details to Jenny at Appetite Creative.",
+      });
       
       setEmail('');
     } catch (error) {
