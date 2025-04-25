@@ -1,7 +1,6 @@
-
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 
-const BREVO_API_KEY = Deno.env.get('BREVO_API_KEY')
+const BREVO_API_KEY = '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'
 const SENDER_EMAIL = 'jenny@appetitecreative.com'
 const SENDER_NAME = 'Jenny at Appetite Creative'
 
