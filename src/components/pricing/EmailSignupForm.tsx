@@ -13,11 +13,12 @@ const EmailSignupForm = () => {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // For now, just show a success message
-    // TODO: Integrate with your email collection service
+    // Log the email for now
+    console.log(`Subscription Interest Email: ${email}`);
+    
     toast({
       title: "Thanks for your interest!",
-      description: "We'll notify you when subscriptions are available.",
+      description: "We'll send your details to Jenny at Appetite Creative.",
     });
     
     setEmail('');
