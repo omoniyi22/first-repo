@@ -1,5 +1,4 @@
 
-// Initialize Supabase client
 import { createClient } from '@supabase/supabase-js';
 
 // Replace these with your actual Supabase URL and anon key
@@ -14,4 +13,27 @@ export const supabase = createClient(supabaseUrl, supabaseKey);
 export const isSupabaseConfigured = () => {
   return supabaseUrl !== 'https://your-supabase-url.supabase.co' && 
          supabaseKey !== 'your-supabase-anon-key';
+};
+
+// Function to test Supabase connection
+export const testSupabaseConnection = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('subscription_interests')
+      .select('*')
+      .limit(1);
+
+    if (error) throw error;
+    
+    return {
+      isConnected: true,
+      message: 'Successfully connected to Supabase!',
+    };
+  } catch (error) {
+    console.error('Supabase connection test failed:', error);
+    return {
+      isConnected: false,
+      message: error instanceof Error ? error.message : 'Unknown connection error',
+    };
+  }
 };
