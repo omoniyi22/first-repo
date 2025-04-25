@@ -5,9 +5,6 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
-// Create and export the Supabase client
-export const supabase = createClient(supabaseUrl, supabaseKey);
-
 // Helper function to check if Supabase is properly configured
 export const isSupabaseConfigured = () => {
   if (!supabaseUrl || supabaseUrl === '') {
@@ -21,6 +18,11 @@ export const isSupabaseConfigured = () => {
   return true;
 };
 
+// Create and export the Supabase client only if configuration is valid
+export const supabase = isSupabaseConfigured() 
+  ? createClient(supabaseUrl, supabaseKey)
+  : null;
+
 // Function to test Supabase connection
 export const testSupabaseConnection = async () => {
   try {
@@ -31,7 +33,17 @@ export const testSupabaseConnection = async () => {
       };
     }
 
-    const { data, error } = await supabase
+    // Use the client from the exported variable if available, or create a new one for this call
+    const client = supabase || createClient(supabaseUrl, supabaseKey);
+    
+    if (!client) {
+      return {
+        isConnected: false,
+        message: 'Could not initialize Supabase client. Please check your environment variables.',
+      };
+    }
+    
+    const { data, error } = await client
       .from('subscription_interests')
       .select('*')
       .limit(1);

@@ -16,7 +16,7 @@ const EmailSignupForm = () => {
     
     try {
       // Check if Supabase is configured
-      if (!isSupabaseConfigured()) {
+      if (!isSupabaseConfigured() || !supabase) {
         // If not in production or Supabase isn't configured, show a preview message
         toast({
           title: "Development Mode",
