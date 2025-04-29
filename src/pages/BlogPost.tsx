@@ -14,8 +14,18 @@ const blogPosts = [
     content: `
       <p>Dressage, often described as "horse ballet," is a disciplined and elegant form of horseback riding that requires patience, precision, and a deep connection between horse and rider. For beginners stepping into the world of dressage, the journey can seem daunting, but with the right guidance, it becomes a rewarding experience. Here are five essential tips to help beginners establish a solid foundation in dressage training.</p>
       
+      <div class="my-8">
+        <img src="/lovable-uploads/b729b0be-9b4c-4b4b-bdec-6bd2f849b8f8.png" alt="Rider in green jacket on chestnut horse" class="w-full h-auto rounded-lg shadow-md" />
+        <p class="text-sm text-gray-500 italic mt-2 text-center">A proper riding position is fundamental to effective dressage training</p>
+      </div>
+      
       <h2>1. Focus on Your Position and Balance</h2>
       <p>The cornerstone of effective dressage riding is a correct riding position. Your seat is your primary communication tool with your horse, so developing a balanced, independent seat should be your first priority. Keep your shoulders back and down, your core engaged, and your legs long and relaxed. Work without stirrups whenever possible to improve your balance and deepen your seat. Remember that a stable, balanced rider creates a stable, balanced horse.</p>
+      
+      <div class="my-8">
+        <img src="/lovable-uploads/8bd55054-fb8f-46dd-8f14-41c093349591.png" alt="Rider on white horse in dressage arena" class="w-full h-auto rounded-lg shadow-md" />
+        <p class="text-sm text-gray-500 italic mt-2 text-center">Maintaining proper form during movements is essential for clear communication with your horse</p>
+      </div>
       
       <h2>2. Master the Basics Before Advancing</h2>
       <p>In dressage, there are no shortcuts. Each level builds upon the skills acquired in the previous one. Take your time to master basic skills such as clear transitions, accurate circles, and consistent rhythm before attempting more advanced movements. A well-executed 20-meter circle at a steady rhythm is far more impressive and beneficial than a rushed, unbalanced attempt at a shoulder-in or travers.</p>
@@ -23,11 +33,21 @@ const blogPosts = [
       <h2>3. Develop Clear Communication Through Half-Halts</h2>
       <p>Understanding and effectively using half-halts is crucial in dressage. A half-halt is essentially a rebalancing tool, helping your horse maintain engagement and responsiveness. Practice coordinating your seat, legs, and hands to create a clear half-halt that your horse understands. This communication tool will help you navigate transitions, prepare for movements, and maintain your horse's attention throughout your ride.</p>
       
+      <div class="my-8">
+        <img src="/lovable-uploads/e6996e68-34bc-4e87-a5ff-e12b847f7df5.png" alt="Rider on white horse in competition arena" class="w-full h-auto rounded-lg shadow-md" />
+        <p class="text-sm text-gray-500 italic mt-2 text-center">Competition dressage requires precision and attention to detail</p>
+      </div>
+      
       <h2>4. Emphasize Quality Over Quantity</h2>
       <p>It's better to ride for 20 minutes with focus and purpose than to meander around the arena for an hour. Set specific goals for each riding session and focus on the quality of your horse's gaits rather than how long you ride. Pay attention to rhythm, straightness, and relaxation—the foundation of the dressage training scale—and reward your horse when these elements improve.</p>
       
       <h2>5. Seek Regular Professional Guidance</h2>
       <p>Even the world's top riders continue to take lessons and seek feedback. A knowledgeable instructor can provide invaluable guidance, catch errors before they become habits, and help you understand the nuances of dressage training. Video your rides when possible and review them critically. And consider technology solutions like AI Dressage Trainer that can provide instant feedback on your performance and help you track your progress over time.</p>
+      
+      <div class="my-8">
+        <img src="/lovable-uploads/42930ec1-2f55-429f-aaa5-4aac1791a729.png" alt="Rider in formal dressage attire" class="w-full h-auto rounded-lg shadow-md" />
+        <p class="text-sm text-gray-500 italic mt-2 text-center">Formal dressage competitions showcase the elegance and precision of this equestrian discipline</p>
+      </div>
       
       <h2>Conclusion</h2>
       <p>Dressage is as much about training yourself as it is about training your horse. Be patient, stay consistent, and celebrate small improvements. Remember that the journey of dressage is continuous learning and refinement, and every great dressage rider was once a beginner. With dedication, proper guidance, and these foundational tips, you're well on your way to developing the skills needed for success in the dressage arena.</p>
@@ -240,7 +260,8 @@ const BlogPost = () => {
                          prose-p:leading-relaxed
                          prose-li:text-purple-700
                          prose-li:mb-2
-                         prose-strong:text-purple-700"
+                         prose-strong:text-purple-700
+                         prose-img:rounded-lg"
               dangerouslySetInnerHTML={{ __html: post.content }}
             />
             
