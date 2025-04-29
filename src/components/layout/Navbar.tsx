@@ -1,13 +1,18 @@
 
 import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, UserCircle, LogOut } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
+  const { toast } = useToast();
   
   useEffect(() => {
     const handleScroll = () => {
@@ -29,6 +34,24 @@ const Navbar = () => {
   
   const isActive = (path: string) => location.pathname === path || (path !== '/' && location.pathname.startsWith(path));
   
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      toast({
+        title: "Signed out successfully",
+        description: "You have been signed out of your account."
+      });
+      navigate('/');
+    } catch (error) {
+      console.error('Error signing out:', error);
+      toast({
+        title: "Sign out failed",
+        description: "There was an error signing out. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
   return (
     <header 
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
@@ -75,19 +98,39 @@ const Navbar = () => {
             >
               About
             </Link>
-            <Link to="/sign-in">
-              <Button 
-                variant="outline" 
-                className="ml-3 border-white text-purple-950 bg-white hover:bg-purple-50"
-              >
-                Sign In
-              </Button>
-            </Link>
-            <Link to="/sign-in?signup=true">
-              <Button className="bg-purple-700 hover:bg-purple-800 text-white">
-                Get Started
-              </Button>
-            </Link>
+            
+            {user ? (
+              <div className="flex items-center ml-3 space-x-4">
+                <div className="text-white">
+                  <UserCircle className="inline-block h-5 w-5 mr-1" />
+                  <span className="hidden lg:inline-block">{user.email?.split('@')[0]}</span>
+                </div>
+                <Button 
+                  variant="outline" 
+                  className="border-white text-white hover:bg-purple-900"
+                  onClick={handleSignOut}
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Sign Out
+                </Button>
+              </div>
+            ) : (
+              <>
+                <Link to="/sign-in">
+                  <Button 
+                    variant="outline" 
+                    className="ml-3 border-white text-purple-950 bg-white hover:bg-purple-50"
+                  >
+                    Sign In
+                  </Button>
+                </Link>
+                <Link to="/sign-in?signup=true">
+                  <Button className="bg-purple-700 hover:bg-purple-800 text-white">
+                    Get Started
+                  </Button>
+                </Link>
+              </>
+            )}
           </nav>
           
           {/* Mobile menu button */}
@@ -140,19 +183,38 @@ const Navbar = () => {
               About
             </Link>
             <div className="pt-2 flex flex-col space-y-3">
-              <Link to="/sign-in" className="w-full">
-                <Button 
-                  variant="outline" 
-                  className="w-full border-white text-purple-950 bg-white hover:bg-purple-50"
-                >
-                  Sign In
-                </Button>
-              </Link>
-              <Link to="/sign-in?signup=true" className="w-full">
-                <Button className="w-full bg-purple-700 hover:bg-purple-800 text-white">
-                  Get Started
-                </Button>
-              </Link>
+              {user ? (
+                <>
+                  <div className="text-white py-2">
+                    <UserCircle className="inline-block h-5 w-5 mr-2" />
+                    {user.email}
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    className="w-full border-white text-white hover:bg-purple-900"
+                    onClick={handleSignOut}
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sign Out
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Link to="/sign-in" className="w-full">
+                    <Button 
+                      variant="outline" 
+                      className="w-full border-white text-purple-950 bg-white hover:bg-purple-50"
+                    >
+                      Sign In
+                    </Button>
+                  </Link>
+                  <Link to="/sign-in?signup=true" className="w-full">
+                    <Button className="w-full bg-purple-700 hover:bg-purple-800 text-white">
+                      Get Started
+                    </Button>
+                  </Link>
+                </>
+              )}
             </div>
           </nav>
         </div>

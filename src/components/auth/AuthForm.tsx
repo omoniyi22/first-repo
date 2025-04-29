@@ -7,6 +7,7 @@ import { Check, X, Loader2, Mail } from 'lucide-react';
 import AnimatedSection from '../ui/AnimatedSection';
 import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
+import { supabase } from '@/integrations/supabase/client';
 
 const AuthForm = () => {
   const [searchParams] = useSearchParams();
@@ -72,34 +73,49 @@ const AuthForm = () => {
     setFormErrors({});
     
     try {
-      // In a real app, this would connect to your authentication system
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
       if (isSignUp) {
-        // Simulate successful account creation
-        console.log('Account created:', { email, password, name });
+        // Sign up with Supabase
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              full_name: name,
+            }
+          }
+        });
+        
+        if (error) throw error;
+
         toast({
           title: "Account created successfully!",
-          description: "Welcome to AI Dressage Trainer.",
+          description: "Welcome to AI Dressage Trainer. Check your email for verification instructions.",
         });
-        // Redirect to dashboard or home after signup
-        navigate('/');
+
+        // Don't navigate yet, as user needs to verify email first
       } else {
-        // Simulate successful login
-        console.log('Logged in:', { email, password });
+        // Sign in with Supabase
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password
+        });
+        
+        if (error) throw error;
+
         toast({
           title: "Signed in successfully!",
           description: "Welcome back to AI Dressage Trainer.",
         });
+        
         // Redirect to dashboard or home after login
         navigate('/');
       }
     } catch (error) {
       console.error('Authentication error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Authentication failed';
       toast({
         title: "Authentication failed",
-        description: isSignUp ? "Unable to create account. Please try again." : "Invalid email or password.",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -107,29 +123,28 @@ const AuthForm = () => {
     }
   };
 
-  const handleSSOAuth = async (provider: string) => {
+  const handleSSOAuth = async (provider: 'google' | 'github' | 'microsoft') => {
     setIsProcessingSSO(true);
     
     try {
-      // Simulate SSO authentication delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      console.log(`Authenticated with ${provider}`);
-      toast({
-        title: `${provider} Authentication Successful`,
-        description: `You've been signed in with ${provider}.`,
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: `${window.location.origin}/`,
+        }
       });
       
-      // Redirect to dashboard or home after SSO
-      navigate('/');
+      if (error) throw error;
+      
+      // The user will be redirected to the provider's authentication page
     } catch (error) {
       console.error('SSO authentication error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'SSO Authentication Failed';
       toast({
         title: "SSO Authentication Failed",
-        description: `Unable to authenticate with ${provider}. Please try again.`,
+        description: errorMessage,
         variant: "destructive",
       });
-    } finally {
       setIsProcessingSSO(false);
     }
   };
@@ -165,7 +180,7 @@ const AuthForm = () => {
                 type="button"
                 className="w-full bg-white text-navy-700 border border-silver-300 hover:bg-silver-50"
                 disabled={isProcessingSSO}
-                onClick={() => handleSSOAuth('Google')}
+                onClick={() => handleSSOAuth('google')}
               >
                 {isProcessingSSO ? (
                   <>
@@ -189,7 +204,7 @@ const AuthForm = () => {
                 type="button"
                 className="w-full bg-white text-navy-700 border border-silver-300 hover:bg-silver-50"
                 disabled={isProcessingSSO}
-                onClick={() => handleSSOAuth('GitHub')}
+                onClick={() => handleSSOAuth('github')}
               >
                 {isProcessingSSO ? (
                   <>
@@ -210,7 +225,7 @@ const AuthForm = () => {
                 type="button"
                 className="w-full bg-white text-navy-700 border border-silver-300 hover:bg-silver-50"
                 disabled={isProcessingSSO}
-                onClick={() => handleSSOAuth('Microsoft')}
+                onClick={() => handleSSOAuth('microsoft')}
               >
                 {isProcessingSSO ? (
                   <>
@@ -429,4 +444,3 @@ const AuthForm = () => {
 };
 
 export default AuthForm;
-

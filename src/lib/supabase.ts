@@ -1,27 +1,14 @@
 
-import { createClient } from '@supabase/supabase-js';
+// This file is deprecated. Import the Supabase client from '@/integrations/supabase/client' instead.
+import { supabase } from '@/integrations/supabase/client';
 
-// Get Supabase URL and key from environment variables
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+// Re-export for backward compatibility
+export { supabase };
 
 // Helper function to check if Supabase is properly configured
 export const isSupabaseConfigured = () => {
-  if (!supabaseUrl || supabaseUrl === '') {
-    console.error('VITE_SUPABASE_URL is missing or empty');
-    return false;
-  }
-  if (!supabaseKey || supabaseKey === '') {
-    console.error('VITE_SUPABASE_ANON_KEY is missing or empty');
-    return false;
-  }
-  return true;
+  return !!supabase;
 };
-
-// Create and export the Supabase client only if configuration is valid
-export const supabase = isSupabaseConfigured() 
-  ? createClient(supabaseUrl, supabaseKey)
-  : null;
 
 // Function to test Supabase connection
 export const testSupabaseConnection = async () => {
@@ -29,35 +16,23 @@ export const testSupabaseConnection = async () => {
     if (!isSupabaseConfigured()) {
       return {
         isConnected: false,
-        message: 'Supabase environment variables are not set. Please add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your project settings.',
+        message: 'Supabase is not properly configured. Please check your setup.',
       };
     }
 
-    // Use the client from the exported variable if available, or create a new one for this call
-    const client = supabase || createClient(supabaseUrl, supabaseKey);
-    
-    if (!client) {
+    // Try to make a simple query to test the connection
+    const { error } = await supabase.from('subscription_interests').select('id').limit(1);
+
+    // If we get a "relation does not exist" error, it means the connection is working but the table doesn't exist yet
+    if (error && error.message.includes('does not exist')) {
       return {
-        isConnected: false,
-        message: 'Could not initialize Supabase client. Please check your environment variables.',
+        isConnected: true,
+        message: 'Successfully connected to Supabase! (Note: subscription_interests table does not exist yet)',
       };
     }
-    
-    const { data, error } = await client
-      .from('subscription_interests')
-      .select('*')
-      .limit(1);
 
     if (error) {
       console.error('Supabase connection error:', error.message);
-      
-      if (error.message.includes('does not exist')) {
-        return {
-          isConnected: false,
-          message: 'Connected to Supabase, but the "subscription_interests" table does not exist. Please create this table in your Supabase dashboard.',
-        };
-      }
-      
       throw error;
     }
     
