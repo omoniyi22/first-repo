@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
@@ -63,7 +64,90 @@ const blogPosts = [
   {
     id: 2,
     title: "Understanding Dressage Test Scoring: What Judges Are Looking For",
-    content: "<p>Sample content for the second blog post...</p>",
+    content: `
+      <p>For many dressage riders, the scoring process can seem mysterious and sometimes unpredictable. Understanding what judges are looking for is essential to improving your scores and advancing in the sport. This article breaks down the key elements of dressage test scoring to help you better prepare for your next competition.</p>
+      
+      <div class="my-8">
+        <img src="/lovable-uploads/987a3f3b-1917-439f-a3a9-8fabc609cffa.png" alt="Judge scoring a dressage test" class="w-full h-auto rounded-lg shadow-md" />
+        <p class="text-sm text-gray-500 italic mt-2 text-center">A dressage judge evaluating a performance with precision and attention to detail</p>
+      </div>
+      
+      <h2>The Scoring Scale: Understanding the Numbers</h2>
+      <p>Dressage tests are scored on a scale from 0 to 10, with 0 being "not performed" and 10 being "excellent." Most movements in a typical test will score between 5 ("sufficient") and 7 ("fairly good"). Understanding this scale is the first step in recognizing what each score represents:</p>
+      
+      <ul class="list-disc pl-6 my-4 space-y-2">
+        <li><strong>10:</strong> Excellent</li>
+        <li><strong>9:</strong> Very good</li>
+        <li><strong>8:</strong> Good</li>
+        <li><strong>7:</strong> Fairly good</li>
+        <li><strong>6:</strong> Satisfactory</li>
+        <li><strong>5:</strong> Sufficient</li>
+        <li><strong>4:</strong> Insufficient</li>
+        <li><strong>3:</strong> Fairly bad</li>
+        <li><strong>2:</strong> Bad</li>
+        <li><strong>1:</strong> Very bad</li>
+        <li><strong>0:</strong> Not performed</li>
+      </ul>
+      
+      <h2>The Training Scale: The Foundation of Scoring</h2>
+      <p>Judges evaluate movements based on the principles of the dressage training scale. This progressive scale includes six elements that build upon each other:</p>
+      
+      <ol class="list-decimal pl-6 my-4 space-y-2">
+        <li><strong>Rhythm:</strong> The regularity and tempo of the gaits</li>
+        <li><strong>Relaxation:</strong> Mental and physical absence of tension</li>
+        <li><strong>Connection:</strong> The flow of energy from hindquarters through the body to a soft, elastic contact</li>
+        <li><strong>Impulsion:</strong> The desire to move forward with energy and elasticity</li>
+        <li><strong>Straightness:</strong> Proper alignment and equal weight distribution</li>
+        <li><strong>Collection:</strong> Engagement, lightness of the forehand, and self-carriage</li>
+      </ol>
+      
+      <h2>What Judges Are Really Looking For</h2>
+      <p>Beyond the technical aspects, judges are seeking harmony between horse and rider. Here are the key elements they're evaluating:</p>
+      
+      <h3>1. Accuracy and Precision</h3>
+      <p>Judges look for movements performed precisely where they're supposed to be in the arena. This means accurate circles, straight lines, and correct positioning of transitions. Practice riding your test with markers to improve your spatial awareness.</p>
+      
+      <h3>2. Quality of Gaits</h3>
+      <p>The natural correctness of the horse's movement, including rhythm, elasticity, and expression. Judges want to see pure gaits with clear rhythm and good energy.</p>
+      
+      <h3>3. Submission and Harmony</h3>
+      <p>How willingly and calmly your horse responds to your aids, without resistance or tension. A harmonious partnership always scores higher than a tense, forced performance.</p>
+      
+      <div class="my-8">
+        <img src="/lovable-uploads/79f64a37-cb8e-4627-b743-c5330837a1b0.png" alt="Rider and horse in perfect harmony" class="w-full h-auto rounded-lg shadow-md" />
+        <p class="text-sm text-gray-500 italic mt-2 text-center">The harmony between horse and rider is a crucial element in dressage scoring</p>
+      </div>
+      
+      <h3>4. Rider Position and Effectiveness</h3>
+      <p>Your position should be balanced, with an independent seat and invisible aids. Judges can tell when a rider is using excessive force or when aids are unclear.</p>
+      
+      <h2>Common Scoring Deductions</h2>
+      <p>Understanding what commonly leads to lower scores can help you avoid these pitfalls:</p>
+      
+      <ul class="list-disc pl-6 my-4 space-y-2">
+        <li>Inaccurate figures and transitions</li>
+        <li>Tension or resistance in the horse</li>
+        <li>Irregular rhythm or tempo</li>
+        <li>Loss of balance or frame</li>
+        <li>Obvious or excessive aids from the rider</li>
+        <li>Lack of straightness</li>
+      </ul>
+      
+      <h2>How to Improve Your Scores</h2>
+      <p>With understanding comes improvement. Here are practical tips to boost your test scores:</p>
+      
+      <ol class="list-decimal pl-6 my-4 space-y-2">
+        <li><strong>Study the test thoroughly</strong> before competing. Visualize each movement and transition.</li>
+        <li><strong>Record yourself riding</strong> and analyze your performance objectively.</li>
+        <li><strong>Focus on transitions</strong>, as they often carry their own scores and influence the quality of subsequent movements.</li>
+        <li><strong>Develop a consistent warm-up routine</strong> that prepares your horse mentally and physically.</li>
+        <li><strong>Request feedback from judges</strong> after tests when possible.</li>
+      </ol>
+      
+      <p>Remember that dressage scoring is designed to evaluate your progress along the training scale. A thoughtful, harmonious ride on a correctly trained horse will always score better than flashy movements performed with tension or resistance.</p>
+      
+      <p>By understanding what judges are looking for, you can focus your training more effectively and enter the competition arena with confidence and clarity.</p>
+    `,
     excerpt: "Learn how dressage tests are scored and what specific elements judges evaluate during your performance.",
     date: "April 18, 2025",
     author: "Michael Peterson",
@@ -75,7 +159,104 @@ const blogPosts = [
   {
     id: 3,
     title: "How AI Technology is Transforming Modern Dressage Training",
-    content: "<p>Sample content for the third blog post...</p>",
+    content: `
+      <p>The world of equestrian sports is experiencing a technological revolution, and dressage is at the forefront of this transformation. Artificial Intelligence (AI) is reshaping how riders train, compete, and develop their skills, offering unprecedented insights and opportunities for improvement. Let's explore how AI technology is revolutionizing dressage training methods and creating new pathways to excellence.</p>
+      
+      <div class="my-8">
+        <img src="/lovable-uploads/15df63d0-27e1-486c-98ee-bcf44eb600f4.png" alt="Rider using tablet with AI dressage app" class="w-full h-auto rounded-lg shadow-md" />
+        <p class="text-sm text-gray-500 italic mt-2 text-center">Modern dressage training now incorporates AI technology for instant feedback and analysis</p>
+      </div>
+      
+      <h2>Real-Time Motion Analysis and Feedback</h2>
+      <p>One of the most groundbreaking applications of AI in dressage is real-time motion analysis. Using computer vision algorithms, AI systems can now analyze both horse and rider movements with incredible precision, capturing details that might escape even the most experienced trainer's eye.</p>
+      
+      <p>These systems typically use multiple cameras to capture the horse and rider from different angles. The AI then processes this video data to assess various aspects of the performance:</p>
+      
+      <ul class="list-disc pl-6 my-4 space-y-2">
+        <li>Tracking the precision of movements and figures</li>
+        <li>Analyzing the horse's gait for regularity and rhythm</li>
+        <li>Evaluating the rider's position and balance</li>
+        <li>Measuring the geometry of circles, diagonals, and other patterns</li>
+        <li>Detecting subtle asymmetries in the horse's movement</li>
+      </ul>
+      
+      <p>The real power of these systems lies in their ability to provide immediate feedback. Rather than waiting for a weekly lesson with a trainer, riders can receive instant insights about their performance and make adjustments during the same training session. This accelerates the learning process and helps develop muscle memory more effectively.</p>
+      
+      <div class="my-8">
+        <img src="/lovable-uploads/4c938b42-7713-4f2d-947a-1e70c3caca32.png" alt="AI software analyzing dressage movements" class="w-full h-auto rounded-lg shadow-md" />
+        <p class="text-sm text-gray-500 italic mt-2 text-center">AI software can analyze subtle details of dressage movements that may be missed by the human eye</p>
+      </div>
+      
+      <h2>Personalized Training Programs</h2>
+      <p>AI doesn't just analyze performance—it can also create personalized training programs tailored to the specific needs of each horse and rider combination. By collecting and analyzing data over time, AI systems can identify patterns, strengths, and areas that need improvement.</p>
+      
+      <p>These intelligent systems consider factors such as:</p>
+      
+      <ul class="list-disc pl-6 my-4 space-y-2">
+        <li>The horse's physical capabilities and limitations</li>
+        <li>The rider's skill level and goals</li>
+        <li>Previous training history and progress</li>
+        <li>Competition schedules and performance targets</li>
+      </ul>
+      
+      <p>Based on this comprehensive analysis, AI can suggest structured training plans with specific exercises designed to address weaknesses while building on existing strengths. As the horse and rider progress, the AI continuously adjusts these recommendations to ensure optimal development.</p>
+      
+      <h2>Biomechanical Analysis and Injury Prevention</h2>
+      <p>Perhaps one of the most valuable applications of AI in dressage is in the realm of biomechanics and injury prevention. By monitoring subtle changes in movement patterns, AI can detect early signs of potential lameness or discomfort before they become visible to the human eye.</p>
+      
+      <p>These systems use machine learning algorithms trained on thousands of examples of both healthy and problematic movements. This allows them to identify minor deviations that might indicate:</p>
+      
+      <ul class="list-disc pl-6 my-4 space-y-2">
+        <li>Early signs of lameness</li>
+        <li>Muscle soreness or tension</li>
+        <li>Compensatory movement patterns</li>
+        <li>Saddle fit issues</li>
+        <li>Improper weight distribution</li>
+      </ul>
+      
+      <p>By catching these issues early, riders and trainers can address them before they develop into more serious problems, potentially extending the horse's competitive career and ensuring their welfare.</p>
+      
+      <div class="my-8">
+        <img src="/lovable-uploads/3b7c24a2-ef67-42cc-9b46-875418451128.png" alt="Horse with biomechanical sensors" class="w-full h-auto rounded-lg shadow-md" />
+        <p class="text-sm text-gray-500 italic mt-2 text-center">Advanced sensors combined with AI can detect subtle biomechanical issues before they become visible problems</p>
+      </div>
+      
+      <h2>Virtual Coaching and Remote Training</h2>
+      <p>The COVID-19 pandemic accelerated the adoption of remote coaching technologies, and AI has played a crucial role in making virtual training more effective. Using smartphone cameras or dedicated systems, riders can now receive high-quality feedback without their coach being physically present.</p>
+      
+      <p>AI-powered virtual coaching offers several advantages:</p>
+      
+      <ul class="list-disc pl-6 my-4 space-y-2">
+        <li>Access to expertise regardless of geographical location</li>
+        <li>Reduced travel costs and time for both coaches and riders</li>
+        <li>The ability to train effectively between in-person lessons</li>
+        <li>Detailed data collection that can be shared with multiple professionals</li>
+      </ul>
+      
+      <p>Some systems even allow coaches to annotate video footage with drawings and comments, creating a rich multimedia learning experience that can be reviewed repeatedly by the rider.</p>
+      
+      <h2>Competition Preparation and Analysis</h2>
+      <p>AI is also transforming how riders prepare for and analyze their competition performances. By analyzing videos of previous tests, AI can identify patterns in the judge's scoring and help riders understand which aspects of their performance need attention.</p>
+      
+      <p>For example, an AI system might notice that a particular rider consistently scores lower on extended trot movements or that certain judges tend to prioritize specific qualities. Armed with this information, riders can focus their training more effectively and make strategic decisions about which competitions to enter.</p>
+      
+      <h2>The Future of AI in Dressage</h2>
+      <p>As AI technology continues to advance, we can expect even more innovative applications in the dressage world. Some emerging technologies include:</p>
+      
+      <ul class="list-disc pl-6 my-4 space-y-2">
+        <li><strong>Wearable sensors</strong> that provide continuous monitoring during riding and rest periods</li>
+        <li><strong>Augmented reality systems</strong> that project ideal lines and patterns onto the arena during training</li>
+        <li><strong>Emotional analysis</strong> that can detect stress or anxiety in both horse and rider</li>
+        <li><strong>Predictive analytics</strong> that can forecast competition outcomes based on training data</li>
+      </ul>
+      
+      <h2>Balancing Technology with Tradition</h2>
+      <p>While AI offers exciting possibilities for dressage training, the equestrian community is rightfully careful about balancing technological innovation with the traditional aspects of the sport. The relationship between horse and rider remains central to dressage, and technology should enhance rather than replace this connection.</p>
+      
+      <p>The most successful applications of AI in dressage recognize that the goal is not to create cookie-cutter performances but to help each horse-rider combination reach their unique potential while honoring the classical principles that define the sport.</p>
+      
+      <p>As we embrace these new tools, the focus remains on the wellbeing of the horse, the development of the rider, and the preservation of dressage as an art form. When used thoughtfully, AI can help us achieve these goals more effectively than ever before, opening new possibilities for riders at all levels.</p>
+    `,
     excerpt: "Discover how artificial intelligence is revolutionizing dressage training methods and improving rider performance.",
     date: "April 15, 2025",
     author: "Sarah Johnson",
