@@ -40,10 +40,8 @@ const Blog = () => {
     
     // Filter by category
     if (categoryFilter !== 'all') {
-      result = result.filter(post => 
-        post.category.toLowerCase() === categoryFilter.toLowerCase()
-          .replace(/(^|\s)\S/g, function(t) { return t.toUpperCase(); })
-      );
+      const formattedCategory = categoryFilter.charAt(0).toUpperCase() + categoryFilter.slice(1).toLowerCase();
+      result = result.filter(post => post.category === formattedCategory);
     }
     
     // Filter by search query
