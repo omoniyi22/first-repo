@@ -1,87 +1,64 @@
 
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator, BreadcrumbPage } from '@/components/ui/breadcrumb';
-import { BookOpen } from 'lucide-react';
-
-// Sample blog posts data
-const blogPosts = [
-  {
-    id: 1,
-    title: "How AI is Revolutionizing Dressage Training: A New Era for Equestrians",
-    excerpt: "Discover how artificial intelligence is transforming dressage training with real-time feedback, detailed analytics, and personalized guidance for riders of all levels.",
-    date: "April 29, 2025",
-    author: "Emma Richardson",
-    category: "Technology",
-    imageUrl: "/lovable-uploads/15df63d0-27e1-486c-98ee-bcf44eb600f4.png",
-    slug: "ai-revolutionizing-dressage-training"
-  },
-  {
-    id: 2,
-    title: "The Data Behind the Dance: Understanding AI Analytics in Dressage",
-    excerpt: "Learn how AI captures and analyzes the complex patterns of movement, weight distribution, and timing that create the artistry of dressage.",
-    date: "April 27, 2025",
-    author: "Michael Peterson",
-    category: "Analytics",
-    imageUrl: "/lovable-uploads/4c938b42-7713-4f2d-947a-1e70c3caca32.png",
-    slug: "data-behind-dressage-dance"
-  },
-  {
-    id: 3,
-    title: "Getting Started with AI Dressage: A Beginner's Guide",
-    excerpt: "A comprehensive guide to incorporating AI into your dressage training, from equipment setup to understanding feedback and maximizing progress.",
-    date: "April 25, 2025",
-    author: "Sarah Johnson",
-    category: "Guides",
-    imageUrl: "/lovable-uploads/b729b0be-9b4c-4b4b-bdec-6bd2f849b8f8.png",
-    slug: "getting-started-ai-dressage"
-  },
-  {
-    id: 4,
-    title: "Future of Equestrian Sports: AI's Role in Competitive Dressage",
-    excerpt: "Explore how artificial intelligence is influencing competitive dressage, from training methods to potential changes in judging and accessibility.",
-    date: "April 22, 2025",
-    author: "Thomas Müller",
-    category: "Competition",
-    imageUrl: "/lovable-uploads/3b7c24a2-ef67-42cc-9b46-875418451128.png",
-    slug: "future-equestrian-sports-ai"
-  },
-  {
-    id: 5,
-    title: "5 Essential Dressage Training Tips for Beginners",
-    excerpt: "Master the basics of dressage with these expert tips that will help you establish a solid foundation.",
-    date: "April 20, 2025",
-    author: "Emma Richardson",
-    category: "Training",
-    imageUrl: "/lovable-uploads/79f64a37-cb8e-4627-b743-c5330837a1b0.png",
-    slug: "essential-dressage-tips"
-  },
-  {
-    id: 6,
-    title: "Understanding Dressage Test Scoring: What Judges Are Looking For",
-    excerpt: "Learn how dressage tests are scored and what specific elements judges evaluate during your performance.",
-    date: "April 18, 2025",
-    author: "Michael Peterson",
-    category: "Competition",
-    imageUrl: "/lovable-uploads/987a3f3b-1917-439f-a3a9-8fabc609cffa.png",
-    slug: "dressage-test-scoring"
-  },
-  {
-    id: 7,
-    title: "How AI Technology is Transforming Modern Dressage Training",
-    excerpt: "Discover how artificial intelligence is revolutionizing dressage training methods and improving rider performance.",
-    date: "April 15, 2025",
-    author: "Sarah Johnson",
-    category: "Technology",
-    imageUrl: "/lovable-uploads/15df63d0-27e1-486c-98ee-bcf44eb600f4.png",
-    slug: "ai-dressage-technology"
-  }
-];
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import BlogFilter from '@/components/blog/BlogFilter';
+import FeaturedPost from '@/components/blog/FeaturedPost';
+import BlogPostCard from '@/components/blog/BlogPostCard';
+import { blogPosts } from '@/data/blogPosts';
+import { BookOpen, Search } from 'lucide-react';
 
 const Blog = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const disciplineFilter = searchParams.get('discipline') || 'all';
+  const categoryFilter = searchParams.get('category') || 'all';
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredPosts, setFilteredPosts] = useState(blogPosts);
+  
+  // Filter posts based on discipline, category, and search query
+  useEffect(() => {
+    let result = [...blogPosts];
+    
+    // Filter by discipline
+    if (disciplineFilter !== 'all') {
+      result = result.filter(post => post.discipline.toLowerCase() === disciplineFilter.toLowerCase());
+    }
+    
+    // Filter by category
+    if (categoryFilter !== 'all') {
+      result = result.filter(post => post.category.toLowerCase() === categoryFilter.toLowerCase());
+    }
+    
+    // Filter by search query
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(post => 
+        post.title.toLowerCase().includes(query) || 
+        post.excerpt.toLowerCase().includes(query) || 
+        post.author.toLowerCase().includes(query)
+      );
+    }
+    
+    setFilteredPosts(result);
+  }, [disciplineFilter, categoryFilter, searchQuery]);
+  
+  // Update URL parameters when filters change
+  const updateFilters = (type: 'discipline' | 'category', value: string) => {
+    const newSearchParams = new URLSearchParams(searchParams);
+    if (value === 'all') {
+      newSearchParams.delete(type);
+    } else {
+      newSearchParams.set(type, value);
+    }
+    setSearchParams(newSearchParams);
+  };
+  
   // Initialize scroll reveal for animations
   useEffect(() => {
     const initScrollReveal = () => {
@@ -113,8 +90,10 @@ const Blog = () => {
     initScrollReveal();
   }, []);
 
+  const featuredPost = blogPosts.find(post => post.id === 1);
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-100 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       <Navbar />
       <main className="container mx-auto px-6 pt-32 pb-16">
         {/* SEO-optimized heading structure */}
@@ -132,111 +111,95 @@ const Blog = () => {
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
-          <h1 className="text-4xl md:text-5xl font-serif font-bold text-purple-900 mb-4">Equestrian Excellence Blog</h1>
-          <p className="text-xl text-purple-700 max-w-3xl">
+          <h1 className="text-4xl md:text-5xl font-serif font-bold text-gray-900 mb-4">Equestrian Excellence Blog</h1>
+          <p className="text-xl text-gray-700 max-w-3xl">
             Expert insights, training tips, and the latest innovations in equestrian sports.
           </p>
         </div>
         
-        {/* Featured post */}
-        <div className="reveal-scroll mb-12 opacity-0 translate-y-8 transition-all duration-700 ease-out">
-          <div className="bg-white rounded-xl overflow-hidden shadow-lg">
-            <div className="md:flex">
-              <div className="md:w-1/2">
-                <img 
-                  src={blogPosts[0].imageUrl} 
-                  alt={blogPosts[0].title}
-                  className="h-full w-full object-cover"
-                />
-              </div>
-              <div className="p-8 md:w-1/2 flex flex-col justify-center">
-                <div className="flex items-center mb-4">
-                  <span className="bg-purple-100 text-purple-800 text-xs font-semibold px-3 py-1 rounded-full">{blogPosts[0].category}</span>
-                  <span className="ml-3 text-sm text-gray-500">{blogPosts[0].date}</span>
-                </div>
-                <h2 className="text-2xl md:text-3xl font-serif font-bold text-purple-900 mb-4">
-                  <Link to={`/blog/${blogPosts[0].slug}`} className="hover:text-purple-700 transition-colors">
-                    {blogPosts[0].title}
-                  </Link>
-                </h2>
-                <p className="text-gray-700 mb-6">{blogPosts[0].excerpt}</p>
-                <div className="mt-auto">
-                  <div className="flex items-center mb-4">
-                    <div className="mr-3 bg-purple-200 text-purple-800 rounded-full h-10 w-10 flex items-center justify-center">
-                      {blogPosts[0].author.split(' ').map(n => n[0]).join('')}
-                    </div>
-                    <span className="text-sm font-medium">{blogPosts[0].author}</span>
-                  </div>
-                  <Link to={`/blog/${blogPosts[0].slug}`}>
-                    <Button className="bg-purple-700 hover:bg-purple-800">
-                      Read Article
-                      <BookOpen className="ml-2 h-4 w-4" />
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-            </div>
+        {/* Search and filters */}
+        <div className="my-8 flex flex-col gap-6">
+          {/* Search bar */}
+          <div className="relative max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+            <Input 
+              placeholder="Search articles..." 
+              className="pl-10"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
           </div>
+          
+          {/* Discipline filter */}
+          <BlogFilter 
+            disciplineFilter={disciplineFilter}
+            categoryFilter={categoryFilter}
+            updateFilters={updateFilters}
+          />
         </div>
         
-        {/* Blog post grid */}
-        <h2 className="text-2xl font-serif font-bold text-purple-900 mb-6">Latest Articles</h2>
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {blogPosts.slice(1).map((post) => (
-            <article key={post.id} className="reveal-scroll bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow opacity-0 translate-y-8 transition-all duration-700 ease-out">
-              <Link to={`/blog/${post.slug}`}>
-                <img 
-                  src={post.imageUrl} 
-                  alt={post.title}
-                  className="w-full h-48 object-cover"
-                />
-              </Link>
-              <div className="p-6">
-                <div className="flex items-center mb-3">
-                  <span className="bg-purple-100 text-purple-800 text-xs font-semibold px-3 py-1 rounded-full">{post.category}</span>
-                  <span className="ml-3 text-xs text-gray-500">{post.date}</span>
-                </div>
-                <h3 className="text-xl font-serif font-bold text-purple-900 mb-3">
-                  <Link to={`/blog/${post.slug}`} className="hover:text-purple-700 transition-colors">
-                    {post.title}
-                  </Link>
-                </h3>
-                <p className="text-gray-700 text-sm mb-4">{post.excerpt}</p>
-                <div className="flex items-center justify-between mt-4">
-                  <div className="flex items-center">
-                    <div className="mr-2 bg-purple-200 text-purple-800 rounded-full h-8 w-8 flex items-center justify-center text-sm">
-                      {post.author.split(' ').map(n => n[0]).join('')}
-                    </div>
-                    <span className="text-xs font-medium">{post.author}</span>
+        {/* Featured post */}
+        {featuredPost && disciplineFilter === 'all' && categoryFilter === 'all' && !searchQuery && (
+          <div className="reveal-scroll mb-12 opacity-0 translate-y-8 transition-all duration-700 ease-out">
+            <FeaturedPost post={featuredPost} />
+          </div>
+        )}
+        
+        {/* Blog posts grid */}
+        <div className="mb-10">
+          {filteredPosts.length > 0 ? (
+            <>
+              <h2 className="text-2xl font-serif font-bold text-gray-900 mb-6">
+                {disciplineFilter !== 'all' || categoryFilter !== 'all' || searchQuery
+                  ? `${filteredPosts.length} ${filteredPosts.length === 1 ? 'Result' : 'Results'}`
+                  : 'Latest Articles'
+                }
+              </h2>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {filteredPosts.map((post, index) => (
+                  <div 
+                    key={post.id} 
+                    className="reveal-scroll opacity-0 translate-y-8 transition-all duration-700 ease-out"
+                    style={{ transitionDelay: `${index * 100}ms` }}
+                  >
+                    <BlogPostCard post={post} />
                   </div>
-                  <Link to={`/blog/${post.slug}`} className="text-purple-700 hover:text-purple-900 text-sm font-medium flex items-center">
-                    Read more
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </Link>
-                </div>
+                ))}
               </div>
-            </article>
-          ))}
+            </>
+          ) : (
+            <div className="text-center py-16 bg-gray-50 rounded-xl">
+              <BookOpen className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+              <h3 className="text-xl font-medium text-gray-900 mb-2">No articles found</h3>
+              <p className="text-gray-600 mb-6">Try adjusting your filters or search term</p>
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setSearchParams(new URLSearchParams());
+                  setSearchQuery('');
+                }}
+              >
+                Clear all filters
+              </Button>
+            </div>
+          )}
         </div>
         
-        {/* Newsletter sign-up - good for SEO and lead generation */}
-        <div className="reveal-scroll mt-16 bg-purple-100 rounded-xl p-8 md:p-12 opacity-0 translate-y-8 transition-all duration-700 ease-out">
+        {/* Newsletter sign-up */}
+        <div className="reveal-scroll mt-16 bg-gray-100 rounded-xl p-8 md:p-12 opacity-0 translate-y-8 transition-all duration-700 ease-out">
           <div className="md:flex items-center justify-between">
             <div className="md:w-2/3 mb-6 md:mb-0">
-              <h2 className="text-2xl md:text-3xl font-serif font-bold text-purple-900 mb-4">Subscribe to Our Newsletter</h2>
-              <p className="text-purple-700">Get the latest equestrian insights and updates delivered straight to your inbox.</p>
+              <h2 className="text-2xl md:text-3xl font-serif font-bold text-gray-900 mb-4">Subscribe to Our Newsletter</h2>
+              <p className="text-gray-700">Get the latest equestrian insights and updates delivered straight to your inbox.</p>
             </div>
             <div className="md:w-1/3">
               <form className="flex flex-col sm:flex-row gap-3">
-                <input 
+                <Input 
                   type="email" 
                   placeholder="Your email address" 
-                  className="flex-grow px-4 py-3 rounded-md border border-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   required
                 />
-                <Button className="bg-purple-700 hover:bg-purple-800 whitespace-nowrap">
+                <Button>
                   Subscribe
                 </Button>
               </form>
