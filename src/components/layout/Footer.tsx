@@ -1,3 +1,4 @@
+
 import { Link } from 'react-router-dom';
 import { 
   Facebook, 
@@ -16,11 +17,11 @@ const Footer = () => {
           <div className="col-span-1 md:col-span-1">
             <Link to="/" className="flex items-center">
               <h2 className="font-serif text-2xl font-semibold text-white">
-                AI Dressage Trainer
+                AI Equestrian
               </h2>
             </Link>
             <p className="mt-4 text-purple-200 text-sm leading-relaxed">
-              Transform your dressage training with AI-powered analysis and personalized recommendations.
+              Transform your equestrian training with AI-powered analysis and personalized recommendations.
             </p>
             <div className="mt-6 flex space-x-4">
               <a href="#" className="text-purple-300 hover:text-white transition-colors">
@@ -44,6 +45,16 @@ const Footer = () => {
               <li>
                 <Link to="/" className="text-purple-300 hover:text-white transition-colors text-sm">
                   Home
+                </Link>
+              </li>
+              <li>
+                <Link to="/dressage" className="text-purple-300 hover:text-white transition-colors text-sm">
+                  AI Dressage Trainer
+                </Link>
+              </li>
+              <li>
+                <Link to="/jumping" className="text-purple-300 hover:text-white transition-colors text-sm">
+                  AI Jumping Trainer
                 </Link>
               </li>
               <li>
@@ -95,8 +106,8 @@ const Footer = () => {
             <ul className="space-y-3">
               <li className="flex items-start">
                 <Mail size={16} className="mr-2 mt-1 text-purple-300" />
-                <a href="mailto:info@aidressagetrainer.com" className="text-purple-300 hover:text-white transition-colors text-sm">
-                  info@aidressagetrainer.com
+                <a href="mailto:info@aiequestrian.com" className="text-purple-300 hover:text-white transition-colors text-sm">
+                  info@aiequestrian.com
                 </a>
               </li>
             </ul>
@@ -109,7 +120,7 @@ const Footer = () => {
         </div>
         
         <div className="border-t border-purple-800 mt-12 pt-8 text-center text-purple-400 text-sm">
-          <p>© {new Date().getFullYear()} AI Dressage Trainer. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} AI Equestrian. All rights reserved.</p>
         </div>
       </div>
     </footer>

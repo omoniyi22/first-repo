@@ -5,7 +5,7 @@ import Footer from '@/components/layout/Footer';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle, Calendar, Map, Activity, BarChart, Clock, Award } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const Jumping = () => {
@@ -89,6 +89,12 @@ const Jumping = () => {
               <p className="text-lg text-white/90 mb-8 max-w-lg mx-auto text-shadow-sm">
                 Upload your jumping videos, get AI-powered analysis, and receive personalized technique recommendations to improve your performance.
               </p>
+
+              {/* Testimonial */}
+              <div className="bg-white/10 backdrop-blur-md rounded-lg p-4 mb-8 max-w-md mx-auto border border-white/20">
+                <p className="text-white/90 italic">"The AI Jumping Trainer transformed my approach to courses. I'm now placing consistently in the top 5 at my level."</p>
+                <p className="text-white/80 text-sm mt-2">— Emma L., Amateur Jumper</p>
+              </div>
               
               <div className="flex flex-col sm:flex-row gap-4 mb-8 justify-center">
                 <Link to="/sign-in?signup=true">
@@ -123,15 +129,15 @@ const Jumping = () => {
               {[
                 {
                   title: "Upload Your Videos",
-                  description: "Share your jumping rounds for our AI to analyze your technique and approach."
+                  description: "Share your jumping rounds or schooling sessions for our AI to analyze. Works with smartphone video, GoPro footage, or professional recordings. Upload course maps for comprehensive round analysis."
                 },
                 {
                   title: "Get AI Analysis",
-                  description: "Our algorithms identify strengths and areas for improvement in your riding."
+                  description: "Our advanced algorithms track 50+ data points throughout your round. Identify strengths and weaknesses in approach, takeoff, and landing. Compare your performance to ideal parameters for your competition level."
                 },
                 {
                   title: "Follow Tailored Recommendations",
-                  description: "Implement personalized training exercises designed to enhance your performance."
+                  description: "Receive specific exercises targeted to your improvement areas. Track progress with each new video upload. Build a progressive training plan based on your development."
                 }
               ].map((step, index) => (
                 <div 
@@ -166,19 +172,23 @@ const Jumping = () => {
               {[
                 {
                   title: "Technique Analysis",
-                  description: "Detailed insight into your approach, takeoff, and landing technique"
+                  description: "Detailed insight into your approach, takeoff, and landing technique. Analysis of striding between fences and approach angles.",
+                  icon: Activity
                 },
                 {
                   title: "Pattern Recognition",
-                  description: "Identify recurring issues that affect your performance across competitions"
+                  description: "Identify recurring issues across different rounds. Spot horse tendencies at specific fence types. Recognize environmental factors affecting performance.",
+                  icon: BarChart
                 },
                 {
                   title: "Progress Tracking",
-                  description: "Visualize improvements in your riding technique and results over time"
+                  description: "Visualize improvements in your technique over time. Compare rounds at the same height or course type. Set measurable goals and track advancement.",
+                  icon: CheckCircle
                 },
                 {
                   title: "Expert Insights",
-                  description: "AI-generated advice based on techniques from top show jumpers"
+                  description: "AI-generated advice based on techniques from top show jumpers. Exercise recommendations from certified trainers. Tailored to your horse's jumping style.",
+                  icon: Award
                 }
               ].map((benefit, index) => (
                 <div 
@@ -186,10 +196,152 @@ const Jumping = () => {
                   className="bg-white p-6 rounded-xl shadow-sm reveal-scroll"
                   style={{ transitionDelay: `${index * 100}ms` }}
                 >
+                  <benefit.icon className="h-8 w-8 text-blue-600 mb-4" />
                   <h3 className="text-xl font-serif font-medium mb-3 text-blue-900">{benefit.title}</h3>
                   <p className="text-gray-600">{benefit.description}</p>
                 </div>
               ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Course Analysis Section */}
+        <section className="py-20 bg-white">
+          <div className="container mx-auto px-6">
+            <div className="grid md:grid-cols-2 gap-12 items-center">
+              <div className="reveal-scroll">
+                <h2 className="text-3xl font-serif font-medium mb-6 text-gray-900">Detailed Course Analysis</h2>
+                <ul className="space-y-4">
+                  {[
+                    "Track your path through the course with GPS-like precision",
+                    "Analyze turn efficiency and time-saving opportunities",
+                    "Identify where faults occur and why they happen",
+                    "Compare different approaches to the same jumps"
+                  ].map((item, index) => (
+                    <li key={index} className="flex items-start">
+                      <CheckCircle className="h-5 w-5 text-blue-500 mr-3 mt-0.5 flex-shrink-0" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-8">
+                  <Link to="/how-it-works">
+                    <Button className="flex items-center gap-2">
+                      Learn More
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+              <div className="bg-blue-100 rounded-xl p-4 reveal-scroll">
+                <div className="bg-white rounded-lg shadow-lg p-4 aspect-video flex items-center justify-center">
+                  <Map className="w-16 h-16 text-blue-400 opacity-50" />
+                  {/* This would be an interactive course map with rider path in a real implementation */}
+                  <div className="absolute">Interactive course map visualization</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Competition Preparation Section */}
+        <section className="py-20 bg-blue-50">
+          <div className="container mx-auto px-6">
+            <div className="grid md:grid-cols-2 gap-12 items-center">
+              <div className="order-2 md:order-1 bg-white rounded-xl p-4 shadow-sm reveal-scroll">
+                <div className="bg-blue-50 rounded-lg p-4 aspect-video flex items-center justify-center">
+                  <Calendar className="w-16 h-16 text-blue-400 opacity-50" />
+                  {/* This would be a calendar integration in a real implementation */}
+                  <div className="absolute">Competition preparation timeline</div>
+                </div>
+              </div>
+              <div className="order-1 md:order-2 reveal-scroll">
+                <h2 className="text-3xl font-serif font-medium mb-6 text-gray-900">Prepare for Competition Success</h2>
+                <ul className="space-y-4">
+                  {[
+                    "Build a pre-competition training strategy based on your analysis",
+                    "Identify course types and jumps where you excel or need practice",
+                    "Track competition schedule and set focused goals for each event",
+                    "Review past performances at specific venues or course designers"
+                  ].map((item, index) => (
+                    <li key={index} className="flex items-start">
+                      <Clock className="h-5 w-5 text-blue-500 mr-3 mt-0.5 flex-shrink-0" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-8">
+                  <Link to="/sign-in?signup=true">
+                    <Button className="flex items-center gap-2">
+                      Get Started
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Testimonials */}
+        <section className="py-20 bg-white">
+          <div className="container mx-auto px-6">
+            <h2 className="text-3xl md:text-4xl font-serif font-medium mb-12 text-center text-gray-900 reveal-scroll">
+              What Riders Are Saying
+            </h2>
+            <div className="grid md:grid-cols-3 gap-8">
+              {[
+                {
+                  quote: "AI Jumping Trainer helped me identify a recurring approach issue that was causing rails. Fixed it in two weeks!",
+                  name: "Michael T.",
+                  role: "Adult Amateur, 1.10m Jumpers"
+                },
+                {
+                  quote: "The pattern recognition is incredible. It spotted my horse's tendency to drift right that even my trainer hadn't noticed consistently.",
+                  name: "Sarah K.",
+                  role: "Junior Rider, 1.20m Jumpers"
+                },
+                {
+                  quote: "As a professional, I use this with all my students. The visual analysis makes it so much easier to explain technique adjustments.",
+                  name: "James R.",
+                  role: "Professional Trainer"
+                }
+              ].map((testimonial, index) => (
+                <div 
+                  key={index} 
+                  className="bg-blue-50 p-8 rounded-xl shadow-sm relative reveal-scroll"
+                  style={{ transitionDelay: `${index * 100}ms` }}
+                >
+                  <div className="absolute -top-4 -left-2 text-blue-400 text-6xl opacity-20">"</div>
+                  <p className="text-gray-700 mb-6 relative z-10">{testimonial.quote}</p>
+                  <div>
+                    <p className="font-medium text-blue-900">{testimonial.name}</p>
+                    <p className="text-sm text-gray-600">{testimonial.role}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* CTA Section */}
+        <section className="py-16 bg-blue-900 text-white">
+          <div className="container mx-auto px-6 text-center">
+            <h2 className="text-3xl font-serif font-medium mb-6 reveal-scroll">Ready to Transform Your Jumping?</h2>
+            <p className="max-w-2xl mx-auto mb-8 text-blue-100 reveal-scroll">
+              Join riders who are using AI to achieve their competitive goals and improve their technique.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center reveal-scroll">
+              <Link to="/sign-in?signup=true">
+                <Button className="bg-white hover:bg-blue-50 text-blue-900 px-8">
+                  Start Your Free Analysis
+                </Button>
+              </Link>
+              <Link to="/pricing">
+                <Button variant="outline" className="border-white/50 hover:bg-white/10 text-white">
+                  View Plans
+                </Button>
+              </Link>
             </div>
           </div>
         </section>
