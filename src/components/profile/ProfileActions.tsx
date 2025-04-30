@@ -37,7 +37,7 @@ const ProfileActions: React.FC<ProfileActionsProps> = ({ isSaving, onSave }) => 
   return (
     <div className="flex justify-end mt-6 gap-4">
       <Button 
-        className="bg-blue-700 hover:bg-blue-800" 
+        className="bg-purple-700 hover:bg-purple-800" 
         size="lg"
         onClick={onSave}
         disabled={isSaving}
@@ -56,7 +56,7 @@ const ProfileActions: React.FC<ProfileActionsProps> = ({ isSaving, onSave }) => 
       </Button>
       <Button 
         variant="outline" 
-        className="border-blue-300 text-blue-700 hover:bg-blue-50" 
+        className="border-purple-300 text-purple-700 hover:bg-purple-50" 
         size="lg"
         onClick={handleStorageTest}
         disabled={isTesting}
@@ -73,7 +73,11 @@ const ProfileActions: React.FC<ProfileActionsProps> = ({ isSaving, onSave }) => 
           </>
         )}
       </Button>
-      <Button variant="outline" className="border-blue-300 text-blue-700 hover:bg-blue-50" size="lg">
+      <Button 
+        variant="outline" 
+        className="border-purple-300 text-purple-700 hover:bg-purple-50" 
+        size="lg"
+      >
         <Plus className="mr-2 h-4 w-4" />
         New Test
       </Button>

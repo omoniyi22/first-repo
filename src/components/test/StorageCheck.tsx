@@ -41,8 +41,9 @@ const StorageCheck = () => {
       
       // Check policies - Note: This RPC function might not exist, so we're wrapping it in a try/catch
       try {
+        // Fixed TypeScript error - the API expects a string for bucket_id, not a Record type
         const { data: policiesData, error: policiesError } = await supabase
-          .rpc('get_policies_for_bucket', { bucket_id: 'profiles' });
+          .rpc('get_policies_for_bucket', { bucket_id: 'profiles' as string });
           
         if (policiesError) {
           setResults(prev => ({ ...prev, policies: { exists: false, error: policiesError } }));
