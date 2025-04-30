@@ -21,6 +21,7 @@ const ProfileHeader = () => {
   const [region, setRegion] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
   
   const displayName = user?.user_metadata?.full_name || 
                       user?.email?.split('@')[0] || 
@@ -75,23 +76,14 @@ const ProfileHeader = () => {
       }
       
       try {
+        setIsUploadingImage(true);
+        
         // Create a temporary object URL for immediate display
         const tempImageUrl = URL.createObjectURL(file);
         setProfilePic(tempImageUrl);
         
         // Upload image to Supabase Storage
-        const fileName = `${user.id}-profile-${Date.now()}`;
-        
-        // Check if profiles bucket exists, create it if not
-        const { data: bucketExists } = await supabase
-          .storage
-          .getBucket('profiles');
-          
-        if (!bucketExists) {
-          await supabase
-            .storage
-            .createBucket('profiles', { public: true });
-        }
+        const fileName = `${user.id}-profile-${Date.now()}.${file.name.split('.').pop()}`;
         
         const { data, error } = await supabase.storage
           .from('profiles')
@@ -101,6 +93,7 @@ const ProfileHeader = () => {
           });
         
         if (error) {
+          console.error('Error uploading image:', error);
           throw error;
         }
         
@@ -108,6 +101,9 @@ const ProfileHeader = () => {
         const { data: publicUrlData } = supabase.storage
           .from('profiles')
           .getPublicUrl(`profile-images/${fileName}`);
+        
+        // Revoke temporary object URL to avoid memory leaks
+        URL.revokeObjectURL(tempImageUrl);
         
         setProfilePic(publicUrlData.publicUrl);
         
@@ -135,6 +131,8 @@ const ProfileHeader = () => {
           variant: "destructive"
         });
         console.error('Error uploading image:', error);
+      } finally {
+        setIsUploadingImage(false);
       }
     }
   };
@@ -198,10 +196,18 @@ const ProfileHeader = () => {
         <div className="flex flex-col items-center">
           <div className="relative">
             <Avatar className="h-36 w-36 border-2 border-gray-200">
-              <AvatarImage src={profilePic || ''} alt={displayName} />
-              <AvatarFallback className="bg-blue-100 text-blue-800">
-                <User size={48} />
-              </AvatarFallback>
+              {isUploadingImage ? (
+                <div className="absolute inset-0 flex items-center justify-center bg-gray-100/80">
+                  <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                </div>
+              ) : (
+                <>
+                  <AvatarImage src={profilePic || ''} alt={displayName} />
+                  <AvatarFallback className="bg-blue-100 text-blue-800">
+                    <User size={48} />
+                  </AvatarFallback>
+                </>
+              )}
             </Avatar>
             <label 
               htmlFor="profile-pic-upload" 
@@ -214,6 +220,7 @@ const ProfileHeader = () => {
                 className="hidden" 
                 accept="image/*"
                 onChange={handleProfilePicUpload}
+                disabled={isUploadingImage}
               />
             </label>
           </div>
