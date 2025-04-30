@@ -16,6 +16,7 @@ import TermsOfService from "./pages/TermsOfService";
 import Privacy from "./pages/Privacy";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
+import ProfileQuestionnaire from "./pages/ProfileQuestionnaire";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +38,7 @@ const App = () => (
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
+            <Route path="/profile-setup" element={<ProfileQuestionnaire />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </TooltipProvider>
