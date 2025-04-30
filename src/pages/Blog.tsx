@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
@@ -35,17 +34,15 @@ const Blog = () => {
     // Filter by discipline
     if (disciplineFilter !== 'all') {
       result = result.filter(post => 
-        post.discipline.toLowerCase() === disciplineFilter.toLowerCase().replace('jumping', 'Jumping').replace('dressage', 'Dressage')
+        post.discipline.toLowerCase() === disciplineFilter.toLowerCase()
       );
     }
     
     // Filter by category
     if (categoryFilter !== 'all') {
       result = result.filter(post => 
-        post.category.toLowerCase() === categoryFilter.toLowerCase().replace(
-          /(^|\s)\S/g, 
-          function(t) { return t.toUpperCase(); }
-        )
+        post.category.toLowerCase() === categoryFilter.toLowerCase()
+          .replace(/(^|\s)\S/g, function(t) { return t.toUpperCase(); })
       );
     }
     
