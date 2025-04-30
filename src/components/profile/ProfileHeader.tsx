@@ -77,13 +77,17 @@ const ProfileHeader = () => {
       
       try {
         setIsUploadingImage(true);
+        console.log('Starting image upload process...');
         
         // Create a temporary object URL for immediate display
         const tempImageUrl = URL.createObjectURL(file);
         setProfilePic(tempImageUrl);
         
         // Upload image to Supabase Storage
-        const fileName = `${user.id}-profile-${Date.now()}.${file.name.split('.').pop()}`;
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${user.id}-profile-${Date.now()}.${fileExt}`;
+        
+        console.log('Uploading to profiles bucket, path:', `profile-images/${fileName}`);
         
         const { data, error } = await supabase.storage
           .from('profiles')
@@ -97,10 +101,14 @@ const ProfileHeader = () => {
           throw error;
         }
         
+        console.log('Upload successful, data:', data);
+        
         // Get public URL
         const { data: publicUrlData } = supabase.storage
           .from('profiles')
           .getPublicUrl(`profile-images/${fileName}`);
+          
+        console.log('Got public URL:', publicUrlData.publicUrl);
         
         // Revoke temporary object URL to avoid memory leaks
         URL.revokeObjectURL(tempImageUrl);
@@ -117,6 +125,7 @@ const ProfileHeader = () => {
           });
           
         if (updateError) {
+          console.error('Error updating profile with image URL:', updateError);
           throw updateError;
         }
         
@@ -125,6 +134,9 @@ const ProfileHeader = () => {
           description: "Your profile picture has been updated successfully."
         });
       } catch (error: any) {
+        // Revert profile picture state if there was an error
+        setProfilePic(null);
+        
         toast({
           title: "Upload failed",
           description: error.message || "Failed to upload image. Please try again.",
