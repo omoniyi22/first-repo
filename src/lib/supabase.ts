@@ -22,35 +22,31 @@ export const testSupabaseConnection = async () => {
     }
 
     // Try to make a simple query to test the connection
-    // Since we're using generic Supabase client with potentially no tables,
-    // we'll handle the "relation does not exist" error as a success case
     try {
-      // We'll use a simple RPC call that doesn't require a specific table
-      const { error } = await supabase.rpc('get_server_time');
+      // Use a simple fetch instead of an RPC call to avoid type errors
+      const { error } = await supabase.auth.getSession();
 
       if (error) {
-        // Even if there's an RPC error, as long as we got a response, the connection is working
-        console.log('Supabase RPC error (but connection is working):', error.message);
+        console.log('Supabase connection error:', error.message);
         return {
-          isConnected: true,
-          message: 'Successfully connected to Supabase!',
+          isConnected: false,
+          message: `Connection error: ${error.message}`,
         };
       }
+      
+      return {
+        isConnected: true,
+        message: 'Successfully connected to Supabase!',
+      };
     } catch (error: any) {
-      // If the connection works but the function doesn't exist
-      if (error && error.message && typeof error.message === 'string' && error.message.includes('does not exist')) {
-        return {
-          isConnected: true,
-          message: 'Successfully connected to Supabase!',
-        };
-      }
       console.error('Supabase connection error:', error);
+      return {
+        isConnected: false,
+        message: error instanceof Error 
+          ? `Connection error: ${error.message}` 
+          : 'Unknown connection error',
+      };
     }
-    
-    return {
-      isConnected: true,
-      message: 'Successfully connected to Supabase!',
-    };
   } catch (error) {
     console.error('Supabase connection test failed:', error);
     return {
