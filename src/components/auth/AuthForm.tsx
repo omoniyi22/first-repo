@@ -3,11 +3,12 @@ import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Check, X, Loader2, Mail } from 'lucide-react';
+import { Check, X, Loader2 } from 'lucide-react';
 import AnimatedSection from '../ui/AnimatedSection';
 import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
 import { supabase } from '@/integrations/supabase/client';
+import { Provider } from '@supabase/supabase-js';
 
 const AuthForm = () => {
   const [searchParams] = useSearchParams();
@@ -92,7 +93,10 @@ const AuthForm = () => {
           description: "Welcome to AI Dressage Trainer. Check your email for verification instructions.",
         });
 
-        // Don't navigate yet, as user needs to verify email first
+        // Redirect to dashboard if auto-confirm is enabled in Supabase
+        if (data.user && !data.user.identities?.[0].identity_data?.email_verified) {
+          navigate('/dashboard');
+        }
       } else {
         // Sign in with Supabase
         const { data, error } = await supabase.auth.signInWithPassword({
@@ -107,8 +111,8 @@ const AuthForm = () => {
           description: "Welcome back to AI Dressage Trainer.",
         });
         
-        // Redirect to dashboard or home after login
-        navigate('/');
+        // Redirect to dashboard after login
+        navigate('/dashboard');
       }
     } catch (error) {
       console.error('Authentication error:', error);
@@ -123,14 +127,14 @@ const AuthForm = () => {
     }
   };
 
-  const handleSSOAuth = async (provider: 'google' | 'github' | 'microsoft') => {
+  const handleSSOAuth = async (provider: Provider) => {
     setIsProcessingSSO(true);
     
     try {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/`,
+          redirectTo: `${window.location.origin}/dashboard`,
         }
       });
       

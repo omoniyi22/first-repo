@@ -101,6 +101,12 @@ const Navbar = () => {
             
             {user ? (
               <div className="flex items-center ml-3 space-x-4">
+                <Link 
+                  to="/dashboard" 
+                  className={`nav-link ${isActive('/dashboard') ? 'active' : ''} text-white`}
+                >
+                  Dashboard
+                </Link>
                 <div className="text-white">
                   <UserCircle className="inline-block h-5 w-5 mr-1" />
                   <span className="hidden lg:inline-block">{user.email?.split('@')[0]}</span>
@@ -182,6 +188,14 @@ const Navbar = () => {
             >
               About
             </Link>
+            {user && (
+              <Link 
+                to="/dashboard" 
+                className={`text-white text-lg font-medium ${isActive('/dashboard') ? 'text-purple-300' : ''}`}
+              >
+                Dashboard
+              </Link>
+            )}
             <div className="pt-2 flex flex-col space-y-3">
               {user ? (
                 <>

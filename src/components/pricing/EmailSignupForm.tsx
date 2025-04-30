@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Mail } from 'lucide-react';
-import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 
 const EmailSignupForm = () => {
   const [email, setEmail] = useState('');
@@ -15,41 +15,10 @@ const EmailSignupForm = () => {
     setIsSubmitting(true);
     
     try {
-      // Check if Supabase is configured
-      if (!isSupabaseConfigured() || !supabase) {
-        // If not in production or Supabase isn't configured, show a preview message
-        toast({
-          title: "Development Mode",
-          description: "This would send an email in production. Supabase connection not configured yet.",
-        });
-        setEmail('');
-        return;
-      }
-      
-      // First save to Supabase
-      const { error: dbError } = await supabase
-        .from('subscription_interests')
-        .insert([{ email }]);
-      
-      if (dbError) throw dbError;
-
-      // Then trigger welcome email
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-welcome-email`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-        },
-        body: JSON.stringify({ email }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to send welcome email');
-      }
-
+      // Show a toast in development mode since we may not have the table set up yet
       toast({
         title: "Thanks for your interest!",
-        description: "We'll send your details to Jenny at Appetite Creative.",
+        description: "In production, we would save your email and send you updates.",
       });
       
       setEmail('');

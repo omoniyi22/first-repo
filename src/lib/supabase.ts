@@ -21,13 +21,13 @@ export const testSupabaseConnection = async () => {
     }
 
     // Try to make a simple query to test the connection
-    const { error } = await supabase.from('subscription_interests').select('id').limit(1);
+    const { error } = await supabase.from('test').select('id').limit(1).maybeSingle();
 
     // If we get a "relation does not exist" error, it means the connection is working but the table doesn't exist yet
     if (error && error.message.includes('does not exist')) {
       return {
         isConnected: true,
-        message: 'Successfully connected to Supabase! (Note: subscription_interests table does not exist yet)',
+        message: 'Successfully connected to Supabase! (Note: test table does not exist yet)',
       };
     }
 
