@@ -14,12 +14,13 @@ const NewsletterForm = () => {
     setIsSubmitting(true);
     
     try {
-      const { error } = await supabase
+      const { error, data } = await supabase
         .from('subscription_interests')
         .insert([{ 
           email,
           source: 'newsletter'
-        }]);
+        }])
+        .select();
       
       if (error) {
         if (error.code === '23505') {
@@ -29,9 +30,11 @@ const NewsletterForm = () => {
             description: "This email is already subscribed to our newsletter.",
           });
         } else {
+          console.error('Newsletter submission error:', error);
           throw error;
         }
       } else {
+        console.log('Newsletter subscription successful:', data);
         toast({
           title: "Subscription successful!",
           description: "Thank you for subscribing to our newsletter.",

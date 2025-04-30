@@ -15,12 +15,13 @@ const EmailSignupForm = () => {
     setIsSubmitting(true);
     
     try {
-      const { error } = await supabase
+      const { error, data } = await supabase
         .from('subscription_interests')
         .insert([{ 
           email,
           source: 'pricing_page'
-        }]);
+        }])
+        .select();
       
       if (error) {
         if (error.code === '23505') {
@@ -30,9 +31,11 @@ const EmailSignupForm = () => {
             description: "This email has already been registered for updates.",
           });
         } else {
+          console.error('Pricing page subscription error:', error);
           throw error;
         }
       } else {
+        console.log('Pricing page subscription successful:', data);
         toast({
           title: "Thanks for your interest!",
           description: "We'll notify you when new pricing plans are available.",
