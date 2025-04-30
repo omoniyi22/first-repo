@@ -26,7 +26,7 @@ export const testSupabaseConnection = async () => {
     // we'll handle the "relation does not exist" error as a success case
     try {
       // We'll use a simple RPC call that doesn't require a specific table
-      const { error } = await supabase.rpc('get_server_time');
+      const { error } = await supabase.rpc('get_server_time', {});
 
       if (error) {
         // Even if there's an RPC error, as long as we got a response, the connection is working

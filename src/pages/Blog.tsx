@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
@@ -10,16 +11,56 @@ import { BookOpen } from 'lucide-react';
 const blogPosts = [
   {
     id: 1,
+    title: "How AI is Revolutionizing Dressage Training: A New Era for Equestrians",
+    excerpt: "Discover how artificial intelligence is transforming dressage training with real-time feedback, detailed analytics, and personalized guidance for riders of all levels.",
+    date: "April 29, 2025",
+    author: "Emma Richardson",
+    category: "Technology",
+    imageUrl: "/lovable-uploads/15df63d0-27e1-486c-98ee-bcf44eb600f4.png",
+    slug: "ai-revolutionizing-dressage-training"
+  },
+  {
+    id: 2,
+    title: "The Data Behind the Dance: Understanding AI Analytics in Dressage",
+    excerpt: "Learn how AI captures and analyzes the complex patterns of movement, weight distribution, and timing that create the artistry of dressage.",
+    date: "April 27, 2025",
+    author: "Michael Peterson",
+    category: "Analytics",
+    imageUrl: "/lovable-uploads/4c938b42-7713-4f2d-947a-1e70c3caca32.png",
+    slug: "data-behind-dressage-dance"
+  },
+  {
+    id: 3,
+    title: "Getting Started with AI Dressage: A Beginner's Guide",
+    excerpt: "A comprehensive guide to incorporating AI into your dressage training, from equipment setup to understanding feedback and maximizing progress.",
+    date: "April 25, 2025",
+    author: "Sarah Johnson",
+    category: "Guides",
+    imageUrl: "/lovable-uploads/b729b0be-9b4c-4b4b-bdec-6bd2f849b8f8.png",
+    slug: "getting-started-ai-dressage"
+  },
+  {
+    id: 4,
+    title: "Future of Equestrian Sports: AI's Role in Competitive Dressage",
+    excerpt: "Explore how artificial intelligence is influencing competitive dressage, from training methods to potential changes in judging and accessibility.",
+    date: "April 22, 2025",
+    author: "Thomas Müller",
+    category: "Competition",
+    imageUrl: "/lovable-uploads/3b7c24a2-ef67-42cc-9b46-875418451128.png",
+    slug: "future-equestrian-sports-ai"
+  },
+  {
+    id: 5,
     title: "5 Essential Dressage Training Tips for Beginners",
     excerpt: "Master the basics of dressage with these expert tips that will help you establish a solid foundation.",
-    date: "April 22, 2025",
+    date: "April 20, 2025",
     author: "Emma Richardson",
     category: "Training",
     imageUrl: "/lovable-uploads/79f64a37-cb8e-4627-b743-c5330837a1b0.png",
     slug: "essential-dressage-tips"
   },
   {
-    id: 2,
+    id: 6,
     title: "Understanding Dressage Test Scoring: What Judges Are Looking For",
     excerpt: "Learn how dressage tests are scored and what specific elements judges evaluate during your performance.",
     date: "April 18, 2025",
@@ -29,7 +70,7 @@ const blogPosts = [
     slug: "dressage-test-scoring"
   },
   {
-    id: 3,
+    id: 7,
     title: "How AI Technology is Transforming Modern Dressage Training",
     excerpt: "Discover how artificial intelligence is revolutionizing dressage training methods and improving rider performance.",
     date: "April 15, 2025",

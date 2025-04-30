@@ -4,13 +4,308 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator, BreadcrumbPage } from '@/components/ui/breadcrumb';
-import { ArrowLeft, Bookmark, Share2, MessageSquare, ThumbsUp, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Bookmark, Share2, MessageSquare, ThumbsUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 
 const blogPosts = [
   {
     id: 1,
+    title: "How AI is Revolutionizing Dressage Training: A New Era for Equestrians",
+    content: `
+      <p>Dressage has long been considered an art form, a dance between horse and rider that requires years of dedicated training to master. Today, we stand at the threshold of a revolution in this traditional sport, as artificial intelligence brings new insights and opportunities to riders of all levels.</p>
+      
+      <h2>The Technology Behind the Transformation</h2>
+      <p>At its core, our AI dressage system uses advanced computer vision and machine learning algorithms to capture and analyze horse movements with unprecedented precision. High-definition cameras track over 50 points on the horse and rider, creating a detailed digital model that updates 60 times per second. This allows our system to detect subtleties in movement that even the most experienced human eye might miss.</p>
+      
+      <p>The AI doesn't just collect data—it interprets it. By comparing the captured movements against a database of thousands of hours of elite dressage performances, the system can identify deviations and suggest corrections in real-time.</p>
+      
+      <div class="my-8">
+        <img src="/lovable-uploads/4c938b42-7713-4f2d-947a-1e70c3caca32.png" alt="AI software analyzing dressage movements" class="w-full h-auto rounded-lg shadow-md" />
+        <p class="text-sm text-gray-500 italic mt-2 text-center">AI software can analyze subtle details of dressage movements that may be missed by the human eye</p>
+      </div>
+      
+      <h2>Benefits for All Levels of Riders</h2>
+      <p>For beginners, the AI offers immediate, objective feedback on basic position and technique. Rather than waiting for a weekly lesson to learn you've been reinforcing incorrect habits, riders receive gentle guidance during every practice session.</p>
+      
+      <p>Intermediate riders find the system particularly valuable for self-training between lessons. The AI can confirm when movements are executed correctly, providing the confidence to progress without constant instructor supervision.</p>
+      
+      <p>For advanced and competitive riders, the system offers detailed analytics on performance consistency, minute asymmetries, and trend analysis across training sessions. Many elite riders report breakthrough moments when the AI identified patterns that had eluded both them and their trainers for years.</p>
+      
+      <h2>Success Stories: Early Adopters</h2>
+      <p>Sarah Thornton, a USDF Gold Medalist, incorporated AI analysis into her training program six months ago. "I was skeptical at first," she admits. "Dressage is so nuanced—how could a computer understand it? But the insights have been remarkable. The AI detected a subtle imbalance in my horse's collection that was affecting our pirouettes. Once addressed, our scores improved by nearly five percentage points."</p>
+      
+      <p>Amateur rider Marcus Lee shares a different perspective: "As someone who can only afford monthly lessons, the AI system has transformed my training. It's like having my instructor there every day, catching issues before they become habits."</p>
+      
+      <h2>The Future is Here</h2>
+      <p>While no technology can replace the experienced eye of a skilled trainer, AI-assisted training is proving to be an invaluable complement to traditional methods. As the technology continues to evolve, we can expect even more sophisticated analysis and personalized training recommendations.</p>
+      
+      <p>The dressage arena has always been a place where tradition is respected. Now, it's also becoming a place where innovation helps horses and riders achieve their full potential.</p>
+    `,
+    excerpt: "Discover how artificial intelligence is transforming dressage training with real-time feedback, detailed analytics, and personalized guidance for riders of all levels.",
+    date: "April 29, 2025",
+    author: "Emma Richardson",
+    category: "Technology",
+    imageUrl: "/lovable-uploads/15df63d0-27e1-486c-98ee-bcf44eb600f4.png",
+    slug: "ai-revolutionizing-dressage-training",
+    tags: ["AI technology", "dressage training", "equestrian innovation", "performance analytics"]
+  },
+  {
+    id: 2,
+    title: "The Data Behind the Dance: Understanding AI Analytics in Dressage",
+    content: `
+      <p>When you watch a beautiful dressage test, you're witnessing the culmination of countless hours of precise training and communication between horse and rider. But beneath this artistry lies data—patterns of movement, weight distribution, timing, and biomechanics that can now be captured and analyzed through artificial intelligence.</p>
+      
+      <h2>What Does the AI Actually Track?</h2>
+      <p>Our dressage AI system monitors several critical aspects of performance:</p>
+      
+      <h3>Horse Biomechanics:</h3>
+      <ul class="list-disc pl-6 my-4 space-y-2">
+        <li>Joint angles and range of motion</li>
+        <li>Stride length, height, and timing</li>
+        <li>Weight distribution across all four legs</li>
+        <li>Hock engagement and elevation</li>
+        <li>Back and neck posture</li>
+        <li>Consistency of tempo within and between gaits</li>
+      </ul>
+      
+      <h3>Rider Position:</h3>
+      <ul class="list-disc pl-6 my-4 space-y-2">
+        <li>Seat balance and stability</li>
+        <li>Alignment of shoulders, hips, and heels</li>
+        <li>Hand position and rein contact</li>
+        <li>Weight distribution in stirrups</li>
+        <li>Coordination between aids</li>
+      </ul>
+      
+      <div class="my-8">
+        <img src="/lovable-uploads/3b7c24a2-ef67-42cc-9b46-875418451128.png" alt="Horse with biomechanical sensors" class="w-full h-auto rounded-lg shadow-md" />
+        <p class="text-sm text-gray-500 italic mt-2 text-center">Advanced sensors combined with AI can detect subtle biomechanical issues before they become visible problems</p>
+      </div>
+      
+      <h3>Horse-Rider Interaction:</h3>
+      <ul class="list-disc pl-6 my-4 space-y-2">
+        <li>Timing of aids relative to horse response</li>
+        <li>Consistency of communication</li>
+        <li>Harmony of movement</li>
+      </ul>
+      
+      <p>The system creates a digital skeleton overlay that tracks these elements in real-time, building a comprehensive profile of each training session.</p>
+      
+      <h2>Translating Data to Action</h2>
+      <p>Raw data alone isn't helpful—what matters is interpretation. The AI analyzes patterns to provide actionable insights:</p>
+      <ul class="list-disc pl-6 my-4 space-y-2">
+        <li><strong>Pattern Recognition:</strong> When your horse consistently loses impulsion at the same point in the arena, the AI flags this pattern and suggests potential causes.</li>
+        <li><strong>Comparative Analysis:</strong> Your horse's extension today can be directly compared to last week's performance, with frame-by-frame comparison showing subtle differences.</li>
+        <li><strong>Progress Tracking:</strong> Long-term data reveals improvement trends that might be imperceptible day-to-day.</li>
+        <li><strong>Problem Diagnosis:</strong> When issues arise, the system can often identify root causes. For example, a loss of straightness in the half-pass might be traced back to an initial misalignment several strides earlier.</li>
+      </ul>
+      
+      <h2>Traditional Coaching vs. AI-Assisted Training</h2>
+      <p>Traditional coaching relies on:</p>
+      <ul class="list-disc pl-6 my-4 space-y-2">
+        <li>Scheduled lessons (typically weekly or less frequent)</li>
+        <li>The trainer's subjective assessment</li>
+        <li>The trainer's ability to communicate what they see</li>
+        <li>The rider's memory and interpretation</li>
+      </ul>
+      
+      <p>AI-assisted training complements this with:</p>
+      <ul class="list-disc pl-6 my-4 space-y-2">
+        <li>Continuous feedback during every ride</li>
+        <li>Objective measurements</li>
+        <li>Visual and data-driven evidence</li>
+        <li>Recorded sessions for review and comparison</li>
+      </ul>
+      
+      <p>Elite trainer Maria Kostova, who now incorporates AI analysis into her coaching program, explains: "The AI doesn't replace my expertise—it enhances it. When I tell a rider to increase engagement, the data shows them exactly what that means in terms of hock angle and elevation. It bridges the gap between what I see and what the rider feels."</p>
+      
+      <h2>Beyond the Numbers</h2>
+      <p>While the system captures quantitative data, dressage remains both an art and a science. The AI is programmed to recognize that there isn't one perfect way to execute a movement—different horses with different conformations will have their own optimal patterns.</p>
+      
+      <p>The goal isn't to make all horses move identically but to help each horse-and-rider combination find their most balanced, harmonious expression within the classical principles.</p>
+      
+      <p>As we continue to develop this technology, we're finding that the data doesn't demystify the magic of dressage—it deepens our appreciation for the incredible biomechanical dance that unfolds between horse and rider.</p>
+    `,
+    excerpt: "Learn how AI captures and analyzes the complex patterns of movement, weight distribution, and timing that create the artistry of dressage.",
+    date: "April 27, 2025",
+    author: "Michael Peterson",
+    category: "Analytics",
+    imageUrl: "/lovable-uploads/4c938b42-7713-4f2d-947a-1e70c3caca32.png",
+    slug: "data-behind-dressage-dance",
+    tags: ["biomechanics", "data analysis", "equestrian technology", "training analytics"]
+  },
+  {
+    id: 3,
+    title: "Getting Started with AI Dressage: A Beginner's Guide",
+    content: `
+      <p>Incorporating artificial intelligence into your dressage training might sound futuristic and complex, but our system is designed to be accessible for riders of all technical abilities. This guide will walk you through the process of getting started and making the most of AI-assisted training.</p>
+      
+      <h2>Equipment Setup: What You'll Need</h2>
+      <h3>Basic Setup:</h3>
+      <ul class="list-disc pl-6 my-4 space-y-2">
+        <li>Our AI Dressage Analysis System (camera unit and processing hub)</li>
+        <li>Smartphone, tablet, or laptop for viewing feedback</li>
+        <li>Stable internet connection in your riding area</li>
+        <li>Mounting posts or tripod (height: 8-10 feet recommended)</li>
+      </ul>
+      
+      <h3>Optional Enhancements:</h3>
+      <ul class="list-disc pl-6 my-4 space-y-2">
+        <li>Wireless earbuds for real-time audio feedback</li>
+        <li>Additional camera angles for comprehensive coverage</li>
+        <li>Large display monitor for trainer viewing</li>
+      </ul>
+      
+      <div class="my-8">
+        <img src="/lovable-uploads/b729b0be-9b4c-4b4b-bdec-6bd2f849b8f8.png" alt="Rider in green jacket on chestnut horse" class="w-full h-auto rounded-lg shadow-md" />
+        <p class="text-sm text-gray-500 italic mt-2 text-center">A proper riding position is fundamental to effective dressage training with AI</p>
+      </div>
+      
+      <h2>Installation Process</h2>
+      <ol class="list-decimal pl-6 my-4 space-y-2">
+        <li><strong>Choose Your Location:</strong> Select a position that provides a clear view of your entire riding area. For standard 20x60m arenas, we recommend placing the main camera at C for the best perspective.</li>
+        <li><strong>Mount the Camera System:</strong> Secure the camera unit to your mounting solution at the recommended height (8-10 feet). Ensure it's level using the built-in bubble indicator.</li>
+        <li><strong>Connect to Power:</strong> Plug the processing hub into a power source. The system includes a 50-foot weatherproof cable, but we recommend using a surge protector.</li>
+        <li><strong>Network Setup:</strong> Connect the system to your Wi-Fi network using our mobile app. Follow the in-app instructions to complete the pairing process.</li>
+        <li><strong>Calibration:</strong> The first time you use the system, you'll need to ride a simple pattern that allows the AI to calibrate to your horse's specific conformation and movement style.</li>
+        <li><strong>User Profiles:</strong> Create profiles for each horse/rider combination to enable progress tracking and personalized analysis.</li>
+      </ol>
+      
+      <h2>Getting the Most from Your System</h2>
+      <h3>Start Simple:</h3>
+      <p>Begin with basic gaits and figures rather than complex movements. This allows you to become comfortable with the feedback format and establish baseline measurements.</p>
+      
+      <h3>Focus on One Element:</h3>
+      <p>Rather than trying to address everything at once, choose a specific aspect to improve in each session (e.g., straightness, impulsion, or rider position).</p>
+      
+      <h3>Review Sessions:</h3>
+      <p>After riding, take time to review the recorded session with the AI analysis overlay. The system highlights patterns and issues you might miss while focusing on riding.</p>
+      
+      <h3>Integrate with Traditional Training:</h3>
+      <p>Share your AI session data with your trainer before lessons. Many trainers find this helps them provide more targeted guidance during limited lesson time.</p>
+      
+      <h2>Understanding Feedback Types</h2>
+      <p>Our AI system provides three types of feedback:</p>
+      
+      <h3>1. Real-time Guidance:</h3>
+      <p>Immediate audio and visual cues while you ride, such as "Shoulders drifting right" or "Loss of impulsion."</p>
+      
+      <h3>2. Post-Session Analysis:</h3>
+      <p>Detailed breakdown of your entire ride, including movement quality scores, consistency metrics, and comparison to previous sessions.</p>
+      
+      <h3>3. Progress Reports:</h3>
+      <p>Weekly and monthly summaries showing improvement trends and suggesting focus areas.</p>
+      
+      <h2>Overcoming Common Challenges</h2>
+      <h3>Information Overload:</h3>
+      <p>New users sometimes feel overwhelmed by the amount of feedback. Use the settings to limit feedback to just one or two elements initially.</p>
+      
+      <h3>Technical Difficulties:</h3>
+      <p>Our support team is available via chat or phone to troubleshoot any setup issues. Most problems can be resolved within minutes.</p>
+      
+      <h3>Horse Adaptation:</h3>
+      <p>Some horses notice the camera equipment initially. We recommend introducing them to the setup before activating the system.</p>
+      
+      <h2>A Journey, Not a Destination</h2>
+      <p>Remember that the AI is a tool to enhance your training, not a replacement for good horsemanship or qualified instruction. The data provides insights, but you and your horse remain at the heart of the dressage experience.</p>
+      
+      <p>Dressage rider Emma Johnson shares: "The first few weeks with the AI system were a learning curve—both for understanding the feedback and for accepting that I wasn't as consistent as I thought! But now, six months in, I can't imagine training without it. My horse and I have made more progress than in the previous two years combined."</p>
+      
+      <p>Welcome to the future of dressage training—where tradition and technology come together to create new possibilities for horses and riders.</p>
+    `,
+    excerpt: "A comprehensive guide to incorporating AI into your dressage training, from equipment setup to understanding feedback and maximizing progress.",
+    date: "April 25, 2025",
+    author: "Sarah Johnson",
+    category: "Guides",
+    imageUrl: "/lovable-uploads/b729b0be-9b4c-4b4b-bdec-6bd2f849b8f8.png",
+    slug: "getting-started-ai-dressage",
+    tags: ["beginner", "setup guide", "equipment", "feedback analysis"]
+  },
+  {
+    id: 4,
+    title: "Future of Equestrian Sports: AI's Role in Competitive Dressage",
+    content: `
+      <p>The integration of artificial intelligence into dressage training represents more than just a technological novelty—it signals a fundamental shift in how riders prepare for and potentially compete in this classical discipline. As AI systems become more sophisticated and widely adopted, we're beginning to see their influence ripple through the competitive equestrian world.</p>
+      
+      <h2>Voices from the Arena: Professionals Embracing Technology</h2>
+      <p>Olympic medalist Thomas Müller has incorporated AI analysis into his training regimen for the past season. "At my level, finding those last few percentage points is incredibly difficult," he explains. "The AI system identified subtle asymmetries in my horse's collection that were invisible to the naked eye. Addressing these has made our pirouettes more balanced and expressive."</p>
+      
+      <p>FEI 5* judge Carolina Vasquez sees potential from a judging perspective as well. "While nothing replaces the trained eye and knowledge of a human judge, the objectivity of AI measurements could eventually serve as a valuable reference. I've found reviewing the data alongside video has deepened my understanding of biomechanics."</p>
+      
+      <div class="my-8">
+        <img src="/lovable-uploads/e6996e68-34bc-4e87-a5ff-e12b847f7df5.png" alt="Rider on white horse in competition arena" class="w-full h-auto rounded-lg shadow-md" />
+        <p class="text-sm text-gray-500 italic mt-2 text-center">Competition dressage requires precision and attention to detail that AI can help measure</p>
+      </div>
+      
+      <p>Young professional Emma Blake represents the new generation of trainers fully embracing this technology: "I share AI analysis with my students, creating a common language for discussing subtle aspects of performance. It's particularly valuable for remote coaching between in-person lessons."</p>
+      
+      <h2>Competition Applications: Today and Tomorrow</h2>
+      <h3>Current Applications:</h3>
+      <ul class="list-disc pl-6 my-4 space-y-2">
+        <li>Pre-competition analysis to identify and address weaknesses</li>
+        <li>Objective measurement of progress during qualification seasons</li>
+        <li>Enhanced video review of test performances</li>
+        <li>Remote coaching support at shows when trainers can't attend</li>
+      </ul>
+      
+      <h3>Emerging Possibilities:</h3>
+      <ul class="list-disc pl-6 my-4 space-y-2">
+        <li>AI-enhanced livestreams that offer viewers real-time insights into performances</li>
+        <li>Training simulation of championship environments</li>
+        <li>Comparative analysis across competitors (with permission)</li>
+        <li>Warm-up area optimization based on data patterns</li>
+      </ul>
+      
+      <h3>Future Potential:</h3>
+      <p>While not currently permitted in actual tests, some federations are exploring whether limited AI feedback might eventually be allowed during competitions, perhaps through permitted earpieces or visual displays for riders.</p>
+      
+      <h2>Changing Standards: The Impact on Judging and Scoring</h2>
+      <p>As riders gain access to more precise feedback, the standard of performance continues to rise. Movements that once scored 7s now need to achieve greater precision for the same mark.</p>
+      
+      <p>"The availability of AI analysis has accelerated technical improvement," notes international judge Robert Haynes. "Riders can identify and correct issues much faster than before, which raises the bar for everyone."</p>
+      
+      <p>Some federations are considering how objective measurements might complement subjective judging in the future—not replacing human judges but providing additional data points for consideration or verification in close competitions.</p>
+      
+      <h2>Ethical Considerations and Accessibility</h2>
+      <p>As with any technological advancement, the dressage community must address important questions:</p>
+      <ul class="list-disc pl-6 my-4 space-y-2">
+        <li>Will AI systems create a competitive advantage available only to wealthy riders?</li>
+        <li>How can we ensure technology enhances rather than diminishes the artistry of dressage?</li>
+        <li>What role should AI play in judging and governance?</li>
+      </ul>
+      
+      <p>In response to these concerns, several initiatives are underway:</p>
+      <ul class="list-disc pl-6 my-4 space-y-2">
+        <li><strong>Democratizing Access:</strong> Grant programs providing AI systems to promising riders with financial constraints</li>
+        <li><strong>Educational Integration:</strong> Equestrian colleges incorporating AI analysis into their curriculum</li>
+        <li><strong>Research Partnerships:</strong> Collaborations between technology developers and equine welfare organizations</li>
+      </ul>
+      
+      <h2>The Human Element Remains Central</h2>
+      <p>Despite the technological advancements, everyone we interviewed emphasized one crucial point: AI serves the horse-rider partnership; it doesn't replace it.</p>
+      
+      <p>"The data helps me understand what's happening, but connecting with my horse and riding with feel remains the essence of dressage," says Thomas Müller. "The technology should enhance our traditional methods, not replace them."</p>
+      
+      <p>Carolina Vasquez agrees: "The best riders will always be those who combine technical precision with artistic sensitivity and genuine partnership with their horses. AI can help with the first element, but the others remain uniquely human."</p>
+      
+      <h2>Looking Ahead</h2>
+      <p>As we look to the future of competitive dressage, AI will likely become as standard as video review is today—simply another tool in the rider's arsenal for improvement. The distinction between "traditional" and "technology-assisted" training will fade as the benefits become more widely recognized.</p>
+      
+      <p>The riders who will excel in this new landscape won't necessarily be those with the most advanced technology, but those who best integrate technological insights with classical principles and horsemanship. The goal remains the same as it has been for centuries: harmony, lightness, and the joy of partnership between horse and rider.</p>
+      
+      <p>The dance continues—now with new insights into its intricate patterns.</p>
+    `,
+    excerpt: "Explore how artificial intelligence is influencing competitive dressage, from training methods to potential changes in judging and accessibility.",
+    date: "April 22, 2025",
+    author: "Thomas Müller",
+    category: "Competition",
+    imageUrl: "/lovable-uploads/3b7c24a2-ef67-42cc-9b46-875418451128.png",
+    slug: "future-equestrian-sports-ai",
+    tags: ["competition", "judging", "future trends", "equestrian technology"]
+  },
+  {
+    id: 5,
     title: "5 Essential Dressage Training Tips for Beginners",
     content: `
       <p>Dressage, often described as "horse ballet," is a disciplined and elegant form of horseback riding that requires patience, precision, and a deep connection between horse and rider. For beginners stepping into the world of dressage, the journey can seem daunting, but with the right guidance, it becomes a rewarding experience. Here are five essential tips to help beginners establish a solid foundation in dressage training.</p>
@@ -54,7 +349,7 @@ const blogPosts = [
       <p>Dressage is as much about training yourself as it is about training your horse. Be patient, stay consistent, and celebrate small improvements. Remember that the journey of dressage is continuous learning and refinement, and every great dressage rider was once a beginner. With dedication, proper guidance, and these foundational tips, you're well on your way to developing the skills needed for success in the dressage arena.</p>
     `,
     excerpt: "Master the basics of dressage with these expert tips that will help you establish a solid foundation.",
-    date: "April 22, 2025",
+    date: "April 20, 2025",
     author: "Emma Richardson",
     category: "Training",
     imageUrl: "/lovable-uploads/79f64a37-cb8e-4627-b743-c5330837a1b0.png",
@@ -62,7 +357,7 @@ const blogPosts = [
     tags: ["beginner", "dressage training", "riding position", "horse communication"]
   },
   {
-    id: 2,
+    id: 6,
     title: "Understanding Dressage Test Scoring: What Judges Are Looking For",
     content: `
       <p>For many dressage riders, the scoring process can seem mysterious and sometimes unpredictable. Understanding what judges are looking for is essential to improving your scores and advancing in the sport. This article breaks down the key elements of dressage test scoring to help you better prepare for your next competition.</p>
@@ -157,7 +452,7 @@ const blogPosts = [
     tags: ["competition", "scoring", "judges", "dressage tests"]
   },
   {
-    id: 3,
+    id: 7,
     title: "How AI Technology is Transforming Modern Dressage Training",
     content: `
       <p>The world of equestrian sports is experiencing a technological revolution, and dressage is at the forefront of this transformation. Artificial Intelligence (AI) is reshaping how riders train, compete, and develop their skills, offering unprecedented insights and opportunities for improvement. Let's explore how AI technology is revolutionizing dressage training methods and creating new pathways to excellence.</p>
