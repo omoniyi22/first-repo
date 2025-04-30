@@ -68,6 +68,28 @@ const Navbar = () => {
     navigate('/dashboard');
   };
 
+  // Determine brand name based on current route
+  const getBrandName = () => {
+    if (location.pathname === '/dressage') {
+      return 'AI Dressage Trainer';
+    } else if (location.pathname === '/jumping') {
+      return 'AI Jumping Trainer';
+    } else {
+      return 'AI Equestrian';
+    }
+  };
+
+  // Determine brand color based on current route
+  const getBrandColorClass = () => {
+    if (location.pathname === '/jumping') {
+      return 'text-white';  // Blue theme
+    } else if (location.pathname === '/dressage') {
+      return 'text-white';  // Purple theme
+    } else {
+      return 'text-white';  // Default theme
+    }
+  };
+
   return (
     <header 
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
@@ -77,8 +99,8 @@ const Navbar = () => {
       <div className="container mx-auto px-6 py-3">
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center">
-            <h1 className={`font-serif text-xl font-semibold text-white`}>
-              AI Dressage Trainer
+            <h1 className={`font-serif text-xl font-semibold ${getBrandColorClass()}`}>
+              {getBrandName()}
             </h1>
           </Link>
           

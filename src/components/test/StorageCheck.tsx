@@ -1,103 +1,165 @@
 
-import { useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Upload, Check, X } from 'lucide-react';
+import { createClient } from '@supabase/supabase-js';
 
 const StorageCheck = () => {
   const { toast } = useToast();
-  const [isChecking, setIsChecking] = useState(false);
-  const [results, setResults] = useState<Record<string, any>>({});
+  const [file, setFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [result, setResult] = useState<{success: boolean; message: string; url?: string} | null>(null);
+  const [bucketName, setBucketName] = useState('profile-images');
   
-  const checkStorageBucket = async () => {
-    setIsChecking(true);
-    setResults({});
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setFile(e.target.files[0]);
+      setResult(null);
+    }
+  };
+
+  const handleBucketChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setBucketName(e.target.value);
+  };
+  
+  const uploadFile = async () => {
+    if (!file) {
+      toast({
+        title: "No file selected",
+        description: "Please select a file first.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setUploading(true);
+    setResult(null);
     
     try {
-      // Check if the profiles bucket exists
-      const { data: bucketData, error: bucketError } = await supabase
-        .storage
-        .getBucket('profiles');
-        
-      if (bucketError) {
-        setResults(prev => ({ ...prev, bucket: { exists: false, error: bucketError } }));
-      } else {
-        setResults(prev => ({ ...prev, bucket: { exists: true, data: bucketData } }));
+      // Get environment variables from meta tags
+      const supabaseUrl = document.querySelector('meta[name="supabase-url"]')?.getAttribute('content');
+      const supabaseAnonKey = document.querySelector('meta[name="supabase-anon-key"]')?.getAttribute('content');
+      
+      if (!supabaseUrl || !supabaseAnonKey) {
+        throw new Error("Supabase configuration not found");
       }
       
-      // List files in the bucket
-      const { data: filesData, error: filesError } = await supabase
-        .storage
-        .from('profiles')
-        .list('profile-images');
-        
-      if (filesError) {
-        setResults(prev => ({ ...prev, files: { exists: false, error: filesError } }));
-      } else {
-        setResults(prev => ({ ...prev, files: { exists: true, count: filesData?.length, data: filesData } }));
+      const supabase = createClient(supabaseUrl, supabaseAnonKey);
+      
+      // Generate a unique file name
+      const fileName = `${Date.now()}_${file.name}`;
+      
+      // Upload the file
+      const { data, error } = await supabase.storage
+        .from(bucketName)
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+      
+      if (error) {
+        throw error;
       }
       
-      // Check policies - Note: This RPC function might not exist, so we're wrapping it in a try/catch
-      try {
-        // Fixed TypeScript error - the API expects a string for bucket_id, not a Record type
-        const { data: policiesData, error: policiesError } = await supabase
-          .rpc('get_policies_for_bucket', { bucket_id: 'profiles' as string });
-          
-        if (policiesError) {
-          setResults(prev => ({ ...prev, policies: { exists: false, error: policiesError } }));
-        } else {
-          setResults(prev => ({ ...prev, policies: { exists: true, data: policiesData } }));
-        }
-      } catch (error) {
-        console.log('RPC function not available:', error);
-        setResults(prev => ({ ...prev, policies: { exists: false, message: 'RPC function not available' } }));
-      }
+      // Get the public URL
+      const { data: urlData } = supabase.storage
+        .from(bucketName)
+        .getPublicUrl(data.path);
       
-      toast({
-        title: "Storage check completed",
-        description: "Check the results below for details",
+      setResult({
+        success: true,
+        message: "File uploaded successfully!",
+        url: urlData.publicUrl
       });
       
     } catch (error) {
-      console.error('Error checking storage:', error);
-      toast({
-        title: "Check failed",
-        description: "An error occurred while checking storage setup",
-        variant: "destructive"
+      console.error('Storage test error:', error);
+      setResult({
+        success: false,
+        message: error instanceof Error ? error.message : "An unknown error occurred"
       });
     } finally {
-      setIsChecking(false);
+      setUploading(false);
     }
   };
-  
+
   return (
-    <Card>
+    <Card className="w-full max-w-md mx-auto">
       <CardHeader>
-        <CardTitle>Storage Bucket Check</CardTitle>
+        <CardTitle>Storage Upload Test</CardTitle>
+        <CardDescription>Test Supabase storage functionality</CardDescription>
       </CardHeader>
+      
       <CardContent className="space-y-4">
-        <Button 
-          onClick={checkStorageBucket} 
-          disabled={isChecking}
-        >
-          {isChecking ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Checking...
-            </>
-          ) : (
-            "Check Storage Setup"
-          )}
-        </Button>
+        <div className="space-y-2">
+          <Label htmlFor="bucket">Bucket Name</Label>
+          <Input 
+            id="bucket" 
+            value={bucketName} 
+            onChange={handleBucketChange} 
+            placeholder="Enter bucket name"
+          />
+        </div>
         
-        {Object.keys(results).length > 0 && (
-          <div className="mt-4 p-4 bg-gray-50 rounded border text-sm font-mono overflow-auto">
-            <pre>{JSON.stringify(results, null, 2)}</pre>
+        <div className="space-y-2">
+          <Label htmlFor="file">Test File</Label>
+          <Input 
+            id="file" 
+            type="file" 
+            onChange={handleFileChange}
+          />
+        </div>
+        
+        {result && (
+          <div className={`p-3 rounded-md ${result.success ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`}>
+            <div className="flex items-center">
+              {result.success ? (
+                <Check className="h-5 w-5 mr-2 text-green-500" />
+              ) : (
+                <X className="h-5 w-5 mr-2 text-red-500" />
+              )}
+              <p>{result.message}</p>
+            </div>
+            {result.url && (
+              <div className="mt-2">
+                <p className="text-sm font-medium">File URL:</p>
+                <a 
+                  href={result.url} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="text-sm break-all text-blue-600 hover:underline"
+                >
+                  {result.url}
+                </a>
+              </div>
+            )}
           </div>
         )}
       </CardContent>
+      
+      <CardFooter>
+        <Button 
+          onClick={uploadFile} 
+          disabled={!file || uploading}
+          className="w-full"
+        >
+          {uploading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Uploading...
+            </>
+          ) : (
+            <>
+              <Upload className="mr-2 h-4 w-4" />
+              Upload Test File
+            </>
+          )}
+        </Button>
+      </CardFooter>
     </Card>
   );
 };
