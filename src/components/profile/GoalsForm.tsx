@@ -146,7 +146,6 @@ const GoalsForm = ({ onComplete, initialGoals }: GoalsFormProps) => {
                       selected={goal.targetDate ? new Date(goal.targetDate) : undefined}
                       onSelect={(date) => handleDateChange('shortTerm', goal.id, date)}
                       initialFocus
-                      className="pointer-events-auto"
                     />
                   </PopoverContent>
                 </Popover>
@@ -220,7 +219,6 @@ const GoalsForm = ({ onComplete, initialGoals }: GoalsFormProps) => {
                       selected={goal.targetDate ? new Date(goal.targetDate) : undefined}
                       onSelect={(date) => handleDateChange('mediumTerm', goal.id, date)}
                       initialFocus
-                      className="pointer-events-auto"
                     />
                   </PopoverContent>
                 </Popover>
@@ -294,7 +292,6 @@ const GoalsForm = ({ onComplete, initialGoals }: GoalsFormProps) => {
                       selected={goal.targetDate ? new Date(goal.targetDate) : undefined}
                       onSelect={(date) => handleDateChange('longTerm', goal.id, date)}
                       initialFocus
-                      className="pointer-events-auto"
                     />
                   </PopoverContent>
                 </Popover>
