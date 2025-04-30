@@ -39,14 +39,19 @@ const StorageCheck = () => {
         setResults(prev => ({ ...prev, files: { exists: true, count: filesData?.length, data: filesData } }));
       }
       
-      // Check policies
-      const { data: policiesData, error: policiesError } = await supabase
-        .rpc('get_policies_for_bucket', { bucket_id: 'profiles' });
-        
-      if (policiesError) {
-        setResults(prev => ({ ...prev, policies: { exists: false, error: policiesError } }));
-      } else {
-        setResults(prev => ({ ...prev, policies: { exists: true, data: policiesData } }));
+      // Check policies - Note: This RPC function might not exist, so we're wrapping it in a try/catch
+      try {
+        const { data: policiesData, error: policiesError } = await supabase
+          .rpc('get_policies_for_bucket', { bucket_id: 'profiles' });
+          
+        if (policiesError) {
+          setResults(prev => ({ ...prev, policies: { exists: false, error: policiesError } }));
+        } else {
+          setResults(prev => ({ ...prev, policies: { exists: true, data: policiesData } }));
+        }
+      } catch (error) {
+        console.log('RPC function not available:', error);
+        setResults(prev => ({ ...prev, policies: { exists: false, message: 'RPC function not available' } }));
       }
       
       toast({
