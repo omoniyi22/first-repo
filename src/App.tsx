@@ -12,6 +12,7 @@ import Pricing from "./pages/Pricing";
 import About from "./pages/About";
 import SignIn from "./pages/SignIn";
 import Dashboard from "./pages/Dashboard";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import TermsOfService from "./pages/TermsOfService";
 import Privacy from "./pages/Privacy";
@@ -36,6 +37,7 @@ const App = () => (
               <Route path="/about" element={<About />} />
               <Route path="/sign-in" element={<SignIn />} />
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/profile" element={<Profile />} />
               <Route path="/terms" element={<TermsOfService />} />
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/blog" element={<Blog />} />
