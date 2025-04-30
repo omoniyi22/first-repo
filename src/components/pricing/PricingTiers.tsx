@@ -3,8 +3,8 @@ import { useState } from 'react';
 import { Check } from 'lucide-react';
 import PricingToggle from './PricingToggle';
 import AnimatedSection from '../ui/AnimatedSection';
-import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import EmailSignupForm from './EmailSignupForm';
 
 interface Plan {
   id: string;
@@ -42,7 +42,7 @@ const PricingTiers = () => {
         { text: 'Custom training programs', included: false },
         { text: 'Trainer collaboration tools', included: false },
       ],
-      buttonText: 'Start Free',
+      buttonText: 'Coming Soon',
     },
     {
       id: 'premium',
@@ -63,7 +63,7 @@ const PricingTiers = () => {
         { text: 'Custom training programs', included: true },
         { text: 'Trainer collaboration tools', included: false },
       ],
-      buttonText: 'Choose Premium',
+      buttonText: 'Coming Soon',
     },
     {
       id: 'professional',
@@ -84,7 +84,7 @@ const PricingTiers = () => {
         { text: 'Trainer collaboration tools', included: true },
         { text: 'API access for integrations', included: true },
       ],
-      buttonText: 'Contact Sales',
+      buttonText: 'Coming Soon',
     }
   ];
 
@@ -99,6 +99,16 @@ const PricingTiers = () => {
             Try for free with one test, then choose the plan that best fits your training needs.
           </p>
         </AnimatedSection>
+        
+        <div className="max-w-md mx-auto mb-12">
+          <div className="bg-purple-100 rounded-xl p-8 text-center">
+            <h2 className="text-2xl font-bold text-purple-900 mb-4">Coming Soon</h2>
+            <p className="text-purple-700 mb-6">
+              We're currently finalizing our pricing plans. Join our waitlist to be notified when subscriptions are available.
+            </p>
+            <EmailSignupForm />
+          </div>
+        </div>
         
         <PricingToggle onChange={setIsAnnual} />
         
@@ -148,19 +158,18 @@ const PricingTiers = () => {
                   )}
                 </div>
                 
-                <Link to="/sign-in?signup=true" className="block mb-8">
-                  <Button 
-                    className={`w-full py-6 rounded-lg text-base ${
-                      plan.highlighted 
-                        ? 'bg-purple-700 hover:bg-purple-800 text-white font-semibold shadow-md h-auto' 
-                        : plan.id === 'basic'
-                        ? 'bg-purple-600 hover:bg-purple-700 text-white font-medium h-auto'
-                        : 'bg-purple-50 hover:bg-purple-100 text-purple-800 font-medium border border-purple-200 h-auto'
-                    }`}
-                  >
-                    {plan.buttonText}
-                  </Button>
-                </Link>
+                <Button 
+                  className={`w-full py-6 rounded-lg text-base mb-8 cursor-not-allowed opacity-70 ${
+                    plan.highlighted 
+                      ? 'bg-purple-700 hover:bg-purple-800 text-white font-semibold h-auto' 
+                      : plan.id === 'basic'
+                      ? 'bg-purple-600 hover:bg-purple-700 text-white font-medium h-auto'
+                      : 'bg-purple-50 hover:bg-purple-100 text-purple-800 font-medium border border-purple-200 h-auto'
+                  }`}
+                  disabled={true}
+                >
+                  {plan.buttonText}
+                </Button>
                 
                 <div className="space-y-4 mt-auto">
                   <h3 className="font-medium text-purple-900 border-b border-silver-200 pb-2">
