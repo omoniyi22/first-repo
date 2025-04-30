@@ -1,34 +1,195 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { Upload, Plus, User } from 'lucide-react';
+import { Upload, Plus, User, Save } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { regions } from '@/lib/formOptions';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import { Loader2 } from 'lucide-react';
 
 const ProfileHeader = () => {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [profilePic, setProfilePic] = useState<string | null>(null);
   const [riderCategory, setRiderCategory] = useState('Adult Amateur');
   const [stableAffiliation, setStableAffiliation] = useState('');
   const [coachName, setCoachName] = useState('');
   const [region, setRegion] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   
   const displayName = user?.user_metadata?.full_name || 
                       user?.email?.split('@')[0] || 
                       'Rider';
   
-  const handleProfilePicUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Fetch profile data on component mount
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      if (!user) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .maybeSingle();
+          
+        if (error) {
+          console.error('Error fetching profile:', error);
+          return;
+        }
+        
+        if (data) {
+          // Set state with existing profile data
+          setRiderCategory(data.rider_category || 'Adult Amateur');
+          setStableAffiliation(data.stable_affiliation || '');
+          setCoachName(data.coach_name || '');
+          setRegion(data.region || '');
+          setProfilePic(data.profile_picture_url);
+        }
+      } catch (error) {
+        console.error('Error fetching profile data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchProfileData();
+  }, [user]);
+
+  const handleProfilePicUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      const imageUrl = URL.createObjectURL(file);
-      setProfilePic(imageUrl);
-      // Here you would typically upload the image to storage
-      // and update the user's profile with the new image URL
+      
+      if (!user) {
+        toast({
+          title: "Authentication required",
+          description: "Please sign in to upload images.",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      try {
+        // Create a temporary object URL for immediate display
+        const tempImageUrl = URL.createObjectURL(file);
+        setProfilePic(tempImageUrl);
+        
+        // Upload image to Supabase Storage
+        const fileName = `${user.id}-profile-${Date.now()}`;
+        
+        // Check if profiles bucket exists, create it if not
+        const { data: bucketExists } = await supabase
+          .storage
+          .getBucket('profiles');
+          
+        if (!bucketExists) {
+          await supabase
+            .storage
+            .createBucket('profiles', { public: true });
+        }
+        
+        const { data, error } = await supabase.storage
+          .from('profiles')
+          .upload(`profile-images/${fileName}`, file, {
+            cacheControl: '3600',
+            upsert: true
+          });
+        
+        if (error) {
+          throw error;
+        }
+        
+        // Get public URL
+        const { data: publicUrlData } = supabase.storage
+          .from('profiles')
+          .getPublicUrl(`profile-images/${fileName}`);
+        
+        setProfilePic(publicUrlData.publicUrl);
+        
+        // Update profile with new image URL
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .upsert({ 
+            id: user.id,
+            profile_picture_url: publicUrlData.publicUrl,
+            updated_at: new Date().toISOString()
+          });
+          
+        if (updateError) {
+          throw updateError;
+        }
+        
+        toast({
+          title: "Profile picture updated",
+          description: "Your profile picture has been updated successfully."
+        });
+      } catch (error: any) {
+        toast({
+          title: "Upload failed",
+          description: error.message || "Failed to upload image. Please try again.",
+          variant: "destructive"
+        });
+        console.error('Error uploading image:', error);
+      }
     }
   };
+  
+  const saveProfile = async () => {
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to save your profile.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setIsSaving(true);
+    
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .upsert({ 
+          id: user.id,
+          rider_category: riderCategory,
+          stable_affiliation: stableAffiliation,
+          coach_name: coachName,
+          region: region,
+          updated_at: new Date().toISOString()
+        });
+        
+      if (error) {
+        throw error;
+      }
+      
+      toast({
+        title: "Profile updated",
+        description: "Your profile information has been saved."
+      });
+    } catch (error: any) {
+      toast({
+        title: "Save failed",
+        description: error.message || "Failed to save profile. Please try again.",
+        variant: "destructive"
+      });
+      console.error('Error saving profile:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 flex justify-center items-center min-h-[200px]">
+        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
@@ -132,7 +293,25 @@ const ProfileHeader = () => {
       
       {/* Action Buttons */}
       <div className="flex justify-end mt-6 gap-4">
-        <Button className="bg-blue-700 hover:bg-blue-800" size="lg">
+        <Button 
+          className="bg-blue-700 hover:bg-blue-800" 
+          size="lg"
+          onClick={saveProfile}
+          disabled={isSaving}
+        >
+          {isSaving ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Saving...
+            </>
+          ) : (
+            <>
+              <Save className="mr-2 h-4 w-4" />
+              Save Profile
+            </>
+          )}
+        </Button>
+        <Button variant="outline" className="border-blue-300 text-blue-700 hover:bg-blue-50" size="lg">
           <Upload className="mr-2 h-4 w-4" />
           Upload Test
         </Button>
