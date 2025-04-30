@@ -9,7 +9,159 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      horses: {
+        Row: {
+          age: number | null
+          breed: string | null
+          competition_level: string | null
+          created_at: string | null
+          id: string
+          name: string
+          owner_id: string
+          photo_url: string | null
+          sex: string | null
+          updated_at: string | null
+          years_competing: number | null
+        }
+        Insert: {
+          age?: number | null
+          breed?: string | null
+          competition_level?: string | null
+          created_at?: string | null
+          id?: string
+          name: string
+          owner_id: string
+          photo_url?: string | null
+          sex?: string | null
+          updated_at?: string | null
+          years_competing?: number | null
+        }
+        Update: {
+          age?: number | null
+          breed?: string | null
+          competition_level?: string | null
+          created_at?: string | null
+          id?: string
+          name?: string
+          owner_id?: string
+          photo_url?: string | null
+          sex?: string | null
+          updated_at?: string | null
+          years_competing?: number | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          best_score: number | null
+          challenges: string | null
+          coach_email: string | null
+          coach_name: string | null
+          competition_level: string | null
+          connect_with_coach: boolean | null
+          created_at: string | null
+          email_reminders: string[] | null
+          full_name: string | null
+          has_horse: boolean | null
+          id: string
+          import_results: string | null
+          important_statistics: string[] | null
+          long_term_goals: string | null
+          medium_term_goals: string | null
+          notifications: string[] | null
+          profile_picture_url: string | null
+          region: string | null
+          rider_category: string | null
+          short_term_goals: string | null
+          specific_competitions: string | null
+          stable_affiliation: string | null
+          tests_ridden: number | null
+          training_schedule: string | null
+          updated_at: string | null
+          want_recommendations: boolean | null
+        }
+        Insert: {
+          best_score?: number | null
+          challenges?: string | null
+          coach_email?: string | null
+          coach_name?: string | null
+          competition_level?: string | null
+          connect_with_coach?: boolean | null
+          created_at?: string | null
+          email_reminders?: string[] | null
+          full_name?: string | null
+          has_horse?: boolean | null
+          id: string
+          import_results?: string | null
+          important_statistics?: string[] | null
+          long_term_goals?: string | null
+          medium_term_goals?: string | null
+          notifications?: string[] | null
+          profile_picture_url?: string | null
+          region?: string | null
+          rider_category?: string | null
+          short_term_goals?: string | null
+          specific_competitions?: string | null
+          stable_affiliation?: string | null
+          tests_ridden?: number | null
+          training_schedule?: string | null
+          updated_at?: string | null
+          want_recommendations?: boolean | null
+        }
+        Update: {
+          best_score?: number | null
+          challenges?: string | null
+          coach_email?: string | null
+          coach_name?: string | null
+          competition_level?: string | null
+          connect_with_coach?: boolean | null
+          created_at?: string | null
+          email_reminders?: string[] | null
+          full_name?: string | null
+          has_horse?: boolean | null
+          id?: string
+          import_results?: string | null
+          important_statistics?: string[] | null
+          long_term_goals?: string | null
+          medium_term_goals?: string | null
+          notifications?: string[] | null
+          profile_picture_url?: string | null
+          region?: string | null
+          rider_category?: string | null
+          short_term_goals?: string | null
+          specific_competitions?: string | null
+          stable_affiliation?: string | null
+          tests_ridden?: number | null
+          training_schedule?: string | null
+          updated_at?: string | null
+          want_recommendations?: boolean | null
+        }
+        Relationships: []
+      }
+      training_focus: {
+        Row: {
+          created_at: string | null
+          id: string
+          movements_to_improve: string[] | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          movements_to_improve?: string[] | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          movements_to_improve?: string[] | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
