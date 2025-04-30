@@ -2,9 +2,17 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, X, UserCircle, LogOut } from 'lucide-react';
+import { Menu, X, UserCircle, LogOut, Settings, User } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -50,6 +58,14 @@ const Navbar = () => {
         variant: "destructive"
       });
     }
+  };
+
+  const handleProfileClick = () => {
+    navigate('/profile-setup');
+  };
+
+  const handleDashboardClick = () => {
+    navigate('/dashboard');
   };
 
   return (
@@ -107,18 +123,31 @@ const Navbar = () => {
                 >
                   Dashboard
                 </Link>
-                <div className="text-white">
-                  <UserCircle className="inline-block h-5 w-5 mr-1" />
-                  <span className="hidden lg:inline-block">{user.email?.split('@')[0]}</span>
-                </div>
-                <Button 
-                  variant="outline" 
-                  className="border-white text-white hover:bg-purple-800 hover:text-white"
-                  onClick={handleSignOut}
-                >
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Sign Out
-                </Button>
+                
+                {/* User dropdown menu */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger className="flex items-center text-white focus:outline-none">
+                    <UserCircle className="h-5 w-5 mr-1" />
+                    <span className="hidden lg:inline-block">{user.email?.split('@')[0]}</span>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56 bg-white">
+                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleProfileClick} className="cursor-pointer">
+                      <User className="h-4 w-4 mr-2" />
+                      <span>Profile Setup</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleDashboardClick} className="cursor-pointer">
+                      <Settings className="h-4 w-4 mr-2" />
+                      <span>Dashboard</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-red-600">
+                      <LogOut className="h-4 w-4 mr-2" />
+                      <span>Sign Out</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             ) : (
               <>
@@ -188,14 +217,24 @@ const Navbar = () => {
             >
               About
             </Link>
+            
             {user && (
-              <Link 
-                to="/dashboard" 
-                className={`text-white text-lg font-medium ${isActive('/dashboard') ? 'text-purple-300' : ''}`}
-              >
-                Dashboard
-              </Link>
+              <>
+                <Link 
+                  to="/dashboard" 
+                  className={`text-white text-lg font-medium ${isActive('/dashboard') ? 'text-purple-300' : ''}`}
+                >
+                  Dashboard
+                </Link>
+                <Link 
+                  to="/profile-setup" 
+                  className={`text-white text-lg font-medium ${isActive('/profile-setup') ? 'text-purple-300' : ''}`}
+                >
+                  Profile Setup
+                </Link>
+              </>
             )}
+            
             <div className="pt-2 flex flex-col space-y-3">
               {user ? (
                 <>
