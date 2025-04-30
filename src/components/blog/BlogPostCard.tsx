@@ -3,12 +3,16 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { BlogPost } from '@/data/blogPosts';
 import { Clock, ArrowRight } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface BlogPostCardProps {
   post: BlogPost;
 }
 
 const BlogPostCard = ({ post }: BlogPostCardProps) => {
+  const { language, translations } = useLanguage();
+  const t = translations[language];
+  
   const disciplineColor = post.discipline === 'Jumping' ? 'blue' : 'purple';
   
   return (
@@ -37,7 +41,7 @@ const BlogPostCard = ({ post }: BlogPostCardProps) => {
                 : 'bg-purple-100 text-purple-800'
             } text-xs font-semibold px-2 py-0.5 rounded-full`}
           >
-            {post.discipline}
+            {post.discipline === 'Jumping' ? t["jumping"] : t["dressage"]}
           </span>
           <span className="bg-gray-100 text-gray-800 text-xs font-semibold px-2 py-0.5 rounded-full">
             {post.category}
@@ -77,7 +81,7 @@ const BlogPostCard = ({ post }: BlogPostCardProps) => {
             to={`/blog/${post.slug}`} 
             className={`text-${disciplineColor}-700 hover:text-${disciplineColor}-900 text-sm font-medium flex items-center`}
           >
-            Read
+            {t["read"]}
             <ArrowRight className="h-3.5 w-3.5 ml-1" />
           </Link>
         </div>

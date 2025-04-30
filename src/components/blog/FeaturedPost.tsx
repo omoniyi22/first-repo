@@ -4,12 +4,16 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { BookOpen } from 'lucide-react';
 import { BlogPost } from '@/data/blogPosts';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface FeaturedPostProps {
   post: BlogPost;
 }
 
 const FeaturedPost = ({ post }: FeaturedPostProps) => {
+  const { language, translations } = useLanguage();
+  const t = translations[language];
+  
   // Define colors based on discipline
   const colors = {
     Jumping: {
@@ -47,7 +51,7 @@ const FeaturedPost = ({ post }: FeaturedPostProps) => {
             <span 
               className={`${colorSet.light} ${colorSet.text} text-xs font-semibold px-3 py-1 rounded-full`}
             >
-              {post.discipline}
+              {post.discipline === 'Jumping' ? t["jumping"] : t["dressage"]}
             </span>
             <span className="ml-2 text-xs font-semibold px-3 py-1 rounded-full bg-gray-100 text-gray-800">
               {post.category}
@@ -78,7 +82,7 @@ const FeaturedPost = ({ post }: FeaturedPostProps) => {
               <Button 
                 className={colorSet.button}
               >
-                Read Article
+                {t["read-article"]}
                 <BookOpen className="ml-2 h-4 w-4" />
               </Button>
             </Link>

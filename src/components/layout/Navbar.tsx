@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Menu, X, UserCircle, LogOut, Settings, User } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import LanguageSwitcher from '@/components/language/LanguageSwitcher';
+import { useLanguage } from '@/contexts/LanguageContext';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,6 +23,8 @@ const Navbar = () => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const { toast } = useToast();
+  const { language, translations } = useLanguage();
+  const t = translations[language];
   
   useEffect(() => {
     const handleScroll = () => {
@@ -71,11 +75,11 @@ const Navbar = () => {
   // Determine brand name based on current route
   const getBrandName = () => {
     if (location.pathname === '/dressage') {
-      return 'AI Dressage Trainer';
+      return language === 'en' ? 'AI Dressage Trainer' : 'Entrenador AI de Doma';
     } else if (location.pathname === '/jumping') {
-      return 'AI Jumping Trainer';
+      return language === 'en' ? 'AI Jumping Trainer' : 'Entrenador AI de Salto';
     } else {
-      return 'AI Equestrian';
+      return language === 'en' ? 'AI Equestrian' : 'AI Ecuestre';
     }
   };
 
@@ -110,31 +114,31 @@ const Navbar = () => {
               to="/" 
               className={`nav-link ${isActive('/') ? 'active' : ''} text-white`}
             >
-              Home
+              {t["home"]}
             </Link>
             <Link 
               to="/how-it-works" 
               className={`nav-link ${isActive('/how-it-works') ? 'active' : ''} text-white`}
             >
-              How It Works
+              {t["how-it-works"]}
             </Link>
             <Link 
               to="/pricing" 
               className={`nav-link ${isActive('/pricing') ? 'active' : ''} text-white`}
             >
-              Pricing
+              {t["pricing"]}
             </Link>
             <Link 
               to="/blog" 
               className={`nav-link ${isActive('/blog') ? 'active' : ''} text-white`}
             >
-              Blog
+              {t["blog"]}
             </Link>
             <Link 
               to="/about" 
               className={`nav-link ${isActive('/about') ? 'active' : ''} text-white`}
             >
-              About
+              {t["about"]}
             </Link>
             
             {user ? (
@@ -143,7 +147,7 @@ const Navbar = () => {
                   to="/dashboard" 
                   className={`nav-link ${isActive('/dashboard') ? 'active' : ''} text-white`}
                 >
-                  Dashboard
+                  {t["dashboard"]}
                 </Link>
                 
                 {/* User dropdown menu */}
@@ -157,16 +161,16 @@ const Navbar = () => {
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleProfileClick} className="cursor-pointer">
                       <User className="h-4 w-4 mr-2" />
-                      <span>Profile Setup</span>
+                      <span>{t["profile-setup"]}</span>
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={handleDashboardClick} className="cursor-pointer">
                       <Settings className="h-4 w-4 mr-2" />
-                      <span>Dashboard</span>
+                      <span>{t["dashboard"]}</span>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-red-600">
                       <LogOut className="h-4 w-4 mr-2" />
-                      <span>Sign Out</span>
+                      <span>{t["sign-out"]}</span>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -178,30 +182,38 @@ const Navbar = () => {
                     variant="outline" 
                     className="ml-3 border-white text-purple-950 bg-white hover:bg-purple-50"
                   >
-                    Sign In
+                    {t["sign-in"]}
                   </Button>
                 </Link>
                 <Link to="/sign-in?signup=true">
                   <Button className="bg-purple-700 hover:bg-purple-800 text-white">
-                    Get Started
+                    {t["get-started"]}
                   </Button>
                 </Link>
               </>
             )}
+            
+            {/* Language Switcher */}
+            <div className="flex items-center">
+              <LanguageSwitcher />
+            </div>
           </nav>
           
-          {/* Mobile menu button */}
-          <button 
-            className="md:hidden"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
-          >
-            {isMobileMenuOpen ? (
-              <X className="h-6 w-6 text-white" />
-            ) : (
-              <Menu className="h-6 w-6 text-white" />
-            )}
-          </button>
+          {/* Mobile menu button and language switcher */}
+          <div className="md:hidden flex items-center">
+            <LanguageSwitcher />
+            <button 
+              className="ml-4"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+            >
+              {isMobileMenuOpen ? (
+                <X className="h-6 w-6 text-white" />
+              ) : (
+                <Menu className="h-6 w-6 text-white" />
+              )}
+            </button>
+          </div>
         </div>
       </div>
       
@@ -213,31 +225,31 @@ const Navbar = () => {
               to="/" 
               className={`text-white text-lg font-medium ${isActive('/') ? 'text-purple-300' : ''}`}
             >
-              Home
+              {t["home"]}
             </Link>
             <Link 
               to="/how-it-works" 
               className={`text-white text-lg font-medium ${isActive('/how-it-works') ? 'text-purple-300' : ''}`}
             >
-              How It Works
+              {t["how-it-works"]}
             </Link>
             <Link 
               to="/pricing" 
               className={`text-white text-lg font-medium ${isActive('/pricing') ? 'text-purple-300' : ''}`}
             >
-              Pricing
+              {t["pricing"]}
             </Link>
             <Link 
               to="/blog" 
               className={`text-white text-lg font-medium ${isActive('/blog') ? 'text-purple-300' : ''}`}
             >
-              Blog
+              {t["blog"]}
             </Link>
             <Link 
               to="/about" 
               className={`text-white text-lg font-medium ${isActive('/about') ? 'text-purple-300' : ''}`}
             >
-              About
+              {t["about"]}
             </Link>
             
             {user && (
@@ -246,13 +258,13 @@ const Navbar = () => {
                   to="/dashboard" 
                   className={`text-white text-lg font-medium ${isActive('/dashboard') ? 'text-purple-300' : ''}`}
                 >
-                  Dashboard
+                  {t["dashboard"]}
                 </Link>
                 <Link 
                   to="/profile-setup" 
                   className={`text-white text-lg font-medium ${isActive('/profile-setup') ? 'text-purple-300' : ''}`}
                 >
-                  Profile Setup
+                  {t["profile-setup"]}
                 </Link>
               </>
             )}
@@ -270,7 +282,7 @@ const Navbar = () => {
                     onClick={handleSignOut}
                   >
                     <LogOut className="h-4 w-4 mr-2" />
-                    Sign Out
+                    {t["sign-out"]}
                   </Button>
                 </>
               ) : (
@@ -280,12 +292,12 @@ const Navbar = () => {
                       variant="outline" 
                       className="w-full border-white text-purple-950 bg-white hover:bg-purple-50"
                     >
-                      Sign In
+                      {t["sign-in"]}
                     </Button>
                   </Link>
                   <Link to="/sign-in?signup=true" className="w-full">
                     <Button className="w-full bg-purple-700 hover:bg-purple-800 text-white">
-                      Get Started
+                      {t["get-started"]}
                     </Button>
                   </Link>
                 </>

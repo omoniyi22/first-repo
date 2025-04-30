@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
@@ -10,6 +11,7 @@ import FeaturedPost from '@/components/blog/FeaturedPost';
 import BlogPostCard from '@/components/blog/BlogPostCard';
 import { blogPosts, BlogPost } from '@/data/blogPosts';
 import { BookOpen, Search } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const Blog = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -20,6 +22,8 @@ const Blog = () => {
   const [categoryFilter, setCategoryFilter] = useState(categoryParam);
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredPosts, setFilteredPosts] = useState<BlogPost[]>(blogPosts);
+  const { language, translations } = useLanguage();
+  const t = translations[language];
   
   // Update state when URL params change
   useEffect(() => {
@@ -117,18 +121,18 @@ const Blog = () => {
             <BreadcrumbList>
               <BreadcrumbItem>
                 <BreadcrumbLink asChild>
-                  <Link to="/">Home</Link>
+                  <Link to="/">{t["home"]}</Link>
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
-                <BreadcrumbPage>Blog</BreadcrumbPage>
+                <BreadcrumbPage>{t["blog"]}</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
-          <h1 className="text-4xl md:text-5xl font-serif font-bold text-gray-900 mb-4">Equestrian Excellence Blog</h1>
+          <h1 className="text-4xl md:text-5xl font-serif font-bold text-gray-900 mb-4">{t["blog-title"]}</h1>
           <p className="text-xl text-gray-700 max-w-3xl">
-            Expert insights, training tips, and the latest innovations in equestrian sports.
+            {t["blog-description"]}
           </p>
         </div>
         
@@ -138,7 +142,7 @@ const Blog = () => {
           <div className="relative max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
             <Input 
-              placeholder="Search articles..." 
+              placeholder={t["search-placeholder"]}
               className="pl-10"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -166,8 +170,8 @@ const Blog = () => {
             <>
               <h2 className="text-2xl font-serif font-bold text-gray-900 mb-6">
                 {disciplineFilter !== 'all' || categoryFilter !== 'all' || searchQuery
-                  ? `${filteredPosts.length} ${filteredPosts.length === 1 ? 'Result' : 'Results'}`
-                  : 'Latest Articles'
+                  ? `${filteredPosts.length} ${filteredPosts.length === 1 ? t["result"] : t["results"]}`
+                  : t["latest-articles"]
                 }
               </h2>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -185,8 +189,8 @@ const Blog = () => {
           ) : (
             <div className="text-center py-16 bg-gray-50 rounded-xl">
               <BookOpen className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-              <h3 className="text-xl font-medium text-gray-900 mb-2">No articles found</h3>
-              <p className="text-gray-600 mb-6">Try adjusting your filters or search term</p>
+              <h3 className="text-xl font-medium text-gray-900 mb-2">{t["no-articles"]}</h3>
+              <p className="text-gray-600 mb-6">{t["adjust-filters"]}</p>
               <Button 
                 variant="outline" 
                 onClick={() => {
@@ -196,7 +200,7 @@ const Blog = () => {
                   setSearchQuery('');
                 }}
               >
-                Clear all filters
+                {t["clear-filters"]}
               </Button>
             </div>
           )}
@@ -206,18 +210,18 @@ const Blog = () => {
         <div className="reveal-scroll mt-16 bg-gray-100 rounded-xl p-8 md:p-12 opacity-0 translate-y-8 transition-all duration-700 ease-out">
           <div className="md:flex items-center justify-between">
             <div className="md:w-2/3 mb-6 md:mb-0">
-              <h2 className="text-2xl md:text-3xl font-serif font-bold text-gray-900 mb-4">Subscribe to Our Newsletter</h2>
-              <p className="text-gray-700">Get the latest equestrian insights and updates delivered straight to your inbox.</p>
+              <h2 className="text-2xl md:text-3xl font-serif font-bold text-gray-900 mb-4">{t["newsletter-title"]}</h2>
+              <p className="text-gray-700">{t["newsletter-description"]}</p>
             </div>
             <div className="md:w-1/3">
               <form className="flex flex-col sm:flex-row gap-3">
                 <Input 
                   type="email" 
-                  placeholder="Your email address" 
+                  placeholder={t["email-placeholder"]}
                   required
                 />
                 <Button>
-                  Subscribe
+                  {t["subscribe"]}
                 </Button>
               </form>
             </div>

@@ -3,6 +3,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface BlogFilterProps {
   disciplineFilter: string;
@@ -11,19 +12,22 @@ interface BlogFilterProps {
 }
 
 const BlogFilter = ({ disciplineFilter, categoryFilter, updateFilters }: BlogFilterProps) => {
+  const { language, translations } = useLanguage();
+  const t = translations[language];
+
   const disciplines = [
-    { value: 'all', label: 'All Posts', color: 'bg-gray-900' },
-    { value: 'jumping', label: 'Jumping', color: 'bg-blue-600' },
-    { value: 'dressage', label: 'Dressage', color: 'bg-purple-600' },
+    { value: 'all', label: t["all-posts"], color: 'bg-gray-900' },
+    { value: 'jumping', label: t["jumping"], color: 'bg-blue-600' },
+    { value: 'dressage', label: t["dressage"], color: 'bg-purple-600' },
   ];
 
   const categories = [
-    { value: 'all', label: 'All Categories' },
-    { value: 'technology', label: 'Technology' },
-    { value: 'analytics', label: 'Analytics' },
-    { value: 'training', label: 'Training' },
-    { value: 'guides', label: 'Guides' },
-    { value: 'competition', label: 'Competition' },
+    { value: 'all', label: t["all-categories"] },
+    { value: 'technology', label: t["technology"] },
+    { value: 'analytics', label: t["analytics"] },
+    { value: 'training', label: t["training"] },
+    { value: 'guides', label: t["guides"] },
+    { value: 'competition', label: t["competition"] },
   ];
 
   return (
