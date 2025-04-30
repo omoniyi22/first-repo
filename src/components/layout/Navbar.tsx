@@ -113,7 +113,7 @@ const Navbar = () => {
                 </div>
                 <Button 
                   variant="outline" 
-                  className="border-white text-white hover:bg-purple-900"
+                  className="border-white text-white hover:bg-purple-800 hover:text-white"
                   onClick={handleSignOut}
                 >
                   <LogOut className="h-4 w-4 mr-2" />
@@ -205,7 +205,7 @@ const Navbar = () => {
                   </div>
                   <Button 
                     variant="outline" 
-                    className="w-full border-white text-white hover:bg-purple-900"
+                    className="w-full border-white text-white hover:bg-purple-800"
                     onClick={handleSignOut}
                   >
                     <LogOut className="h-4 w-4 mr-2" />
