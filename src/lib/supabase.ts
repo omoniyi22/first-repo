@@ -1,6 +1,7 @@
 
 // This file is deprecated. Import the Supabase client from '@/integrations/supabase/client' instead.
 import { supabase } from '@/integrations/supabase/client';
+import { Database } from '@/integrations/supabase/types';
 
 // Re-export for backward compatibility
 export { supabase };
@@ -21,18 +22,36 @@ export const testSupabaseConnection = async () => {
     }
 
     // Try to make a simple query to test the connection
-    const { error } = await supabase.from('test').select('id').limit(1).maybeSingle();
+    // Since we're using generic Supabase client with potentially no tables,
+    // we'll handle the "relation does not exist" error as a success case
+    try {
+      // Use the QueryBuilder to test connection without specifying a concrete table
+      const { error } = await supabase
+        .from('test')
+        .select('*')
+        .limit(1)
+        .maybeSingle();
 
-    // If we get a "relation does not exist" error, it means the connection is working but the table doesn't exist yet
-    if (error && error.message.includes('does not exist')) {
-      return {
-        isConnected: true,
-        message: 'Successfully connected to Supabase! (Note: test table does not exist yet)',
-      };
-    }
+      // If we get a "relation does not exist" error, it means the connection is working but the table doesn't exist yet
+      if (error && error.message && error.message.includes('does not exist')) {
+        return {
+          isConnected: true,
+          message: 'Successfully connected to Supabase! (Note: test table does not exist yet)',
+        };
+      }
 
-    if (error) {
-      console.error('Supabase connection error:', error.message);
+      if (error) {
+        console.error('Supabase connection error:', error.message);
+        throw error;
+      }
+    } catch (error: any) {
+      // If the error is about the table not existing, consider it a success
+      if (error && error.message && error.message.includes('does not exist')) {
+        return {
+          isConnected: true,
+          message: 'Successfully connected to Supabase! (Note: test table does not exist yet)',
+        };
+      }
       throw error;
     }
     

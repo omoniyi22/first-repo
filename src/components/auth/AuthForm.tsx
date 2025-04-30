@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -229,7 +228,7 @@ const AuthForm = () => {
                 type="button"
                 className="w-full bg-white text-navy-700 border border-silver-300 hover:bg-silver-50"
                 disabled={isProcessingSSO}
-                onClick={() => handleSSOAuth('microsoft')}
+                onClick={() => handleSSOAuth('azure')}
               >
                 {isProcessingSSO ? (
                   <>
