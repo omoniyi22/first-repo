@@ -4,8 +4,20 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { useEffect } from 'react';
 import { Toaster } from '@/components/ui/toaster';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const SignIn = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  
+  // Redirect to dashboard if already signed in
+  useEffect(() => {
+    if (user) {
+      navigate('/dashboard');
+    }
+  }, [user, navigate]);
+  
   // Scroll to top on page load
   useEffect(() => {
     window.scrollTo(0, 0);

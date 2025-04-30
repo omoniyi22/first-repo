@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -130,10 +131,13 @@ const AuthForm = () => {
     setIsProcessingSSO(true);
     
     try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
+      const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
           redirectTo: `${window.location.origin}/dashboard`,
+          queryParams: {
+            prompt: 'select_account', // Force Google to show account picker even if user is already signed in
+          }
         }
       });
       
