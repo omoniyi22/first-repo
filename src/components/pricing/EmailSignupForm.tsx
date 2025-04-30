@@ -17,7 +17,10 @@ const EmailSignupForm = () => {
     try {
       const { error } = await supabase
         .from('subscription_interests')
-        .insert([{ email }]);
+        .insert([{ 
+          email,
+          source: 'pricing_page'
+        }]);
       
       if (error) {
         if (error.code === '23505') {
