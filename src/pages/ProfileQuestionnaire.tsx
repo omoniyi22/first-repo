@@ -213,7 +213,9 @@ const ProfileQuestionnaire = () => {
   };
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
+    console.log("Form submission triggered with data:", data);
     setIsSubmitting(true);
+    
     try {
       if (!user) {
         toast({
@@ -221,6 +223,7 @@ const ProfileQuestionnaire = () => {
           description: "Please sign in to save your profile.",
           variant: "destructive"
         });
+        setIsSubmitting(false);
         return;
       }
       
@@ -254,12 +257,15 @@ const ProfileQuestionnaire = () => {
         updated_at: new Date().toISOString()
       };
       
+      console.log("Saving profile data:", profileData);
+      
       // Save profile data to Supabase
       const { error: profileError } = await supabase
         .from('profiles')
         .upsert(profileData);
       
       if (profileError) {
+        console.error("Profile save error:", profileError);
         throw profileError;
       }
       
@@ -278,11 +284,14 @@ const ProfileQuestionnaire = () => {
           updated_at: new Date().toISOString()
         }));
         
+        console.log("Saving horses data:", horsesData);
+        
         const { error: horsesError } = await supabase
           .from('horses')
           .upsert(horsesData);
         
         if (horsesError) {
+          console.error("Horses save error:", horsesError);
           throw horsesError;
         }
       }
@@ -296,11 +305,14 @@ const ProfileQuestionnaire = () => {
           updated_at: new Date().toISOString()
         };
         
+        console.log("Saving training focus data:", trainingFocusData);
+        
         const { error: trainingFocusError } = await supabase
           .from('training_focus')
           .upsert(trainingFocusData);
         
         if (trainingFocusError) {
+          console.error("Training focus save error:", trainingFocusError);
           throw trainingFocusError;
         }
       }
@@ -309,6 +321,8 @@ const ProfileQuestionnaire = () => {
         title: "Profile saved",
         description: "Your profile has been saved successfully."
       });
+      
+      console.log("Profile saved successfully, redirecting to dashboard");
       
       // Redirect to dashboard
       navigate('/dashboard');
@@ -1273,6 +1287,7 @@ const ProfileQuestionnaire = () => {
                 <Button 
                   type="submit"
                   disabled={isSubmitting}
+                  className="bg-blue-700 hover:bg-blue-800"
                 >
                   {isSubmitting ? (
                     <>
