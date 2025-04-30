@@ -6,20 +6,27 @@ import Footer from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator, BreadcrumbPage } from '@/components/ui/breadcrumb';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import BlogFilter from '@/components/blog/BlogFilter';
 import FeaturedPost from '@/components/blog/FeaturedPost';
 import BlogPostCard from '@/components/blog/BlogPostCard';
-import { blogPosts } from '@/data/blogPosts';
+import { blogPosts, BlogPost } from '@/data/blogPosts';
 import { BookOpen, Search } from 'lucide-react';
 
 const Blog = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const disciplineFilter = searchParams.get('discipline') || 'all';
-  const categoryFilter = searchParams.get('category') || 'all';
+  const disciplineParam = searchParams.get('discipline') || 'all';
+  const categoryParam = searchParams.get('category') || 'all';
+  
+  const [disciplineFilter, setDisciplineFilter] = useState(disciplineParam);
+  const [categoryFilter, setCategoryFilter] = useState(categoryParam);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredPosts, setFilteredPosts] = useState(blogPosts);
+  const [filteredPosts, setFilteredPosts] = useState<BlogPost[]>(blogPosts);
+  
+  // Update state when URL params change
+  useEffect(() => {
+    setDisciplineFilter(disciplineParam);
+    setCategoryFilter(categoryParam);
+  }, [disciplineParam, categoryParam]);
   
   // Filter posts based on discipline, category, and search query
   useEffect(() => {
@@ -27,12 +34,19 @@ const Blog = () => {
     
     // Filter by discipline
     if (disciplineFilter !== 'all') {
-      result = result.filter(post => post.discipline.toLowerCase() === disciplineFilter.toLowerCase());
+      result = result.filter(post => 
+        post.discipline.toLowerCase() === disciplineFilter.toLowerCase().replace('jumping', 'Jumping').replace('dressage', 'Dressage')
+      );
     }
     
     // Filter by category
     if (categoryFilter !== 'all') {
-      result = result.filter(post => post.category.toLowerCase() === categoryFilter.toLowerCase());
+      result = result.filter(post => 
+        post.category.toLowerCase() === categoryFilter.toLowerCase().replace(
+          /(^|\s)\S/g, 
+          function(t) { return t.toUpperCase(); }
+        )
+      );
     }
     
     // Filter by search query
@@ -50,6 +64,12 @@ const Blog = () => {
   
   // Update URL parameters when filters change
   const updateFilters = (type: 'discipline' | 'category', value: string) => {
+    if (type === 'discipline') {
+      setDisciplineFilter(value);
+    } else {
+      setCategoryFilter(value);
+    }
+    
     const newSearchParams = new URLSearchParams(searchParams);
     if (value === 'all') {
       newSearchParams.delete(type);
@@ -88,7 +108,7 @@ const Blog = () => {
     };
     
     initScrollReveal();
-  }, []);
+  }, [filteredPosts]);
 
   const featuredPost = blogPosts.find(post => post.id === 1);
 
@@ -176,6 +196,8 @@ const Blog = () => {
                 variant="outline" 
                 onClick={() => {
                   setSearchParams(new URLSearchParams());
+                  setDisciplineFilter('all');
+                  setCategoryFilter('all');
                   setSearchQuery('');
                 }}
               >

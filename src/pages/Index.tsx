@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { Skeleton } from '@/components/ui/skeleton';
+import BlogPostCard from '@/components/blog/BlogPostCard';
+import { blogPosts } from '@/data/blogPosts';
 
 const Index = () => {
   // Initialize scroll reveal for animations
@@ -40,6 +42,10 @@ const Index = () => {
   }, []);
 
   const [imageLoaded, setImageLoaded] = useState(false);
+  
+  // Get featured blog posts - one from each discipline
+  const featuredJumpingPost = blogPosts.find(post => post.discipline === 'Jumping' && post.id === 1);
+  const featuredDressagePost = blogPosts.find(post => post.discipline === 'Dressage' && post.id === 7);
 
   return (
     <div className="min-h-screen">
@@ -152,13 +158,51 @@ const Index = () => {
               ].map((benefit, index) => (
                 <div 
                   key={index}
-                  className="bg-purple-50 p-8 rounded-xl border border-purple-100 reveal-scroll"
+                  className="bg-purple-50 p-8 rounded-xl border border-purple-100 reveal-scroll opacity-0 translate-y-8 transition-all duration-700 ease-out"
                   style={{ transitionDelay: `${index * 100}ms` }}
                 >
                   <h3 className="text-xl font-serif font-medium mb-4 text-purple-900">{benefit.title}</h3>
                   <p className="text-gray-700">{benefit.description}</p>
                 </div>
               ))}
+            </div>
+          </div>
+        </section>
+        
+        {/* Latest Blog Posts Section */}
+        <section className="py-20 bg-gray-50">
+          <div className="container mx-auto px-6">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-serif font-medium mb-6 text-gray-900">
+                Latest from Our Blog
+              </h2>
+              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                Stay updated with the latest insights, tips, and news from the equestrian world
+              </p>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-8 mb-10">
+              {/* Display one featured post from each discipline */}
+              {featuredJumpingPost && (
+                <div className="reveal-scroll opacity-0 translate-y-8 transition-all duration-700 ease-out">
+                  <BlogPostCard post={featuredJumpingPost} />
+                </div>
+              )}
+              
+              {featuredDressagePost && (
+                <div className="reveal-scroll opacity-0 translate-y-8 transition-all duration-700 ease-out" style={{ transitionDelay: '100ms' }}>
+                  <BlogPostCard post={featuredDressagePost} />
+                </div>
+              )}
+            </div>
+            
+            <div className="text-center">
+              <Link to="/blog">
+                <Button variant="outline" className="group">
+                  View All Articles
+                  <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </Button>
+              </Link>
             </div>
           </div>
         </section>
