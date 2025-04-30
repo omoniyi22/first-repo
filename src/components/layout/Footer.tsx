@@ -1,4 +1,3 @@
-
 import { Link } from 'react-router-dom';
 import { 
   Facebook, 
@@ -7,6 +6,7 @@ import {
   Linkedin, 
   Mail 
 } from 'lucide-react';
+import NewsletterForm from './NewsletterForm';
 
 const Footer = () => {
   return (
@@ -103,16 +103,7 @@ const Footer = () => {
             
             <div className="mt-6">
               <h4 className="font-serif text-base font-medium mb-2">Subscribe to our newsletter</h4>
-              <div className="flex">
-                <input 
-                  type="email" 
-                  placeholder="Your email" 
-                  className="bg-purple-900/50 border border-purple-800 rounded-l-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-purple-500 w-full"
-                />
-                <button className="bg-purple-700 hover:bg-purple-600 text-white px-3 py-2 rounded-r-md text-sm transition-colors">
-                  Subscribe
-                </button>
-              </div>
+              <NewsletterForm />
             </div>
           </div>
         </div>
