@@ -47,23 +47,17 @@ const Pricing = () => {
       <main className="pt-20">
         <div className="container mx-auto px-6 mb-16">
           <div className="text-center mb-12">
-            <div className="inline-block px-4 py-2 bg-purple-100 rounded-full text-purple-700 font-medium mb-4">
-              Coming Soon
-            </div>
             <h2 className="text-3xl font-serif font-semibold text-purple-900 mb-4">
-              Be the First to Know When We Launch
+              Choose the Perfect Plan for Your Training Journey
             </h2>
             <p className="text-purple-600 mb-8 max-w-2xl mx-auto">
-              Our subscription plans will be available soon. Sign up below to be notified when we launch and get exclusive early access offers.
+              Stay updated with our latest pricing plans and exclusive offers. Join our waitlist to be notified when new subscription tiers become available.
             </p>
             <EmailSignupForm />
           </div>
         </div>
-        <div className="relative">
-          <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-10" />
-          <PricingTiers />
-          <PricingFaq />
-        </div>
+        <PricingTiers />
+        <PricingFaq />
       </main>
       <Footer />
     </div>

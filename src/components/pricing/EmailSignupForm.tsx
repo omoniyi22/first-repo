@@ -15,11 +15,26 @@ const EmailSignupForm = () => {
     setIsSubmitting(true);
     
     try {
-      // Show a toast in development mode since we may not have the table set up yet
-      toast({
-        title: "Thanks for your interest!",
-        description: "In production, we would save your email and send you updates.",
-      });
+      const { error } = await supabase
+        .from('subscription_interests')
+        .insert([{ email }]);
+      
+      if (error) {
+        if (error.code === '23505') {
+          // Unique constraint violation - email already exists
+          toast({
+            title: "You're already on the list!",
+            description: "This email has already been registered for updates.",
+          });
+        } else {
+          throw error;
+        }
+      } else {
+        toast({
+          title: "Thanks for your interest!",
+          description: "We'll notify you when new pricing plans are available.",
+        });
+      }
       
       setEmail('');
     } catch (error) {

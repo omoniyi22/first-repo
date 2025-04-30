@@ -138,6 +138,24 @@ export type Database = {
         }
         Relationships: []
       }
+      subscription_interests: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+        }
+        Relationships: []
+      }
       training_focus: {
         Row: {
           created_at: string | null
