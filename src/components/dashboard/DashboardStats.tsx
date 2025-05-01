@@ -1,33 +1,36 @@
 
 import { ArrowUp } from 'lucide-react';
 import { Card } from '@/components/ui/card';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const DashboardStats = () => {
+  const { language } = useLanguage();
+  
   // Example statistics - in a real app, these would come from your backend
   const stats = [
     {
-      title: 'Average Score',
+      title: language === 'en' ? 'Average Score' : 'Puntuación Media',
       value: '64.8%',
       change: '+2.4%',
       positive: true,
     },
     {
-      title: 'Tests Analyzed',
+      title: language === 'en' ? 'Tests Analyzed' : 'Pruebas Analizadas',
       value: '12',
       change: '+3',
       positive: true,
     },
     {
-      title: 'Strongest Movement',
-      value: 'Trot',
-      subValue: 'Extended',
+      title: language === 'en' ? 'Strongest Movement' : 'Movimiento Más Fuerte',
+      value: language === 'en' ? 'Trot' : 'Trote',
+      subValue: language === 'en' ? 'Extended' : 'Extendido',
       change: '',
       positive: true,
     },
     {
-      title: 'Focus Area',
-      value: 'Canter',
-      subValue: 'Transitions',
+      title: language === 'en' ? 'Focus Area' : 'Área de Enfoque',
+      value: language === 'en' ? 'Canter' : 'Galope',
+      subValue: language === 'en' ? 'Transitions' : 'Transiciones',
       change: '',
       positive: false,
     },
@@ -36,7 +39,7 @@ const DashboardStats = () => {
   return (
     <div>
       <h2 className="text-xl font-serif font-semibold text-purple-900 mb-4">
-        Performance Overview
+        {language === 'en' ? 'Performance Overview' : 'Resumen de Rendimiento'}
       </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, index) => (

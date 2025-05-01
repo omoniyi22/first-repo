@@ -1,13 +1,10 @@
 
 import { useAuth } from '@/contexts/AuthContext';
-import { Button } from '@/components/ui/button';
-import { Upload } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 const DashboardHeader = () => {
   const { user } = useAuth();
-  const { language, translations } = useLanguage();
-  const t = translations[language];
+  const { language } = useLanguage();
   
   const displayName = user?.user_metadata?.full_name || 
                       user?.email?.split('@')[0] || 
@@ -24,12 +21,6 @@ const DashboardHeader = () => {
             ? 'Track your progress and upload new dressage tests' 
             : 'Sigue tu progreso y sube nuevas pruebas de doma'}
         </p>
-      </div>
-      <div className="mt-4 sm:mt-0">
-        <Button className="bg-purple-700 hover:bg-purple-800">
-          <Upload className="mr-2 h-4 w-4" />
-          {language === 'en' ? 'Upload Test' : 'Subir Prueba'}
-        </Button>
       </div>
     </div>
   );

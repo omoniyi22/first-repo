@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -12,18 +11,20 @@ import { Progress } from '@/components/ui/progress';
 
 interface VideoAnalysisData {
   id: string;
+  user_id: string;
   horse_id: string;
-  horse_name?: string;
-  discipline: 'dressage' | 'jumping';
-  video_type: 'training' | 'competition';
-  recording_date: string;
+  discipline: "dressage" | "jumping";
+  video_type: string;
   video_url: string;
   file_name: string;
-  status: 'pending' | 'processing' | 'completed' | 'error';
+  file_type: string;
+  recording_date: string;
+  status: string;
   created_at: string;
+  updated_at: string;
   tags?: string[];
-  notes?: string;
-  analysis_result?: any;
+  notes: string | null;
+  horse_name?: string;
 }
 
 interface VideoAnalysisDisplayProps {
@@ -77,12 +78,13 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({ videoId }) 
         }
         
         // Format the data to include the horse name
-        const formattedData: VideoAnalysisData = {
+        const formattedVideo: VideoAnalysisData = {
           ...videoData,
+          discipline: videoData.discipline as "dressage" | "jumping",
           horse_name: horseData?.name
         };
         
-        setAnalysis(formattedData);
+        setAnalysis(formattedVideo);
       } catch (err: any) {
         console.error('Error fetching analysis:', err);
         setError(err.message || 'An error occurred while fetching the video analysis.');
