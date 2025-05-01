@@ -23,18 +23,6 @@ const TeamSection = () => {
       role: "Chief Technology Officer",
       bio: "With 15+ years of experience in AI and machine learning, Marcus leads our technology team in developing and refining our analysis algorithms and recommendation systems.",
       image: "https://randomuser.me/api/portraits/men/42.jpg"
-    },
-    {
-      name: "Olivia Rodriguez",
-      role: "Head of Dressage Education",
-      bio: "FEI 5* judge and medal-winning coach, Olivia ensures that our AI recommendations align with classical dressage principles and effective training methodologies.",
-      image: "https://randomuser.me/api/portraits/women/33.jpg"
-    },
-    {
-      name: "James Wilson",
-      role: "Director of Product",
-      bio: "Former tech executive and amateur dressage enthusiast, James combines user experience expertise with a deep understanding of rider needs to shape our product development.",
-      image: "https://randomuser.me/api/portraits/men/39.jpg"
     }
   ];
 
@@ -46,11 +34,11 @@ const TeamSection = () => {
             Meet Our Team
           </h2>
           <p className="text-lg text-navy-700">
-            We're a diverse team of dressage experts, AI specialists, and passionate equestrians dedicated to transforming dressage training.
+            We're a dedicated team of dressage experts and AI specialists passionate about transforming dressage training.
           </p>
         </AnimatedSection>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {teamMembers.map((member, index) => (
             <AnimatedSection 
               key={index}
@@ -104,89 +92,6 @@ const TeamSection = () => {
             </AnimatedSection>
           ))}
         </div>
-        
-        <AnimatedSection animation="fade-in" className="mt-20">
-          <div className="bg-white rounded-xl overflow-hidden shadow-sm">
-            <div className="grid grid-cols-1 lg:grid-cols-2">
-              <div className="p-8 md:p-12">
-                <h3 className="text-2xl md:text-3xl font-serif font-semibold text-navy-900 mb-6">
-                  Join Our Team
-                </h3>
-                
-                <p className="text-navy-700 mb-6">
-                  We're always looking for talented individuals who are passionate about dressage, technology, and making a difference in equestrian training.
-                </p>
-                
-                <p className="text-navy-700 mb-8">
-                  If you're excited about combining cutting-edge technology with classical dressage principles, we'd love to hear from you.
-                </p>
-                
-                <button className="navy-button">
-                  View Open Positions
-                </button>
-              </div>
-              
-              <div className="bg-navy-50 p-8 md:p-12">
-                <h3 className="text-2xl font-serif font-medium text-navy-900 mb-6">
-                  Our Advisors
-                </h3>
-                
-                <div className="space-y-6">
-                  <div className="flex items-start">
-                    <div className="w-12 h-12 rounded-full overflow-hidden bg-navy-100 mr-4 flex-shrink-0">
-                      <img 
-                        src="https://randomuser.me/api/portraits/women/43.jpg" 
-                        alt="Sarah Johnson"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-navy-900">Sarah Johnson</h4>
-                      <p className="text-navy-600 text-sm mb-2">Gold Medalist, Dressage</p>
-                      <p className="text-navy-700 text-sm">
-                        Provides expert guidance on training methodology and test requirements at the elite level.
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start">
-                    <div className="w-12 h-12 rounded-full overflow-hidden bg-navy-100 mr-4 flex-shrink-0">
-                      <img 
-                        src="https://images.unsplash.com/photo-1452378174528-3090a4bba7b2?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" 
-                        alt="Thomas Weber"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-navy-900">Thomas Weber</h4>
-                      <p className="text-navy-600 text-sm mb-2">Professional Dressage Rider & Trainer</p>
-                      <p className="text-navy-700 text-sm">
-                        Active competitor with multiple Grand Prix victories who tests and provides feedback on our training recommendations.
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start">
-                    <div className="w-12 h-12 rounded-full overflow-hidden bg-navy-100 mr-4 flex-shrink-0">
-                      <img 
-                        src="https://randomuser.me/api/portraits/women/67.jpg" 
-                        alt="Elena Martinez"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-navy-900">Elena Martinez</h4>
-                      <p className="text-navy-600 text-sm mb-2">International Dressage Rider & Instructor</p>
-                      <p className="text-navy-700 text-sm">
-                        Brings practical riding expertise and helps translate classical principles into our AI coaching system.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </AnimatedSection>
         
         <AnimatedSection animation="fade-in" className="mt-20">
           <div className="bg-navy-800 rounded-xl p-8 md:p-12 text-center">
