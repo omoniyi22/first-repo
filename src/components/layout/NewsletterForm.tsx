@@ -19,6 +19,12 @@ const NewsletterForm = () => {
       // Simulate API call with timeout
       await new Promise(resolve => setTimeout(resolve, 1000));
       
+      // Log the data that would be sent
+      console.log('Newsletter subscription data:', {
+        email,
+        source: 'newsletter-form',
+      });
+      
       // Simulate success
       console.log('Newsletter subscription successful for:', email);
       toast({

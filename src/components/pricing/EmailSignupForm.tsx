@@ -20,6 +20,12 @@ const EmailSignupForm = () => {
       // Simulate API call with timeout
       await new Promise(resolve => setTimeout(resolve, 1000));
       
+      // Log the data that would be sent
+      console.log('Pricing interest data:', {
+        email,
+        source: 'pricing-page',
+      });
+      
       // Simulate success
       console.log('Pricing page subscription successful for:', email);
       toast({

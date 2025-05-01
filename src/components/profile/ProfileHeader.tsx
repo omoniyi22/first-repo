@@ -8,6 +8,15 @@ import ProfileImage from './ProfileImage';
 import ProfileForm from './ProfileForm';
 import ProfileActions from './ProfileActions';
 
+// Mock profile data
+const mockProfileData = {
+  rider_category: 'Adult Amateur',
+  stable_affiliation: 'Sunset Stables',
+  coach_name: 'Michael Thompson',
+  region: 'Western Europe',
+  profile_picture_url: null
+};
+
 const ProfileHeader = () => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -29,25 +38,15 @@ const ProfileHeader = () => {
       if (!user) return;
       
       try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .maybeSingle();
-          
-        if (error) {
-          console.error('Error fetching profile:', error);
-          return;
-        }
+        // Simulate API call with timeout
+        await new Promise(resolve => setTimeout(resolve, 500));
         
-        if (data) {
-          // Set state with existing profile data
-          setRiderCategory(data.rider_category || 'Adult Amateur');
-          setStableAffiliation(data.stable_affiliation || '');
-          setCoachName(data.coach_name || '');
-          setRegion(data.region || '');
-          setProfilePic(data.profile_picture_url);
-        }
+        // Use mock data instead of Supabase query
+        setRiderCategory(mockProfileData.rider_category);
+        setStableAffiliation(mockProfileData.stable_affiliation);
+        setCoachName(mockProfileData.coach_name);
+        setRegion(mockProfileData.region);
+        setProfilePic(mockProfileData.profile_picture_url);
       } catch (error) {
         console.error('Error fetching profile data:', error);
       } finally {
@@ -71,20 +70,18 @@ const ProfileHeader = () => {
     setIsSaving(true);
     
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .upsert({ 
-          id: user.id,
-          rider_category: riderCategory,
-          stable_affiliation: stableAffiliation,
-          coach_name: coachName,
-          region: region,
-          updated_at: new Date().toISOString()
-        });
-        
-      if (error) {
-        throw error;
-      }
+      // Simulate API call with timeout
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+      // Log data that would be sent to the server
+      console.log('Profile data to save:', { 
+        id: user.id,
+        rider_category: riderCategory,
+        stable_affiliation: stableAffiliation,
+        coach_name: coachName,
+        region: region,
+        updated_at: new Date().toISOString()
+      });
       
       toast({
         title: "Profile updated",

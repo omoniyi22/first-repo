@@ -155,26 +155,8 @@ const VideoUpload = () => {
       tagArray = data.tags.split(',').map(tag => tag.trim()).filter(tag => tag !== '');
     }
     
-    // Create a unique filename
-    const timestamp = Date.now();
-    const fileExt = selectedVideo.name.split('.').pop();
-    const fileName = `${user.id}/${data.discipline}/${timestamp}.${fileExt}`;
-    const filePath = `videos/${fileName}`;
-    
     try {
-      // Upload file to Supabase Storage
-      const { error: uploadError } = await supabase.storage
-        .from('analysis')
-        .upload(filePath, selectedVideo, {
-          cacheControl: '3600',
-          upsert: false,
-        });
-      
-      if (uploadError) {
-        throw uploadError;
-      }
-      
-      // Simulate upload progress since onUploadProgress doesn't work in current Supabase JS client
+      // Simulate upload progress
       const interval = setInterval(() => {
         setUploadProgress(prev => {
           if (prev >= 95) {
@@ -185,38 +167,26 @@ const VideoUpload = () => {
         });
       }, 100);
       
-      // Get the file's public URL
-      const { data: fileData } = supabase.storage
-        .from('analysis')
-        .getPublicUrl(filePath);
-        
-      // Create metadata record in the database
-      const { data: videoData, error: dbError } = await supabase
-        .from('video_analysis')
-        .insert({
-          user_id: user.id,
-          horse_id: data.horseId,
-          discipline: data.discipline,
-          video_type: data.videoType,
-          recording_date: data.date.toISOString(),
-          video_url: fileData.publicUrl,
-          tags: tagArray.length > 0 ? tagArray : null,
-          notes: data.notes,
-          status: 'pending',
-          file_name: selectedVideo.name,
-          file_type: selectedVideo.type
-        })
-        .select()
-        .single();
+      // Mock successful upload
+      await new Promise(resolve => setTimeout(resolve, 2000));
       
-      if (dbError) {
-        throw dbError;
-      }
+      // Mock database insert
+      console.log('Video upload data:', {
+        user_id: user.id,
+        horse_id: data.horseId,
+        discipline: data.discipline,
+        video_type: data.videoType,
+        recording_date: data.date.toISOString(),
+        video_url: 'https://example.com/mock-video-url',
+        tags: tagArray,
+        notes: data.notes,
+        status: 'pending',
+        file_name: selectedVideo.name,
+        file_type: selectedVideo.type
+      });
       
       clearInterval(interval);
       setUploadProgress(100);
-      
-      // In a real implementation, we would call a video processing edge function here
       
       toast({
         title: language === 'en' ? "Video uploaded successfully" : "Video subido con éxito",

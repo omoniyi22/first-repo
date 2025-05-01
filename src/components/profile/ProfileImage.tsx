@@ -43,69 +43,23 @@ const ProfileImage: React.FC<ProfileImageProps> = ({ profilePic, setProfilePic }
         const tempImageUrl = URL.createObjectURL(file);
         setProfilePic(tempImageUrl);
         
-        // Upload image to Supabase Storage
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${user.id}-profile-${Date.now()}.${fileExt}`;
+        // Simulate upload with timeout
+        await new Promise(resolve => setTimeout(resolve, 1500));
         
-        console.log('Checking bucket accessibility...');
-        // Check if bucket exists and is accessible
-        const { data: bucketInfo, error: bucketError } = await supabase.storage.getBucket('profiles');
+        // Generate a mock public URL
+        const mockPublicUrl = `https://example.com/profile-images/${user.id}-${Date.now()}.jpg`;
         
-        if (bucketError) {
-          console.log('Bucket not found or not accessible, attempting to create it...');
-          // Try to create the bucket if it doesn't exist
-          const { error: createError } = await supabase.storage.createBucket('profiles', {
-            public: true,
-            fileSizeLimit: 10485760, // 10MB
-          });
-          
-          if (createError) {
-            throw new Error(`Failed to access or create storage bucket: ${createError.message}`);
-          }
-        }
-        
-        console.log('Uploading to profiles bucket, path:', `profile-images/${fileName}`);
-        
-        // Upload file with authenticated user
-        const { data, error } = await supabase.storage
-          .from('profiles')
-          .upload(`profile-images/${fileName}`, file, {
-            cacheControl: '3600',
-            upsert: true
-          });
-        
-        if (error) {
-          console.error('Error uploading image:', error);
-          throw error;
-        }
-        
-        console.log('Upload successful, data:', data);
-        
-        // Get public URL
-        const { data: publicUrlData } = supabase.storage
-          .from('profiles')
-          .getPublicUrl(`profile-images/${fileName}`);
-          
-        console.log('Got public URL:', publicUrlData.publicUrl);
+        // Log what would have been uploaded
+        console.log('Profile image upload:', {
+          id: user.id,
+          profile_picture_url: mockPublicUrl,
+          updated_at: new Date().toISOString()
+        });
         
         // Revoke temporary object URL to avoid memory leaks
         URL.revokeObjectURL(tempImageUrl);
         
-        setProfilePic(publicUrlData.publicUrl);
-        
-        // Update profile with new image URL
-        const { error: updateError } = await supabase
-          .from('profiles')
-          .upsert({ 
-            id: user.id,
-            profile_picture_url: publicUrlData.publicUrl,
-            updated_at: new Date().toISOString()
-          });
-          
-        if (updateError) {
-          console.error('Error updating profile with image URL:', updateError);
-          throw updateError;
-        }
+        setProfilePic(mockPublicUrl);
         
         toast({
           title: language === 'en' ? "Profile picture updated" : "Foto de perfil actualizada",
