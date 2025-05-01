@@ -9,7 +9,7 @@ import RecentVideos from '@/components/dashboard/RecentVideos';
 import UpcomingEvents from '@/components/dashboard/UpcomingEvents';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { User } from 'lucide-react';
+import { User, Upload } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 const Dashboard = () => {
@@ -45,14 +45,23 @@ const Dashboard = () => {
       <main className="container mx-auto px-4 pt-20 sm:pt-24 pb-12 sm:pb-16">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0 mb-6 sm:mb-8">
           <DashboardHeader />
-          <Button 
-            className="text-purple-700 border-purple-200 hover:bg-purple-50 text-sm sm:text-base mt-2 sm:mt-0" 
-            variant="outline"
-            onClick={() => navigate('/profile')}
-          >
-            <User className="mr-2 h-4 w-4" />
-            {language === 'en' ? 'View Profile' : 'Ver Perfil'}
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Button 
+              className="text-white bg-purple-600 hover:bg-purple-700 text-sm sm:text-base"
+              onClick={() => navigate('/analysis')}
+            >
+              <Upload className="mr-2 h-4 w-4" />
+              {language === 'en' ? 'Upload Test' : 'Subir Prueba'}
+            </Button>
+            <Button 
+              variant="outline" 
+              className="text-purple-700 border-purple-200 hover:bg-purple-50 text-sm sm:text-base"
+              onClick={() => navigate('/profile')}
+            >
+              <User className="mr-2 h-4 w-4" />
+              {language === 'en' ? 'View Profile' : 'Ver Perfil'}
+            </Button>
+          </div>
         </div>
         <DashboardStats />
         <div className="mt-8 sm:mt-12 grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
