@@ -1,3 +1,4 @@
+
 import AnimatedSection from '../ui/AnimatedSection';
 import { Linkedin } from 'lucide-react';
 
