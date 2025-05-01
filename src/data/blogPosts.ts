@@ -1,4 +1,3 @@
-
 export interface BlogPost {
   id: number;
   slug: string;
@@ -12,6 +11,14 @@ export interface BlogPost {
   category: 'Technology' | 'Analytics' | 'Training' | 'Guides' | 'Competition';
   image: string;
   readingTime: string;
+  translations?: {
+    es?: {
+      title?: string;
+      excerpt?: string;
+      content?: string;
+      category?: string;
+    }
+  }
 }
 
 export const blogPosts: BlogPost[] = [
@@ -27,7 +34,14 @@ export const blogPosts: BlogPost[] = [
     discipline: 'Jumping',
     category: 'Technology',
     image: '/lovable-uploads/987a3f3b-1917-439f-a3a9-8fabc609cffa.png',
-    readingTime: '5 min read'
+    readingTime: '5 min read',
+    translations: {
+      es: {
+        title: 'Cómo el Análisis de IA Está Transformando el Entrenamiento de Salto Ecuestre',
+        excerpt: 'Descubre cómo la inteligencia artificial está revolucionando los métodos de entrenamiento de salto, ofreciendo información sin precedentes y mejoras de rendimiento para jinetes de todos los niveles.',
+        category: 'Tecnología'
+      }
+    }
   },
   {
     id: 2,
@@ -40,7 +54,14 @@ export const blogPosts: BlogPost[] = [
     discipline: 'Jumping',
     category: 'Analytics',
     image: '/lovable-uploads/3b7c24a2-ef67-42cc-9b46-875418451128.png',
-    readingTime: '7 min read'
+    readingTime: '7 min read',
+    translations: {
+      es: {
+        title: '5 Métricas Críticas de Salto Que la Mayoría de los Jinetes Nunca Rastrean',
+        excerpt: 'Aprende sobre los indicadores clave de rendimiento que pueden mejorar dramáticamente tus rondas de salto, desde ángulos de despegue hasta patrones de equilibrio de aterrizaje.',
+        category: 'Analítica'
+      }
+    }
   },
   {
     id: 3,
@@ -107,7 +128,14 @@ export const blogPosts: BlogPost[] = [
     discipline: 'Dressage',
     category: 'Technology',
     image: '/lovable-uploads/15df63d0-27e1-486c-98ee-bcf44eb600f4.png',
-    readingTime: '7 min read'
+    readingTime: '7 min read',
+    translations: {
+      es: {
+        title: 'Cómo la IA Está Revolucionando el Entrenamiento de Doma: Una Nueva Era para los Ecuestres',
+        excerpt: 'Descubre cómo la inteligencia artificial está transformando el entrenamiento de doma con retroalimentación en tiempo real, análisis detallados y orientación personalizada para jinetes de todos los niveles.',
+        category: 'Tecnología'
+      }
+    }
   },
   {
     id: 8,
