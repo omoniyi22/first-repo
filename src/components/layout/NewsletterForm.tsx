@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Mail } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { supabase } from '@/integrations/supabase/client';
 
 const NewsletterForm = () => {
   const [email, setEmail] = useState('');
@@ -16,17 +17,28 @@ const NewsletterForm = () => {
     setIsSubmitting(true);
     
     try {
-      // Simulate API call with timeout
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Log the subscription attempt
+      console.log('Newsletter subscription attempt for:', email);
       
-      // Log the data that would be sent
+      // Store the newsletter subscription data
+      // NOTE: In a production environment, this would properly store to a Supabase table
       console.log('Newsletter subscription data:', {
         email,
         source: 'newsletter-form',
       });
       
-      // Simulate success
+      // Call the Supabase edge function to send confirmation email
+      const { data, error } = await supabase.functions.invoke('send-newsletter-confirmation', {
+        body: { email }
+      });
+      
+      if (error) {
+        throw new Error(error.message);
+      }
+      
       console.log('Newsletter subscription successful for:', email);
+      console.log('Email sending response:', data);
+      
       toast({
         title: t["subscription-successful"],
         description: t["thank-you-subscribing"],

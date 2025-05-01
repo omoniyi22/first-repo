@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Mail } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { supabase } from '@/integrations/supabase/client';
 
 const EmailSignupForm = () => {
   const [email, setEmail] = useState('');
@@ -17,17 +18,28 @@ const EmailSignupForm = () => {
     setIsSubmitting(true);
     
     try {
-      // Simulate API call with timeout
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Log the subscription attempt
+      console.log('Pricing interest for:', email);
       
-      // Log the data that would be sent
+      // Store the pricing interest data
+      // NOTE: In a production environment, this would properly store to a Supabase table
       console.log('Pricing interest data:', {
         email,
         source: 'pricing-page',
       });
       
-      // Simulate success
+      // Call the Supabase edge function to send confirmation email
+      const { data, error } = await supabase.functions.invoke('send-newsletter-confirmation', {
+        body: { email }
+      });
+      
+      if (error) {
+        throw new Error(error.message);
+      }
+      
       console.log('Pricing page subscription successful for:', email);
+      console.log('Email sending response:', data);
+      
       toast({
         title: language === 'en' ? "Thanks for your interest!" : "¡Gracias por tu interés!",
         description: language === 'en' ? "We'll notify you when new pricing plans are available." : "Te notificaremos cuando los nuevos planes de precios estén disponibles.",
