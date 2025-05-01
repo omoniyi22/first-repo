@@ -7,8 +7,8 @@ import { ArrowLeft } from 'lucide-react';
 import { SEO, generateDisciplineMetadata } from '@/lib/seo';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
-import StepsSection from '@/components/howitworks/StepsSection';
-import FaqSection from '@/components/howitworks/FaqSection';
+import JumpingStepsSection from '@/components/howitworks/JumpingStepsSection';
+import JumpingFaqSection from '@/components/howitworks/JumpingFaqSection';
 
 const JumpingHowItWorks = () => {
   // Initialize scroll reveal for animations
@@ -66,8 +66,8 @@ const JumpingHowItWorks = () => {
         </div>
       </div>
       <main className="pt-0">
-        <StepsSection />
-        <FaqSection />
+        <JumpingStepsSection />
+        <JumpingFaqSection />
       </main>
       <Footer />
     </div>
