@@ -14,6 +14,8 @@ import Dressage from "./pages/Dressage";
 import DressageSimple from "./components/DressageSimple";
 import Jumping from "./pages/Jumping";
 import HowItWorks from "./pages/HowItWorks";
+import DressageHowItWorks from "./pages/DressageHowItWorks";
+import JumpingHowItWorks from "./pages/JumpingHowItWorks";
 import Pricing from "./pages/Pricing";
 import About from "./pages/About";
 import SignIn from "./pages/SignIn";
@@ -56,6 +58,8 @@ const App = () => (
                 <Route path="/dressage-simple" element={<DressageSimple />} />
                 <Route path="/jumping" element={<Jumping />} />
                 <Route path="/how-it-works" element={<HowItWorks />} />
+                <Route path="/dressage/how-it-works" element={<DressageHowItWorks />} />
+                <Route path="/jumping/how-it-works" element={<JumpingHowItWorks />} />
                 <Route path="/pricing" element={<Pricing />} />
                 <Route path="/about" element={<EquestrianAbout />} />
                 <Route path="/dressage/about" element={<DressageAbout />} />

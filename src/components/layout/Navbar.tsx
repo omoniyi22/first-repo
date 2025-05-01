@@ -74,9 +74,9 @@ const Navbar = () => {
 
   // Determine brand name based on current route
   const getBrandName = () => {
-    if (location.pathname === '/dressage') {
+    if (location.pathname.startsWith('/dressage')) {
       return language === 'en' ? 'AI Dressage Trainer' : 'Entrenador AI de Doma';
-    } else if (location.pathname === '/jumping') {
+    } else if (location.pathname.startsWith('/jumping')) {
       return language === 'en' ? 'AI Jumping Trainer' : 'Entrenador AI de Salto';
     } else {
       return language === 'en' ? 'AI Equestrian' : 'AI Ecuestre';
@@ -85,12 +85,34 @@ const Navbar = () => {
 
   // Determine brand color based on current route
   const getBrandColorClass = () => {
-    if (location.pathname === '/jumping') {
+    if (location.pathname.startsWith('/jumping')) {
       return 'text-white';  // Blue theme
-    } else if (location.pathname === '/dressage') {
+    } else if (location.pathname.startsWith('/dressage')) {
       return 'text-white';  // Purple theme
     } else {
       return 'text-white';  // Default theme
+    }
+  };
+
+  // Determine which "About" link to show based on current route
+  const getAboutLink = () => {
+    if (location.pathname.startsWith('/dressage')) {
+      return '/dressage/about';
+    } else if (location.pathname.startsWith('/jumping')) {
+      return '/jumping/about';
+    } else {
+      return '/about';
+    }
+  };
+
+  // Determine which "How It Works" link to show based on current route
+  const getHowItWorksLink = () => {
+    if (location.pathname.startsWith('/dressage')) {
+      return '/dressage/how-it-works';
+    } else if (location.pathname.startsWith('/jumping')) {
+      return '/jumping/how-it-works';
+    } else {
+      return '/how-it-works';
     }
   };
 
@@ -117,7 +139,7 @@ const Navbar = () => {
               {t["home"]}
             </Link>
             <Link 
-              to="/how-it-works" 
+              to={getHowItWorksLink()} 
               className={`nav-link ${isActive('/how-it-works') ? 'active' : ''} text-white`}
             >
               {t["how-it-works"]}
@@ -135,7 +157,7 @@ const Navbar = () => {
               {t["blog"]}
             </Link>
             <Link 
-              to="/about" 
+              to={getAboutLink()}
               className={`nav-link ${isActive('/about') ? 'active' : ''} text-white`}
             >
               {t["about"]}
@@ -228,7 +250,7 @@ const Navbar = () => {
               {t["home"]}
             </Link>
             <Link 
-              to="/how-it-works" 
+              to={getHowItWorksLink()}
               className={`text-white text-lg font-medium ${isActive('/how-it-works') ? 'text-purple-300' : ''}`}
             >
               {t["how-it-works"]}
@@ -246,7 +268,7 @@ const Navbar = () => {
               {t["blog"]}
             </Link>
             <Link 
-              to="/about" 
+              to={getAboutLink()}
               className={`text-white text-lg font-medium ${isActive('/about') ? 'text-purple-300' : ''}`}
             >
               {t["about"]}
