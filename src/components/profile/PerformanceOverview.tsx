@@ -77,7 +77,7 @@ const PerformanceOverview = () => {
   };
 
   return (
-    <div>
+    <div className="mb-8">
       <h2 className="text-xl font-serif font-semibold text-gray-900 mb-4">
         Performance Overview
       </h2>
@@ -114,7 +114,7 @@ const PerformanceOverview = () => {
       </div>
 
       {/* Charts Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
         {/* Score Trend Chart */}
         <Card className="p-4 border border-gray-100">
           <h3 className="text-lg font-medium text-gray-900 mb-2">Score Trend</h3>

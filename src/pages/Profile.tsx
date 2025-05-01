@@ -14,11 +14,18 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Upload, LayoutDashboard } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { SEO, getPageMetadata } from '@/lib/seo';
 
 const Profile = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const { language } = useLanguage();
+  
+  // Get profile SEO metadata
+  const seoMetadata = getPageMetadata('profile', {
+    // Add noindex tag since this is a private page
+    noIndex: true
+  });
   
   // If not logged in and not loading, redirect to sign in
   useEffect(() => {
@@ -44,6 +51,7 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+      <SEO {...seoMetadata} />
       <Navbar />
       <main className="container mx-auto px-4 pt-20 sm:pt-24 pb-12 sm:pb-16">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0 mb-6 sm:mb-8">
@@ -77,7 +85,7 @@ const Profile = () => {
         </div>
         
         {/* Main content layout - two columns for desktop, single column for mobile */}
-        <div className="mt-8 sm:mt-12 grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+        <div className="mt-4 grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
           {/* Main column - 2/3 width on desktop */}
           <div className="lg:col-span-2 space-y-6 sm:space-y-8">
             {/* Horses Section */}
