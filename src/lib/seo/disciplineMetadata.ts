@@ -1,38 +1,38 @@
 
 import { SEOProps } from './types';
+import { DEFAULT_OG_IMAGE } from './constants';
 
 /**
- * Generates discipline-specific metadata for dressage or jumping pages
+ * Generates SEO metadata for discipline-specific pages
  */
 export const generateDisciplineMetadata = (
   discipline: 'Dressage' | 'Jumping',
   customProps: Partial<SEOProps> = {}
 ): SEOProps => {
-  const baseProps: SEOProps = {
-    ogType: 'product',
+  // Base metadata
+  const baseMetadata: SEOProps = {
+    ogImage: DEFAULT_OG_IMAGE,
     discipline,
+    ogType: 'website',
+    keywords: [],
   };
-  
+
+  // Discipline specific metadata
   if (discipline === 'Dressage') {
     return {
-      ...baseProps,
-      title: `AI Dressage Analysis | Test Score Improvement | AI Equestrian`,
-      description: 'Upload your dressage test sheets for instant AI analysis. Get movement-by-movement feedback, identify patterns, and receive personalized training recommendations.',
-      ogImage: '/lovable-uploads/7c32e2d9-4fce-4ed5-abba-0fb12abe96eb.png', 
-      ogImageAlt: 'Dressage rider using AI Equestrian technology',
-      keywords: ['dressage analysis', 'dressage test scores', 'dressage AI', 'dressage training technology', 'dressage movements', 'test sheet analysis'],
-      ...customProps,
+      ...baseMetadata,
+      title: 'AI Dressage Trainer | Advanced Analysis & Personalized Training',
+      description: 'Transform your dressage performance with AI-powered analysis of test sheets, videos, and personalized training recommendations.',
+      keywords: ['dressage AI', 'dressage test analysis', 'dressage score improvement', 'dressage training technology', 'AI dressage trainer'],
+      ...customProps
     };
   } else {
-    // Jumping
     return {
-      ...baseProps,
-      title: `AI Jumping Analysis | Course Analysis | AI Equestrian`,
-      description: 'Get AI-powered analysis of your jumping rounds. Improve technique, reduce faults, and create targeted training plans with video analysis and personalized feedback.',
-      ogImage: '/lovable-uploads/987a3f3b-1917-439f-a3a9-8fabc609cffa.png',
-      ogImageAlt: 'Show jumper using AI Equestrian technology',
-      keywords: ['jump analysis', 'jumping course analysis', 'jumping AI', 'show jumping technology', 'fault analysis', 'jumping technique'],
-      ...customProps,
+      ...baseMetadata,
+      title: 'AI Jumping Trainer | Advanced Analysis & Personalized Training',
+      description: 'Elevate your jumping performance with AI-powered video analysis, course insights, and personalized training recommendations.',
+      keywords: ['jumping AI', 'show jumping analysis', 'course analysis', 'jumping technique AI', 'equestrian jumping technology'],
+      ...customProps
     };
   }
 };

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
@@ -7,8 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, CheckCircle, Calendar, Map, Activity, BarChart, Clock, Award } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { SEO } from '@/lib/seo';
-import { generateDisciplineMetadata } from '@/lib/seo';
+import { SEO, generateDisciplineMetadata } from '@/lib/seo';
 
 const Jumping = () => {
   // Initialize scroll reveal for animations
