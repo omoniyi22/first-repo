@@ -196,18 +196,19 @@ const Navbar = () => {
               </div>
             ) : (
               <>
-                {/* Swapped the order of Login and Get Started buttons */}
+                <Link to="/sign-in?signup=true">
+                  <Button 
+                    className="bg-gradient-to-r from-purple-600 to-blue-500 text-white hover:from-purple-700 hover:to-blue-600"
+                  >
+                    {t["get-started"]}
+                  </Button>
+                </Link>
                 <Link to="/sign-in">
                   <Button 
                     variant="outline" 
                     className="border-white text-white bg-transparent hover:bg-gradient-to-r hover:from-purple-800 hover:to-blue-700 hover:text-white hover:border-transparent transition-all"
                   >
                     Log In
-                  </Button>
-                </Link>
-                <Link to="/sign-in?signup=true">
-                  <Button className="bg-gradient-to-r from-purple-600 to-blue-500 text-white hover:from-purple-700 hover:to-blue-600">
-                    {t["get-started"]}
                   </Button>
                 </Link>
               </>
@@ -311,18 +312,17 @@ const Navbar = () => {
                 </>
               ) : (
                 <>
-                  {/* Swapped the order of Login and Get Started buttons in mobile menu as well */}
+                  <Link to="/sign-in?signup=true" className="w-full">
+                    <Button className="w-full bg-gradient-to-r from-purple-600 to-blue-500 text-white hover:from-purple-700 hover:to-blue-600">
+                      {t["get-started"]}
+                    </Button>
+                  </Link>
                   <Link to="/sign-in" className="w-full">
                     <Button 
                       variant="outline" 
                       className="w-full border-white text-white bg-transparent hover:bg-gradient-to-r hover:from-purple-800 hover:to-blue-700 hover:text-white hover:border-transparent transition-all"
                     >
                       Log In
-                    </Button>
-                  </Link>
-                  <Link to="/sign-in?signup=true" className="w-full">
-                    <Button className="w-full bg-gradient-to-r from-purple-600 to-blue-500 text-white hover:from-purple-700 hover:to-blue-600">
-                      {t["get-started"]}
                     </Button>
                   </Link>
                 </>

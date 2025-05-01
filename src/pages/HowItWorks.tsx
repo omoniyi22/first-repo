@@ -61,7 +61,7 @@ const HowItWorks = () => {
             </div>
             
             <div className="grid md:grid-cols-2 gap-12 max-w-6xl mx-auto">
-              <div className="bg-purple-50 rounded-xl p-8 shadow-sm border border-purple-100 reveal-scroll">
+              <div className="bg-gradient-to-br from-purple-100 to-purple-200 rounded-xl p-8 shadow-sm border border-purple-100 reveal-scroll">
                 <h2 className="text-2xl font-serif font-medium mb-4 text-purple-900">AI Dressage Trainer</h2>
                 <p className="mb-6 text-gray-700">
                   Transform your dressage performance with AI-powered analysis of test sheets, videos, and receive personalized training recommendations.
@@ -80,17 +80,26 @@ const HowItWorks = () => {
                     <span>Follow personalized training recommendations</span>
                   </li>
                 </ul>
-                <div className="h-[48px] flex items-center">
-                  <Link to="/dressage/how-it-works" className="w-full">
-                    <Button className="w-full bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 text-white border-none hover:text-white">
-                      Learn More About Dressage AI
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </Link>
+                <div className="flex flex-col space-y-3">
+                  <div className="flex justify-center">
+                    <Link to="/sign-in?signup=true" className="w-full max-w-md">
+                      <Button className="w-full bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 text-white border-none hover:text-white">
+                        Start Your Free Trial
+                      </Button>
+                    </Link>
+                  </div>
+                  <div className="h-[48px] flex items-center">
+                    <Link to="/dressage/how-it-works" className="w-full">
+                      <Button className="w-full bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 text-white border-none hover:text-white">
+                        Learn More About Dressage AI
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    </Link>
+                  </div>
                 </div>
               </div>
               
-              <div className="bg-blue-50 rounded-xl p-8 shadow-sm border border-blue-100 reveal-scroll">
+              <div className="bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl p-8 shadow-sm border border-blue-100 reveal-scroll">
                 <h2 className="text-2xl font-serif font-medium mb-4 text-blue-900">AI Jumping Trainer</h2>
                 <p className="mb-6 text-gray-700">
                   Elevate your jumping performance with AI-powered video analysis, course insights, and personalized training recommendations.
@@ -132,34 +141,34 @@ const HowItWorks = () => {
             <div className="max-w-3xl mx-auto mt-20 text-center reveal-scroll">
               <h2 className="text-2xl md:text-3xl font-serif font-medium mb-6">Why Choose AI Equestrian?</h2>
               <div className="grid md:grid-cols-3 gap-8 mt-10">
-                <div className="p-6">
-                  <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg className="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="p-6 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl shadow-sm">
+                  <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg className="h-6 w-6 text-purple-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                     </svg>
                   </div>
-                  <h3 className="text-lg font-medium mb-2">Data-Driven</h3>
-                  <p className="text-gray-600">Advanced analysis technology that provides objective insights you can trust.</p>
+                  <h3 className="text-lg font-medium mb-2 text-purple-900">Data-Driven</h3>
+                  <p className="text-gray-700">Advanced analysis technology that provides objective insights you can trust.</p>
                 </div>
                 
-                <div className="p-6">
-                  <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg className="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="p-6 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl shadow-sm">
+                  <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg className="h-6 w-6 text-purple-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
                     </svg>
                   </div>
-                  <h3 className="text-lg font-medium mb-2">Personalized</h3>
-                  <p className="text-gray-600">Tailored feedback and training plans based on your specific goals and challenges.</p>
+                  <h3 className="text-lg font-medium mb-2 text-purple-900">Personalized</h3>
+                  <p className="text-gray-700">Tailored feedback and training plans based on your specific goals and challenges.</p>
                 </div>
                 
-                <div className="p-6">
-                  <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg className="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="p-6 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl shadow-sm">
+                  <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg className="h-6 w-6 text-purple-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
-                  <h3 className="text-lg font-medium mb-2">Accessible</h3>
-                  <p className="text-gray-600">Elite-level training insights available anywhere, anytime, at a fraction of the cost.</p>
+                  <h3 className="text-lg font-medium mb-2 text-purple-900">Accessible</h3>
+                  <p className="text-gray-700">Elite-level training insights available anywhere, anytime, at a fraction of the cost.</p>
                 </div>
               </div>
             </div>
