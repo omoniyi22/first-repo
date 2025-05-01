@@ -23,6 +23,7 @@ import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import ProfileQuestionnaire from "./pages/ProfileQuestionnaire";
 import JumpProfileSetup from "./pages/JumpProfileSetup";
+import Analysis from "./pages/Analysis";
 
 const queryClient = new QueryClient();
 
@@ -51,6 +52,7 @@ const App = () => (
                 <Route path="/blog/:slug" element={<BlogPost />} />
                 <Route path="/profile-setup" element={<ProfileQuestionnaire />} />
                 <Route path="/jump-profile-setup" element={<JumpProfileSetup />} />
+                <Route path="/analysis" element={<Analysis />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </TooltipProvider>
