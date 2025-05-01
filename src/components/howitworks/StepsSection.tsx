@@ -167,7 +167,7 @@ const StepsSection = () => {
                 and personalized recommendations.
               </p>
               
-              <button className="navy-button flex items-center">
+              <button className="navy-button flex items-center hover:bg-navy-800 hover:text-white">
                 Watch Demo
                 <svg className="ml-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />

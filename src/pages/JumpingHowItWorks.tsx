@@ -56,7 +56,7 @@ const JumpingHowItWorks = () => {
       <Navbar />
       <div className="container mx-auto px-6 pt-24 pb-6">
         <Link to="/jumping">
-          <Button variant="ghost" className="flex items-center gap-2 mb-4 -ml-2">
+          <Button variant="ghost" className="flex items-center gap-2 mb-4 -ml-2 hover:bg-blue-100 hover:text-blue-800">
             <ArrowLeft className="h-4 w-4" />
             <span>Back to AI Jumping</span>
           </Button>

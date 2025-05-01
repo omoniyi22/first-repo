@@ -80,12 +80,14 @@ const HowItWorks = () => {
                     <span>Follow personalized training recommendations</span>
                   </li>
                 </ul>
-                <Link to="/dressage/how-it-works">
-                  <Button className="w-full bg-purple-600 hover:bg-purple-700">
-                    Learn More About Dressage AI
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </Link>
+                <div className="h-[48px] flex items-center">
+                  <Link to="/dressage/how-it-works" className="w-full">
+                    <Button className="w-full bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 text-white border-none hover:text-white">
+                      Learn More About Dressage AI
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
+                </div>
               </div>
               
               <div className="bg-blue-50 rounded-xl p-8 shadow-sm border border-blue-100 reveal-scroll">
@@ -107,12 +109,14 @@ const HowItWorks = () => {
                     <span>Implement targeted exercises to improve technique</span>
                   </li>
                 </ul>
-                <Link to="/jumping/how-it-works">
-                  <Button className="w-full bg-blue-600 hover:bg-blue-700">
-                    Learn More About Jumping AI
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </Link>
+                <div className="h-[48px] flex items-center">
+                  <Link to="/jumping/how-it-works" className="w-full">
+                    <Button className="w-full bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white border-none hover:text-white">
+                      Learn More About Jumping AI
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
+                </div>
               </div>
             </div>
             

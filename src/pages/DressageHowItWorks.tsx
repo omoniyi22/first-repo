@@ -56,7 +56,7 @@ const DressageHowItWorks = () => {
       <Navbar />
       <div className="container mx-auto px-6 pt-24 pb-6">
         <Link to="/dressage">
-          <Button variant="ghost" className="flex items-center gap-2 mb-4 -ml-2">
+          <Button variant="ghost" className="flex items-center gap-2 mb-4 -ml-2 hover:bg-purple-100 hover:text-purple-800">
             <ArrowLeft className="h-4 w-4" />
             <span>Back to AI Dressage</span>
           </Button>
