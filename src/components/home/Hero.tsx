@@ -5,10 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import AnimatedSection from '../ui/AnimatedSection';
 import { Skeleton } from '../ui/skeleton';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const Hero = () => {
   const [loaded, setLoaded] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const { language } = useLanguage();
 
   useEffect(() => {
     setLoaded(true);
@@ -25,7 +27,7 @@ const Hero = () => {
       
       <img 
         src="/lovable-uploads/7c32e2d9-4fce-4ed5-abba-0fb12abe96eb.png" 
-        alt="Dressage rider performing"
+        alt={language === 'en' ? "Dressage rider performing" : "Jinete de doma realizando ejercicio"}
         className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
         onLoad={() => setImageLoaded(true)}
         style={{ objectPosition: 'center 30%' }}
@@ -38,19 +40,27 @@ const Hero = () => {
         <div className={`max-w-2xl mx-auto transition-all duration-1000 transform ${loaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
           <AnimatedSection animation="fade-in" delay="delay-100">
             <div className="inline-block px-6 py-3 mb-6 bg-gradient-to-r from-purple-600 to-blue-500 rounded-xl backdrop-blur-sm">
-              <span className="text-white font-medium">Next Generation Dressage Training</span>
+              <span className="text-white font-medium">
+                {language === 'en' 
+                  ? "Next Generation Dressage Training" 
+                  : "Entrenamiento de Doma de Próxima Generación"}
+              </span>
             </div>
           </AnimatedSection>
           
           <AnimatedSection animation="fade-in" delay="delay-200">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-semibold leading-tight text-white mb-6 text-shadow">
-              Transform Your Dressage Training with AI
+              {language === 'en'
+                ? "Transform Your Dressage Training with AI"
+                : "Transforma Tu Entrenamiento de Doma con IA"}
             </h1>
           </AnimatedSection>
           
           <AnimatedSection animation="fade-in" delay="delay-300">
             <p className="text-lg text-white/90 mb-8 max-w-lg mx-auto text-shadow-sm">
-              Upload your score sheets, get AI-powered analysis, and receive personalized training recommendations to improve your performance.
+              {language === 'en'
+                ? "Upload your score sheets, get AI-powered analysis, and receive personalized training recommendations to improve your performance."
+                : "Sube tus hojas de puntuación, obtén análisis impulsado por IA y recibe recomendaciones de entrenamiento personalizadas para mejorar tu rendimiento."}
             </p>
           </AnimatedSection>
           
@@ -58,13 +68,13 @@ const Hero = () => {
             <div className="flex flex-col sm:flex-row gap-4 mb-8 justify-center">
               <Link to="/sign-in?signup=true">
                 <Button className="group flex items-center gap-2 text-base bg-white hover:bg-white/90 text-purple-800">
-                  Get Started
+                  {language === 'en' ? "Get Started" : "Comenzar"}
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Button>
               </Link>
               <Link to="/how-it-works">
                 <Button variant="outline" className="text-base border-white/30 bg-white/10 text-white hover:bg-white/30 hover:text-purple-900 backdrop-blur-sm">
-                  How It Works
+                  {language === 'en' ? "How It Works" : "Cómo Funciona"}
                 </Button>
               </Link>
             </div>
@@ -77,7 +87,7 @@ const Hero = () => {
                   <div key={i} className="w-10 h-10 rounded-full border-2 border-white overflow-hidden">
                     <img 
                       src={`https://randomuser.me/api/portraits/women/${i + 20}.jpg`}
-                      alt="User" 
+                      alt={language === 'en' ? "User" : "Usuario"} 
                       className="w-full h-full object-cover"
                     />
                   </div>
@@ -92,7 +102,9 @@ const Hero = () => {
                   ))}
                 </div>
                 <p className="text-sm text-white font-medium">
-                  500+ riders love our platform
+                  {language === 'en' 
+                    ? "500+ riders love our platform" 
+                    : "Más de 500 jinetes adoran nuestra plataforma"}
                 </p>
               </div>
             </div>

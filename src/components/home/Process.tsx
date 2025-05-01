@@ -1,31 +1,43 @@
 
 import { Upload, CloudLightning, BarChart3, Lightbulb } from 'lucide-react';
 import AnimatedSection from '../ui/AnimatedSection';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const Process = () => {
+  const { language, translations } = useLanguage();
+  const t = translations[language];
+  
   const steps = [
     {
       icon: <Upload className="w-8 h-8 text-purple-600" />,
-      title: "Upload Score Sheets",
-      description: "Take a photo or upload your dressage test score sheets through our intuitive interface.",
+      title: language === 'en' ? "Upload Score Sheets" : "Subir Hojas de Puntuación",
+      description: language === 'en' 
+        ? "Take a photo or upload your dressage test score sheets through our intuitive interface."
+        : "Toma una foto o sube tus hojas de puntuación de prueba de doma a través de nuestra interfaz intuitiva.",
       delay: "delay-100"
     },
     {
       icon: <CloudLightning className="w-8 h-8 text-purple-600" />,
-      title: "AI Processing",
-      description: "Our advanced AI analyzes your scores, identifying patterns and areas for improvement.",
+      title: language === 'en' ? "AI Processing" : "Procesamiento de IA",
+      description: language === 'en'
+        ? "Our advanced AI analyzes your scores, identifying patterns and areas for improvement."
+        : "Nuestra IA avanzada analiza tus puntuaciones, identificando patrones y áreas de mejora.",
       delay: "delay-200"
     },
     {
       icon: <BarChart3 className="w-8 h-8 text-purple-600" />,
-      title: "Detailed Analysis",
-      description: "Receive comprehensive breakdowns of your performance with visual analytics.",
+      title: language === 'en' ? "Detailed Analysis" : "Análisis Detallado",
+      description: language === 'en'
+        ? "Receive comprehensive breakdowns of your performance with visual analytics."
+        : "Recibe análisis completos de tu rendimiento con visualizaciones analíticas.",
       delay: "delay-300"
     },
     {
       icon: <Lightbulb className="w-8 h-8 text-purple-600" />,
-      title: "Custom Recommendations",
-      description: "Get personalized training exercises tailored to your specific improvement areas.",
+      title: language === 'en' ? "Custom Recommendations" : "Recomendaciones Personalizadas",
+      description: language === 'en'
+        ? "Get personalized training exercises tailored to your specific improvement areas."
+        : "Obtén ejercicios de entrenamiento personalizados adaptados a tus áreas específicas de mejora.",
       delay: "delay-400"
     }
   ];
@@ -35,10 +47,12 @@ const Process = () => {
       <div className="container mx-auto px-6">
         <AnimatedSection animation="fade-in" className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="text-3xl md:text-4xl font-serif font-semibold text-purple-900 mb-4">
-            How AI Dressage Trainer Works
+            {language === 'en' ? "How AI Dressage Trainer Works" : "Cómo Funciona el Entrenador de Doma con IA"}
           </h2>
           <p className="text-lg text-purple-700">
-            Our innovative platform uses advanced AI to transform how you approach dressage training
+            {language === 'en'
+              ? "Our innovative platform uses advanced AI to transform how you approach dressage training"
+              : "Nuestra plataforma innovadora utiliza IA avanzada para transformar tu enfoque de entrenamiento de doma"}
           </p>
         </AnimatedSection>
         

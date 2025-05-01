@@ -8,8 +8,11 @@ import {
   Mail 
 } from 'lucide-react';
 import NewsletterForm from './NewsletterForm';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const Footer = () => {
+  const { language } = useLanguage();
+  
   return (
     <footer className="bg-purple-950 text-white pt-16 pb-8">
       <div className="container mx-auto px-6">
@@ -21,7 +24,9 @@ const Footer = () => {
               </h2>
             </Link>
             <p className="mt-4 text-purple-200 text-sm leading-relaxed">
-              Transform your equestrian training with AI-powered analysis and personalized recommendations.
+              {language === 'en' 
+                ? "Transform your equestrian training with AI-powered analysis and personalized recommendations."
+                : "Transforma tu entrenamiento ecuestre con análisis impulsado por IA y recomendaciones personalizadas."}
             </p>
             <div className="mt-6 flex space-x-4">
               <a href="#" className="text-purple-300 hover:text-white transition-colors">
@@ -40,69 +45,75 @@ const Footer = () => {
           </div>
           
           <div className="col-span-1">
-            <h3 className="font-serif text-lg font-medium mb-4">Navigation</h3>
+            <h3 className="font-serif text-lg font-medium mb-4">
+              {language === 'en' ? "Navigation" : "Navegación"}
+            </h3>
             <ul className="space-y-2">
               <li>
                 <Link to="/" className="text-purple-300 hover:text-white transition-colors text-sm">
-                  Home
+                  {language === 'en' ? "Home" : "Inicio"}
                 </Link>
               </li>
               <li>
                 <Link to="/dressage" className="text-purple-300 hover:text-white transition-colors text-sm">
-                  AI Dressage Trainer
+                  {language === 'en' ? "AI Dressage Trainer" : "Entrenador de Doma con IA"}
                 </Link>
               </li>
               <li>
                 <Link to="/jumping" className="text-purple-300 hover:text-white transition-colors text-sm">
-                  AI Jumping Trainer
+                  {language === 'en' ? "AI Jumping Trainer" : "Entrenador de Salto con IA"}
                 </Link>
               </li>
               <li>
                 <Link to="/how-it-works" className="text-purple-300 hover:text-white transition-colors text-sm">
-                  How It Works
+                  {language === 'en' ? "How It Works" : "Cómo Funciona"}
                 </Link>
               </li>
               <li>
                 <Link to="/pricing" className="text-purple-300 hover:text-white transition-colors text-sm">
-                  Pricing
+                  {language === 'en' ? "Pricing" : "Precios"}
                 </Link>
               </li>
               <li>
                 <Link to="/blog" className="text-purple-300 hover:text-white transition-colors text-sm">
-                  Blog
+                  {language === 'en' ? "Blog" : "Blog"}
                 </Link>
               </li>
               <li>
                 <Link to="/about" className="text-purple-300 hover:text-white transition-colors text-sm">
-                  About
+                  {language === 'en' ? "About" : "Acerca de"}
                 </Link>
               </li>
               <li>
                 <Link to="/sign-in" className="text-purple-300 hover:text-white transition-colors text-sm">
-                  Sign In
+                  {language === 'en' ? "Sign In" : "Iniciar Sesión"}
                 </Link>
               </li>
             </ul>
           </div>
           
           <div className="col-span-1">
-            <h3 className="font-serif text-lg font-medium mb-4">Legal</h3>
+            <h3 className="font-serif text-lg font-medium mb-4">
+              {language === 'en' ? "Legal" : "Legal"}
+            </h3>
             <ul className="space-y-2">
               <li>
                 <Link to="/terms" className="text-purple-300 hover:text-white transition-colors text-sm">
-                  Terms of Service
+                  {language === 'en' ? "Terms of Service" : "Términos de Servicio"}
                 </Link>
               </li>
               <li>
                 <Link to="/privacy" className="text-purple-300 hover:text-white transition-colors text-sm">
-                  Privacy Policy
+                  {language === 'en' ? "Privacy Policy" : "Política de Privacidad"}
                 </Link>
               </li>
             </ul>
           </div>
           
           <div className="col-span-1">
-            <h3 className="font-serif text-lg font-medium mb-4">Contact Us</h3>
+            <h3 className="font-serif text-lg font-medium mb-4">
+              {language === 'en' ? "Contact Us" : "Contáctanos"}
+            </h3>
             <ul className="space-y-3">
               <li className="flex items-start">
                 <Mail size={16} className="mr-2 mt-1 text-purple-300" />
@@ -113,14 +124,16 @@ const Footer = () => {
             </ul>
             
             <div className="mt-6">
-              <h4 className="font-serif text-base font-medium mb-2">Subscribe to our newsletter</h4>
+              <h4 className="font-serif text-base font-medium mb-2">
+                {language === 'en' ? "Subscribe to our newsletter" : "Suscríbete a nuestro boletín"}
+              </h4>
               <NewsletterForm />
             </div>
           </div>
         </div>
         
         <div className="border-t border-purple-800 mt-12 pt-8 text-center text-purple-400 text-sm">
-          <p>© {new Date().getFullYear()} AI Equestrian. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} AI Equestrian. {language === 'en' ? "All rights reserved." : "Todos los derechos reservados."}</p>
         </div>
       </div>
     </footer>
