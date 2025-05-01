@@ -12,6 +12,7 @@ import BlogPostCard from '@/components/blog/BlogPostCard';
 import { blogPosts, BlogPost } from '@/data/blogPosts';
 import { BookOpen, Search } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { SEO, getPageMetadata } from '@/lib/seo';
 
 const Blog = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -24,6 +25,16 @@ const Blog = () => {
   const [filteredPosts, setFilteredPosts] = useState<BlogPost[]>(blogPosts);
   const { language, translations } = useLanguage();
   const t = translations[language];
+  
+  // Get SEO metadata for blog page
+  const seoMetadata = getPageMetadata('blog', {
+    title: disciplineFilter !== 'all' 
+      ? `${disciplineFilter} Articles | AI Equestrian Blog` 
+      : undefined,
+    description: disciplineFilter !== 'all'
+      ? `Explore our collection of articles about ${disciplineFilter.toLowerCase()} training, technique, and analysis using AI technology.`
+      : undefined
+  });
   
   // Update state when URL params change
   useEffect(() => {
@@ -113,6 +124,7 @@ const Blog = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+      <SEO {...seoMetadata} />
       <Navbar />
       <main className="container mx-auto px-6 pt-32 pb-16">
         {/* SEO-optimized heading structure */}
@@ -146,6 +158,7 @@ const Blog = () => {
               className="pl-10"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              aria-label="Search blog posts"
             />
           </div>
           
@@ -219,6 +232,7 @@ const Blog = () => {
                   type="email" 
                   placeholder={t["email-placeholder"]}
                   required
+                  aria-label="Email for newsletter subscription"
                 />
                 <Button>
                   {t["subscribe"]}

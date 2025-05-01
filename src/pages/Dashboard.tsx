@@ -11,11 +11,18 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { User, Upload } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { SEO, getPageMetadata } from '@/lib/seo';
 
 const Dashboard = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const { language } = useLanguage();
+  
+  // Get dashboard SEO metadata
+  const seoMetadata = getPageMetadata('dashboard', {
+    // Add noindex tag since this is a private page
+    noIndex: true
+  });
   
   // If not logged in and not loading, redirect to sign in
   useEffect(() => {
@@ -41,6 +48,7 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white">
+      <SEO {...seoMetadata} />
       <Navbar />
       <main className="container mx-auto px-4 pt-20 sm:pt-24 pb-12 sm:pb-16">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0 mb-6 sm:mb-8">

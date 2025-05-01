@@ -10,6 +10,7 @@ import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
+import { SEO, generateDisciplineMetadata } from '@/lib/seo';
 
 const Dressage = () => {
   // Initialize scroll reveal for animations
@@ -43,8 +44,14 @@ const Dressage = () => {
     initScrollReveal();
   }, []);
 
+  // Get discipline-specific metadata
+  const seoMetadata = generateDisciplineMetadata('Dressage', {
+    canonicalUrl: '/dressage'
+  });
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-100 to-white">
+      <SEO {...seoMetadata} />
       <Navbar />
       <div className="container mx-auto px-6 pt-24 pb-6">
         <Link to="/">

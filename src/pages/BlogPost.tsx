@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
@@ -8,12 +9,67 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { blogPosts } from '@/data/blogPosts';
 import { ArrowLeft, Clock, Calendar, Share2 } from 'lucide-react';
+import { SEO } from '@/lib/seo';
 
 const BlogPost = () => {
   const { slug } = useParams();
   const post = blogPosts.find(p => p.slug === slug);
   
   const [relatedPosts, setRelatedPosts] = useState([]);
+  
+  // Set up SEO metadata for the blog post
+  const postSeoProps = post ? {
+    title: `${post.title} | AI Equestrian Blog`,
+    description: post.excerpt.substring(0, 155) + '...',
+    canonicalUrl: `/blog/${post.slug}`,
+    ogType: 'article' as const,
+    ogImage: post.image,
+    ogImageAlt: `Featured image for article: ${post.title}`,
+    keywords: [post.discipline.toLowerCase(), post.category.toLowerCase(), 'equestrian', 'ai', 'training', 
+               post.discipline === 'Jumping' ? 'jumping technique' : 'dressage test'],
+    discipline: post.discipline as 'Dressage' | 'Jumping'
+  } : {};
+  
+  // Set up structured data for article
+  useEffect(() => {
+    if (post) {
+      // Create article schema
+      const articleSchema = {
+        '@context': 'https://schema.org',
+        '@type': 'Article',
+        headline: post.title,
+        description: post.excerpt,
+        image: post.image,
+        datePublished: post.date,
+        author: {
+          '@type': 'Person',
+          name: post.author
+        },
+        publisher: {
+          '@type': 'Organization',
+          name: 'AI Equestrian',
+          logo: {
+            '@type': 'ImageObject',
+            url: 'https://aiequestrian.com/og-image.png'
+          }
+        },
+        mainEntityOfPage: {
+          '@type': 'WebPage',
+          '@id': `https://aiequestrian.com/blog/${post.slug}`
+        }
+      };
+      
+      // Add schema to page
+      const script = document.createElement('script');
+      script.type = 'application/ld+json';
+      script.textContent = JSON.stringify(articleSchema);
+      document.head.appendChild(script);
+      
+      return () => {
+        document.head.removeChild(script);
+      };
+    }
+  }, [post]);
   
   useEffect(() => {
     if (post) {
@@ -53,6 +109,7 @@ const BlogPost = () => {
   
   return (
     <div className={`min-h-screen bg-gradient-to-b ${disciplineThemeBg}`}>
+      <SEO {...postSeoProps} />
       <Navbar />
       <main className="container mx-auto px-6 pt-32 pb-16">
         <Breadcrumb className="mb-8">
@@ -88,8 +145,10 @@ const BlogPost = () => {
             <article className="bg-white rounded-xl shadow-md overflow-hidden mb-8">
               <img 
                 src={post.image} 
-                alt={post.title}
+                alt={`Featured image: ${post.title}`}
                 className="w-full h-72 object-cover"
+                width="800"
+                height="450"
               />
               
               <div className="p-8">
@@ -110,7 +169,7 @@ const BlogPost = () => {
                   
                   <div className="flex items-center text-sm text-gray-500 ml-auto">
                     <Calendar className="h-4 w-4 mr-1" />
-                    {post.date}
+                    <time dateTime={post.date.replace(/\./g, '-')}>{post.date}</time>
                   </div>
                   
                   <div className="flex items-center text-sm text-gray-500">
@@ -130,6 +189,7 @@ const BlogPost = () => {
                         ? 'bg-blue-200 text-blue-800'
                         : 'bg-purple-200 text-purple-800'
                     } rounded-full h-12 w-12 flex items-center justify-center`}
+                    aria-hidden="true"
                   >
                     {post.author.split(' ').map(n => n[0]).join('')}
                   </div>
@@ -138,7 +198,7 @@ const BlogPost = () => {
                     <span className="text-sm text-gray-500">Equestrian Technology Specialist</span>
                   </div>
                   
-                  <Button variant="ghost" size="icon" className="ml-auto">
+                  <Button variant="ghost" size="icon" className="ml-auto" aria-label="Share article">
                     <Share2 className="h-4 w-4" />
                   </Button>
                 </div>
@@ -204,7 +264,7 @@ const BlogPost = () => {
             </article>
             
             {/* Related articles */}
-            <div className="mt-12">
+            <section className="mt-12">
               <h2 className="text-2xl font-serif font-bold text-gray-900 mb-6">Related Articles</h2>
               <div className="grid md:grid-cols-2 gap-6">
                 {relatedPosts.slice(0, 2).map((relPost) => (
@@ -286,7 +346,7 @@ const BlogPost = () => {
                   </div>
                 ))}
               </div>
-            </div>
+            </section>
           </div>
           
           {/* Sidebar */}

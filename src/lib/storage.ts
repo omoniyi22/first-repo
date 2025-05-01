@@ -92,3 +92,180 @@ export const createBucketIfNotExists = async (bucketId: string, options = { publ
     };
   }
 };
+
+/**
+ * Optimizes image for SEO before upload
+ * @param file The image file to be processed
+ * @param options Optimization options
+ */
+export const optimizeImageForSEO = async (
+  file: File, 
+  options: { 
+    maxWidth?: number; 
+    quality?: number; 
+    generateAlt?: boolean;
+    altText?: string;
+  } = {}
+): Promise<{ 
+  optimizedFile: File; 
+  width: number; 
+  height: number; 
+  altText: string;
+}> => {
+  const { 
+    maxWidth = 1200, 
+    quality = 0.85,
+    generateAlt = true,
+    altText = ''
+  } = options;
+  
+  // Create a promise that resolves with the processed image
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      // Calculate new dimensions maintaining aspect ratio
+      let width = img.width;
+      let height = img.height;
+      
+      if (width > maxWidth) {
+        height = Math.floor(height * (maxWidth / width));
+        width = maxWidth;
+      }
+      
+      // Create canvas and draw resized image
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      
+      if (!ctx) {
+        reject(new Error('Could not get canvas context'));
+        return;
+      }
+      
+      ctx.drawImage(img, 0, 0, width, height);
+      
+      // Convert to blob with specified quality
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) {
+            reject(new Error('Failed to create blob from image'));
+            return;
+          }
+          
+          // Generate descriptive alt text if needed
+          let finalAltText = altText;
+          if (generateAlt && !altText) {
+            // Extract name from file and clean it
+            const fileName = file.name.split('.')[0]
+              .replace(/-|_/g, ' ')
+              .replace(/\b\w/g, (c) => c.toUpperCase());
+              
+            finalAltText = `${fileName} - AI Equestrian`;
+          }
+          
+          // Create new optimized file
+          const optimizedFile = new File(
+            [blob], 
+            file.name, 
+            { type: 'image/jpeg', lastModified: Date.now() }
+          );
+          
+          resolve({
+            optimizedFile,
+            width,
+            height,
+            altText: finalAltText
+          });
+        },
+        'image/jpeg',
+        quality
+      );
+    };
+    
+    img.onerror = () => {
+      reject(new Error('Failed to load image for optimization'));
+    };
+    
+    // Load image from the file
+    img.src = URL.createObjectURL(file);
+  });
+};
+
+/**
+ * Uploads an image with SEO optimization
+ * @param file The image file to upload
+ * @param path The storage path
+ * @param bucket The storage bucket name
+ * @param options Options for optimization and metadata
+ */
+export const uploadOptimizedImage = async (
+  file: File,
+  path: string,
+  bucket: string = 'profiles',
+  options: {
+    maxWidth?: number;
+    quality?: number;
+    altText?: string;
+    metadata?: Record<string, string>;
+  } = {}
+): Promise<{
+  success: boolean;
+  data?: {
+    path: string;
+    publicUrl: string;
+    width: number;
+    height: number;
+    altText: string;
+  };
+  error?: any;
+}> => {
+  try {
+    // First create bucket if it doesn't exist
+    const bucketResult = await createBucketIfNotExists(bucket);
+    if (!bucketResult.success) {
+      return { success: false, error: bucketResult.error };
+    }
+    
+    // Optimize the image
+    const { optimizedFile, width, height, altText } = await optimizeImageForSEO(file, {
+      maxWidth: options.maxWidth || 1200,
+      quality: options.quality || 0.85,
+      altText: options.altText
+    });
+    
+    // Upload the optimized image
+    const { data, error } = await supabase.storage
+      .from(bucket)
+      .upload(path, optimizedFile, {
+        cacheControl: '3600',
+        upsert: true,
+        contentType: 'image/jpeg',
+      });
+      
+    if (error) {
+      return { success: false, error };
+    }
+    
+    // Get public URL
+    const { data: publicUrlData } = supabase.storage
+      .from(bucket)
+      .getPublicUrl(path);
+    
+    return {
+      success: true,
+      data: {
+        path: data.path,
+        publicUrl: publicUrlData.publicUrl,
+        width,
+        height,
+        altText
+      }
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    };
+  }
+};

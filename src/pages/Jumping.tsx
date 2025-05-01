@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, CheckCircle, Calendar, Map, Activity, BarChart, Clock, Award } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { SEO, generateDisciplineMetadata } from '@/lib/seo';
 
 const Jumping = () => {
   // Initialize scroll reveal for animations
@@ -41,9 +42,15 @@ const Jumping = () => {
   }, []);
 
   const [imageLoaded, setImageLoaded] = useState(false);
+  
+  // Get discipline-specific metadata
+  const seoMetadata = generateDisciplineMetadata('Jumping', {
+    canonicalUrl: '/jumping'
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-100 to-white">
+      <SEO {...seoMetadata} />
       <Navbar />
       <div className="container mx-auto px-6 pt-24 pb-6">
         <Link to="/">
@@ -67,7 +74,7 @@ const Jumping = () => {
           
           <img 
             src="/lovable-uploads/987a3f3b-1917-439f-a3a9-8fabc609cffa.png" 
-            alt="Show jumping competition"
+            alt="Professional show jumper using AI analytics to improve technique and performance"
             className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
             onLoad={() => setImageLoaded(true)}
             style={{ objectPosition: 'center 30%' }}

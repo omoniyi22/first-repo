@@ -1,0 +1,14 @@
+
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://aiequestrian.com/sitemap.xml
+
+# Disallow pages that shouldn't be indexed
+Disallow: /sign-in
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /profile-setup
+Disallow: /jump-profile-setup
+Disallow: /analysis

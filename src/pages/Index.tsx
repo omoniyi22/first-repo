@@ -8,6 +8,7 @@ import Footer from '@/components/layout/Footer';
 import { Skeleton } from '@/components/ui/skeleton';
 import BlogPostCard from '@/components/blog/BlogPostCard';
 import { blogPosts } from '@/data/blogPosts';
+import { SEO, getPageMetadata } from '@/lib/seo';
 
 const Index = () => {
   // Initialize scroll reveal for animations
@@ -47,8 +48,12 @@ const Index = () => {
   const featuredJumpingPost = blogPosts.find(post => post.discipline === 'Jumping' && post.id === 1);
   const featuredDressagePost = blogPosts.find(post => post.discipline === 'Dressage' && post.id === 7);
 
+  // SEO metadata for homepage
+  const seoMetadata = getPageMetadata('home');
+
   return (
     <div className="min-h-screen">
+      <SEO {...seoMetadata} />
       <Navbar />
       <main className="pt-0">
         {/* Hero Section */}
@@ -61,7 +66,7 @@ const Index = () => {
           
           <img 
             src="/lovable-uploads/7c32e2d9-4fce-4ed5-abba-0fb12abe96eb.png" 
-            alt="Equestrian background"
+            alt="Professional equestrian using AI analytics to improve dressage performance"
             className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
             onLoad={() => setImageLoaded(true)}
             style={{ objectPosition: 'center 30%' }}
