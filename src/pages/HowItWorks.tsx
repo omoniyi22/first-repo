@@ -109,13 +109,22 @@ const HowItWorks = () => {
                     <span>Implement targeted exercises to improve technique</span>
                   </li>
                 </ul>
-                <div className="h-[48px] flex items-center">
-                  <Link to="/jumping/how-it-works" className="w-full">
-                    <Button className="w-full bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white border-none hover:text-white">
-                      Learn More About Jumping AI
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </Link>
+                <div className="flex flex-col space-y-3">
+                  <div className="flex justify-center">
+                    <Link to="/sign-in?signup=true" className="w-full max-w-md">
+                      <Button className="w-full bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white border-none hover:text-white">
+                        Start Your Free Trial
+                      </Button>
+                    </Link>
+                  </div>
+                  <div className="h-[48px] flex items-center">
+                    <Link to="/jumping/how-it-works" className="w-full">
+                      <Button className="w-full bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white border-none hover:text-white">
+                        Learn More About Jumping AI
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
