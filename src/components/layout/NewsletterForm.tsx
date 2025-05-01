@@ -3,11 +3,13 @@ import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Mail } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const NewsletterForm = () => {
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const { language } = useLanguage();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,8 +28,8 @@ const NewsletterForm = () => {
         if (error.code === '23505') {
           // Unique constraint violation - email already exists
           toast({
-            title: "Already subscribed",
-            description: "This email is already subscribed to our newsletter.",
+            title: language === 'en' ? "Already subscribed" : "Ya suscrito",
+            description: language === 'en' ? "This email is already subscribed to our newsletter." : "Este correo ya está suscrito a nuestro boletín.",
           });
         } else {
           console.error('Newsletter submission error:', error);
@@ -36,8 +38,8 @@ const NewsletterForm = () => {
       } else {
         console.log('Newsletter subscription successful:', data);
         toast({
-          title: "Subscription successful!",
-          description: "Thank you for subscribing to our newsletter.",
+          title: language === 'en' ? "Subscription successful!" : "¡Suscripción exitosa!",
+          description: language === 'en' ? "Thank you for subscribing to our newsletter." : "Gracias por suscribirte a nuestro boletín.",
         });
       }
       
@@ -45,8 +47,8 @@ const NewsletterForm = () => {
     } catch (error) {
       console.error('Newsletter subscription error:', error);
       toast({
-        title: "Subscription failed",
-        description: "There was a problem subscribing to the newsletter. Please try again.",
+        title: language === 'en' ? "Subscription failed" : "Error en la suscripción",
+        description: language === 'en' ? "There was a problem subscribing to the newsletter. Please try again." : "Hubo un problema al suscribirse al boletín. Por favor, inténtalo de nuevo.",
         variant: "destructive",
       });
     } finally {
@@ -61,7 +63,7 @@ const NewsletterForm = () => {
           <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-purple-300" size={18} />
           <input 
             type="email" 
-            placeholder="Your email" 
+            placeholder={language === 'en' ? "Your email" : "Tu correo electrónico"} 
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="bg-purple-900/50 border border-purple-800 rounded-l-md px-3 py-2 pl-9 text-sm focus:outline-none focus:ring-1 focus:ring-purple-500 w-full text-white"
@@ -73,7 +75,9 @@ const NewsletterForm = () => {
           disabled={isSubmitting}
           className="bg-purple-700 hover:bg-purple-600 text-white px-3 py-2 rounded-r-md text-sm transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
         >
-          {isSubmitting ? 'Subscribing...' : 'Subscribe'}
+          {isSubmitting 
+            ? (language === 'en' ? 'Subscribing...' : 'Suscribiendo...') 
+            : (language === 'en' ? 'Subscribe' : 'Suscribirse')}
         </button>
       </div>
     </form>

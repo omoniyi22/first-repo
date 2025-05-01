@@ -24,15 +24,29 @@ const LanguageSwitcher = () => {
       <DropdownMenuContent align="end">
         <DropdownMenuItem 
           onClick={() => setLanguage('en')}
-          className={language === 'en' ? 'bg-gray-100' : ''}
+          className={language === 'en' ? 'bg-gray-100 font-medium' : ''}
         >
-          English
+          <span className="flex items-center">
+            {language === 'en' && (
+              <svg viewBox="0 0 24 24" className="h-3 w-3 mr-2 text-green-600" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5 13L9 17L19 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            )}
+            English
+          </span>
         </DropdownMenuItem>
         <DropdownMenuItem 
           onClick={() => setLanguage('es')}
-          className={language === 'es' ? 'bg-gray-100' : ''}
+          className={language === 'es' ? 'bg-gray-100 font-medium' : ''}
         >
-          Español
+          <span className="flex items-center">
+            {language === 'es' && (
+              <svg viewBox="0 0 24 24" className="h-3 w-3 mr-2 text-green-600" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5 13L9 17L19 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            )}
+            Español
+          </span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

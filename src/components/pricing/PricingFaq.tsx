@@ -9,9 +9,13 @@ import {
 } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import { MessageCircle } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const PricingFaq = () => {
-  const faqs = [
+  const { language, translations } = useLanguage();
+  const t = translations[language];
+  
+  const faqs = language === 'en' ? [
     {
       question: "How accurate is the AI analysis of score sheets?",
       answer: "Our AI system has been trained on thousands of dressage tests and has achieved over 98% accuracy in reading and interpreting score sheets. The system is continuously learning and improving with each new score sheet processed."
@@ -44,6 +48,39 @@ const PricingFaq = () => {
       question: "How often should I upload new score sheets?",
       answer: "For best results, we recommend uploading each new test you ride, whether from competitions or training sessions. This provides the most comprehensive data for our AI to analyze trends and progress over time."
     }
+  ] : [
+    {
+      question: "¿Qué tan preciso es el análisis de IA de las hojas de puntuación?",
+      answer: "Nuestro sistema de IA ha sido entrenado con miles de pruebas de doma y ha alcanzado más del 98% de precisión en la lectura e interpretación de hojas de puntuación. El sistema está continuamente aprendiendo y mejorando con cada nueva hoja de puntuación procesada."
+    },
+    {
+      question: "¿Qué formatos de prueba de doma son compatibles?",
+      answer: "Admitimos todos los formatos principales de pruebas de doma, incluidos FEI, USDF, British Dressage, Equestrian Australia y muchos otros. Si tienes un formato específico que no está en la lista, contáctanos y trabajaremos para agregar soporte para él."
+    },
+    {
+      question: "¿Cómo subo mis hojas de puntuación?",
+      answer: "Puedes tomar una foto de tu hoja de puntuación usando tu smartphone o subir una copia digital (PDF, JPEG, PNG). Nuestro sistema procesará y analizará automáticamente la hoja independientemente del formato."
+    },
+    {
+      question: "¿Puedo seguir varios caballos en mi cuenta?",
+      answer: "Sí, nuestros planes Premium y Profesional te permiten crear y seguir múltiples perfiles de caballos. Esto te permite gestionar y analizar el progreso de diferentes caballos por separado."
+    },
+    {
+      question: "¿Cómo se generan las recomendaciones de entrenamiento?",
+      answer: "Nuestra IA analiza tus puntuaciones e identifica patrones y áreas de mejora. Luego, las relaciona con nuestra base de datos de ejercicios desarrollados por entrenadores y competidores de nivel FEI. Las recomendaciones se adaptan a tus necesidades y nivel específicos."
+    },
+    {
+      question: "¿Mis datos están seguros y privados?",
+      answer: "Absolutamente. Nos tomamos muy en serio la privacidad de los datos. Todas tus hojas de puntuación y datos de rendimiento están encriptados y almacenados de forma segura. Nunca compartimos tus datos personales con terceros sin tu consentimiento explícito."
+    },
+    {
+      question: "¿Puedo compartir mis resultados con mi entrenador?",
+      answer: "Sí, nuestra plataforma te permite compartir tus resultados de análisis y recomendaciones de entrenamiento con tu entrenador. Puedes otorgarles acceso a tu cuenta o enviarles informes específicos por correo electrónico."
+    },
+    {
+      question: "¿Con qué frecuencia debo cargar nuevas hojas de puntuación?",
+      answer: "Para obtener los mejores resultados, te recomendamos cargar cada nueva prueba que montes, ya sea de competiciones o sesiones de entrenamiento. Esto proporciona los datos más completos para que nuestra IA analice tendencias y progresos a lo largo del tiempo."
+    }
   ];
 
   return (
@@ -51,10 +88,10 @@ const PricingFaq = () => {
       <div className="container mx-auto px-6">
         <AnimatedSection animation="fade-in" className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="text-3xl md:text-4xl font-serif font-semibold text-navy-900 mb-4">
-            Frequently Asked Questions
+            {t["faq-title"]}
           </h2>
           <p className="text-lg text-navy-700">
-            Have questions about AI Dressage Trainer? Find answers to the most common questions below.
+            {t["faq-description"]}
           </p>
         </AnimatedSection>
         
@@ -75,14 +112,14 @@ const PricingFaq = () => {
         
         <AnimatedSection animation="fade-in" className="text-center max-w-2xl mx-auto mt-12">
           <h3 className="text-xl font-medium text-navy-900 mb-4">
-            Still have questions?
+            {t["still-questions"]}
           </h3>
           <p className="text-navy-700 mb-6">
-            If you couldn't find the answer to your question, please don't hesitate to reach out to our support team.
+            {t["questions-text"]}
           </p>
           <Button className="bg-navy-700 hover:bg-navy-800 text-white px-6 py-3 rounded-lg text-base font-medium h-auto flex items-center gap-2">
             <MessageCircle className="w-5 h-5" />
-            Contact Support
+            {t["contact-support"]}
           </Button>
         </AnimatedSection>
       </div>

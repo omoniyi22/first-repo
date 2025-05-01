@@ -5,86 +5,209 @@ import PricingToggle from './PricingToggle';
 import AnimatedSection from '../ui/AnimatedSection';
 import { Button } from '@/components/ui/button';
 import EmailSignupForm from './EmailSignupForm';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface Plan {
   id: string;
   name: string;
-  tagline: string;
+  tagline: {
+    en: string;
+    es: string;
+  };
   monthlyPrice: number;
   annualPrice: number;
   features: {
-    text: string;
+    text: {
+      en: string;
+      es: string;
+    };
     included: boolean;
   }[];
   highlighted?: boolean;
-  buttonText: string;
+  buttonText: {
+    en: string;
+    es: string;
+  };
 }
 
 const PricingTiers = () => {
   const [isAnnual, setIsAnnual] = useState(true);
+  const { language, translations } = useLanguage();
+  const t = translations[language];
   
   const plans: Plan[] = [
     {
       id: 'basic',
-      name: 'Basic',
-      tagline: 'Try before you commit with one free test included',
+      name: language === 'en' ? 'Basic' : 'Básico',
+      tagline: {
+        en: 'Try before you commit with one free test included',
+        es: 'Prueba antes de comprometerte con una prueba gratuita incluida'
+      },
       monthlyPrice: 9.99,
       annualPrice: 7.99,
       features: [
-        { text: 'First score sheet analysis FREE', included: true },
-        { text: '1 additional score sheet upload per month', included: true },
-        { text: 'Basic performance analysis', included: true },
-        { text: 'Core exercise recommendations', included: true },
-        { text: 'Single horse profile', included: true },
-        { text: 'Email support', included: true },
-        { text: 'Advanced analytics dashboard', included: false },
-        { text: 'Training progress tracking', included: false },
-        { text: 'Custom training programs', included: false },
-        { text: 'Trainer collaboration tools', included: false },
+        { text: { 
+          en: 'First score sheet analysis FREE', 
+          es: 'Primer análisis de hoja de puntuación GRATIS' 
+        }, included: true },
+        { text: { 
+          en: '1 additional score sheet upload per month', 
+          es: '1 carga adicional de hoja de puntuación al mes' 
+        }, included: true },
+        { text: { 
+          en: 'Basic performance analysis', 
+          es: 'Análisis básico de rendimiento' 
+        }, included: true },
+        { text: { 
+          en: 'Core exercise recommendations', 
+          es: 'Recomendaciones de ejercicios básicos' 
+        }, included: true },
+        { text: { 
+          en: 'Single horse profile', 
+          es: 'Perfil de un solo caballo' 
+        }, included: true },
+        { text: { 
+          en: 'Email support', 
+          es: 'Soporte por correo electrónico' 
+        }, included: true },
+        { text: { 
+          en: 'Advanced analytics dashboard', 
+          es: 'Panel de análisis avanzado' 
+        }, included: false },
+        { text: { 
+          en: 'Training progress tracking', 
+          es: 'Seguimiento del progreso del entrenamiento' 
+        }, included: false },
+        { text: { 
+          en: 'Custom training programs', 
+          es: 'Programas de entrenamiento personalizados' 
+        }, included: false },
+        { text: { 
+          en: 'Trainer collaboration tools', 
+          es: 'Herramientas de colaboración para entrenadores' 
+        }, included: false },
       ],
-      buttonText: 'Coming Soon',
+      buttonText: {
+        en: 'Coming Soon',
+        es: 'Próximamente'
+      },
     },
     {
       id: 'premium',
-      name: 'Premium',
-      tagline: 'Ideal for dedicated riders seeking comprehensive training support',
+      name: language === 'en' ? 'Premium' : 'Premium',
+      tagline: {
+        en: 'Ideal for dedicated riders seeking comprehensive training support',
+        es: 'Ideal para jinetes dedicados que buscan apoyo de entrenamiento integral'
+      },
       monthlyPrice: 19.99,
       annualPrice: 15.99,
       highlighted: true,
       features: [
-        { text: 'First score sheet analysis FREE', included: true },
-        { text: '3 additional score sheet uploads per month', included: true },
-        { text: 'Detailed performance analysis', included: true },
-        { text: 'Full exercise library access', included: true },
-        { text: 'Up to 3 horse profiles', included: true },
-        { text: 'Priority email support', included: true },
-        { text: 'Advanced analytics dashboard', included: true },
-        { text: 'Training progress tracking', included: true },
-        { text: 'Custom training programs', included: true },
-        { text: 'Trainer collaboration tools', included: false },
+        { text: { 
+          en: 'First score sheet analysis FREE', 
+          es: 'Primer análisis de hoja de puntuación GRATIS' 
+        }, included: true },
+        { text: { 
+          en: '3 additional score sheet uploads per month', 
+          es: '3 cargas adicionales de hoja de puntuación al mes' 
+        }, included: true },
+        { text: { 
+          en: 'Detailed performance analysis', 
+          es: 'Análisis detallado de rendimiento' 
+        }, included: true },
+        { text: { 
+          en: 'Full exercise library access', 
+          es: 'Acceso completo a la biblioteca de ejercicios' 
+        }, included: true },
+        { text: { 
+          en: 'Up to 3 horse profiles', 
+          es: 'Hasta 3 perfiles de caballos' 
+        }, included: true },
+        { text: { 
+          en: 'Priority email support', 
+          es: 'Soporte prioritario por correo electrónico' 
+        }, included: true },
+        { text: { 
+          en: 'Advanced analytics dashboard', 
+          es: 'Panel de análisis avanzado' 
+        }, included: true },
+        { text: { 
+          en: 'Training progress tracking', 
+          es: 'Seguimiento del progreso del entrenamiento' 
+        }, included: true },
+        { text: { 
+          en: 'Custom training programs', 
+          es: 'Programas de entrenamiento personalizados' 
+        }, included: true },
+        { text: { 
+          en: 'Trainer collaboration tools', 
+          es: 'Herramientas de colaboración para entrenadores' 
+        }, included: false },
       ],
-      buttonText: 'Coming Soon',
+      buttonText: {
+        en: 'Coming Soon',
+        es: 'Próximamente'
+      },
     },
     {
       id: 'professional',
-      name: 'Professional',
-      tagline: 'Designed for trainers and professional riders managing multiple horses',
+      name: language === 'en' ? 'Professional' : 'Profesional',
+      tagline: {
+        en: 'Designed for trainers and professional riders managing multiple horses',
+        es: 'Diseñado para entrenadores y jinetes profesionales que gestionan múltiples caballos'
+      },
       monthlyPrice: 39.99,
       annualPrice: 31.99,
       features: [
-        { text: 'First score sheet analysis FREE', included: true },
-        { text: 'Unlimited score sheet uploads', included: true },
-        { text: 'Comprehensive analysis suite', included: true },
-        { text: 'Full exercise library access', included: true },
-        { text: 'Unlimited horse profiles', included: true },
-        { text: 'Priority phone support', included: true },
-        { text: 'Advanced analytics dashboard', included: true },
-        { text: 'Training progress tracking', included: true },
-        { text: 'Custom training programs', included: true },
-        { text: 'Trainer collaboration tools', included: true },
-        { text: 'API access for integrations', included: true },
+        { text: { 
+          en: 'First score sheet analysis FREE', 
+          es: 'Primer análisis de hoja de puntuación GRATIS' 
+        }, included: true },
+        { text: { 
+          en: 'Unlimited score sheet uploads', 
+          es: 'Cargas ilimitadas de hojas de puntuación' 
+        }, included: true },
+        { text: { 
+          en: 'Comprehensive analysis suite', 
+          es: 'Suite de análisis integral' 
+        }, included: true },
+        { text: { 
+          en: 'Full exercise library access', 
+          es: 'Acceso completo a la biblioteca de ejercicios' 
+        }, included: true },
+        { text: { 
+          en: 'Unlimited horse profiles', 
+          es: 'Perfiles de caballos ilimitados' 
+        }, included: true },
+        { text: { 
+          en: 'Priority phone support', 
+          es: 'Soporte telefónico prioritario' 
+        }, included: true },
+        { text: { 
+          en: 'Advanced analytics dashboard', 
+          es: 'Panel de análisis avanzado' 
+        }, included: true },
+        { text: { 
+          en: 'Training progress tracking', 
+          es: 'Seguimiento del progreso del entrenamiento' 
+        }, included: true },
+        { text: { 
+          en: 'Custom training programs', 
+          es: 'Programas de entrenamiento personalizados' 
+        }, included: true },
+        { text: { 
+          en: 'Trainer collaboration tools', 
+          es: 'Herramientas de colaboración para entrenadores' 
+        }, included: true },
+        { text: { 
+          en: 'API access for integrations', 
+          es: 'Acceso a API para integraciones' 
+        }, included: true },
       ],
-      buttonText: 'Coming Soon',
+      buttonText: {
+        en: 'Coming Soon',
+        es: 'Próximamente'
+      },
     }
   ];
 
@@ -93,18 +216,18 @@ const PricingTiers = () => {
       <div className="container mx-auto px-6">
         <AnimatedSection animation="fade-in" className="text-center max-w-3xl mx-auto mb-12">
           <h1 className="text-4xl md:text-5xl font-serif font-semibold text-purple-900 mb-6">
-            Simple, Transparent Pricing
+            {t["simple-pricing"]}
           </h1>
           <p className="text-lg text-purple-700">
-            Try for free with one test, then choose the plan that best fits your training needs.
+            {t["try-free"]}
           </p>
         </AnimatedSection>
         
         <div className="max-w-md mx-auto mb-12">
           <div className="bg-purple-100 rounded-xl p-8 text-center">
-            <h2 className="text-2xl font-bold text-purple-900 mb-4">Coming Soon</h2>
+            <h2 className="text-2xl font-bold text-purple-900 mb-4">{t["coming-soon"]}</h2>
             <p className="text-purple-700 mb-6">
-              We're currently finalizing our pricing plans. Join our waitlist to be notified when subscriptions are available.
+              {t["pricing-waitlist"]}
             </p>
             <EmailSignupForm />
           </div>
@@ -123,7 +246,7 @@ const PricingTiers = () => {
               {plan.highlighted && (
                 <div className="absolute top-0 inset-x-0 -translate-y-1/2 flex justify-center">
                   <span className="bg-purple-700 text-white px-4 py-1.5 rounded-full text-sm font-semibold shadow-md">
-                    Most Popular
+                    {t["most-popular"]}
                   </span>
                 </div>
               )}
@@ -139,7 +262,7 @@ const PricingTiers = () => {
                   </h2>
                   
                   <p className="text-purple-700 mb-6 text-sm h-12">
-                    {plan.tagline}
+                    {plan.tagline[language]}
                   </p>
                   
                   <div className="flex items-baseline mb-1">
@@ -147,13 +270,13 @@ const PricingTiers = () => {
                       £{isAnnual ? plan.annualPrice : plan.monthlyPrice}
                     </span>
                     <span className="text-purple-600 ml-2 text-base">
-                      /month
+                      /{language === 'en' ? 'month' : 'mes'}
                     </span>
                   </div>
                   
                   {isAnnual && (
                     <p className="text-sm text-purple-600 mb-6">
-                      Billed annually (£{(isAnnual ? plan.annualPrice : plan.monthlyPrice) * 12}/year)
+                      {t["billed-annually"]} (£{(isAnnual ? plan.annualPrice : plan.monthlyPrice) * 12}/{t["year"]})
                     </p>
                   )}
                 </div>
@@ -168,12 +291,12 @@ const PricingTiers = () => {
                   }`}
                   disabled={true}
                 >
-                  {plan.buttonText}
+                  {plan.buttonText[language]}
                 </Button>
                 
                 <div className="space-y-4 mt-auto">
                   <h3 className="font-medium text-purple-900 border-b border-silver-200 pb-2">
-                    Features include:
+                    {t["features-include"]}
                   </h3>
                   
                   <ul className="space-y-3">
@@ -181,7 +304,7 @@ const PricingTiers = () => {
                       <li key={i} className={`flex items-start ${!feature.included ? 'opacity-60' : ''}`}>
                         <Check className={`h-5 w-5 mr-3 mt-0.5 flex-shrink-0 ${feature.included ? 'text-purple-600' : 'text-silver-400'}`} />
                         <span className="text-sm text-purple-800">
-                          {feature.text}
+                          {feature.text[language]}
                         </span>
                       </li>
                     ))}
@@ -196,34 +319,40 @@ const PricingTiers = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div>
               <h2 className="text-2xl md:text-3xl font-serif font-semibold text-purple-900 mb-4">
-                Frequently Asked Questions
+                {t["faq-title"]}
               </h2>
               
               <div className="space-y-6 mt-8">
                 <div>
                   <h3 className="font-medium text-purple-900 mb-2">
-                    How does the free trial work?
+                    {language === 'en' ? 'How does the free trial work?' : '¿Cómo funciona la prueba gratuita?'}
                   </h3>
                   <p className="text-purple-700">
-                    You can upload one dressage test score sheet for free analysis after creating an account. No credit card required to get started.
+                    {language === 'en' 
+                      ? 'You can upload one dressage test score sheet for free analysis after creating an account. No credit card required to get started.'
+                      : 'Puedes cargar una hoja de puntuación de prueba de doma para análisis gratuito después de crear una cuenta. No se requiere tarjeta de crédito para comenzar.'}
                   </p>
                 </div>
                 
                 <div>
                   <h3 className="font-medium text-purple-900 mb-2">
-                    Can I switch plans later?
+                    {language === 'en' ? 'Can I switch plans later?' : '¿Puedo cambiar de plan más tarde?'}
                   </h3>
                   <p className="text-purple-700">
-                    Yes, you can upgrade or downgrade your plan at any time. Changes to your subscription will be applied immediately.
+                    {language === 'en'
+                      ? 'Yes, you can upgrade or downgrade your plan at any time. Changes to your subscription will be applied immediately.'
+                      : 'Sí, puedes actualizar o degradar tu plan en cualquier momento. Los cambios en tu suscripción se aplicarán inmediatamente.'}
                   </p>
                 </div>
                 
                 <div>
                   <h3 className="font-medium text-purple-900 mb-2">
-                    Are there any additional fees?
+                    {language === 'en' ? 'Are there any additional fees?' : '¿Hay alguna tarifa adicional?'}
                   </h3>
                   <p className="text-purple-700">
-                    No, the listed price includes all features for that plan. There are no hidden fees or additional charges.
+                    {language === 'en'
+                      ? 'No, the listed price includes all features for that plan. There are no hidden fees or additional charges.'
+                      : 'No, el precio indicado incluye todas las características para ese plan. No hay tarifas ocultas ni cargos adicionales.'}
                   </p>
                 </div>
               </div>
@@ -238,17 +367,17 @@ const PricingTiers = () => {
                     </svg>
                   </div>
                   <h3 className="text-xl font-serif font-medium text-purple-900">
-                    Need help choosing?
+                    {t["help-choosing"]}
                   </h3>
                 </div>
                 
                 <p className="text-purple-700 mb-8">
-                  Our team is here to help you select the best plan for your training needs. Contact us for personalized assistance.
+                  {t["help-text"]}
                 </p>
                 
                 <div className="space-y-4">
                   <Button variant="outline" className="w-full bg-transparent border border-purple-600 text-purple-700 py-3 rounded-lg font-medium transition-colors hover:bg-purple-50 h-auto">
-                    Contact Support
+                    {t["contact-support"]}
                   </Button>
                 </div>
               </div>
