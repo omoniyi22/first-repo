@@ -49,11 +49,11 @@ const About = () => {
         <MissionSection />
         <TeamSection />
         
-        {/* Add centered call to action button */}
+        {/* Add centralized call to action button */}
         <div className="container mx-auto px-6 py-12 flex justify-center">
           <Link to="/sign-in?signup=true">
             <Button className="bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 text-white border-none hover:text-white">
-              Get Started Now
+              Start Free Trial
             </Button>
           </Link>
         </div>
