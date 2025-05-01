@@ -1,6 +1,5 @@
-
 import AnimatedSection from '../ui/AnimatedSection';
-import { LinkedIn } from 'lucide-react';
+import { Linkedin } from 'lucide-react';
 
 interface TeamMember {
   name: string;
@@ -77,7 +76,7 @@ const TeamSection = () => {
                           className="inline-flex items-center text-navy-600 hover:text-navy-800 transition-colors"
                           aria-label={`${member.name}'s LinkedIn profile`}
                         >
-                          <LinkedIn className="h-5 w-5 mr-1" />
+                          <Linkedin className="h-5 w-5 mr-1" />
                           <span className="text-sm">View LinkedIn Profile</span>
                         </a>
                       </div>

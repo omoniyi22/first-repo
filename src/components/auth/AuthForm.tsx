@@ -93,8 +93,8 @@ const AuthForm = () => {
           description: "Welcome to AI Dressage Trainer. Check your email for verification instructions.",
         });
 
-        // Redirect to dashboard if auto-confirm is enabled in Supabase
-        if (data.user && !data.user.identities?.[0].identity_data?.email_verified) {
+        // Fix: Check if user exists and navigate to dashboard
+        if (data.user) {
           navigate('/dashboard');
         }
       } else {
