@@ -145,13 +145,9 @@ const JumpTeamSection = () => {
               Have questions about our platform or want to learn more about how AI Jump Trainer can help you achieve your riding goals? Get in touch with our team.
             </p>
             
-            <div className="flex flex-col sm:flex-row justify-center gap-4">
+            <div className="flex justify-center">
               <button className="bg-white text-blue-800 px-6 py-3 rounded-lg font-medium hover:bg-blue-50 transition-colors">
-                Send a Message
-              </button>
-              
-              <button className="bg-transparent border border-white text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors">
-                Schedule a Demo
+                Start Free Trial
               </button>
             </div>
           </div>
