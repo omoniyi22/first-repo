@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Mail } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 const EmailSignupForm = () => {
@@ -18,32 +17,15 @@ const EmailSignupForm = () => {
     setIsSubmitting(true);
     
     try {
-      const { error, data } = await supabase
-        .from('subscription_interests')
-        .insert([{ 
-          email,
-          source: 'pricing_page'
-        }])
-        .select();
+      // Simulate API call with timeout
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
-      if (error) {
-        if (error.code === '23505') {
-          // Unique constraint violation - email already exists
-          toast({
-            title: language === 'en' ? "You're already on the list!" : "¡Ya estás en la lista!",
-            description: language === 'en' ? "This email has already been registered for updates." : "Este correo electrónico ya ha sido registrado para actualizaciones.",
-          });
-        } else {
-          console.error('Pricing page subscription error:', error);
-          throw error;
-        }
-      } else {
-        console.log('Pricing page subscription successful:', data);
-        toast({
-          title: language === 'en' ? "Thanks for your interest!" : "¡Gracias por tu interés!",
-          description: language === 'en' ? "We'll notify you when new pricing plans are available." : "Te notificaremos cuando los nuevos planes de precios estén disponibles.",
-        });
-      }
+      // Simulate success
+      console.log('Pricing page subscription successful for:', email);
+      toast({
+        title: language === 'en' ? "Thanks for your interest!" : "¡Gracias por tu interés!",
+        description: language === 'en' ? "We'll notify you when new pricing plans are available." : "Te notificaremos cuando los nuevos planes de precios estén disponibles.",
+      });
       
       setEmail('');
     } catch (error) {

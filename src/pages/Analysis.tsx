@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -5,7 +6,6 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { supabase } from '@/integrations/supabase/client';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import DocumentUpload from '@/components/analysis/DocumentUpload';
@@ -13,7 +13,92 @@ import DocumentAnalysisDisplay from '@/components/analysis/DocumentAnalysisDispl
 import VideoUpload from '@/components/analysis/VideoUpload';
 import VideoAnalysisDisplay from '@/components/analysis/VideoAnalysisDisplay';
 
-// Add or update the DocumentAnalysisDisplay props interface
+// Mock data for development
+const mockDocuments = [
+  { 
+    id: 'doc1', 
+    user_id: 'user123', 
+    horse_id: 'horse1',
+    horse_name: 'Thunder',
+    discipline: 'dressage',
+    test_level: 'Introductory B',
+    competition_type: null,
+    document_date: '2025-04-10T10:00:00Z',
+    document_url: 'https://example.com/docs/test1.pdf',
+    file_name: 'Dressage Test - Intro B.pdf',
+    file_type: 'application/pdf',
+    status: 'completed',
+    created_at: '2025-04-10T11:30:00Z'
+  },
+  { 
+    id: 'doc2', 
+    user_id: 'user123', 
+    horse_id: 'horse2',
+    horse_name: 'Whisper',
+    discipline: 'jumping',
+    test_level: null,
+    competition_type: 'Show Jumping',
+    document_date: '2025-04-12T14:00:00Z',
+    document_url: 'https://example.com/docs/test2.pdf',
+    file_name: 'Show Jumping Score Sheet.pdf',
+    file_type: 'application/pdf',
+    status: 'completed',
+    created_at: '2025-04-12T15:30:00Z'
+  },
+  { 
+    id: 'doc3', 
+    user_id: 'user123', 
+    horse_id: 'horse1',
+    horse_name: 'Thunder',
+    discipline: 'dressage',
+    test_level: 'Preliminary 18',
+    competition_type: null,
+    document_date: '2025-04-15T09:00:00Z',
+    document_url: 'https://example.com/docs/test3.pdf',
+    file_name: 'Dressage Test - Prelim 18.pdf',
+    file_type: 'application/pdf',
+    status: 'pending',
+    created_at: '2025-04-15T09:30:00Z'
+  }
+];
+
+const mockVideos = [
+  { 
+    id: 'video1', 
+    user_id: 'user123', 
+    horse_id: 'horse3',
+    horse_name: 'Storm',
+    discipline: 'jumping',
+    video_type: 'training',
+    recording_date: '2025-04-05T10:00:00Z',
+    video_url: 'https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+    tags: ['training', 'indoor'],
+    notes: 'Working on approach to verticals',
+    status: 'completed',
+    file_name: 'training_session_1.mp4',
+    file_type: 'video/mp4',
+    created_at: '2025-04-05T11:30:00Z',
+    updated_at: '2025-04-05T12:00:00Z'
+  },
+  { 
+    id: 'video2', 
+    user_id: 'user123', 
+    horse_id: 'horse2',
+    horse_name: 'Whisper',
+    discipline: 'dressage',
+    video_type: 'competition',
+    recording_date: '2025-04-08T13:00:00Z',
+    video_url: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+    tags: ['competition', 'novice test'],
+    notes: 'First competition with Whisper',
+    status: 'pending',
+    file_name: 'novice_test_competition.mp4',
+    file_type: 'video/mp4',
+    created_at: '2025-04-08T15:30:00Z',
+    updated_at: '2025-04-08T15:30:00Z'
+  }
+];
+
 interface DocumentAnalysisDisplayProps {
   documentId: string;
 }
@@ -42,103 +127,20 @@ const Analysis = () => {
       try {
         setIsLoading(true);
         
-        // Fetch documents
-        const { data: documentsData, error: documentsError } = await supabase
-          .from('document_analysis')
-          .select('*')
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false });
-        
-        if (documentsError) {
-          console.error('Error fetching documents:', documentsError);
-        } else {
-          // Get horse names for each document
-          const docsWithHorseNames = await Promise.all(
-            documentsData.map(async (doc) => {
-              const { data: horse } = await supabase
-                .from('horses')
-                .select('name')
-                .eq('id', doc.horse_id)
-                .single();
-              
-              return {
-                ...doc,
-                horse_name: horse?.name
-              };
-            })
-          );
-          
-          setDocuments(docsWithHorseNames);
-        }
-        
-        // Fetch videos
-        const { data: videosData, error: videosError } = await supabase
-          .from('video_analysis')
-          .select('*')
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false });
-        
-        if (videosError) {
-          console.error('Error fetching videos:', videosError);
-        } else {
-          // Get horse names for each video
-          const videosWithHorseNames = await Promise.all(
-            videosData.map(async (video) => {
-              const { data: horse } = await supabase
-                .from('horses')
-                .select('name')
-                .eq('id', video.horse_id)
-                .single();
-              
-              return {
-                ...video,
-                horse_name: horse?.name
-              };
-            })
-          );
-          
-          setVideos(videosWithHorseNames);
-        }
+        // Simulate API call delay
+        setTimeout(() => {
+          // Use mock data
+          setDocuments(mockDocuments);
+          setVideos(mockVideos);
+          setIsLoading(false);
+        }, 1000);
       } catch (error) {
         console.error('Error fetching analysis data:', error);
-      } finally {
         setIsLoading(false);
       }
     };
     
     fetchUserData();
-    
-    // Set up real-time listeners for updates
-    const documentChannel = supabase
-      .channel('document_analysis_changes')
-      .on('postgres_changes', { 
-        event: '*', 
-        schema: 'public', 
-        table: 'document_analysis',
-        filter: `user_id=eq.${user.id}`
-      }, () => {
-        // Refetch documents when changes occur
-        fetchUserData();
-      })
-      .subscribe();
-      
-    const videoChannel = supabase
-      .channel('video_analysis_changes')
-      .on('postgres_changes', { 
-        event: '*', 
-        schema: 'public', 
-        table: 'video_analysis',
-        filter: `user_id=eq.${user.id}`
-      }, () => {
-        // Refetch videos when changes occur
-        fetchUserData();
-      })
-      .subscribe();
-      
-    return () => {
-      supabase.removeChannel(documentChannel);
-      supabase.removeChannel(videoChannel);
-    };
   }, [user, navigate]);
   
   // Helper function to format dates

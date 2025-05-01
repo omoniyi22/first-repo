@@ -1,7 +1,6 @@
 
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
 import { Mail } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -17,32 +16,15 @@ const NewsletterForm = () => {
     setIsSubmitting(true);
     
     try {
-      const { error, data } = await supabase
-        .from('subscription_interests')
-        .insert([{ 
-          email,
-          source: 'newsletter'
-        }])
-        .select();
+      // Simulate API call with timeout
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
-      if (error) {
-        if (error.code === '23505') {
-          // Unique constraint violation - email already exists
-          toast({
-            title: t["already-subscribed"],
-            description: language === 'en' ? "This email is already subscribed to our newsletter." : "Este correo ya está suscrito a nuestro boletín.",
-          });
-        } else {
-          console.error('Newsletter submission error:', error);
-          throw error;
-        }
-      } else {
-        console.log('Newsletter subscription successful:', data);
-        toast({
-          title: t["subscription-successful"],
-          description: t["thank-you-subscribing"],
-        });
-      }
+      // Simulate success
+      console.log('Newsletter subscription successful for:', email);
+      toast({
+        title: t["subscription-successful"],
+        description: t["thank-you-subscribing"],
+      });
       
       setEmail('');
     } catch (error) {

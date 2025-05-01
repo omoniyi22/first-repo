@@ -1,13 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Loader2, Play, Pause, SkipBack, SkipForward } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
-import { Progress } from '@/components/ui/progress';
 
 interface VideoAnalysisData {
   id: string;
@@ -30,6 +27,25 @@ interface VideoAnalysisData {
 interface VideoAnalysisDisplayProps {
   videoId?: string;
 }
+
+// Mock data for development
+const mockVideoData: VideoAnalysisData = {
+  id: '123',
+  user_id: 'user123',
+  horse_id: 'horse123',
+  discipline: "jumping",
+  video_type: 'training',
+  video_url: 'https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4', // Sample video
+  file_name: 'training_session.mp4',
+  file_type: 'video/mp4',
+  recording_date: '2025-04-15',
+  status: 'completed',
+  created_at: '2025-04-15T14:30:00Z',
+  updated_at: '2025-04-15T14:35:00Z',
+  tags: ['indoor', 'training'],
+  notes: 'Working on collection and extension',
+  horse_name: 'Pegasus'
+};
 
 const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({ videoId }) => {
   const { user } = useAuth();
@@ -54,41 +70,15 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({ videoId }) 
       try {
         setIsLoading(true);
         
-        // Get video analysis record
-        const { data: videoData, error: videoError } = await supabase
-          .from('video_analysis')
-          .select('*')
-          .eq('id', videoId)
-          .eq('user_id', user.id)
-          .single();
-          
-        if (videoError) {
-          throw videoError;
-        }
-
-        // Get horse details
-        const { data: horseData, error: horseError } = await supabase
-          .from('horses')
-          .select('name')
-          .eq('id', videoData.horse_id)
-          .single();
-          
-        if (horseError) {
-          console.error('Error fetching horse details:', horseError);
-        }
-        
-        // Format the data to include the horse name
-        const formattedVideo: VideoAnalysisData = {
-          ...videoData,
-          discipline: videoData.discipline as "dressage" | "jumping",
-          horse_name: horseData?.name
-        };
-        
-        setAnalysis(formattedVideo);
+        // Simulate API call with timeout
+        setTimeout(() => {
+          // Use mock data
+          setAnalysis(mockVideoData);
+          setIsLoading(false);
+        }, 1000);
       } catch (err: any) {
         console.error('Error fetching analysis:', err);
         setError(err.message || 'An error occurred while fetching the video analysis.');
-      } finally {
         setIsLoading(false);
       }
     };
@@ -220,7 +210,6 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({ videoId }) 
   }
   
   // For the demo, we'll show a basic video player with the video URL
-  // In a real implementation, this would include markers, overlays, and analysis data
   return (
     <Card className="p-6 bg-white">
       <div className="mb-6">
@@ -245,6 +234,7 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({ videoId }) 
         </div>
       </div>
       
+      {/* Video player */}
       <div className="mb-6">
         <div className="relative bg-black rounded-lg overflow-hidden">
           <video
@@ -298,6 +288,7 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({ videoId }) 
         </div>
       </div>
       
+      {/* Notes and tags section */}
       <div className="mt-8">
         <div className="p-4 bg-gray-50 rounded-lg">
           <h3 className="text-lg font-semibold mb-3">

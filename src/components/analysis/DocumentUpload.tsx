@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useToast } from '@/hooks/use-toast';
 import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
@@ -64,6 +63,13 @@ const jumpingCompetitionTypes = [
   'Training Round'
 ];
 
+// Mock horses data for development
+const mockHorses = [
+  { id: 'horse1', name: 'Thunder' },
+  { id: 'horse2', name: 'Whisper' },
+  { id: 'horse3', name: 'Storm' }
+];
+
 const DocumentUpload = () => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -99,17 +105,8 @@ const DocumentUpload = () => {
       if (!user) return;
       
       try {
-        const { data, error } = await supabase
-          .from('horses')
-          .select('id, name')
-          .eq('owner_id', user.id);
-        
-        if (error) {
-          console.error('Error fetching horses:', error);
-          return;
-        }
-        
-        setHorses(data || []);
+        // Use mock data instead of Supabase query
+        setHorses(mockHorses);
       } catch (error) {
         console.error('Error fetching horses:', error);
       }
@@ -166,95 +163,43 @@ const DocumentUpload = () => {
     setIsUploading(true);
     setUploadProgress(0);
     
-    // Create a unique filename
-    const timestamp = Date.now();
-    const fileExt = selectedFile.name.split('.').pop();
-    const fileName = `${user.id}/${data.discipline}/${timestamp}.${fileExt}`;
-    const filePath = `documents/${fileName}`;
-    
     try {
-      // Upload file to Supabase Storage
-      const { error: uploadError } = await supabase.storage
-        .from('analysis')
-        .upload(filePath, selectedFile, {
-          cacheControl: '3600',
-          upsert: false,
-        });
-      
-      if (uploadError) {
-        throw uploadError;
-      }
-      
-      // Simulate upload progress since onUploadProgress doesn't work in current Supabase JS client
-      const interval = setInterval(() => {
+      // Simulate file upload with progress updates
+      const uploadInterval = setInterval(() => {
         setUploadProgress(prev => {
           if (prev >= 95) {
-            clearInterval(interval);
+            clearInterval(uploadInterval);
             return 95;
           }
           return prev + 5;
         });
       }, 100);
       
-      // Get the file's public URL
-      const { data: fileData } = supabase.storage
-        .from('analysis')
-        .getPublicUrl(filePath);
+      // Simulate API call delay
+      setTimeout(() => {
+        clearInterval(uploadInterval);
+        setUploadProgress(100);
         
-      // Create metadata record in the database
-      const { data: docData, error: dbError } = await supabase
-        .from('document_analysis')
-        .insert({
-          user_id: user.id,
-          horse_id: data.horseId,
-          discipline: data.discipline,
-          test_level: data.discipline === 'dressage' ? data.testLevel : null,
-          competition_type: data.discipline === 'jumping' ? data.competitionType : null,
-          document_date: data.date.toISOString(),
-          document_url: fileData.publicUrl,
-          notes: data.notes,
-          status: 'pending',
-          file_name: selectedFile.name,
-          file_type: selectedFile.type
-        })
-        .select()
-        .single();
-      
-      if (dbError) {
-        throw dbError;
-      }
-      
-      clearInterval(interval);
-      setUploadProgress(100);
-      
-      // Call the edge function to process the document with Gemini
-      try {
-        const response = await supabase.functions.invoke('process-document-analysis', {
-          body: { documentId: docData.id }
+        toast({
+          title: language === 'en' ? "Document uploaded successfully" : "Documento subido con éxito",
+          description: language === 'en' 
+            ? "Your document will be analyzed shortly." 
+            : "Tu documento será analizado en breve.",
         });
         
-        if (!response.data?.success) {
-          console.warn('Processing initialization warning:', response);
-        }
-      } catch (processingError) {
-        console.error('Error starting processing:', processingError);
-        // We don't throw here because the upload was successful
-        // The edge function will handle the processing separately
-      }
-      
-      toast({
-        title: language === 'en' ? "Document uploaded successfully" : "Documento subido con éxito",
-        description: language === 'en' 
-          ? "Your document will be analyzed shortly." 
-          : "Tu documento será analizado en breve.",
-      });
-      
-      // Reset form and states
-      form.reset({
-        discipline: 'dressage',
-        date: new Date(),
-      });
-      setSelectedFile(null);
+        // Reset form and states
+        form.reset({
+          discipline: 'dressage',
+          date: new Date(),
+        });
+        setSelectedFile(null);
+        
+        // Set uploading to false after a short delay to show 100% state
+        setTimeout(() => {
+          setIsUploading(false);
+          setUploadProgress(0);
+        }, 1000);
+      }, 2000);
       
     } catch (error: any) {
       console.error('Upload error:', error);
@@ -265,9 +210,7 @@ const DocumentUpload = () => {
           : "Hubo un error al subir tu documento. Por favor intenta de nuevo."),
         variant: "destructive"
       });
-    } finally {
       setIsUploading(false);
-      setTimeout(() => setUploadProgress(0), 1000);
     }
   };
 

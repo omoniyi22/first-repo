@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useToast } from '@/hooks/use-toast';
@@ -52,6 +51,13 @@ const VideoUploadFormSchema = z.object({
 
 type VideoUploadFormValues = z.infer<typeof VideoUploadFormSchema>;
 
+// Mock horses data for development
+const mockHorses = [
+  { id: 'horse1', name: 'Thunder' },
+  { id: 'horse2', name: 'Whisper' },
+  { id: 'horse3', name: 'Storm' }
+];
+
 const VideoUpload = () => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -80,17 +86,8 @@ const VideoUpload = () => {
       if (!user) return;
       
       try {
-        const { data, error } = await supabase
-          .from('horses')
-          .select('id, name')
-          .eq('owner_id', user.id);
-        
-        if (error) {
-          console.error('Error fetching horses:', error);
-          return;
-        }
-        
-        setHorses(data || []);
+        // Use mock data instead of Supabase query
+        setHorses(mockHorses);
       } catch (error) {
         console.error('Error fetching horses:', error);
       }

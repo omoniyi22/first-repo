@@ -1,10 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useLanguage } from '@/contexts/LanguageContext';
-import { supabase } from '@/integrations/supabase/client';
 import { Loader2 } from 'lucide-react';
 
 // Define proper types for the analysis data
@@ -48,6 +46,36 @@ interface DocumentAnalysisDisplayProps {
   documentId: string;
 }
 
+// Mock data for development
+const mockAnalysisData = {
+  id: '123',
+  discipline: 'jumping',
+  status: 'completed',
+};
+
+const mockResultData: AnalysisResultData = {
+  totalScore: 68,
+  percentage: 68.5,
+  scores: [
+    { movement: 'Entry at A', score: 7, maxScore: 10, comment: 'Good rhythm' },
+    { movement: 'Halt at X', score: 6, maxScore: 10, comment: 'Slightly unbalanced' },
+    { movement: 'Working trot', score: 7.5, maxScore: 10, comment: 'Nice energy' },
+  ],
+  strengths: ['Good rhythm', 'Nice energy throughout', 'Attentive to aids'],
+  weaknesses: ['Tension in transitions', 'Balance in halts needs work'],
+  recommendations: ['Work on balanced halts', 'Practice smoother transitions'],
+  faults: [
+    { jumpNumber: 1, faultType: 'Knockdown', faults: 4, description: 'Back rail' },
+    { jumpNumber: 5, faultType: 'Refusal', faults: 4, description: 'First refusal' },
+  ],
+  totalFaults: 8,
+  courseTime: 82.4,
+  optimumTime: 80.0,
+  timePenalties: 1,
+  jumpTypes: ['Vertical', 'Oxer', 'Combination', 'Water jump'],
+  commonErrors: ['Coming too fast to verticals', 'Rushing combinations']
+};
+
 const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({ documentId }) => {
   const { language } = useLanguage();
   const [analysis, setAnalysis] = useState<any | null>(null);
@@ -60,45 +88,16 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({ docum
       try {
         setIsLoading(true);
         
-        // First fetch the document analysis record
-        const { data: document, error: docError } = await supabase
-          .from('document_analysis')
-          .select('*')
-          .eq('id', documentId)
-          .single();
-          
-        if (docError) {
-          throw new Error(docError.message);
-        }
-        
-        // Then fetch the analysis result
-        const { data: result, error: resultError } = await supabase
-          .from('analysis_results')
-          .select('*')
-          .eq('document_id', documentId)
-          .maybeSingle();
-          
-        if (resultError) {
-          throw new Error(resultError.message);
-        }
-        
-        if (!result) {
-          throw new Error('Analysis results not found');
-        }
-        
-        // Set the document data
-        setAnalysis(document);
-        
-        // Parse the result JSON
-        const parsedResult: AnalysisResultData = typeof result.result_json === 'string' 
-          ? JSON.parse(result.result_json) 
-          : result.result_json;
-          
-        setResultData(parsedResult);
+        // Simulate API call with timeout
+        setTimeout(() => {
+          // Use mock data instead of actual Supabase query
+          setAnalysis(mockAnalysisData);
+          setResultData(mockResultData);
+          setIsLoading(false);
+        }, 1000);
       } catch (err: any) {
         console.error('Error fetching analysis:', err);
         setError(err.message);
-      } finally {
         setIsLoading(false);
       }
     };
