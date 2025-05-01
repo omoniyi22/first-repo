@@ -1,5 +1,7 @@
+
 import AnimatedSection from '../ui/AnimatedSection';
 import { Linkedin, Handshake, Globe, Mail } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface TeamMember {
   name: string;
@@ -145,9 +147,9 @@ const JumpTeamSection = () => {
             </p>
             
             <div className="flex justify-center">
-              <button className="bg-white text-blue-800 px-6 py-3 rounded-lg font-medium hover:bg-blue-50 transition-colors">
+              <Button className="bg-gradient-to-r from-purple-600 to-blue-500 text-white hover:from-purple-700 hover:to-blue-600">
                 Start Free Trial
-              </button>
+              </Button>
             </div>
           </div>
         </AnimatedSection>
@@ -201,9 +203,9 @@ const JumpTeamSection = () => {
                   </div>
                   
                   <div className="flex justify-center pt-2">
-                    <button className="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                    <Button className="bg-gradient-to-r from-purple-600 to-blue-500 text-white hover:from-purple-700 hover:to-blue-600">
                       Submit Inquiry
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </div>

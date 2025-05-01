@@ -1,5 +1,7 @@
+
 import AnimatedSection from '../ui/AnimatedSection';
 import { Linkedin } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface TeamMember {
   name: string;
@@ -155,13 +157,17 @@ const TeamSection = () => {
                 </p>
                 
                 <div className="flex flex-col sm:flex-row gap-4">
-                  <button className="bg-white text-navy-800 px-6 py-3 rounded-lg font-medium hover:bg-navy-50 transition-colors">
-                    Send a Message
-                  </button>
+                  <Button 
+                    className="bg-gradient-to-r from-purple-600 to-blue-500 text-white hover:from-purple-700 hover:to-blue-600 px-6 py-3"
+                  >
+                    Start Free Trial
+                  </Button>
                   
-                  <button className="bg-transparent border border-white text-white px-6 py-3 rounded-lg font-medium hover:bg-navy-700 transition-colors">
-                    Schedule a Demo
-                  </button>
+                  <Button 
+                    className="border border-white text-white hover:bg-navy-700 bg-transparent px-6 py-3"
+                  >
+                    Send a Message
+                  </Button>
                 </div>
               </div>
             </div>
