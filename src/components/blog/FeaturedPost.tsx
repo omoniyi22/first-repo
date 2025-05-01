@@ -36,13 +36,25 @@ const FeaturedPost = ({ post }: FeaturedPostProps) => {
   
   const colorSet = colors[post.discipline as keyof typeof colors];
   
+  // Translate post content if needed
+  const getLocalizedContent = (content: string, fallback: string) => {
+    if (language === 'es' && post.translations?.es?.[content]) {
+      return post.translations.es[content];
+    }
+    return fallback;
+  };
+  
+  const localizedTitle = getLocalizedContent('title', post.title);
+  const localizedExcerpt = getLocalizedContent('excerpt', post.excerpt);
+  const localizedCategory = getLocalizedContent('category', post.category);
+  
   return (
     <div className="bg-white rounded-xl overflow-hidden shadow-lg">
       <div className="md:flex">
         <div className="md:w-1/2">
           <img 
             src={post.image} 
-            alt={post.title}
+            alt={localizedTitle}
             className="h-full w-full object-cover"
           />
         </div>
@@ -54,16 +66,16 @@ const FeaturedPost = ({ post }: FeaturedPostProps) => {
               {post.discipline === 'Jumping' ? t["jumping"] : t["dressage"]}
             </span>
             <span className="ml-2 text-xs font-semibold px-3 py-1 rounded-full bg-gray-100 text-gray-800">
-              {post.category}
+              {localizedCategory}
             </span>
             <span className="ml-3 text-sm text-gray-500">{post.date}</span>
           </div>
           <h2 className={`text-2xl md:text-3xl font-serif font-bold ${colorSet.title} mb-4`}>
             <Link to={`/blog/${post.slug}`} className={`${colorSet.hover} transition-colors`}>
-              {post.title}
+              {localizedTitle}
             </Link>
           </h2>
-          <p className="text-gray-700 mb-6">{post.excerpt}</p>
+          <p className="text-gray-700 mb-6">{localizedExcerpt}</p>
           <div className="mt-auto">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center">

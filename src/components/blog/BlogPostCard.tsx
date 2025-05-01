@@ -15,6 +15,18 @@ const BlogPostCard = ({ post }: BlogPostCardProps) => {
   
   const disciplineColor = post.discipline === 'Jumping' ? 'blue' : 'purple';
   
+  // Translate post content if needed
+  const getLocalizedContent = (content: string, fallback: string) => {
+    if (language === 'es' && post.translations?.es?.[content]) {
+      return post.translations.es[content];
+    }
+    return fallback;
+  };
+  
+  const localizedTitle = getLocalizedContent('title', post.title);
+  const localizedExcerpt = getLocalizedContent('excerpt', post.excerpt);
+  const localizedCategory = getLocalizedContent('category', post.category);
+  
   return (
     <article className={`bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow h-full flex flex-col relative`}>
       {/* Discipline color bar */}
@@ -27,7 +39,7 @@ const BlogPostCard = ({ post }: BlogPostCardProps) => {
       <Link to={`/blog/${post.slug}`} className="block">
         <img 
           src={post.image} 
-          alt={post.title}
+          alt={localizedTitle}
           className="w-full h-48 object-cover"
         />
       </Link>
@@ -44,7 +56,7 @@ const BlogPostCard = ({ post }: BlogPostCardProps) => {
             {post.discipline === 'Jumping' ? t["jumping"] : t["dressage"]}
           </span>
           <span className="bg-gray-100 text-gray-800 text-xs font-semibold px-2 py-0.5 rounded-full">
-            {post.category}
+            {localizedCategory}
           </span>
           <div className="flex items-center ml-auto text-xs text-gray-500">
             <Clock className="h-3 w-3 mr-1" />
@@ -54,11 +66,11 @@ const BlogPostCard = ({ post }: BlogPostCardProps) => {
         
         <h3 className={`text-xl font-serif font-bold text-${disciplineColor}-900 mb-3`}>
           <Link to={`/blog/${post.slug}`} className={`hover:text-${disciplineColor}-700 transition-colors`}>
-            {post.title}
+            {localizedTitle}
           </Link>
         </h3>
         
-        <p className="text-gray-700 text-sm mb-4 line-clamp-3">{post.excerpt}</p>
+        <p className="text-gray-700 text-sm mb-4 line-clamp-3">{localizedExcerpt}</p>
         
         <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-100">
           <div className="flex items-center">
