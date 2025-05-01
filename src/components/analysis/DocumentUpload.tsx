@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -178,15 +179,22 @@ const DocumentUpload = () => {
         .upload(filePath, selectedFile, {
           cacheControl: '3600',
           upsert: false,
-          onUploadProgress: (progress) => {
-            const percent = (progress.loaded / progress.total) * 100;
-            setUploadProgress(percent);
-          },
         });
       
       if (uploadError) {
         throw uploadError;
       }
+      
+      // Simulate upload progress since onUploadProgress doesn't work in current Supabase JS client
+      const interval = setInterval(() => {
+        setUploadProgress(prev => {
+          if (prev >= 95) {
+            clearInterval(interval);
+            return 95;
+          }
+          return prev + 5;
+        });
+      }, 100);
       
       // Get the file's public URL
       const { data: fileData } = supabase.storage
@@ -194,7 +202,7 @@ const DocumentUpload = () => {
         .getPublicUrl(filePath);
         
       // Create metadata record in the database
-      const { error: dbError } = await supabase
+      const { data: docData, error: dbError } = await supabase
         .from('document_analysis')
         .insert({
           user_id: user.id,
@@ -208,10 +216,30 @@ const DocumentUpload = () => {
           status: 'pending',
           file_name: selectedFile.name,
           file_type: selectedFile.type
-        });
+        })
+        .select()
+        .single();
       
       if (dbError) {
         throw dbError;
+      }
+      
+      clearInterval(interval);
+      setUploadProgress(100);
+      
+      // Call the edge function to process the document with Gemini
+      try {
+        const response = await supabase.functions.invoke('process-document-analysis', {
+          body: { documentId: docData.id }
+        });
+        
+        if (!response.data?.success) {
+          console.warn('Processing initialization warning:', response);
+        }
+      } catch (processingError) {
+        console.error('Error starting processing:', processingError);
+        // We don't throw here because the upload was successful
+        // The edge function will handle the processing separately
       }
       
       toast({
@@ -239,7 +267,7 @@ const DocumentUpload = () => {
       });
     } finally {
       setIsUploading(false);
-      setUploadProgress(0);
+      setTimeout(() => setUploadProgress(0), 1000);
     }
   };
 

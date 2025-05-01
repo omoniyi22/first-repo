@@ -82,24 +82,44 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({ docum
       try {
         setIsLoading(true);
         
-        const { data, error } = await supabase
+        // Get document analysis record
+        const { data: docData, error: docError } = await supabase
           .from('document_analysis')
           .select(`
-            *,
-            horses:horse_id (name)
+            id, horse_id, discipline, test_level, competition_type, 
+            document_date, status, document_url, file_name, created_at
           `)
           .eq('id', documentId)
           .eq('user_id', user.id)
           .single();
           
-        if (error) {
-          throw error;
+        if (docError) {
+          throw docError;
         }
+
+        // Get horse details
+        const { data: horseData, error: horseError } = await supabase
+          .from('horses')
+          .select('name')
+          .eq('id', docData.horse_id)
+          .single();
+          
+        if (horseError) {
+          console.error('Error fetching horse details:', horseError);
+        }
+
+        // Get analysis result
+        const { data: resultData, error: resultError } = await supabase
+          .from('analysis_results')
+          .select('result_json')
+          .eq('document_id', documentId)
+          .maybeSingle();
         
-        // Format the data to include the horse name
-        const formattedData = {
-          ...data,
-          horse_name: data.horses?.name
+        // Format the data to include the horse name and analysis result
+        const formattedData: DocumentAnalysisData = {
+          ...docData,
+          horse_name: horseData?.name,
+          analysis_result: resultData?.result_json
         };
         
         setAnalysis(formattedData);
@@ -115,30 +135,35 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({ docum
     
     // Set up real-time listener for updates
     if (documentId) {
-      const channel = supabase
-        .channel('document_analysis_changes')
+      const docChannel = supabase
+        .channel('doc_analysis_changes')
         .on('postgres_changes', { 
           event: 'UPDATE', 
           schema: 'public', 
           table: 'document_analysis',
           filter: `id=eq.${documentId}`
-        }, payload => {
-          // Update the analysis data when changes occur
-          setAnalysis(prevAnalysis => {
-            if (prevAnalysis && payload.new.id === prevAnalysis.id) {
-              return {
-                ...prevAnalysis,
-                ...payload.new,
-                horse_name: prevAnalysis.horse_name // Preserve horse name
-              };
-            }
-            return prevAnalysis;
-          });
+        }, () => {
+          // Refetch when document is updated
+          fetchAnalysis();
+        })
+        .subscribe();
+        
+      const resultChannel = supabase
+        .channel('result_changes')
+        .on('postgres_changes', { 
+          event: 'INSERT', 
+          schema: 'public', 
+          table: 'analysis_results',
+          filter: `document_id=eq.${documentId}`
+        }, () => {
+          // Refetch when a new analysis result is inserted
+          fetchAnalysis();
         })
         .subscribe();
         
       return () => {
-        supabase.removeChannel(channel);
+        supabase.removeChannel(docChannel);
+        supabase.removeChannel(resultChannel);
       };
     }
   }, [documentId, user]);

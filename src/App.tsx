@@ -25,7 +25,14 @@ import ProfileQuestionnaire from "./pages/ProfileQuestionnaire";
 import JumpProfileSetup from "./pages/JumpProfileSetup";
 import Analysis from "./pages/Analysis";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60 * 1000, // 1 minute
+      retry: 1,
+    },
+  },
+});
 
 const App = () => (
   <React.StrictMode>

@@ -41,56 +41,59 @@ const Analysis = () => {
         // Fetch documents
         const { data: documentsData, error: documentsError } = await supabase
           .from('document_analysis')
-          .select(`
-            id,
-            discipline,
-            test_level,
-            competition_type,
-            document_date,
-            status,
-            file_name,
-            created_at,
-            horses:horse_id (name)
-          `)
+          .select('*')
           .eq('user_id', user.id)
           .order('created_at', { ascending: false });
         
         if (documentsError) {
           console.error('Error fetching documents:', documentsError);
         } else {
-          // Format documents data with horse names
-          const formattedDocuments = documentsData.map(doc => ({
-            ...doc,
-            horse_name: doc.horses?.name
-          }));
-          setDocuments(formattedDocuments);
+          // Get horse names for each document
+          const docsWithHorseNames = await Promise.all(
+            documentsData.map(async (doc) => {
+              const { data: horse } = await supabase
+                .from('horses')
+                .select('name')
+                .eq('id', doc.horse_id)
+                .single();
+              
+              return {
+                ...doc,
+                horse_name: horse?.name
+              };
+            })
+          );
+          
+          setDocuments(docsWithHorseNames);
         }
         
         // Fetch videos
         const { data: videosData, error: videosError } = await supabase
           .from('video_analysis')
-          .select(`
-            id,
-            discipline,
-            video_type,
-            recording_date,
-            status,
-            file_name,
-            created_at,
-            horses:horse_id (name)
-          `)
+          .select('*')
           .eq('user_id', user.id)
           .order('created_at', { ascending: false });
         
         if (videosError) {
           console.error('Error fetching videos:', videosError);
         } else {
-          // Format videos data with horse names
-          const formattedVideos = videosData.map(video => ({
-            ...video,
-            horse_name: video.horses?.name
-          }));
-          setVideos(formattedVideos);
+          // Get horse names for each video
+          const videosWithHorseNames = await Promise.all(
+            videosData.map(async (video) => {
+              const { data: horse } = await supabase
+                .from('horses')
+                .select('name')
+                .eq('id', video.horse_id)
+                .single();
+              
+              return {
+                ...video,
+                horse_name: horse?.name
+              };
+            })
+          );
+          
+          setVideos(videosWithHorseNames);
         }
       } catch (error) {
         console.error('Error fetching analysis data:', error);
