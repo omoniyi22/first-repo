@@ -64,3 +64,31 @@ export const getStorageBucketInfo = async (bucketId: string) => {
     };
   }
 };
+
+/**
+ * Creates a storage bucket if it doesn't exist
+ */
+export const createBucketIfNotExists = async (bucketId: string, options = { public: true }) => {
+  try {
+    // Check if bucket exists
+    const { error: checkError } = await supabase.storage.getBucket(bucketId);
+    
+    if (checkError) {
+      // Create bucket if it doesn't exist
+      const { data, error: createError } = await supabase.storage.createBucket(bucketId, options);
+      
+      if (createError) {
+        return { success: false, error: createError };
+      }
+      
+      return { success: true, data, created: true };
+    }
+    
+    return { success: true, created: false };
+  } catch (error) {
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Unknown error' 
+    };
+  }
+};
