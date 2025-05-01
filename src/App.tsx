@@ -25,6 +25,9 @@ import BlogPost from "./pages/BlogPost";
 import ProfileQuestionnaire from "./pages/ProfileQuestionnaire";
 import JumpProfileSetup from "./pages/JumpProfileSetup";
 import Analysis from "./pages/Analysis";
+import DressageAbout from "./pages/DressageAbout";
+import JumpingAbout from "./pages/JumpingAbout";
+import EquestrianAbout from "./pages/EquestrianAbout";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -51,7 +54,9 @@ const App = () => (
                   <Route path="/jumping" element={<Jumping />} />
                   <Route path="/how-it-works" element={<HowItWorks />} />
                   <Route path="/pricing" element={<Pricing />} />
-                  <Route path="/about" element={<About />} />
+                  <Route path="/about" element={<EquestrianAbout />} />
+                  <Route path="/dressage/about" element={<DressageAbout />} />
+                  <Route path="/jumping/about" element={<JumpingAbout />} />
                   <Route path="/sign-in" element={<SignIn />} />
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/profile" element={<Profile />} />

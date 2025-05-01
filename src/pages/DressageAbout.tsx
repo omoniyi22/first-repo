@@ -1,18 +1,16 @@
 
 import React from 'react';
-import Hero from '@/components/home/Hero';
-import Process from '@/components/home/Process';
-import Benefits from '@/components/home/Benefits';
-import Testimonials from '@/components/home/Testimonials';
-import Navbar from '@/components/layout/Navbar';
-import Footer from '@/components/layout/Footer';
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { SEO, generateDisciplineMetadata } from '@/lib/seo';
+import Navbar from '@/components/layout/Navbar';
+import Footer from '@/components/layout/Footer';
+import MissionSection from '@/components/about/MissionSection';
+import TeamSection from '@/components/about/TeamSection';
 
-const Dressage = () => {
+const DressageAbout = () => {
   // Initialize scroll reveal for animations
   useEffect(() => {
     const initScrollReveal = () => {
@@ -42,11 +40,14 @@ const Dressage = () => {
     };
     
     initScrollReveal();
+    
+    // Scroll to top on page load
+    window.scrollTo(0, 0);
   }, []);
 
   // Get discipline-specific metadata
   const seoMetadata = generateDisciplineMetadata('Dressage', {
-    canonicalUrl: '/dressage'
+    canonicalUrl: '/dressage/about'
   });
 
   return (
@@ -54,30 +55,23 @@ const Dressage = () => {
       <SEO {...seoMetadata} />
       <Navbar />
       <div className="container mx-auto px-6 pt-24 pb-6">
-        <Link to="/">
+        <Link to="/dressage">
           <Button variant="ghost" className="flex items-center gap-2 mb-4 -ml-2">
             <ArrowLeft className="h-4 w-4" />
-            <span>Back to AI Equestrian</span>
+            <span>Back to AI Dressage</span>
           </Button>
         </Link>
-        <div className="flex items-center justify-between">
-          <div className="inline-block px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium mb-2">
-            AI Dressage Trainer
-          </div>
-          <Link to="/dressage/about" className="text-purple-600 hover:text-purple-800 text-sm font-medium">
-            About AI Dressage
-          </Link>
+        <div className="inline-block px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium mb-2">
+          About AI Dressage Trainer
         </div>
       </div>
       <main className="pt-0">
-        <Hero />
-        <Process />
-        <Benefits />
-        <Testimonials />
+        <MissionSection />
+        <TeamSection />
       </main>
       <Footer />
     </div>
   );
 };
 
-export default Dressage;
+export default DressageAbout;
