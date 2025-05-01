@@ -1,8 +1,8 @@
 
 // Barrel exports for SEO utilities
-export * from './types';
-export * from './constants';
-export * from './SEO';
-export * from './disciplineMetadata';
-export * from './pageMetadata';
-export * from './schemaMarkup';
+export { type SEOProps } from './types';
+export { DEFAULT_TITLE, DEFAULT_DESCRIPTION, DEFAULT_OG_IMAGE, BASE_URL } from './constants';
+export { SEO } from './SEO';
+export { generateDisciplineMetadata } from './disciplineMetadata';
+export { getPageMetadata } from './pageMetadata';
+export { createOrganizationSchema, createProductSchema } from './schemaMarkup';
