@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -13,6 +12,11 @@ import DocumentUpload from '@/components/analysis/DocumentUpload';
 import DocumentAnalysisDisplay from '@/components/analysis/DocumentAnalysisDisplay';
 import VideoUpload from '@/components/analysis/VideoUpload';
 import VideoAnalysisDisplay from '@/components/analysis/VideoAnalysisDisplay';
+
+// Add or update the DocumentAnalysisDisplay props interface
+interface DocumentAnalysisDisplayProps {
+  documentId: string;
+}
 
 const Analysis = () => {
   const { user } = useAuth();

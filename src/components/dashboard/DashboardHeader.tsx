@@ -11,12 +11,12 @@ const DashboardHeader = () => {
                       'Rider';
 
   return (
-    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center w-full">
       <div>
-        <h1 className="text-3xl font-serif font-semibold text-purple-900">
+        <h1 className="text-2xl sm:text-3xl font-serif font-semibold text-purple-900">
           {language === 'en' ? 'Welcome,' : 'Bienvenido,'} {displayName}
         </h1>
-        <p className="mt-2 text-purple-700">
+        <p className="mt-1 sm:mt-2 text-sm sm:text-base text-purple-700">
           {language === 'en' 
             ? 'Track your progress and upload new dressage tests' 
             : 'Sigue tu progreso y sube nuevas pruebas de doma'}

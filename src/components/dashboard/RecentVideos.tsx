@@ -32,42 +32,42 @@ const RecentVideos = () => {
   ];
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-serif font-semibold text-purple-900">
+    <div className="mt-6 sm:mt-8 lg:mt-0">
+      <div className="flex justify-between items-center mb-3 sm:mb-4">
+        <h2 className="text-lg sm:text-xl font-serif font-semibold text-purple-900">
           {language === 'en' ? 'Recent Tests' : 'Pruebas Recientes'}
         </h2>
-        <Button variant="link" className="text-purple-700">
+        <Button variant="link" className="text-purple-700 text-sm sm:text-base p-0 h-auto">
           {language === 'en' ? 'View All' : 'Ver Todas'}
         </Button>
       </div>
       
-      <div className="space-y-4">
+      <div className="space-y-3 sm:space-y-4">
         {videos.map((video) => (
           <Card key={video.id} className="flex flex-col sm:flex-row overflow-hidden hover:shadow-md transition-shadow">
-            <div className="sm:w-48 h-32 sm:h-auto relative">
+            <div className="w-full sm:w-48 h-32 sm:h-auto relative">
               <img 
                 src={video.thumbnail} 
                 alt={video.title} 
                 className="w-full h-full object-cover"
               />
-              <div className="absolute top-2 right-2 bg-white/90 px-2 py-1 rounded text-sm font-medium">
+              <div className="absolute top-2 right-2 bg-white/90 px-2 py-1 rounded text-xs sm:text-sm font-medium">
                 {video.score}
               </div>
             </div>
-            <div className="p-4 flex-1">
-              <h3 className="font-medium text-purple-900">
+            <div className="p-3 sm:p-4 flex-1">
+              <h3 className="font-medium text-sm sm:text-base text-purple-900">
                 {video.title}
               </h3>
-              <p className="text-sm text-purple-700 mt-1">
+              <p className="text-xs sm:text-sm text-purple-700 mt-1">
                 {language === 'en' ? 'Analyzed on ' : 'Analizado el '} 
                 {new Date(video.date).toLocaleDateString(language === 'en' ? 'en-US' : 'es-ES')}
               </p>
-              <div className="mt-4 flex space-x-2">
-                <Button variant="outline" size="sm" className="text-purple-700 border-purple-200 hover:bg-purple-50">
+              <div className="mt-3 sm:mt-4 flex flex-wrap gap-2">
+                <Button variant="outline" size="sm" className="text-xs sm:text-sm text-purple-700 border-purple-200 hover:bg-purple-50 h-8">
                   {language === 'en' ? 'View Analysis' : 'Ver Análisis'}
                 </Button>
-                <Button variant="outline" size="sm" className="text-purple-700 border-purple-200 hover:bg-purple-50">
+                <Button variant="outline" size="sm" className="text-xs sm:text-sm text-purple-700 border-purple-200 hover:bg-purple-50 h-8">
                   {language === 'en' ? 'Recommendations' : 'Recomendaciones'}
                 </Button>
               </div>
