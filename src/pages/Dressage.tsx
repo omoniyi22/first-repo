@@ -43,6 +43,9 @@ const Dressage = () => {
     };
     
     initScrollReveal();
+    
+    // Add console log to verify component mounting
+    console.log('Dressage component mounted');
   }, []);
 
   // Get discipline-specific metadata

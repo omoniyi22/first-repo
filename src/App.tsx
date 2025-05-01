@@ -11,6 +11,7 @@ import { HelmetProvider } from "react-helmet-async";
 import TestComponent from "./components/TestComponent";
 import Index from "./pages/Index";
 import Dressage from "./pages/Dressage";
+import DressageSimple from "./components/DressageSimple";
 import Jumping from "./pages/Jumping";
 import HowItWorks from "./pages/HowItWorks";
 import Pricing from "./pages/Pricing";
@@ -51,7 +52,8 @@ const App = () => (
               <Routes>
                 <Route path="/test" element={<TestComponent />} />
                 <Route path="/" element={<Index />} />
-                <Route path="/dressage" element={<Dressage />} />
+                <Route path="/dressage" element={<DressageSimple />} />
+                <Route path="/dressage-full" element={<Dressage />} />
                 <Route path="/jumping" element={<Jumping />} />
                 <Route path="/how-it-works" element={<HowItWorks />} />
                 <Route path="/pricing" element={<Pricing />} />
