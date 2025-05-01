@@ -38,7 +38,7 @@ export const getPageMetadata = (page: string, customProps: Partial<SEOProps> = {
     case 'how-it-works':
       return {
         title: 'How It Works | AI Equestrian',
-        description: "Discover how AI Equestrian's technology analyzes your riding, identifies areas for improvement, and provides personalized training recommendations.",
+        description: "Discover how AI Equestrian\'s technology analyzes your riding, identifies areas for improvement, and provides personalized training recommendations.",
         canonicalUrl: '/how-it-works',
         ogType: 'website',
         keywords: ['equestrian AI process', 'dressage analysis technology', 'jumping analysis system', 'horse training AI method'],
