@@ -16,19 +16,18 @@ const ProfileActions: React.FC<ProfileActionsProps> = ({ isSaving, onSave }) => 
   return (
     <div className="flex justify-end mt-4 sm:mt-6 gap-3 sm:gap-4">
       <Button 
-        className="bg-purple-700 hover:bg-purple-800 text-sm sm:text-base" 
-        size="lg"
+        className="bg-purple-700 hover:bg-purple-800 text-sm sm:text-base py-2 px-4 sm:py-2.5 sm:px-5" 
         onClick={onSave}
         disabled={isSaving}
       >
         {isSaving ? (
           <>
-            <Loader2 className="mr-2 h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             {language === 'en' ? 'Saving...' : 'Guardando...'}
           </>
         ) : (
           <>
-            <Save className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+            <Save className="mr-2 h-4 w-4" />
             {language === 'en' ? 'Save Profile' : 'Guardar Perfil'}
           </>
         )}

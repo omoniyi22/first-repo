@@ -41,18 +41,18 @@ const Profile = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       <Navbar />
-      <main className="container mx-auto px-4 pt-24 pb-16">
+      <main className="container mx-auto px-4 pt-20 sm:pt-24 pb-12 sm:pb-16">
         <ProfileHeader />
         
         {/* Performance Overview */}
-        <div className="mt-8">
+        <div className="mt-6 sm:mt-8">
           <PerformanceOverview />
         </div>
         
         {/* Main content layout - two columns for desktop, single column for mobile */}
-        <div className="mt-12 grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="mt-8 sm:mt-12 grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
           {/* Main column - 2/3 width on desktop */}
-          <div className="lg:col-span-2 space-y-8">
+          <div className="lg:col-span-2 space-y-6 sm:space-y-8">
             {/* Horses Section */}
             <Horses />
             
@@ -61,7 +61,7 @@ const Profile = () => {
           </div>
           
           {/* Side column - 1/3 width on desktop */}
-          <div className="space-y-8">
+          <div className="space-y-6 sm:space-y-8">
             {/* Upcoming Events Section */}
             <UpcomingEvents />
             

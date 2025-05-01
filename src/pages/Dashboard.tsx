@@ -43,14 +43,14 @@ const Dashboard = () => {
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white">
       <Navbar />
       <main className="container mx-auto px-4 pt-20 sm:pt-24 pb-12 sm:pb-16">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0 mb-6 sm:mb-8">
           <DashboardHeader />
           <Button 
             className="text-purple-700 border-purple-200 hover:bg-purple-50 text-sm sm:text-base mt-2 sm:mt-0" 
             variant="outline"
             onClick={() => navigate('/profile')}
           >
-            <User className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+            <User className="mr-2 h-4 w-4" />
             {language === 'en' ? 'View Profile' : 'Ver Perfil'}
           </Button>
         </div>
