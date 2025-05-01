@@ -330,22 +330,17 @@ const Jumping = () => {
           </div>
         </section>
 
-        {/* CTA Section */}
+        {/* CTA Section - Modified to remove the View Plans button */}
         <section className="py-16 bg-gradient-to-br from-blue-800 to-purple-900 text-white">
           <div className="container mx-auto px-6 text-center">
             <h2 className="text-3xl font-serif font-medium mb-6 reveal-scroll">Ready to Transform Your Jumping?</h2>
             <p className="max-w-2xl mx-auto mb-8 text-blue-100 reveal-scroll">
               Join riders who are using AI to achieve their competitive goals and improve their technique.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center reveal-scroll">
-              <Link to="/sign-in?signup=true">
+            <div className="reveal-scroll">
+              <Link to="/pricing">
                 <Button className="bg-gradient-to-r from-purple-600 to-blue-500 text-white hover:from-purple-700 hover:to-blue-600 px-8">
                   Start Your Free Trial
-                </Button>
-              </Link>
-              <Link to="/pricing">
-                <Button variant="outline" className="border-white/50 bg-gradient-to-r from-white/10 to-blue-500/10 hover:bg-white/20 text-white">
-                  View Plans
                 </Button>
               </Link>
             </div>
