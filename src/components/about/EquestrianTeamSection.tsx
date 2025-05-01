@@ -1,6 +1,7 @@
 
 import AnimatedSection from '../ui/AnimatedSection';
 import { Linkedin } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface TeamMember {
   name: string;
@@ -16,7 +17,7 @@ const EquestrianTeamSection = () => {
       name: "Jenny Stanley",
       role: "Founder & CEO",
       bio: "With over 20 years experience in international sales management across the media, advertising and creative technology industries, Jenny combines her passion for dressage with her expertise in technology to revolutionize equestrian training through AI.",
-      image: "public/lovable-uploads/09bde514-1caf-42e9-9093-d5bd869dda06.png",
+      image: "/lovable-uploads/592077d0-4e0a-4e4a-be25-565368837404.png",
       linkedin: "https://www.linkedin.com/in/jenny-stanley/"
     },
     {
@@ -47,8 +48,8 @@ const EquestrianTeamSection = () => {
               delay={`delay-${(index + 1) * 100}` as any}
             >
               <div className="bg-white rounded-xl overflow-hidden shadow-sm h-full">
-                <div className={index === 0 ? "grid grid-cols-1 md:grid-cols-2" : ""}>
-                  <div className={`${index === 0 ? "aspect-square" : "h-64"} overflow-hidden bg-gray-100`}>
+                <div className="grid grid-cols-1 md:grid-cols-2">
+                  <div className="aspect-square overflow-hidden bg-gray-100">
                     <img 
                       src={member.image} 
                       alt={member.name}
@@ -96,8 +97,8 @@ const EquestrianTeamSection = () => {
             </h3>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <div className="p-6 bg-gray-50 rounded-lg">
-                <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="p-6 bg-gradient-to-br from-gray-50 to-purple-100 rounded-lg">
+                <div className="w-12 h-12 bg-gradient-to-br from-gray-100 to-purple-200 rounded-full flex items-center justify-center mx-auto mb-4">
                   <svg className="h-6 w-6 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                   </svg>
@@ -108,8 +109,8 @@ const EquestrianTeamSection = () => {
                 </p>
               </div>
               
-              <div className="p-6 bg-gray-50 rounded-lg">
-                <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="p-6 bg-gradient-to-br from-gray-50 to-purple-100 rounded-lg">
+                <div className="w-12 h-12 bg-gradient-to-br from-gray-100 to-purple-200 rounded-full flex items-center justify-center mx-auto mb-4">
                   <svg className="h-6 w-6 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
                   </svg>
@@ -120,8 +121,8 @@ const EquestrianTeamSection = () => {
                 </p>
               </div>
               
-              <div className="p-6 bg-gray-50 rounded-lg">
-                <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="p-6 bg-gradient-to-br from-gray-50 to-purple-100 rounded-lg">
+                <div className="w-12 h-12 bg-gradient-to-br from-gray-100 to-purple-200 rounded-full flex items-center justify-center mx-auto mb-4">
                   <svg className="h-6 w-6 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
@@ -144,7 +145,7 @@ const EquestrianTeamSection = () => {
             <div className="md:flex justify-center items-center space-y-6 md:space-y-0 md:space-x-8">
               <div className="md:w-1/2 flex-shrink-0">
                 <img 
-                  src="public/lovable-uploads/6782ac64-8d3f-4d9e-902e-7cdb1240c449.png"
+                  src="/lovable-uploads/6782ac64-8d3f-4d9e-902e-7cdb1240c449.png"
                   alt="Equestrian demonstration"
                   className="rounded-lg w-full max-h-80 object-cover"
                 />
@@ -156,13 +157,13 @@ const EquestrianTeamSection = () => {
                 </p>
                 
                 <div className="flex flex-col sm:flex-row gap-4">
-                  <button className="bg-white text-gray-900 px-6 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors">
-                    Send a Message
-                  </button>
+                  <Button className="bg-gradient-to-r from-purple-600 to-blue-500 text-white hover:from-purple-700 hover:to-blue-600">
+                    Start Free Trial
+                  </Button>
                   
-                  <button className="bg-transparent border border-white text-white px-6 py-3 rounded-lg font-medium hover:bg-white/10 transition-colors">
+                  <Button className="bg-transparent border border-white text-white hover:bg-white/10 transition-colors">
                     Schedule a Demo
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>
@@ -183,12 +184,9 @@ const EquestrianTeamSection = () => {
                   </p>
                 </div>
                 
-                <div className="mt-8">
-                  <a href="/dressage" className="text-purple-600 hover:text-purple-800 font-medium text-sm inline-flex items-center">
+                <div className="mt-8 flex justify-center">
+                  <a href="/dressage" className="inline-block bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-700 hover:to-blue-600 text-white font-medium py-2 px-4 rounded transition-colors">
                     Learn more about AI Dressage
-                    <svg className="w-4 h-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
                   </a>
                 </div>
               </div>
@@ -206,12 +204,9 @@ const EquestrianTeamSection = () => {
                   </p>
                 </div>
                 
-                <div className="mt-8">
-                  <a href="/jumping" className="text-blue-600 hover:text-blue-800 font-medium text-sm inline-flex items-center">
+                <div className="mt-8 flex justify-center">
+                  <a href="/jumping" className="inline-block bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-700 hover:to-blue-600 text-white font-medium py-2 px-4 rounded transition-colors">
                     Learn more about AI Jump
-                    <svg className="w-4 h-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
                   </a>
                 </div>
               </div>

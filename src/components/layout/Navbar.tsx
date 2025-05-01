@@ -201,13 +201,13 @@ const Navbar = () => {
                 <Link to="/sign-in">
                   <Button 
                     variant="outline" 
-                    className="ml-3 border-white text-purple-950 bg-white hover:bg-purple-50"
+                    className="ml-3 border-white text-purple-950 bg-white hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-500 hover:text-white hover:border-transparent transition-all"
                   >
                     Log In
                   </Button>
                 </Link>
                 <Link to="/sign-in?signup=true">
-                  <Button className="bg-purple-700 hover:bg-purple-800 text-white">
+                  <Button className="bg-gradient-to-r from-purple-600 to-blue-500 text-white hover:from-purple-700 hover:to-blue-600">
                     {t["get-started"]}
                   </Button>
                 </Link>
@@ -311,13 +311,13 @@ const Navbar = () => {
                   <Link to="/sign-in" className="w-full">
                     <Button 
                       variant="outline" 
-                      className="w-full border-white text-purple-950 bg-white hover:bg-purple-50"
+                      className="w-full border-white text-purple-950 bg-white hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-500 hover:text-white hover:border-transparent transition-all"
                     >
                       Log In
                     </Button>
                   </Link>
                   <Link to="/sign-in?signup=true" className="w-full">
-                    <Button className="w-full bg-purple-700 hover:bg-purple-800 text-white">
+                    <Button className="w-full bg-gradient-to-r from-purple-600 to-blue-500 text-white hover:from-purple-700 hover:to-blue-600">
                       {t["get-started"]}
                     </Button>
                   </Link>

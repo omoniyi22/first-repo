@@ -17,7 +17,7 @@ const JumpTeamSection = () => {
       name: "Jenny Stanley",
       role: "Founder & CEO",
       bio: "With over 20 years experience in international sales management across the media, advertising and creative technology industries, Jenny combines her passion for dressage with her expertise in technology to revolutionize equestrian training through AI.",
-      image: "/lovable-uploads/79f64a37-cb8e-4627-b743-c5330837a1b0.png",
+      image: "/lovable-uploads/592077d0-4e0a-4e4a-be25-565368837404.png",
       linkedin: "https://www.linkedin.com/in/jenny-stanley/"
     },
     {
@@ -48,8 +48,8 @@ const JumpTeamSection = () => {
               delay={`delay-${(index + 1) * 100}` as any}
             >
               <div className="bg-white rounded-xl overflow-hidden shadow-sm h-full">
-                <div className={index === 0 ? "grid grid-cols-1 md:grid-cols-2" : ""}>
-                  <div className={`${index === 0 ? "aspect-square" : "h-64"} overflow-hidden bg-blue-100`}>
+                <div className="grid grid-cols-1 md:grid-cols-2">
+                  <div className="aspect-square overflow-hidden bg-blue-100">
                     <img 
                       src={member.image} 
                       alt={member.name}
