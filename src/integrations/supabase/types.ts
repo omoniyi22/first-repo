@@ -30,6 +30,39 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          coach_name: string | null
+          created_at: string | null
+          id: string
+          profile_picture_url: string | null
+          region: string | null
+          rider_category: string | null
+          stable_affiliation: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          coach_name?: string | null
+          created_at?: string | null
+          id: string
+          profile_picture_url?: string | null
+          region?: string | null
+          rider_category?: string | null
+          stable_affiliation?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          coach_name?: string | null
+          created_at?: string | null
+          id?: string
+          profile_picture_url?: string | null
+          region?: string | null
+          rider_category?: string | null
+          stable_affiliation?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

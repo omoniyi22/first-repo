@@ -8,6 +8,18 @@ import ProfileImage from './ProfileImage';
 import ProfileForm from './ProfileForm';
 import ProfileActions from './ProfileActions';
 
+// Define a type for our profile data
+interface ProfileData {
+  id: string;
+  rider_category: string | null;
+  stable_affiliation: string | null;
+  coach_name: string | null;
+  region: string | null;
+  profile_picture_url: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+}
+
 const ProfileHeader = () => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -38,14 +50,19 @@ const ProfileHeader = () => {
           .eq('id', user.id)
           .single();
         
-        if (error && error.code !== 'PGRST116') {
-          // PGRST116 is "no rows returned" error, which is expected for new users
-          console.error('Error fetching profile data:', error);
-          toast({
-            title: "Failed to load profile",
-            description: "There was an error loading your profile data.",
-            variant: "destructive"
-          });
+        if (error) {
+          // Check if this is a "no rows returned" error
+          if (error.code !== 'PGRST116') {
+            console.error('Error fetching profile data:', error);
+            toast({
+              title: "Failed to load profile",
+              description: "There was an error loading your profile data.",
+              variant: "destructive"
+            });
+          } else {
+            // For new users, the trigger should create a profile entry, but just in case
+            console.log('No existing profile found, using default values');
+          }
         }
         
         if (profile) {
@@ -55,9 +72,6 @@ const ProfileHeader = () => {
           setCoachName(profile.coach_name || '');
           setRegion(profile.region || '');
           setProfilePic(profile.profile_picture_url);
-        } else {
-          // For new users, use defaults
-          console.log('No existing profile found, using default values');
         }
       } catch (error) {
         console.error('Error in profile data fetch:', error);
@@ -83,7 +97,7 @@ const ProfileHeader = () => {
     
     try {
       // Prepare profile data
-      const profileData = {
+      const profileData: ProfileData = {
         id: user.id,
         rider_category: riderCategory,
         stable_affiliation: stableAffiliation,
@@ -93,7 +107,7 @@ const ProfileHeader = () => {
         updated_at: new Date().toISOString()
       };
       
-      // Actually save to Supabase
+      // Save to Supabase
       const { error } = await supabase
         .from('profiles')
         .upsert(profileData, { 

@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { v4 as uuidv4 } from 'uuid';
 
 interface ProfileImageProps {
   profilePic: string | null;
@@ -37,29 +38,28 @@ const ProfileImage: React.FC<ProfileImageProps> = ({ profilePic, setProfilePic }
       
       try {
         setIsUploadingImage(true);
-        console.log('Starting image upload process...');
         
-        // Create a temporary object URL for immediate display
-        const tempImageUrl = URL.createObjectURL(file);
-        setProfilePic(tempImageUrl);
+        // Create a unique file name
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${user.id}-${uuidv4()}.${fileExt}`;
+        const filePath = `profile-images/${fileName}`;
         
-        // Simulate upload with timeout
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        // Upload file to Supabase Storage
+        const { error: uploadError, data } = await supabase.storage
+          .from('profile-images')
+          .upload(filePath, file);
+          
+        if (uploadError) {
+          throw uploadError;
+        }
         
-        // Generate a mock public URL
-        const mockPublicUrl = `https://example.com/profile-images/${user.id}-${Date.now()}.jpg`;
+        // Get public URL
+        const { data: { publicUrl } } = supabase.storage
+          .from('profile-images')
+          .getPublicUrl(filePath);
         
-        // Log what would have been uploaded
-        console.log('Profile image upload:', {
-          id: user.id,
-          profile_picture_url: mockPublicUrl,
-          updated_at: new Date().toISOString()
-        });
-        
-        // Revoke temporary object URL to avoid memory leaks
-        URL.revokeObjectURL(tempImageUrl);
-        
-        setProfilePic(mockPublicUrl);
+        // Update profile with new image URL
+        setProfilePic(publicUrl);
         
         toast({
           title: language === 'en' ? "Profile picture updated" : "Foto de perfil actualizada",
@@ -69,7 +69,7 @@ const ProfileImage: React.FC<ProfileImageProps> = ({ profilePic, setProfilePic }
         });
       } catch (error: any) {
         // Revert profile picture state if there was an error
-        setProfilePic(profilePic); // Revert to previous image, not null
+        console.error('Error uploading image:', error);
         
         toast({
           title: language === 'en' ? "Upload failed" : "Error al subir",
@@ -78,7 +78,6 @@ const ProfileImage: React.FC<ProfileImageProps> = ({ profilePic, setProfilePic }
             : "Error al subir la imagen. Por favor, inténtalo de nuevo."),
           variant: "destructive"
         });
-        console.error('Error uploading image:', error);
       } finally {
         setIsUploadingImage(false);
       }
