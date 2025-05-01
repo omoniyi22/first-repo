@@ -234,8 +234,8 @@ const BlogPost = () => {
                       {/* Placeholder content - in a real app, this would be the full article content */}
                       <p>
                         {language === 'es' 
-                          ? 'Los deportes ecuestres siempre han sido una mezcla de tradición e innovación. Desde los primeros días de la equitación hasta la equitación competitiva moderna, hemos buscado continuamente formas de mejorar la comunicación con nuestros compañeros equinos y refinar nuestras técnicas. Hoy, estamos en el umbral de una nueva frontera: la inteligencia artificial y su aplicación en el entrenamiento ecuestre.'
-                          : 'Equestrian sports have always been a blend of tradition and innovation. From the earliest days of horsemanship to modern competitive riding, we've continuously sought ways to improve communication with our equine partners and refine our techniques. Today, we stand at the threshold of a new frontier: artificial intelligence and its application in equestrian training.'
+                          ? "Los deportes ecuestres siempre han sido una mezcla de tradición e innovación. Desde los primeros días de la equitación hasta la equitación competitiva moderna, hemos buscado continuamente formas de mejorar la comunicación con nuestros compañeros equinos y refinar nuestras técnicas. Hoy, estamos en el umbral de una nueva frontera: la inteligencia artificial y su aplicación en el entrenamiento ecuestre."
+                          : "Equestrian sports have always been a blend of tradition and innovation. From the earliest days of horsemanship to modern competitive riding, we've continuously sought ways to improve communication with our equine partners and refine our techniques. Today, we stand at the threshold of a new frontier: artificial intelligence and its application in equestrian training."
                         }
                       </p>
                       
@@ -247,8 +247,8 @@ const BlogPost = () => {
                       </h2>
                       <p>
                         {language === 'es'
-                          ? 'Los métodos de entrenamiento tradicionales dependen en gran medida de la experiencia y el ojo de los entrenadores que han pasado décadas en la silla. Si bien esta experiencia sigue siendo invaluable, la tecnología ahora ofrece herramientas que pueden mejorar la percepción humana y proporcionar datos objetivos para complementar las evaluaciones subjetivas.'
-                          : 'Traditional training methods rely heavily on the experience and eye of trainers who have spent decades in the saddle. While this expertise remains invaluable, technology now offers tools that can enhance human perception and provide objective data to complement subjective assessments.'
+                          ? "Los métodos de entrenamiento tradicionales dependen en gran medida de la experiencia y el ojo de los entrenadores que han pasado décadas en la silla. Si bien esta experiencia sigue siendo invaluable, la tecnología ahora ofrece herramientas que pueden mejorar la percepción humana y proporcionar datos objetivos para complementar las evaluaciones subjetivas."
+                          : "Traditional training methods rely heavily on the experience and eye of trainers who have spent decades in the saddle. While this expertise remains invaluable, technology now offers tools that can enhance human perception and provide objective data to complement subjective assessments."
                         }
                       </p>
                       
@@ -260,8 +260,8 @@ const BlogPost = () => {
                       </h2>
                       <p>
                         {language === 'es'
-                          ? 'La inteligencia artificial, particularmente la visión por computadora y el aprendizaje automático, puede analizar sesiones de equitación con notable precisión. Estos sistemas pueden rastrear el movimiento del caballo y del jinete, identificar patrones y proporcionar retroalimentación que podría ser invisible incluso para el ojo entrenado.'
-                          : 'Artificial intelligence, particularly computer vision and machine learning, can analyze riding sessions with remarkable precision. These systems can track horse and rider movement, identify patterns, and provide feedback that might be invisible even to the trained eye.'
+                          ? "La inteligencia artificial, particularmente la visión por computadora y el aprendizaje automático, puede analizar sesiones de equitación con notable precisión. Estos sistemas pueden rastrear el movimiento del caballo y del jinete, identificar patrones y proporcionar retroalimentación que podría ser invisible incluso para el ojo entrenado."
+                          : "Artificial intelligence, particularly computer vision and machine learning, can analyze riding sessions with remarkable precision. These systems can track horse and rider movement, identify patterns, and provide feedback that might be invisible even to the trained eye."
                         }
                       </p>
                       
@@ -330,15 +330,15 @@ const BlogPost = () => {
                       </h2>
                       <p>
                         {language === 'es'
-                          ? 'A medida que estas tecnologías continúan desarrollándose, podemos esperar herramientas aún más sofisticadas que ayudarán a los jinetes de todos los niveles a mejorar su rendimiento, mejorar el bienestar de los caballos a través de una mejor comprensión de la biomecánica, y potencialmente revolucionar cómo se entrenan, juzgan y experimentan los deportes ecuestres.'
-                          : 'As these technologies continue to develop, we can expect even more sophisticated tools that will help riders of all levels improve their performance, enhance horse welfare through better understanding of biomechanics, and potentially revolutionize how equestrian sports are trained, judged, and experienced.'
+                          ? "A medida que estas tecnologías continúan desarrollándose, podemos esperar herramientas aún más sofisticadas que ayudarán a los jinetes de todos los niveles a mejorar su rendimiento, mejorar el bienestar de los caballos a través de una mejor comprensión de la biomecánica, y potencialmente revolucionar cómo se entrenan, juzgan y experimentan los deportes ecuestres."
+                          : "As these technologies continue to develop, we can expect even more sophisticated tools that will help riders of all levels improve their performance, enhance horse welfare through better understanding of biomechanics, and potentially revolutionize how equestrian sports are trained, judged, and experienced."
                         }
                       </p>
                       
                       <p>
                         {language === 'es'
-                          ? 'La asociación entre el caballo y el jinete sigue siendo el corazón de los deportes ecuestres. La tecnología no reemplaza esta conexión fundamental, la mejora, ofreciendo nuevas perspectivas sobre esta antigua relación y ayudándonos a comunicarnos más eficazmente con nuestros compañeros equinos.'
-                          : 'The partnership between horse and rider remains at the heart of equestrian sports. Technology doesn't replace this fundamental connection—it enhances it, offering new insights into this ancient relationship and helping us communicate more effectively with our equine partners.'
+                          ? "La asociación entre el caballo y el jinete sigue siendo el corazón de los deportes ecuestres. La tecnología no reemplaza esta conexión fundamental, la mejora, ofreciendo nuevas perspectivas sobre esta antigua relación y ayudándonos a comunicarnos más eficazmente con nuestros compañeros equinos."
+                          : "The partnership between horse and rider remains at the heart of equestrian sports. Technology doesn't replace this fundamental connection—it enhances it, offering new insights into this ancient relationship and helping us communicate more effectively with our equine partners."
                         }
                       </p>
                     </>
@@ -475,8 +475,8 @@ const BlogPost = () => {
                     </p>
                     <p className="text-sm text-gray-700">
                       {language === 'es' 
-                        ? 'Un experto en aplicar tecnología a los deportes ecuestres, con un enfoque en mejorar el rendimiento del jinete y el bienestar del caballo a través del análisis de datos.'
-                        : 'An expert in applying technology to equestrian sports, with a focus on improving rider performance and horse welfare through data analysis.'
+                        ? "Un experto en aplicar tecnología a los deportes ecuestres, con un enfoque en mejorar el rendimiento del jinete y el bienestar del caballo a través del análisis de datos."
+                        : "An expert in applying technology to equestrian sports, with a focus on improving rider performance and horse welfare through data analysis."
                       }
                     </p>
                   </div>
@@ -539,11 +539,11 @@ const BlogPost = () => {
                 <p className="text-sm text-gray-700 mb-4">
                   {post.discipline === 'Jumping' 
                     ? (language === 'es'
-                        ? 'Obtén análisis de salto personalizados y recomendaciones técnicas adaptadas a tu equitación.'
-                        : 'Get personalized jump analysis and technique recommendations tailored to your riding.')
+                        ? "Obtén análisis de salto personalizados y recomendaciones técnicas adaptadas a tu equitación."
+                        : "Get personalized jump analysis and technique recommendations tailored to your riding.")
                     : (language === 'es'
-                        ? 'Mejora tu entrenamiento de doma con análisis preciso de movimiento y retroalimentación personalizada.'
-                        : 'Enhance your dressage training with precise movement analysis and personalized feedback.')
+                        ? "Mejora tu entrenamiento de doma con análisis preciso de movimiento y retroalimentación personalizada."
+                        : "Enhance your dressage training with precise movement analysis and personalized feedback.")
                   }
                 </p>
                 <Link to={post.discipline === 'Jumping' ? '/jumping' : '/dressage'}>
