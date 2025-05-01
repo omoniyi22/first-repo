@@ -1,6 +1,6 @@
 
 import AnimatedSection from '../ui/AnimatedSection';
-import { Linkedin } from 'lucide-react';
+import { Linkedin, Handshake, Globe, Mail } from 'lucide-react';
 
 interface TeamMember {
   name: string;
@@ -149,6 +149,65 @@ const JumpTeamSection = () => {
               <button className="bg-white text-blue-800 px-6 py-3 rounded-lg font-medium hover:bg-blue-50 transition-colors">
                 Start Free Trial
               </button>
+            </div>
+          </div>
+        </AnimatedSection>
+
+        <AnimatedSection animation="fade-in" className="mt-20">
+          <div className="bg-blue-50 rounded-xl p-8 md:p-12 shadow-sm border border-blue-100">
+            <h3 className="text-2xl md:text-3xl font-serif font-semibold text-blue-900 mb-6 text-center">
+              Partnerships & Sponsorships
+            </h3>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+              <div>
+                <p className="text-blue-700 mb-6">
+                  We're always looking to collaborate with organizations that share our vision for transforming equestrian training through technology. Whether you're interested in strategic partnerships, sponsorship opportunities, or co-marketing initiatives, we'd love to hear from you.
+                </p>
+                
+                <div className="space-y-4">
+                  <div className="flex items-start">
+                    <Handshake className="h-6 w-6 text-blue-600 mr-3 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <h4 className="font-medium text-blue-900 text-lg">Strategic Partnerships</h4>
+                      <p className="text-blue-700 text-sm">Collaborate on technology integration, education programs, or market expansion initiatives.</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start">
+                    <Globe className="h-6 w-6 text-blue-600 mr-3 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <h4 className="font-medium text-blue-900 text-lg">Event Sponsorships</h4>
+                      <p className="text-blue-700 text-sm">Sponsor jumping competitions, clinics, or educational events with AI Jump Trainer technology.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-white p-6 rounded-lg shadow-sm">
+                <h4 className="font-serif text-xl font-medium text-blue-900 mb-4 text-center">
+                  Get in Touch
+                </h4>
+                
+                <p className="text-blue-700 text-sm mb-6 text-center">
+                  For partnership and sponsorship inquiries, please contact our business development team.
+                </p>
+                
+                <div className="space-y-4">
+                  <div className="flex items-center justify-center">
+                    <Mail className="h-5 w-5 text-blue-600 mr-2" />
+                    <a href="mailto:partnerships@aijump.com" className="text-blue-600 hover:text-blue-800 transition-colors">
+                      partnerships@aijump.com
+                    </a>
+                  </div>
+                  
+                  <div className="flex justify-center pt-2">
+                    <button className="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                      Submit Inquiry
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </AnimatedSection>
