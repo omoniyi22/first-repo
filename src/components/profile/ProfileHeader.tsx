@@ -8,15 +8,6 @@ import ProfileImage from './ProfileImage';
 import ProfileForm from './ProfileForm';
 import ProfileActions from './ProfileActions';
 
-// Mock profile data
-const mockProfileData = {
-  rider_category: 'Adult Amateur',
-  stable_affiliation: 'Sunset Stables',
-  coach_name: 'Michael Thompson',
-  region: 'Western Europe',
-  profile_picture_url: null
-};
-
 const ProfileHeader = () => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -38,24 +29,45 @@ const ProfileHeader = () => {
       if (!user) return;
       
       try {
-        // Simulate API call with timeout
-        await new Promise(resolve => setTimeout(resolve, 500));
+        setIsLoading(true);
         
-        // Use mock data instead of Supabase query
-        setRiderCategory(mockProfileData.rider_category);
-        setStableAffiliation(mockProfileData.stable_affiliation);
-        setCoachName(mockProfileData.coach_name);
-        setRegion(mockProfileData.region);
-        setProfilePic(mockProfileData.profile_picture_url);
+        // Get actual profile data from Supabase
+        const { data: profile, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+        
+        if (error && error.code !== 'PGRST116') {
+          // PGRST116 is "no rows returned" error, which is expected for new users
+          console.error('Error fetching profile data:', error);
+          toast({
+            title: "Failed to load profile",
+            description: "There was an error loading your profile data.",
+            variant: "destructive"
+          });
+        }
+        
+        if (profile) {
+          // Set state with data from Supabase
+          setRiderCategory(profile.rider_category || 'Adult Amateur');
+          setStableAffiliation(profile.stable_affiliation || '');
+          setCoachName(profile.coach_name || '');
+          setRegion(profile.region || '');
+          setProfilePic(profile.profile_picture_url);
+        } else {
+          // For new users, use defaults
+          console.log('No existing profile found, using default values');
+        }
       } catch (error) {
-        console.error('Error fetching profile data:', error);
+        console.error('Error in profile data fetch:', error);
       } finally {
         setIsLoading(false);
       }
     };
     
     fetchProfileData();
-  }, [user]);
+  }, [user, toast]);
   
   const saveProfile = async () => {
     if (!user) {
@@ -70,23 +82,35 @@ const ProfileHeader = () => {
     setIsSaving(true);
     
     try {
-      // Simulate API call with timeout
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
-      // Log data that would be sent to the server
-      console.log('Profile data to save:', { 
+      // Prepare profile data
+      const profileData = {
         id: user.id,
         rider_category: riderCategory,
         stable_affiliation: stableAffiliation,
         coach_name: coachName,
         region: region,
+        profile_picture_url: profilePic,
         updated_at: new Date().toISOString()
-      });
+      };
+      
+      // Actually save to Supabase
+      const { error } = await supabase
+        .from('profiles')
+        .upsert(profileData, { 
+          onConflict: 'id',
+          ignoreDuplicates: false
+        });
+      
+      if (error) {
+        throw error;
+      }
       
       toast({
         title: "Profile updated",
         description: "Your profile information has been saved."
       });
+      
+      console.log('Profile data saved successfully:', profileData);
     } catch (error: any) {
       toast({
         title: "Save failed",
