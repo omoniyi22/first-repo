@@ -17,7 +17,7 @@ const TeamSection = () => {
       name: "Jenny Stanley",
       role: "Founder & CEO",
       bio: "With over 20 years experience in international sales management across the media, advertising and creative technology industries, Jenny combines her passion for dressage with her expertise in technology to revolutionize equestrian training through AI.",
-      image: "public/lovable-uploads/4ec01d72-cb16-4d85-922a-40261caf3bdb.png",
+      image: "/lovable-uploads/79f64a37-cb8e-4627-b743-c5330837a1b0.png",
       linkedin: "https://www.linkedin.com/in/jenny-stanley/"
     },
     {
@@ -97,8 +97,8 @@ const TeamSection = () => {
             </h3>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <div className="p-6 bg-navy-50 rounded-lg">
-                <div className="w-12 h-12 bg-navy-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="p-6 bg-gradient-to-br from-navy-50 to-purple-100 rounded-lg">
+                <div className="w-12 h-12 bg-gradient-to-br from-navy-100 to-purple-200 rounded-full flex items-center justify-center mx-auto mb-4">
                   <svg className="h-6 w-6 text-navy-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                   </svg>
@@ -109,8 +109,8 @@ const TeamSection = () => {
                 </p>
               </div>
               
-              <div className="p-6 bg-navy-50 rounded-lg">
-                <div className="w-12 h-12 bg-navy-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="p-6 bg-gradient-to-br from-navy-50 to-purple-100 rounded-lg">
+                <div className="w-12 h-12 bg-gradient-to-br from-navy-100 to-purple-200 rounded-full flex items-center justify-center mx-auto mb-4">
                   <svg className="h-6 w-6 text-navy-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
                   </svg>
@@ -121,8 +121,8 @@ const TeamSection = () => {
                 </p>
               </div>
               
-              <div className="p-6 bg-navy-50 rounded-lg">
-                <div className="w-12 h-12 bg-navy-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="p-6 bg-gradient-to-br from-navy-50 to-purple-100 rounded-lg">
+                <div className="w-12 h-12 bg-gradient-to-br from-navy-100 to-purple-200 rounded-full flex items-center justify-center mx-auto mb-4">
                   <svg className="h-6 w-6 text-navy-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
@@ -137,7 +137,7 @@ const TeamSection = () => {
         </AnimatedSection>
         
         <AnimatedSection animation="fade-in">
-          <div className="bg-navy-800 rounded-xl p-8 md:p-12 text-center">
+          <div className="bg-gradient-to-br from-navy-800 to-purple-900 rounded-xl p-8 md:p-12 text-center">
             <h3 className="text-2xl md:text-3xl font-serif font-semibold text-white mb-6">
               Experience AI Dressage Training
             </h3>
@@ -145,7 +145,7 @@ const TeamSection = () => {
             <div className="md:flex justify-center items-center space-y-6 md:space-y-0 md:space-x-8">
               <div className="md:w-1/2 flex-shrink-0">
                 <img 
-                  src="public/lovable-uploads/6782ac64-8d3f-4d9e-902e-7cdb1240c449.png"
+                  src="/lovable-uploads/6782ac64-8d3f-4d9e-902e-7cdb1240c449.png"
                   alt="Jenny Stanley riding demonstration"
                   className="rounded-lg w-full max-h-80 object-cover"
                 />
