@@ -4,6 +4,7 @@ import Footer from '@/components/layout/Footer';
 import PricingTiers from '@/components/pricing/PricingTiers';
 import PricingFaq from '@/components/pricing/PricingFaq';
 import { useEffect } from 'react';
+import { SEO, getPageMetadata } from '@/lib/seo';
 
 const Pricing = () => {
   // Initialize scroll reveal for animations
@@ -40,8 +41,12 @@ const Pricing = () => {
     window.scrollTo(0, 0);
   }, []);
 
+  // Get SEO metadata for pricing page
+  const seoMetadata = getPageMetadata('pricing');
+
   return (
     <div className="min-h-screen bg-white">
+      <SEO {...seoMetadata} />
       <Navbar />
       <main className="pt-20">
         <PricingTiers />
