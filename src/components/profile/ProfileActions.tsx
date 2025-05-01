@@ -1,9 +1,10 @@
 
 import { Button } from '@/components/ui/button';
-import { Save, Upload, Plus, Loader2 } from 'lucide-react';
+import { Save, Upload, Loader2 } from 'lucide-react';
 import { testStorageUpload } from '@/lib/storage';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ProfileActionsProps {
   isSaving: boolean;
@@ -13,20 +14,24 @@ interface ProfileActionsProps {
 const ProfileActions: React.FC<ProfileActionsProps> = ({ isSaving, onSave }) => {
   const { toast } = useToast();
   const [isTesting, setIsTesting] = useState(false);
+  const { language } = useLanguage();
   
   const handleStorageTest = async () => {
     setIsTesting(true);
     try {
       const result = await testStorageUpload();
       toast({
-        title: result.success ? "Storage test successful" : "Storage test failed",
+        title: result.success ? 
+          (language === 'en' ? "Storage test successful" : "Prueba de almacenamiento exitosa") : 
+          (language === 'en' ? "Storage test failed" : "Prueba de almacenamiento fallida"),
         description: result.message,
         variant: result.success ? "default" : "destructive"
       });
     } catch (error) {
       toast({
-        title: "Storage test failed",
-        description: error instanceof Error ? error.message : "Unknown error occurred",
+        title: language === 'en' ? "Storage test failed" : "Prueba de almacenamiento fallida",
+        description: error instanceof Error ? error.message : 
+          (language === 'en' ? "Unknown error occurred" : "Ocurrió un error desconocido"),
         variant: "destructive"
       });
     } finally {
@@ -45,12 +50,12 @@ const ProfileActions: React.FC<ProfileActionsProps> = ({ isSaving, onSave }) => 
         {isSaving ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Saving...
+            {language === 'en' ? 'Saving...' : 'Guardando...'}
           </>
         ) : (
           <>
             <Save className="mr-2 h-4 w-4" />
-            Save Profile
+            {language === 'en' ? 'Save Profile' : 'Guardar Perfil'}
           </>
         )}
       </Button>
@@ -64,22 +69,14 @@ const ProfileActions: React.FC<ProfileActionsProps> = ({ isSaving, onSave }) => 
         {isTesting ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Testing...
+            {language === 'en' ? 'Testing...' : 'Probando...'}
           </>
         ) : (
           <>
             <Upload className="mr-2 h-4 w-4" />
-            Upload Test
+            {language === 'en' ? 'Upload Test' : 'Subir Prueba'}
           </>
         )}
-      </Button>
-      <Button 
-        variant="outline" 
-        className="border-purple-300 text-purple-700 hover:bg-purple-50" 
-        size="lg"
-      >
-        <Plus className="mr-2 h-4 w-4" />
-        New Test
       </Button>
     </div>
   );

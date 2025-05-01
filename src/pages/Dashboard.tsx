@@ -1,6 +1,6 @@
 
 import { useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
@@ -10,10 +10,13 @@ import UpcomingEvents from '@/components/dashboard/UpcomingEvents';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { User } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const Dashboard = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const { language, translations } = useLanguage();
+  const t = translations[language];
   
   // If not logged in and not loading, redirect to sign in
   useEffect(() => {
@@ -49,7 +52,7 @@ const Dashboard = () => {
             onClick={() => navigate('/profile')}
           >
             <User className="mr-2 h-4 w-4" />
-            View Profile
+            {language === 'en' ? 'View Profile' : 'Ver Perfil'}
           </Button>
         </div>
         <div className="mt-8">
