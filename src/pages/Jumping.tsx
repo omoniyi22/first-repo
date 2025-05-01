@@ -331,7 +331,7 @@ const Jumping = () => {
         </section>
 
         {/* CTA Section */}
-        <section className="py-16 bg-blue-900 text-white">
+        <section className="py-16 bg-gradient-to-br from-blue-800 to-purple-900 text-white">
           <div className="container mx-auto px-6 text-center">
             <h2 className="text-3xl font-serif font-medium mb-6 reveal-scroll">Ready to Transform Your Jumping?</h2>
             <p className="max-w-2xl mx-auto mb-8 text-blue-100 reveal-scroll">
@@ -339,12 +339,12 @@ const Jumping = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center reveal-scroll">
               <Link to="/sign-in?signup=true">
-                <Button className="bg-white hover:bg-blue-50 text-blue-900 px-8">
-                  Start Your Free Analysis
+                <Button className="bg-gradient-to-r from-purple-600 to-blue-500 text-white hover:from-purple-700 hover:to-blue-600 px-8">
+                  Start Your Free Trial
                 </Button>
               </Link>
               <Link to="/pricing">
-                <Button variant="outline" className="border-white/50 hover:bg-white/10 text-white">
+                <Button variant="outline" className="border-white/50 bg-gradient-to-r from-white/10 to-blue-500/10 hover:bg-white/20 text-white">
                   View Plans
                 </Button>
               </Link>
