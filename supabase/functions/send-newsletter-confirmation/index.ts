@@ -6,7 +6,7 @@ const BREVO_API_KEY = Deno.env.get('BREVO_API_KEY');
 const SENDER_EMAIL = 'info@aidressagetrainer.com';
 const SENDER_NAME = 'AI Equestrian';
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') || '';
-const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY') || '';
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
 
 interface EmailRequest {
   email: string;
@@ -34,10 +34,10 @@ serve(async (req) => {
       throw new Error('Email is required');
     }
     
-    // Initialize Supabase client
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // Initialize Supabase client with service role key for admin operations
+    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
     
-    // Store email in the database
+    // Store email in the database using SERVICE ROLE key to bypass RLS
     console.log('Storing email in database:', email);
     const { data: insertData, error: insertError } = await supabase
       .from('newsletter_subscribers')
