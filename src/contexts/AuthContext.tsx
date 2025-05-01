@@ -45,7 +45,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = async () => {
     try {
+      console.log("Attempting to sign out...");
+      
+      // Make sure we're clearing local state before making the API call
+      setSession(null);
+      setUser(null);
+      
+      // Clear any local storage items that might be related to user state
+      localStorage.removeItem('supabase.auth.token');
+      
       const { error } = await supabase.auth.signOut();
+      
       if (error) {
         console.error("Error signing out:", error);
         toast({
@@ -56,15 +66,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw error;
       }
       
-      // Clear local state
-      setSession(null);
-      setUser(null);
-      
-      console.log("User signed out successfully");
-      
-      // Clear any local storage items that might be related to user state
-      // This is an extra precaution
-      localStorage.removeItem('supabase.auth.token');
+      console.log("User signed out successfully from Supabase");
       
       return;
     } catch (error) {
