@@ -2,6 +2,7 @@
 import AnimatedSection from '../ui/AnimatedSection';
 import { Linkedin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
 
 interface TeamMember {
   name: string;
@@ -185,9 +186,9 @@ const EquestrianTeamSection = () => {
                 </div>
                 
                 <div className="mt-8 flex justify-center">
-                  <a href="/dressage" className="inline-block bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-700 hover:to-blue-600 text-white font-medium py-2 px-4 rounded transition-colors">
+                  <Link to="/dressage" className="inline-block bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-700 hover:to-blue-600 text-white font-medium py-2 px-4 rounded transition-colors">
                     Learn more about AI Dressage
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -205,9 +206,9 @@ const EquestrianTeamSection = () => {
                 </div>
                 
                 <div className="mt-8 flex justify-center">
-                  <a href="/jumping" className="inline-block bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-700 hover:to-blue-600 text-white font-medium py-2 px-4 rounded transition-colors">
+                  <Link to="/jumping" className="inline-block bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-700 hover:to-blue-600 text-white font-medium py-2 px-4 rounded transition-colors">
                     Learn more about AI Jump
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>

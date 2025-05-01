@@ -37,9 +37,9 @@ const Hero = () => {
       <div className="container relative z-10 mx-auto px-6 text-center">
         <div className={`max-w-2xl mx-auto transition-all duration-1000 transform ${loaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
           <AnimatedSection animation="fade-in" delay="delay-100">
-            <span className="inline-block px-3 py-1 bg-white/20 text-white rounded-full text-sm font-medium mb-6 backdrop-blur-sm border border-white/30">
-              Next Generation Dressage Training
-            </span>
+            <div className="inline-block px-6 py-3 mb-6 bg-gradient-to-r from-purple-600 to-blue-500 rounded-xl backdrop-blur-sm">
+              <span className="text-white font-medium">Next Generation Dressage Training</span>
+            </div>
           </AnimatedSection>
           
           <AnimatedSection animation="fade-in" delay="delay-200">

@@ -48,8 +48,8 @@ const TeamSection = () => {
               delay={`delay-${(index + 1) * 100}` as any}
             >
               <div className="bg-white rounded-xl overflow-hidden shadow-sm h-full">
-                <div className={index === 0 ? "grid grid-cols-1 md:grid-cols-2" : ""}>
-                  <div className={`${index === 0 ? "aspect-square" : "h-64"} overflow-hidden bg-navy-100`}>
+                <div className="grid grid-cols-1 md:grid-cols-2">
+                  <div className="aspect-square overflow-hidden bg-navy-100">
                     <img 
                       src={member.image} 
                       alt={member.name}
