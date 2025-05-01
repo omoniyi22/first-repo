@@ -10,7 +10,8 @@ import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
-import { SEO, generateDisciplineMetadata } from '@/lib/seo';
+import { SEO } from '@/lib/seo/SEO';
+import { generateDisciplineMetadata } from '@/lib/seo/disciplineMetadata';
 
 const Dressage = () => {
   // Initialize scroll reveal for animations

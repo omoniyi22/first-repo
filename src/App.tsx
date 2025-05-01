@@ -39,43 +39,41 @@ const queryClient = new QueryClient({
 });
 
 const App = () => (
-  <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <HelmetProvider>
-          <AuthProvider>
-            <LanguageProvider>
-              <TooltipProvider>
-                <Toaster />
-                <Sonner />
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/dressage" element={<Dressage />} />
-                  <Route path="/jumping" element={<Jumping />} />
-                  <Route path="/how-it-works" element={<HowItWorks />} />
-                  <Route path="/pricing" element={<Pricing />} />
-                  <Route path="/about" element={<EquestrianAbout />} />
-                  <Route path="/dressage/about" element={<DressageAbout />} />
-                  <Route path="/jumping/about" element={<JumpingAbout />} />
-                  <Route path="/sign-in" element={<SignIn />} />
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/profile" element={<Profile />} />
-                  <Route path="/terms" element={<TermsOfService />} />
-                  <Route path="/privacy" element={<Privacy />} />
-                  <Route path="/blog" element={<Blog />} />
-                  <Route path="/blog/:slug" element={<BlogPost />} />
-                  <Route path="/profile-setup" element={<ProfileQuestionnaire />} />
-                  <Route path="/jump-profile-setup" element={<JumpProfileSetup />} />
-                  <Route path="/analysis" element={<Analysis />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </TooltipProvider>
-            </LanguageProvider>
-          </AuthProvider>
-        </HelmetProvider>
-      </BrowserRouter>
-    </QueryClientProvider>
-  </React.StrictMode>
+  <QueryClientProvider client={queryClient}>
+    <BrowserRouter>
+      <HelmetProvider>
+        <AuthProvider>
+          <LanguageProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/dressage" element={<Dressage />} />
+                <Route path="/jumping" element={<Jumping />} />
+                <Route path="/how-it-works" element={<HowItWorks />} />
+                <Route path="/pricing" element={<Pricing />} />
+                <Route path="/about" element={<EquestrianAbout />} />
+                <Route path="/dressage/about" element={<DressageAbout />} />
+                <Route path="/jumping/about" element={<JumpingAbout />} />
+                <Route path="/sign-in" element={<SignIn />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/terms" element={<TermsOfService />} />
+                <Route path="/privacy" element={<Privacy />} />
+                <Route path="/blog" element={<Blog />} />
+                <Route path="/blog/:slug" element={<BlogPost />} />
+                <Route path="/profile-setup" element={<ProfileQuestionnaire />} />
+                <Route path="/jump-profile-setup" element={<JumpProfileSetup />} />
+                <Route path="/analysis" element={<Analysis />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </TooltipProvider>
+          </LanguageProvider>
+        </AuthProvider>
+      </HelmetProvider>
+    </BrowserRouter>
+  </QueryClientProvider>
 );
 
 export default App;

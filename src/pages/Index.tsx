@@ -8,7 +8,8 @@ import Footer from '@/components/layout/Footer';
 import { Skeleton } from '@/components/ui/skeleton';
 import BlogPostCard from '@/components/blog/BlogPostCard';
 import { blogPosts } from '@/data/blogPosts';
-import { SEO, getPageMetadata } from '@/lib/seo';
+import { SEO } from '@/lib/seo/SEO';
+import { getPageMetadata } from '@/lib/seo/pageMetadata';
 
 const Index = () => {
   // Initialize scroll reveal for animations
