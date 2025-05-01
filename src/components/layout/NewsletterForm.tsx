@@ -20,9 +20,12 @@ const NewsletterForm = () => {
       // Log the subscription attempt
       console.log('Newsletter subscription attempt for:', email);
       
-      // Call the Supabase edge function to send confirmation email
+      // Call the Supabase edge function to send confirmation email and store in database
       const { data, error } = await supabase.functions.invoke('send-newsletter-confirmation', {
-        body: { email }
+        body: { 
+          email,
+          source: 'footer' 
+        }
       });
       
       if (error) {
@@ -30,7 +33,7 @@ const NewsletterForm = () => {
       }
       
       console.log('Newsletter subscription successful for:', email);
-      console.log('Email sending response:', data);
+      console.log('Response:', data);
       
       toast({
         title: t["subscription-successful"],

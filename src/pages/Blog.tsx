@@ -13,6 +13,8 @@ import { blogPosts, BlogPost } from '@/data/blogPosts';
 import { BookOpen, Search } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { SEO, getPageMetadata } from '@/lib/seo';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 const Blog = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -25,6 +27,11 @@ const Blog = () => {
   const [filteredPosts, setFilteredPosts] = useState<BlogPost[]>(blogPosts);
   const { language, translations } = useLanguage();
   const t = translations[language];
+  const { toast } = useToast();
+  
+  // Newsletter subscription state
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   // Get SEO metadata for blog page
   const seoMetadata = getPageMetadata('blog', {
@@ -87,6 +94,45 @@ const Blog = () => {
       newSearchParams.set(type, value);
     }
     setSearchParams(newSearchParams);
+  };
+  
+  // Handle newsletter subscription
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    
+    try {
+      console.log('Blog newsletter subscription attempt for:', newsletterEmail);
+      
+      const { data, error } = await supabase.functions.invoke('send-newsletter-confirmation', {
+        body: { 
+          email: newsletterEmail,
+          source: 'blog_page' 
+        }
+      });
+      
+      if (error) {
+        throw new Error(error.message);
+      }
+      
+      console.log('Blog newsletter subscription successful:', data);
+      
+      toast({
+        title: t["subscription-successful"],
+        description: t["thank-you-subscribing"],
+      });
+      
+      setNewsletterEmail('');
+    } catch (error) {
+      console.error('Newsletter subscription error:', error);
+      toast({
+        title: t["subscription-failed"],
+        description: t["problem-subscribing"],
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
   
   // Initialize scroll reveal for animations
@@ -227,15 +273,17 @@ const Blog = () => {
               <p className="text-gray-700">{t["newsletter-description"]}</p>
             </div>
             <div className="md:w-1/3">
-              <form className="flex flex-col sm:flex-row gap-3">
+              <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-3">
                 <Input 
                   type="email" 
                   placeholder={t["email-placeholder"]}
+                  value={newsletterEmail}
+                  onChange={(e) => setNewsletterEmail(e.target.value)}
                   required
                   aria-label="Email for newsletter subscription"
                 />
-                <Button>
-                  {t["subscribe"]}
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? t["sending"] : t["subscribe"]}
                 </Button>
               </form>
             </div>

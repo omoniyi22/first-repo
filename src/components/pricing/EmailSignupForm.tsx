@@ -21,9 +21,12 @@ const EmailSignupForm = () => {
       // Log the subscription attempt
       console.log('Pricing interest for:', email);
       
-      // Call the Supabase edge function to send confirmation email
+      // Call the Supabase edge function to send confirmation email and store in database
       const { data, error } = await supabase.functions.invoke('send-newsletter-confirmation', {
-        body: { email }
+        body: { 
+          email,
+          source: 'pricing_page' 
+        }
       });
       
       if (error) {

@@ -1,12 +1,16 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1";
 
 const BREVO_API_KEY = Deno.env.get('BREVO_API_KEY');
 const SENDER_EMAIL = 'info@aidressagetrainer.com';
 const SENDER_NAME = 'AI Equestrian';
+const SUPABASE_URL = Deno.env.get('SUPABASE_URL') || '';
+const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY') || '';
 
 interface EmailRequest {
   email: string;
+  source?: string; // Optional field to track where subscription came from
 }
 
 const corsHeaders = {
@@ -24,10 +28,34 @@ serve(async (req) => {
   }
 
   try {
-    const { email } = await req.json() as EmailRequest;
+    const { email, source = 'website' } = await req.json() as EmailRequest;
 
     if (!email) {
       throw new Error('Email is required');
+    }
+    
+    // Initialize Supabase client
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    // Store email in the database
+    console.log('Storing email in database:', email);
+    const { data: insertData, error: insertError } = await supabase
+      .from('newsletter_subscribers')
+      .upsert([
+        { 
+          email: email,
+          source: source
+        }
+      ], { 
+        onConflict: 'email',
+        ignoreDuplicates: true  // Don't error on duplicate emails
+      });
+      
+    if (insertError) {
+      console.error('Error storing email in database:', insertError);
+      // Continue with email sending even if DB insert fails
+    } else {
+      console.log('Email stored in database successfully');
     }
 
     // Add mockEmailConfirmation for development/demo purposes
@@ -43,7 +71,8 @@ serve(async (req) => {
       return new Response(JSON.stringify({ 
         success: true, 
         message: 'Newsletter confirmation email simulation successful',
-        mock: true 
+        mock: true,
+        databaseSaved: !insertError
       }), {
         headers: { 'Content-Type': 'application/json', ...corsHeaders },
         status: 200,
@@ -194,7 +223,11 @@ serve(async (req) => {
 
       console.log('Newsletter confirmation email sent successfully');
       
-      return new Response(JSON.stringify({ success: true, message: 'Newsletter confirmation email sent successfully' }), {
+      return new Response(JSON.stringify({ 
+        success: true, 
+        message: 'Newsletter confirmation email sent successfully',
+        databaseSaved: !insertError
+      }), {
         headers: { 'Content-Type': 'application/json', ...corsHeaders },
         status: 200,
       });
@@ -208,7 +241,8 @@ serve(async (req) => {
         return new Response(JSON.stringify({ 
           success: true, 
           message: 'Newsletter subscription recorded successfully',
-          note: 'Email confirmation is currently disabled during development' 
+          note: 'Email confirmation is currently disabled during development',
+          databaseSaved: !insertError
         }), {
           headers: { 'Content-Type': 'application/json', ...corsHeaders },
           status: 200,
