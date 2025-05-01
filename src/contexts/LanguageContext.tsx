@@ -81,7 +81,17 @@ const defaultTranslations = {
     "short-term": "Short-term (3 months)",
     "medium-term": "Medium-term (6 months)",
     "long-term": "Long-term (1+ year)",
-    "by": "By"
+    "by": "By",
+    
+    // Newsletter Form
+    "newsletter-subscribe": "Subscribe",
+    "newsletter-subscribing": "Subscribing...",
+    "your-email": "Your email",
+    "already-subscribed": "Already subscribed",
+    "subscription-successful": "Subscription successful!",
+    "thank-you-subscribing": "Thank you for subscribing to our newsletter.",
+    "subscription-failed": "Subscription failed",
+    "problem-subscribing": "There was a problem subscribing to the newsletter. Please try again."
   },
   es: {
     // Navigation
@@ -154,7 +164,17 @@ const defaultTranslations = {
     "short-term": "Corto plazo (3 meses)",
     "medium-term": "Medio plazo (6 meses)",
     "long-term": "Largo plazo (más de 1 año)",
-    "by": "Para el"
+    "by": "Para el",
+    
+    // Newsletter Form
+    "newsletter-subscribe": "Suscribirse",
+    "newsletter-subscribing": "Suscribiendo...",
+    "your-email": "Tu correo electrónico",
+    "already-subscribed": "Ya suscrito",
+    "subscription-successful": "¡Suscripción exitosa!",
+    "thank-you-subscribing": "Gracias por suscribirte a nuestro boletín.",
+    "subscription-failed": "Error en la suscripción",
+    "problem-subscribing": "Hubo un problema al suscribirse al boletín. Por favor, inténtalo de nuevo."
   }
 };
 
