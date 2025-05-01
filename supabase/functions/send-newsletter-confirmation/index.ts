@@ -138,14 +138,14 @@ serve(async (req) => {
                 <p class="message">You are now subscribed to our newsletter. You'll be the first to hear about new features, training tips, and special offers.</p>
                 <p class="message">Stay tuned for expert advice on improving your equestrian skills with the help of AI technology.</p>
                 <div style="text-align: center;">
-                  <a href="https://intelligent-dressage-mentor.lovable.site/blog" class="cta-button">Read Our Latest Articles</a>
+                  <a href="https://aidressage.com/blog" class="cta-button">Read Our Latest Articles</a>
                 </div>
               </div>
               <div class="email-footer">
                 <p>If you have any questions, please don't hesitate to contact us.</p>
                 <p>&copy; ${new Date().getFullYear()} AI Equestrian. All rights reserved.</p>
                 <div class="social-links">
-                  <a href="#">Facebook</a> | <a href="#">Instagram</a> | <a href="#">Twitter</a>
+                   <a href="https://www.instagram.com/ai_equestrian">Instagram</a> 
                 </div>
                 <p style="margin-top: 20px; font-size: 12px;">
                   If you didn't subscribe to this newsletter, you can safely ignore this email.
