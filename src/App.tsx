@@ -52,8 +52,8 @@ const App = () => (
               <Routes>
                 <Route path="/test" element={<TestComponent />} />
                 <Route path="/" element={<Index />} />
-                <Route path="/dressage" element={<DressageSimple />} />
-                <Route path="/dressage-full" element={<Dressage />} />
+                <Route path="/dressage" element={<Dressage />} />
+                <Route path="/dressage-simple" element={<DressageSimple />} />
                 <Route path="/jumping" element={<Jumping />} />
                 <Route path="/how-it-works" element={<HowItWorks />} />
                 <Route path="/pricing" element={<Pricing />} />
