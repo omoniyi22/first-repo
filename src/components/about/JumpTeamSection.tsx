@@ -1,4 +1,3 @@
-
 import AnimatedSection from '../ui/AnimatedSection';
 import { Linkedin, Handshake, Globe, Mail } from 'lucide-react';
 
@@ -16,7 +15,7 @@ const JumpTeamSection = () => {
       name: "Jenny Stanley",
       role: "Founder & CEO",
       bio: "With over 20 years experience in international sales management across the media, advertising and creative technology industries, Jenny combines her passion for dressage with her expertise in technology to revolutionize equestrian training through AI.",
-      image: "public/lovable-uploads/09bde514-1caf-42e9-9093-d5bd869dda06.png",
+      image: "public/lovable-uploads/4ec01d72-cb16-4d85-922a-40261caf3bdb.png",
       linkedin: "https://www.linkedin.com/in/jenny-stanley/"
     },
     {

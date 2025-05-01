@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -204,7 +203,7 @@ const Navbar = () => {
                     variant="outline" 
                     className="ml-3 border-white text-purple-950 bg-white hover:bg-purple-50"
                   >
-                    {t["sign-in"]}
+                    Log In
                   </Button>
                 </Link>
                 <Link to="/sign-in?signup=true">
@@ -314,7 +313,7 @@ const Navbar = () => {
                       variant="outline" 
                       className="w-full border-white text-purple-950 bg-white hover:bg-purple-50"
                     >
-                      {t["sign-in"]}
+                      Log In
                     </Button>
                   </Link>
                   <Link to="/sign-in?signup=true" className="w-full">
