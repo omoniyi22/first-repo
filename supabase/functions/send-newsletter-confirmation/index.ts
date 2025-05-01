@@ -9,15 +9,17 @@ interface EmailRequest {
   email: string;
 }
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
 serve(async (req) => {
   // Handle CORS
   if (req.method === 'OPTIONS') {
     return new Response('ok', {
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST',
-        'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-      }
+      headers: corsHeaders
     })
   }
 
@@ -166,13 +168,13 @@ serve(async (req) => {
     console.log('Newsletter confirmation email sent successfully');
     
     return new Response(JSON.stringify({ success: true, message: 'Newsletter confirmation email sent successfully' }), {
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...corsHeaders },
       status: 200,
     });
   } catch (error) {
     console.error('Newsletter confirmation email error:', error);
     return new Response(JSON.stringify({ success: false, error: error.message }), {
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...corsHeaders },
       status: 500,
     });
   }
