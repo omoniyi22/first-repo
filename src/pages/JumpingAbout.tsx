@@ -61,8 +61,13 @@ const JumpingAbout = () => {
             <span>Back to AI Jump</span>
           </Button>
         </Link>
-        <div className="inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium mb-2">
-          About AI Jump Trainer
+        <div className="flex items-center justify-between">
+          <div className="inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium mb-2">
+            About AI Jump Trainer
+          </div>
+          <Link to="/jumping/how-it-works" className="text-blue-600 hover:text-blue-800 text-sm font-medium">
+            How It Works
+          </Link>
         </div>
       </div>
       <main className="pt-0">

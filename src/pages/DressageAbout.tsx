@@ -61,8 +61,13 @@ const DressageAbout = () => {
             <span>Back to AI Dressage</span>
           </Button>
         </Link>
-        <div className="inline-block px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium mb-2">
-          About AI Dressage Trainer
+        <div className="flex items-center justify-between">
+          <div className="inline-block px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium mb-2">
+            About AI Dressage Trainer
+          </div>
+          <Link to="/dressage/how-it-works" className="text-purple-600 hover:text-purple-800 text-sm font-medium">
+            How It Works
+          </Link>
         </div>
       </div>
       <main className="pt-0">
