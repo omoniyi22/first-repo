@@ -10,6 +10,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { Card } from '@/components/ui/card';
+import { supabase } from '@/integrations/supabase/client';
+import { uploadOptimizedImage } from '@/lib/storage';
 import {
   Select,
   SelectContent,
@@ -161,45 +163,96 @@ const DocumentUpload = () => {
     }
     
     setIsUploading(true);
-    setUploadProgress(0);
+    setUploadProgress(10);
     
     try {
-      // Simulate file upload with progress updates
-      const uploadInterval = setInterval(() => {
-        setUploadProgress(prev => {
-          if (prev >= 95) {
-            clearInterval(uploadInterval);
-            return 95;
-          }
-          return prev + 5;
-        });
-      }, 100);
+      // Find the selected horse name
+      const selectedHorse = horses.find(h => h.id === data.horseId);
+      const horseName = selectedHorse?.name || 'Unknown Horse';
       
-      // Simulate API call delay
+      // Create a unique file path
+      const fileExt = selectedFile.name.split('.').pop();
+      const fileName = `${Date.now()}-${selectedFile.name.replace(/\s+/g, '-')}`;
+      const filePath = `${user.id}/${fileName}`;
+      
+      // Simulate progress
+      setUploadProgress(30);
+      
+      // Upload file to Supabase Storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('analysis')
+        .upload(filePath, selectedFile, {
+          cacheControl: '3600',
+          upsert: false
+        });
+      
+      if (uploadError) {
+        throw new Error(uploadError.message);
+      }
+      
+      setUploadProgress(60);
+      
+      // Get the public URL
+      const { data: publicUrlData } = supabase.storage
+        .from('analysis')
+        .getPublicUrl(filePath);
+      
+      // Insert document metadata into the database
+      const { data: documentData, error: documentError } = await supabase
+        .from('document_analysis')
+        .insert({
+          user_id: user.id,
+          horse_id: data.horseId,
+          horse_name: horseName,
+          discipline: data.discipline,
+          test_level: data.discipline === 'dressage' ? data.testLevel : null,
+          competition_type: data.discipline === 'jumping' ? data.competitionType : null,
+          document_date: data.date.toISOString(),
+          document_url: publicUrlData.publicUrl,
+          file_name: selectedFile.name,
+          file_type: selectedFile.type,
+          notes: data.notes || null,
+          status: 'pending'
+        })
+        .select();
+      
+      if (documentError) {
+        throw new Error(documentError.message);
+      }
+      
+      setUploadProgress(90);
+      
+      // Trigger document analysis processing (if you have a backend function for this)
+      try {
+        await supabase.functions.invoke('process-document-analysis', {
+          body: { documentId: documentData[0].id }
+        });
+      } catch (processingError) {
+        console.warn('Processing may happen asynchronously:', processingError);
+        // Don't fail the upload if processing fails, it can be retried later
+      }
+      
+      setUploadProgress(100);
+      
+      toast({
+        title: language === 'en' ? "Document uploaded successfully" : "Documento subido con éxito",
+        description: language === 'en' 
+          ? "Your document will be analyzed shortly." 
+          : "Tu documento será analizado en breve.",
+      });
+      
+      // Reset form and states
+      form.reset({
+        discipline: 'dressage',
+        date: new Date(),
+      });
+      setSelectedFile(null);
+      
+      // Set uploading to false after a short delay to show 100% state
       setTimeout(() => {
-        clearInterval(uploadInterval);
-        setUploadProgress(100);
-        
-        toast({
-          title: language === 'en' ? "Document uploaded successfully" : "Documento subido con éxito",
-          description: language === 'en' 
-            ? "Your document will be analyzed shortly." 
-            : "Tu documento será analizado en breve.",
-        });
-        
-        // Reset form and states
-        form.reset({
-          discipline: 'dressage',
-          date: new Date(),
-        });
-        setSelectedFile(null);
-        
-        // Set uploading to false after a short delay to show 100% state
-        setTimeout(() => {
-          setIsUploading(false);
-          setUploadProgress(0);
-        }, 1000);
-      }, 2000);
+        setIsUploading(false);
+        setUploadProgress(0);
+      }, 1000);
       
     } catch (error: any) {
       console.error('Upload error:', error);

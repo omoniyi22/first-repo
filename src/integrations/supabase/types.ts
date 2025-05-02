@@ -9,6 +9,89 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      analysis_results: {
+        Row: {
+          created_at: string
+          document_id: string
+          id: string
+          result_json: Json
+        }
+        Insert: {
+          created_at?: string
+          document_id: string
+          id?: string
+          result_json: Json
+        }
+        Update: {
+          created_at?: string
+          document_id?: string
+          id?: string
+          result_json?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analysis_results_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "document_analysis"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      document_analysis: {
+        Row: {
+          competition_type: string | null
+          created_at: string
+          discipline: string
+          document_date: string
+          document_url: string
+          file_name: string
+          file_type: string
+          horse_id: string
+          horse_name: string
+          id: string
+          notes: string | null
+          status: string
+          test_level: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          competition_type?: string | null
+          created_at?: string
+          discipline: string
+          document_date: string
+          document_url: string
+          file_name: string
+          file_type: string
+          horse_id: string
+          horse_name: string
+          id?: string
+          notes?: string | null
+          status?: string
+          test_level?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          competition_type?: string | null
+          created_at?: string
+          discipline?: string
+          document_date?: string
+          document_url?: string
+          file_name?: string
+          file_type?: string
+          horse_id?: string
+          horse_name?: string
+          id?: string
+          notes?: string | null
+          status?: string
+          test_level?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       newsletter_subscribers: {
         Row: {
           created_at: string
@@ -62,6 +145,41 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      recommendations: {
+        Row: {
+          analysis_id: string
+          created_at: string
+          focus_area: string | null
+          id: string
+          priority: number | null
+          recommendation_text: string
+        }
+        Insert: {
+          analysis_id: string
+          created_at?: string
+          focus_area?: string | null
+          id?: string
+          priority?: number | null
+          recommendation_text: string
+        }
+        Update: {
+          analysis_id?: string
+          created_at?: string
+          focus_area?: string | null
+          id?: string
+          priority?: number | null
+          recommendation_text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recommendations_analysis_id_fkey"
+            columns: ["analysis_id"]
+            isOneToOne: false
+            referencedRelation: "analysis_results"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
