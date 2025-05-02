@@ -157,6 +157,8 @@ const VideoUpload = () => {
     }
     
     try {
+      console.log("Starting video upload process");
+      
       // Create a progress interval to show upload progress
       const progressInterval = setInterval(() => {
         setUploadProgress(prev => {
@@ -170,9 +172,11 @@ const VideoUpload = () => {
       
       // Generate unique ID for the video analysis
       const videoAnalysisId = uuidv4();
+      console.log("Generated ID:", videoAnalysisId);
       
       // Create storage path
       const filePath = `${user.id}/${videoAnalysisId}/${selectedVideo.name}`;
+      console.log("Storage path:", filePath);
       
       // Upload video to Supabase Storage
       const { data: uploadData, error: uploadError } = await supabase.storage
@@ -183,46 +187,66 @@ const VideoUpload = () => {
         });
         
       if (uploadError) {
+        console.error("Storage upload error:", uploadError);
         throw new Error(uploadError.message);
       }
+      
+      console.log("Video uploaded successfully:", uploadData);
       
       // Get URL for the uploaded video
       const { data: urlData } = supabase.storage
         .from('analysis')
         .getPublicUrl(filePath);
       
+      console.log("Video URL:", urlData.publicUrl);
+      
+      // Prepare document analysis record data
+      const documentData = {
+        id: videoAnalysisId,
+        user_id: user.id,
+        horse_id: data.horseId,
+        horse_name: horses.find(horse => horse.id === data.horseId)?.name || 'Unknown Horse',
+        discipline: data.discipline,
+        video_type: data.videoType,
+        document_date: data.date.toISOString(),
+        document_url: urlData.publicUrl,
+        tags: tagArray,
+        notes: data.notes,
+        status: 'pending',
+        file_name: selectedVideo.name,
+        file_type: selectedVideo.type
+      };
+      
+      console.log("Saving document analysis record:", documentData);
+      
       // Add the video analysis record to the database
       const { error: dbError } = await supabase
         .from('document_analysis')
-        .insert({
-          id: videoAnalysisId,
-          user_id: user.id,
-          horse_id: data.horseId,
-          horse_name: horses.find(horse => horse.id === data.horseId)?.name || 'Unknown Horse',
-          discipline: data.discipline,
-          video_type: data.videoType,
-          document_date: data.date.toISOString(),
-          document_url: urlData.publicUrl,
-          tags: tagArray,
-          notes: data.notes,
-          status: 'pending',
-          file_name: selectedVideo.name,
-          file_type: selectedVideo.type
-        });
+        .insert(documentData);
         
       if (dbError) {
+        console.error("Database error:", dbError);
         throw new Error(dbError.message);
       }
       
+      console.log("Document analysis record saved successfully");
+      
       // Trigger the analysis function
-      const { error: functionError } = await supabase.functions
-        .invoke('process-document-analysis', {
-          body: { documentId: videoAnalysisId }
-        });
-        
-      if (functionError) {
-        console.error('Function invocation error:', functionError);
-        // Continue anyway as the video is saved
+      try {
+        const { error: functionError } = await supabase.functions
+          .invoke('process-document-analysis', {
+            body: { documentId: videoAnalysisId }
+          });
+          
+        if (functionError) {
+          console.error('Function invocation error:', functionError);
+          // Continue anyway as the video is saved
+        } else {
+          console.log("Analysis function triggered successfully");
+        }
+      } catch (functionCallError) {
+        console.error("Error calling function:", functionCallError);
+        // Continue as video is saved
       }
       
       clearInterval(progressInterval);

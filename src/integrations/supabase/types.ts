@@ -56,6 +56,7 @@ export type Database = {
           test_level: string | null
           updated_at: string
           user_id: string
+          video_type: string | null
         }
         Insert: {
           competition_type?: string | null
@@ -74,6 +75,7 @@ export type Database = {
           test_level?: string | null
           updated_at?: string
           user_id: string
+          video_type?: string | null
         }
         Update: {
           competition_type?: string | null
@@ -92,6 +94,7 @@ export type Database = {
           test_level?: string | null
           updated_at?: string
           user_id?: string
+          video_type?: string | null
         }
         Relationships: []
       }
