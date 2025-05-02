@@ -35,6 +35,7 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { v4 as uuidv4 } from 'uuid';
 
 const VideoUploadFormSchema = z.object({
   discipline: z.enum(['dressage', 'jumping']),
@@ -156,36 +157,75 @@ const VideoUpload = () => {
     }
     
     try {
-      // Simulate upload progress
-      const interval = setInterval(() => {
+      // Create a progress interval to show upload progress
+      const progressInterval = setInterval(() => {
         setUploadProgress(prev => {
           if (prev >= 95) {
-            clearInterval(interval);
+            clearInterval(progressInterval);
             return 95;
           }
           return prev + 5;
         });
       }, 100);
       
-      // Mock successful upload
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Generate unique ID for the video analysis
+      const videoAnalysisId = uuidv4();
       
-      // Mock database insert
-      console.log('Video upload data:', {
-        user_id: user.id,
-        horse_id: data.horseId,
-        discipline: data.discipline,
-        video_type: data.videoType,
-        recording_date: data.date.toISOString(),
-        video_url: 'https://example.com/mock-video-url',
-        tags: tagArray,
-        notes: data.notes,
-        status: 'pending',
-        file_name: selectedVideo.name,
-        file_type: selectedVideo.type
-      });
+      // Create storage path
+      const filePath = `${user.id}/${videoAnalysisId}/${selectedVideo.name}`;
       
-      clearInterval(interval);
+      // Upload video to Supabase Storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('analysis')
+        .upload(filePath, selectedVideo, {
+          cacheControl: '3600',
+          upsert: false
+        });
+        
+      if (uploadError) {
+        throw new Error(uploadError.message);
+      }
+      
+      // Get URL for the uploaded video
+      const { data: urlData } = supabase.storage
+        .from('analysis')
+        .getPublicUrl(filePath);
+      
+      // Add the video analysis record to the database
+      const { error: dbError } = await supabase
+        .from('document_analysis')
+        .insert({
+          id: videoAnalysisId,
+          user_id: user.id,
+          horse_id: data.horseId,
+          horse_name: horses.find(horse => horse.id === data.horseId)?.name || 'Unknown Horse',
+          discipline: data.discipline,
+          video_type: data.videoType,
+          document_date: data.date.toISOString(),
+          document_url: urlData.publicUrl,
+          tags: tagArray,
+          notes: data.notes,
+          status: 'pending',
+          file_name: selectedVideo.name,
+          file_type: selectedVideo.type
+        });
+        
+      if (dbError) {
+        throw new Error(dbError.message);
+      }
+      
+      // Trigger the analysis function
+      const { error: functionError } = await supabase.functions
+        .invoke('process-document-analysis', {
+          body: { documentId: videoAnalysisId }
+        });
+        
+      if (functionError) {
+        console.error('Function invocation error:', functionError);
+        // Continue anyway as the video is saved
+      }
+      
+      clearInterval(progressInterval);
       setUploadProgress(100);
       
       toast({
