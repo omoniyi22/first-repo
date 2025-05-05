@@ -1,5 +1,6 @@
+
 import { Link } from 'react-router-dom';
-import { Instagram } from 'lucide-react';
+import { Instagram, Mail } from 'lucide-react';
 import NewsletterForm from './NewsletterForm';
 import { useLanguage } from '@/contexts/LanguageContext';
 

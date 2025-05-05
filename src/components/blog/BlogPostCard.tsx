@@ -7,9 +7,10 @@ import { useLanguage } from '@/contexts/LanguageContext';
 
 interface BlogPostCardProps {
   post: BlogPost;
+  hideAuthor?: boolean;
 }
 
-const BlogPostCard = ({ post }: BlogPostCardProps) => {
+const BlogPostCard = ({ post, hideAuthor = false }: BlogPostCardProps) => {
   const { language, translations } = useLanguage();
   const t = translations[language];
   
@@ -73,25 +74,27 @@ const BlogPostCard = ({ post }: BlogPostCardProps) => {
         <p className="text-gray-700 text-sm mb-4 line-clamp-3">{localizedExcerpt}</p>
         
         <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-100">
-          <div className="flex items-center">
-            <div 
-              className={`mr-2 ${
-                post.discipline === 'Jumping'
-                  ? 'bg-blue-200 text-blue-800'
-                  : 'bg-purple-200 text-purple-800'
-              } rounded-full h-8 w-8 flex items-center justify-center text-sm`}
-            >
-              {post.author.split(' ').map(n => n[0]).join('')}
+          {!hideAuthor && (
+            <div className="flex items-center">
+              <div 
+                className={`mr-2 ${
+                  post.discipline === 'Jumping'
+                    ? 'bg-blue-200 text-blue-800'
+                    : 'bg-purple-200 text-purple-800'
+                } rounded-full h-8 w-8 flex items-center justify-center text-sm`}
+              >
+                {post.author.split(' ').map(n => n[0]).join('')}
+              </div>
+              <div>
+                <span className="text-xs font-medium">{post.author}</span>
+                <span className="text-xs text-gray-500 block">{post.date}</span>
+              </div>
             </div>
-            <div>
-              <span className="text-xs font-medium">{post.author}</span>
-              <span className="text-xs text-gray-500 block">{post.date}</span>
-            </div>
-          </div>
+          )}
           
           <Link 
             to={`/blog/${post.slug}`} 
-            className={`text-${disciplineColor}-700 hover:text-${disciplineColor}-900 text-sm font-medium flex items-center`}
+            className={`text-${disciplineColor}-700 hover:text-${disciplineColor}-900 text-sm font-medium flex items-center ${hideAuthor ? 'ml-auto' : ''}`}
           >
             {t["read"]}
             <ArrowRight className="h-3.5 w-3.5 ml-1" />

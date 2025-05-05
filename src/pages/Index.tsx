@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
@@ -191,13 +190,13 @@ const Index = () => {
               {/* Display one featured post from each discipline */}
               {featuredJumpingPost && (
                 <div className="reveal-scroll opacity-0 translate-y-8 transition-all duration-700 ease-out">
-                  <BlogPostCard post={featuredJumpingPost} />
+                  <BlogPostCard post={featuredJumpingPost} hideAuthor={true} />
                 </div>
               )}
               
               {featuredDressagePost && (
                 <div className="reveal-scroll opacity-0 translate-y-8 transition-all duration-700 ease-out" style={{ transitionDelay: '100ms' }}>
-                  <BlogPostCard post={featuredDressagePost} />
+                  <BlogPostCard post={featuredDressagePost} hideAuthor={true} />
                 </div>
               )}
             </div>
