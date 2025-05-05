@@ -38,89 +38,51 @@ const UserManagement = () => {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      console.log("Fetching all users from auth system...");
+      console.log("Fetching users via Edge Function...");
       
-      // Fetch users directly from auth.users using service role (bypassing RLS)
-      const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
+      // Call the Edge Function to get users
+      const { data, error } = await supabase.functions.invoke('get-admin-users');
       
-      if (authError) {
-        console.error("Error fetching auth users:", authError);
-        throw authError;
+      if (error) {
+        console.error("Error calling Edge Function:", error);
+        throw error;
       }
       
-      console.log("Fetched auth users:", authUsers);
+      console.log("Edge Function response:", data);
       
-      if (!authUsers || !authUsers.users || authUsers.users.length === 0) {
-        console.warn("No users found in the auth system");
+      if (!data || !data.users || data.users.length === 0) {
+        console.warn("No users found via Edge Function");
         setUsers([]);
         setFilteredUsers([]);
         setLoading(false);
         toast({
           title: "No users found",
-          description: "There are no users in the authentication system.",
+          description: "There are no users in the system.",
           variant: "destructive"
         });
         return;
       }
       
-      // Fetch profiles to get additional user data
-      const { data: profiles, error: profilesError } = await supabase
-        .from('profiles')
-        .select('*');
-      
-      console.log("Fetched profiles:", profiles || []);
-      
-      // Create a map of profiles by user ID for easy lookup
-      const profilesMap = new Map();
-      if (profiles && profiles.length > 0) {
-        profiles.forEach(profile => {
-          profilesMap.set(profile.id, profile);
-        });
-      }
-      
-      // Process each auth user and combine with profile data if available
-      const fetchedUsers: User[] = [];
-      
-      for (const authUser of authUsers.users) {
-        try {
-          console.log("Processing user:", authUser.id);
-          
-          // Get the profile for this user if it exists
-          const userProfile = profilesMap.get(authUser.id);
-          
-          // Check if the user is an admin using the is_admin RPC function
-          const { data: isAdmin, error: roleError } = await supabase.rpc('is_admin', {
-            user_uuid: authUser.id
-          });
-          
-          if (roleError) {
-            console.error(`Error checking role for ${authUser.id}:`, roleError);
-          }
-          
-          console.log(`User ${authUser.id} admin status:`, isAdmin);
-          
-          // Create a user object that combines auth data and profile data
-          const userObj: User = {
-            id: authUser.id,
-            email: authUser.email || `user-${authUser.id.substring(0, 8)}@example.com`,
-            created_at: authUser.created_at || new Date().toISOString(),
-            user_metadata: {
-              full_name: (userProfile?.coach_name || 
-                         authUser.user_metadata?.full_name || 
-                         authUser.user_metadata?.name || 
-                         `User ${authUser.id.substring(0, 5)}`)
-            },
-            last_sign_in_at: authUser.last_sign_in_at,
-            role: isAdmin ? 'admin' : 'user',
-            region: userProfile?.region || 'Unknown',
-            is_active: !authUser.banned
-          };
-          
-          fetchedUsers.push(userObj);
-        } catch (error) {
-          console.error('Error processing user:', authUser.id, error);
-        }
-      }
+      // Process the user data
+      const fetchedUsers: User[] = data.users.map(user => {
+        const userProfile = user.profile || {};
+        
+        return {
+          id: user.id,
+          email: user.email || `user-${user.id.substring(0, 8)}@example.com`,
+          created_at: user.created_at || new Date().toISOString(),
+          user_metadata: {
+            full_name: userProfile.coach_name || 
+                     user.user_metadata?.full_name || 
+                     user.user_metadata?.name || 
+                     `User ${user.id.substring(0, 5)}`
+          },
+          last_sign_in_at: user.last_sign_in_at,
+          role: userProfile.role === 'admin' ? 'admin' : 'user',
+          region: userProfile.region || 'Unknown',
+          is_active: !user.banned_at // Using banned_at instead of banned
+        };
+      });
       
       console.log("Processed users:", fetchedUsers);
       
