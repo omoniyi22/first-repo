@@ -86,6 +86,11 @@
   p, li, span, a, button, input {
     @apply font-sans;
   }
+
+  /* Make regular text darker */
+  p, li {
+    @apply text-gray-800;
+  }
 }
 
 @layer components {
@@ -162,6 +167,29 @@
   
   .nav-link.active::after {
     @apply w-full;
+  }
+
+  /* Specific styles for disciplines */
+  .dressage-theme {
+    @apply from-purple-600 to-purple-800;
+  }
+
+  .jumping-theme {
+    @apply from-blue-600 to-blue-800;
+  }
+
+  /* Center buttons properly */
+  .center-button {
+    @apply mx-auto flex justify-center;
+  }
+
+  /* Fix for navigation and pricing badge overlaps */
+  .pricing-badge {
+    @apply z-10;
+  }
+
+  .navbar-container {
+    @apply z-50;
   }
 }
 

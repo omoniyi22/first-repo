@@ -1,3 +1,4 @@
+
 import { Link } from 'react-router-dom';
 import { 
   Facebook, 
@@ -27,69 +28,69 @@ const Footer = () => {
                 AI Equestrian
               </h2>
             </Link>
-            <p className="mt-4 text-purple-200 text-sm leading-relaxed">
+            <p className="mt-4 text-gray-200 text-sm leading-relaxed">
               {language === 'en' 
                 ? "Transform your equestrian training with AI-powered analysis and personalized recommendations."
                 : "Transforma tu entrenamiento ecuestre con análisis impulsado por IA y recomendaciones personalizadas."}
             </p>
             <div className="mt-6 flex space-x-4">
-              <a href="#" className="text-purple-300 hover:text-white transition-colors">
+              <a href="#" className="text-gray-300 hover:text-white transition-colors">
                 <Facebook size={18} />
               </a>
-              <a href="#" className="text-purple-300 hover:text-white transition-colors">
+              <a href="#" className="text-gray-300 hover:text-white transition-colors">
                 <Instagram size={18} />
               </a>
-              <a href="#" className="text-purple-300 hover:text-white transition-colors">
+              <a href="#" className="text-gray-300 hover:text-white transition-colors">
                 <Twitter size={18} />
               </a>
-              <a href="#" className="text-purple-300 hover:text-white transition-colors">
+              <a href="#" className="text-gray-300 hover:text-white transition-colors">
                 <Linkedin size={18} />
               </a>
             </div>
           </div>
           
           <div className="col-span-1">
-            <h3 className="font-serif text-lg font-medium mb-4">
+            <h3 className="font-serif text-lg font-medium mb-4 text-white">
               {language === 'en' ? "Navigation" : "Navegación"}
             </h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/" className="text-purple-300 hover:text-white transition-colors text-sm">
+                <Link to="/" className="text-gray-300 hover:text-white transition-colors text-sm">
                   {language === 'en' ? "Home" : "Inicio"}
                 </Link>
               </li>
               <li>
-                <Link to="/dressage" className="text-purple-300 hover:text-white transition-colors text-sm">
+                <Link to="/dressage" className="text-gray-300 hover:text-white transition-colors text-sm">
                   {language === 'en' ? "AI Dressage Trainer" : "Entrenador de Doma con IA"}
                 </Link>
               </li>
               <li>
-                <Link to="/jumping" className="text-purple-300 hover:text-white transition-colors text-sm">
+                <Link to="/jumping" className="text-gray-300 hover:text-white transition-colors text-sm">
                   {language === 'en' ? "AI Jumping Trainer" : "Entrenador de Salto con IA"}
                 </Link>
               </li>
               <li>
-                <Link to="/how-it-works" className="text-purple-300 hover:text-white transition-colors text-sm">
+                <Link to="/how-it-works" className="text-gray-300 hover:text-white transition-colors text-sm">
                   {language === 'en' ? "How It Works" : "Cómo Funciona"}
                 </Link>
               </li>
               <li>
-                <Link to="/pricing" className="text-purple-300 hover:text-white transition-colors text-sm">
+                <Link to="/pricing" className="text-gray-300 hover:text-white transition-colors text-sm">
                   {language === 'en' ? "Pricing" : "Precios"}
                 </Link>
               </li>
               <li>
-                <Link to="/blog" className="text-purple-300 hover:text-white transition-colors text-sm">
+                <Link to="/blog" className="text-gray-300 hover:text-white transition-colors text-sm">
                   {language === 'en' ? "Blog" : "Blog"}
                 </Link>
               </li>
               <li>
-                <Link to="/about" className="text-purple-300 hover:text-white transition-colors text-sm">
+                <Link to="/about" className="text-gray-300 hover:text-white transition-colors text-sm">
                   {language === 'en' ? "About" : "Acerca de"}
                 </Link>
               </li>
               <li>
-                <Link to="/sign-in" className="text-purple-300 hover:text-white transition-colors text-sm">
+                <Link to="/sign-in" className="text-gray-300 hover:text-white transition-colors text-sm">
                   {language === 'en' ? "Sign In" : "Iniciar Sesión"}
                 </Link>
               </li>
@@ -97,17 +98,17 @@ const Footer = () => {
           </div>
           
           <div className="col-span-1">
-            <h3 className="font-serif text-lg font-medium mb-4">
+            <h3 className="font-serif text-lg font-medium mb-4 text-white">
               {language === 'en' ? "Legal" : "Legal"}
             </h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/terms" className="text-purple-300 hover:text-white transition-colors text-sm">
+                <Link to="/terms" className="text-gray-300 hover:text-white transition-colors text-sm">
                   {language === 'en' ? "Terms of Service" : "Términos de Servicio"}
                 </Link>
               </li>
               <li>
-                <Link to="/privacy" className="text-purple-300 hover:text-white transition-colors text-sm">
+                <Link to="/privacy" className="text-gray-300 hover:text-white transition-colors text-sm">
                   {language === 'en' ? "Privacy Policy" : "Política de Privacidad"}
                 </Link>
               </li>
@@ -115,20 +116,20 @@ const Footer = () => {
           </div>
           
           <div className="col-span-1">
-            <h3 className="font-serif text-lg font-medium mb-4">
+            <h3 className="font-serif text-lg font-medium mb-4 text-white">
               {language === 'en' ? "Contact Us" : "Contáctanos"}
             </h3>
             <ul className="space-y-3">
               <li className="flex items-start">
-                <Mail size={16} className="mr-2 mt-1 text-purple-300" />
-                <a href="mailto:info@equineaintelligence.com" className="text-purple-300 hover:text-white transition-colors text-sm">
+                <Mail size={16} className="mr-2 mt-1 text-gray-300" />
+                <a href="mailto:info@equineaintelligence.com" className="text-gray-300 hover:text-white transition-colors text-sm">
                   info@equineaintelligence.com
                 </a>
               </li>
             </ul>
             
             <div className="mt-6">
-              <h4 className="font-serif text-base font-medium mb-2">
+              <h4 className="font-serif text-base font-medium mb-2 text-white">
                 {language === 'en' ? "Subscribe to our newsletter" : "Suscríbete a nuestro boletín"}
               </h4>
               <NewsletterForm />
@@ -136,14 +137,14 @@ const Footer = () => {
           </div>
         </div>
         
-        <div className="border-t border-purple-800 mt-12 pt-8 text-center text-purple-400 text-sm">
+        <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400 text-sm">
           <div className="flex justify-center items-center mb-4">
             <img 
               src="/lovable-uploads/ddb7f47e-072a-4346-9fd3-a8a055f13bba.png" 
               alt="AI Equestrian Logo" 
               className="h-8 w-8 mr-2" 
             />
-            <span>AI Equestrian</span>
+            <span className="text-white">AI Equestrian</span>
           </div>
           <p>© {new Date().getFullYear()} AI Equestrian. {language === 'en' ? "All rights reserved." : "Todos los derechos reservados."}</p>
         </div>
