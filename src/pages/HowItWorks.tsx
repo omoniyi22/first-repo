@@ -61,7 +61,7 @@ const HowItWorks = () => {
             </div>
             
             <div className="grid md:grid-cols-2 gap-12 max-w-6xl mx-auto">
-              <div className="bg-gradient-to-br from-purple-100 to-purple-200 rounded-xl p-8 shadow-sm border border-purple-100 reveal-scroll">
+              <div className="bg-gradient-to-br from-purple-100 to-purple-200 rounded-xl p-8 shadow-sm border border-purple-100 reveal-scroll h-full flex flex-col">
                 <h2 className="text-2xl font-serif font-medium mb-4 text-purple-900">AI Dressage Trainer</h2>
                 <p className="mb-6 text-gray-700">
                   Transform your dressage performance with AI-powered analysis of test sheets, videos, and receive personalized training recommendations.
@@ -80,7 +80,7 @@ const HowItWorks = () => {
                     <span>Follow personalized training recommendations</span>
                   </li>
                 </ul>
-                <div className="flex flex-col items-center">
+                <div className="flex flex-col items-center mt-auto">
                   <Link to="/sign-in?signup=true" className="w-full max-w-md mb-3">
                     <Button className="w-full bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 text-white border-none hover:text-white">
                       Start Your Free Trial
@@ -95,7 +95,7 @@ const HowItWorks = () => {
                 </div>
               </div>
               
-              <div className="bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl p-8 shadow-sm border border-blue-100 reveal-scroll">
+              <div className="bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl p-8 shadow-sm border border-blue-100 reveal-scroll h-full flex flex-col">
                 <h2 className="text-2xl font-serif font-medium mb-4 text-blue-900">AI Jumping Trainer</h2>
                 <p className="mb-6 text-gray-700">
                   Elevate your jumping performance with AI-powered video analysis, course insights, and personalized training recommendations.
@@ -114,7 +114,7 @@ const HowItWorks = () => {
                     <span>Implement targeted exercises to improve technique</span>
                   </li>
                 </ul>
-                <div className="flex flex-col items-center">
+                <div className="flex flex-col items-center mt-auto">
                   <Link to="/sign-in?signup=true" className="w-full max-w-md mb-3">
                     <Button className="w-full bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white border-none hover:text-white">
                       Start Your Free Trial
