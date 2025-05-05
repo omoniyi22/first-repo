@@ -67,13 +67,13 @@ const Hero = () => {
           <AnimatedSection animation="fade-in" delay="delay-400">
             <div className="flex flex-col sm:flex-row gap-4 mb-8 justify-center">
               <Link to="/sign-in?signup=true">
-                <Button className="group flex items-center gap-2 text-base bg-white hover:bg-white/90 text-purple-800">
+                <Button className="navy-button flex items-center gap-2 text-base group">
                   {language === 'en' ? "Get Started" : "Comenzar"}
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Button>
               </Link>
               <Link to="/how-it-works">
-                <Button variant="outline" className="text-base border-white/30 bg-white/10 text-white hover:bg-white/30 hover:text-purple-900 backdrop-blur-sm">
+                <Button variant="outline" className="outline-button text-base">
                   {language === 'en' ? "How It Works" : "Cómo Funciona"}
                 </Button>
               </Link>

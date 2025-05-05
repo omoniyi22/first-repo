@@ -157,14 +157,12 @@ const EquestrianTeamSection = () => {
                   Have questions about our platform or want to learn more about how AI Equestrian can help you achieve your riding goals? Get in touch with our team.
                 </p>
                 
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <Button className="bg-gradient-to-r from-purple-600 to-blue-500 text-white hover:from-purple-700 hover:to-blue-600">
-                    Start Free Trial
-                  </Button>
-                  
-                  <Button className="bg-transparent border border-white text-white hover:bg-white/10 transition-colors">
-                    Schedule a Demo
-                  </Button>
+                <div className="flex flex-col sm:flex-row gap-4 center-button">
+                  <Link to="/sign-in?signup=true">
+                    <Button className="navy-button w-full">
+                      Start Free Trial
+                    </Button>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -186,7 +184,7 @@ const EquestrianTeamSection = () => {
                 </div>
                 
                 <div className="mt-8 flex justify-center">
-                  <Link to="/dressage" className="inline-block bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-700 hover:to-blue-600 text-white font-medium py-2 px-4 rounded transition-colors">
+                  <Link to="/dressage" className="navy-button inline-block">
                     Learn more about AI Dressage
                   </Link>
                 </div>
@@ -206,7 +204,7 @@ const EquestrianTeamSection = () => {
                 </div>
                 
                 <div className="mt-8 flex justify-center">
-                  <Link to="/jumping" className="inline-block bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-700 hover:to-blue-600 text-white font-medium py-2 px-4 rounded transition-colors">
+                  <Link to="/jumping" className="navy-button inline-block">
                     Learn more about AI Jump
                   </Link>
                 </div>

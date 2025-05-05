@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
@@ -96,7 +97,7 @@ const Index = () => {
                     Upload your dressage score sheets, get AI-powered analysis, and receive personalized training recommendations.
                   </p>
                   <Link to="/dressage">
-                    <Button className="w-full group flex items-center justify-center gap-2 text-base bg-white hover:bg-white/90 text-purple-800">
+                    <Button className="navy-button w-full group flex items-center justify-center gap-2 text-base">
                       Explore Dressage
                       <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                     </Button>
@@ -109,7 +110,7 @@ const Index = () => {
                     Analyze your jumping performance, get insights on technique, and improve your show jumping results.
                   </p>
                   <Link to="/jumping">
-                    <Button className="w-full group flex items-center justify-center gap-2 text-base bg-white hover:bg-white/90 text-purple-800">
+                    <Button className="navy-button w-full group flex items-center justify-center gap-2 text-base">
                       Explore Jumping
                       <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                     </Button>
@@ -119,13 +120,13 @@ const Index = () => {
               
               <div className="mt-16 flex flex-col sm:flex-row gap-4 justify-center">
                 <Link to="/sign-in?signup=true">
-                  <Button className="group flex items-center gap-2 text-base bg-white hover:bg-white/90 text-purple-800">
+                  <Button className="navy-button group flex items-center gap-2 text-base">
                     Get Started
                     <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                   </Button>
                 </Link>
                 <Link to="/how-it-works">
-                  <Button variant="outline" className="text-base border-white/30 bg-white/10 text-white hover:bg-white/30 hover:text-purple-900 backdrop-blur-sm">
+                  <Button variant="outline" className="outline-button text-base">
                     How It Works
                   </Button>
                 </Link>
@@ -203,7 +204,7 @@ const Index = () => {
             
             <div className="text-center">
               <Link to="/blog">
-                <Button variant="outline" className="group">
+                <Button variant="outline" className="outline-button group">
                   View All Articles
                   <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Button>
