@@ -6,101 +6,31 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import DocumentUpload from '@/components/analysis/DocumentUpload';
 import DocumentAnalysisDisplay from '@/components/analysis/DocumentAnalysisDisplay';
 import VideoUpload from '@/components/analysis/VideoUpload';
 import VideoAnalysisDisplay from '@/components/analysis/VideoAnalysisDisplay';
+import { supabase } from '@/integrations/supabase/client';
 
-// Mock data for development
-const mockDocuments = [
-  { 
-    id: 'doc1', 
-    user_id: 'user123', 
-    horse_id: 'horse1',
-    horse_name: 'Thunder',
-    discipline: 'dressage',
-    test_level: 'Introductory B',
-    competition_type: null,
-    document_date: '2025-04-10T10:00:00Z',
-    document_url: 'https://example.com/docs/test1.pdf',
-    file_name: 'Dressage Test - Intro B.pdf',
-    file_type: 'application/pdf',
-    status: 'completed',
-    created_at: '2025-04-10T11:30:00Z'
-  },
-  { 
-    id: 'doc2', 
-    user_id: 'user123', 
-    horse_id: 'horse2',
-    horse_name: 'Whisper',
-    discipline: 'jumping',
-    test_level: null,
-    competition_type: 'Show Jumping',
-    document_date: '2025-04-12T14:00:00Z',
-    document_url: 'https://example.com/docs/test2.pdf',
-    file_name: 'Show Jumping Score Sheet.pdf',
-    file_type: 'application/pdf',
-    status: 'completed',
-    created_at: '2025-04-12T15:30:00Z'
-  },
-  { 
-    id: 'doc3', 
-    user_id: 'user123', 
-    horse_id: 'horse1',
-    horse_name: 'Thunder',
-    discipline: 'dressage',
-    test_level: 'Preliminary 18',
-    competition_type: null,
-    document_date: '2025-04-15T09:00:00Z',
-    document_url: 'https://example.com/docs/test3.pdf',
-    file_name: 'Dressage Test - Prelim 18.pdf',
-    file_type: 'application/pdf',
-    status: 'pending',
-    created_at: '2025-04-15T09:30:00Z'
-  }
-];
-
-const mockVideos = [
-  { 
-    id: 'video1', 
-    user_id: 'user123', 
-    horse_id: 'horse3',
-    horse_name: 'Storm',
-    discipline: 'jumping',
-    video_type: 'training',
-    recording_date: '2025-04-05T10:00:00Z',
-    video_url: 'https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-    tags: ['training', 'indoor'],
-    notes: 'Working on approach to verticals',
-    status: 'completed',
-    file_name: 'training_session_1.mp4',
-    file_type: 'video/mp4',
-    created_at: '2025-04-05T11:30:00Z',
-    updated_at: '2025-04-05T12:00:00Z'
-  },
-  { 
-    id: 'video2', 
-    user_id: 'user123', 
-    horse_id: 'horse2',
-    horse_name: 'Whisper',
-    discipline: 'dressage',
-    video_type: 'competition',
-    recording_date: '2025-04-08T13:00:00Z',
-    video_url: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
-    tags: ['competition', 'novice test'],
-    notes: 'First competition with Whisper',
-    status: 'pending',
-    file_name: 'novice_test_competition.mp4',
-    file_type: 'video/mp4',
-    created_at: '2025-04-08T15:30:00Z',
-    updated_at: '2025-04-08T15:30:00Z'
-  }
-];
-
-interface DocumentAnalysisDisplayProps {
-  documentId: string;
+interface DocumentAnalysisItem {
+  id: string;
+  user_id: string;
+  horse_id: string;
+  horse_name: string;
+  discipline: string;
+  test_level: string | null;
+  competition_type: string | null;
+  document_date: string;
+  document_url: string;
+  file_name: string;
+  file_type: string;
+  status: string;
+  created_at: string;
+  video_type?: string | null;
 }
 
 const Analysis = () => {
@@ -110,8 +40,8 @@ const Analysis = () => {
   const t = translations[language];
   
   const [activeTab, setActiveTab] = useState<string>('document-upload');
-  const [documents, setDocuments] = useState<any[]>([]);
-  const [videos, setVideos] = useState<any[]>([]);
+  const [documents, setDocuments] = useState<DocumentAnalysisItem[]>([]);
+  const [videos, setVideos] = useState<DocumentAnalysisItem[]>([]);
   const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(null);
   const [selectedVideoId, setSelectedVideoId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -127,21 +57,44 @@ const Analysis = () => {
       try {
         setIsLoading(true);
         
-        // Simulate API call delay
-        setTimeout(() => {
-          // Use mock data
-          setDocuments(mockDocuments);
-          setVideos(mockVideos);
-          setIsLoading(false);
-        }, 1000);
+        // Fetch all document analysis records for the current user
+        const { data: analysisData, error } = await supabase
+          .from('document_analysis')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+        
+        if (error) {
+          throw error;
+        }
+        
+        if (analysisData) {
+          // Filter documents (PDFs, text files, etc.) and videos
+          const docs = analysisData.filter(item => 
+            !item.file_type.startsWith('video/') && 
+            !item.video_type
+          );
+          const vids = analysisData.filter(item => 
+            item.file_type.startsWith('video/') || 
+            item.video_type
+          );
+          
+          setDocuments(docs);
+          setVideos(vids);
+        }
+        
+        setIsLoading(false);
       } catch (error) {
         console.error('Error fetching analysis data:', error);
+        toast.error(language === 'en' 
+          ? 'Failed to load your analyses' 
+          : 'No se pudieron cargar sus análisis');
         setIsLoading(false);
       }
     };
     
     fetchUserData();
-  }, [user, navigate]);
+  }, [user, navigate, language]);
   
   // Helper function to format dates
   const formatDate = (dateString: string) => {
@@ -179,7 +132,12 @@ const Analysis = () => {
             </TabsContent>
             
             <TabsContent value="document-list">
-              {documents.length > 0 ? (
+              {isLoading ? (
+                <div className="flex justify-center items-center p-12">
+                  <Loader2 className="h-8 w-8 animate-spin text-purple-700 mr-2" />
+                  <span>{language === 'en' ? "Loading documents..." : "Cargando documentos..."}</span>
+                </div>
+              ) : documents.length > 0 ? (
                 <div className="space-y-6">
                   {selectedDocumentId ? (
                     <div>
@@ -292,7 +250,12 @@ const Analysis = () => {
             </TabsContent>
             
             <TabsContent value="video-list">
-              {videos.length > 0 ? (
+              {isLoading ? (
+                <div className="flex justify-center items-center p-12">
+                  <Loader2 className="h-8 w-8 animate-spin text-blue-700 mr-2" />
+                  <span>{language === 'en' ? "Loading videos..." : "Cargando videos..."}</span>
+                </div>
+              ) : videos.length > 0 ? (
                 <div className="space-y-6">
                   {selectedVideoId ? (
                     <div>
@@ -348,16 +311,20 @@ const Analysis = () => {
                                         ? (language === 'en' ? "Dressage" : "Doma")
                                         : (language === 'en' ? "Jumping" : "Salto")
                                       }
-                                      {" - "}
-                                      {video.video_type === 'training' 
-                                        ? (language === 'en' ? "Training" : "Entrenamiento")
-                                        : (language === 'en' ? "Competition" : "Competición")
-                                      }
+                                      {video.video_type && (
+                                        <>
+                                          {" - "}
+                                          {video.video_type === 'training' 
+                                            ? (language === 'en' ? "Training" : "Entrenamiento")
+                                            : (language === 'en' ? "Competition" : "Competición")
+                                          }
+                                        </>
+                                      )}
                                     </span>
                                   </div>
                                 </td>
                                 <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
-                                  {formatDate(video.recording_date)}
+                                  {formatDate(video.document_date)}
                                 </td>
                                 <td className="px-4 py-3 whitespace-nowrap">
                                   <span className={`px-2 inline-flex text-xs leading-5 font-medium rounded-full ${

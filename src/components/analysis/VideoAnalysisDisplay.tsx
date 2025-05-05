@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -5,17 +6,19 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2, Play, Pause, SkipBack, SkipForward } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface VideoAnalysisData {
   id: string;
   user_id: string;
   horse_id: string;
   discipline: "dressage" | "jumping";
-  video_type: string;
-  video_url: string;
+  video_type: string | null;
+  document_url: string;
   file_name: string;
   file_type: string;
-  recording_date: string;
+  document_date: string;
   status: string;
   created_at: string;
   updated_at: string;
@@ -27,25 +30,6 @@ interface VideoAnalysisData {
 interface VideoAnalysisDisplayProps {
   videoId?: string;
 }
-
-// Mock data for development
-const mockVideoData: VideoAnalysisData = {
-  id: '123',
-  user_id: 'user123',
-  horse_id: 'horse123',
-  discipline: "jumping",
-  video_type: 'training',
-  video_url: 'https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4', // Sample video
-  file_name: 'training_session.mp4',
-  file_type: 'video/mp4',
-  recording_date: '2025-04-15',
-  status: 'completed',
-  created_at: '2025-04-15T14:30:00Z',
-  updated_at: '2025-04-15T14:35:00Z',
-  tags: ['indoor', 'training'],
-  notes: 'Working on collection and extension',
-  horse_name: 'Pegasus'
-};
 
 const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({ videoId }) => {
   const { user } = useAuth();
@@ -70,21 +54,39 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({ videoId }) 
       try {
         setIsLoading(true);
         
-        // Simulate API call with timeout
-        setTimeout(() => {
-          // Use mock data
-          setAnalysis(mockVideoData);
-          setIsLoading(false);
-        }, 1000);
+        // Fetch the video analysis data from Supabase
+        const { data, error } = await supabase
+          .from('document_analysis')
+          .select('*')
+          .eq('id', videoId)
+          .eq('user_id', user.id)
+          .single();
+        
+        if (error) {
+          throw error;
+        }
+        
+        if (data) {
+          setAnalysis(data as VideoAnalysisData);
+        } else {
+          setError(language === 'en' ? 'Video not found' : 'Video no encontrado');
+        }
+        
+        setIsLoading(false);
       } catch (err: any) {
         console.error('Error fetching analysis:', err);
-        setError(err.message || 'An error occurred while fetching the video analysis.');
+        setError(err.message || (language === 'en' 
+          ? 'An error occurred while fetching the video analysis.' 
+          : 'Ocurrió un error al obtener el análisis de video.'));
         setIsLoading(false);
+        toast.error(language === 'en' 
+          ? 'Failed to load video analysis' 
+          : 'No se pudo cargar el análisis de video');
       }
     };
     
     fetchAnalysis();
-  }, [videoId, user]);
+  }, [videoId, user, language]);
   
   // Video player controls
   const togglePlayPause = () => {
@@ -219,17 +221,21 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({ videoId }) 
         <div className="flex flex-wrap gap-2 text-sm text-gray-500 mt-2">
           <span>{analysis.horse_name}</span>
           <span>•</span>
-          <span>{new Date(analysis.recording_date).toLocaleDateString()}</span>
+          <span>{new Date(analysis.document_date).toLocaleDateString()}</span>
           <span>•</span>
           <span>
             {analysis.discipline === 'dressage' 
               ? (language === 'en' ? "Dressage" : "Doma") 
               : (language === 'en' ? "Jumping" : "Salto")}
-            {" - "}
-            {analysis.video_type === 'training' 
-              ? (language === 'en' ? "Training" : "Entrenamiento")
-              : (language === 'en' ? "Competition" : "Competición")
-            }
+            {analysis.video_type && (
+              <>
+                {" - "}
+                {analysis.video_type === 'training' 
+                  ? (language === 'en' ? "Training" : "Entrenamiento")
+                  : (language === 'en' ? "Competition" : "Competición")
+                }
+              </>
+            )}
           </span>
         </div>
       </div>
@@ -239,11 +245,12 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({ videoId }) 
         <div className="relative bg-black rounded-lg overflow-hidden">
           <video
             ref={(el) => setVideoElement(el)}
-            src={analysis.video_url}
+            src={analysis.document_url}
             className="w-full"
             onTimeUpdate={handleTimeUpdate}
             onLoadedMetadata={handleLoadedMetadata}
             onEnded={handleVideoEnded}
+            controls={false}
           />
         </div>
         

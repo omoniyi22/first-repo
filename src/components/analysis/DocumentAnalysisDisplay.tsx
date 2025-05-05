@@ -1,9 +1,13 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Loader2 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 
 // Define proper types for the analysis data
 interface MovementScore {
@@ -42,17 +46,27 @@ interface AnalysisResultData {
   commonErrors?: string[];
 }
 
+interface DocumentAnalysis {
+  id: string;
+  user_id: string;
+  horse_id: string;
+  horse_name: string;
+  discipline: string;
+  test_level: string | null;
+  competition_type: string | null;
+  document_date: string;
+  document_url: string;
+  file_name: string;
+  file_type: string;
+  status: string;
+  created_at: string;
+}
+
 interface DocumentAnalysisDisplayProps {
   documentId: string;
 }
 
-// Mock data for development
-const mockAnalysisData = {
-  id: '123',
-  discipline: 'jumping',
-  status: 'completed',
-};
-
+// Mock result data for development - we'll replace this with real API calls later
 const mockResultData: AnalysisResultData = {
   totalScore: 68,
   percentage: 68.5,
@@ -78,32 +92,72 @@ const mockResultData: AnalysisResultData = {
 
 const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({ documentId }) => {
   const { language } = useLanguage();
-  const [analysis, setAnalysis] = useState<any | null>(null);
+  const { user } = useAuth();
+  const [analysis, setAnalysis] = useState<DocumentAnalysis | null>(null);
   const [resultData, setResultData] = useState<AnalysisResultData | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   
   useEffect(() => {
     const fetchAnalysis = async () => {
+      if (!user) return;
+      
       try {
         setIsLoading(true);
         
-        // Simulate API call with timeout
-        setTimeout(() => {
-          // Use mock data instead of actual Supabase query
-          setAnalysis(mockAnalysisData);
-          setResultData(mockResultData);
-          setIsLoading(false);
-        }, 1000);
+        // Fetch the document analysis from Supabase
+        const { data: documentData, error: documentError } = await supabase
+          .from('document_analysis')
+          .select('*')
+          .eq('id', documentId)
+          .eq('user_id', user.id)
+          .single();
+        
+        if (documentError) throw documentError;
+        
+        if (documentData) {
+          setAnalysis(documentData as DocumentAnalysis);
+          
+          // Fetch analysis results if document status is 'completed'
+          if (documentData.status === 'completed') {
+            const { data: resultData, error: resultError } = await supabase
+              .from('analysis_results')
+              .select('result_json')
+              .eq('document_id', documentId)
+              .single();
+              
+            if (resultError) {
+              console.warn('Could not fetch analysis results:', resultError);
+              // For now, fall back to mock data if no results are available
+              setResultData(mockResultData);
+            } else if (resultData) {
+              // Use actual result data from the database
+              setResultData(resultData.result_json as AnalysisResultData);
+            } else {
+              // Fall back to mock data if no results
+              setResultData(mockResultData);
+            }
+          } else {
+            // Document is not completed yet
+            setResultData(null);
+          }
+        } else {
+          setError(language === 'en' ? 'Document not found' : 'Documento no encontrado');
+        }
+        
+        setIsLoading(false);
       } catch (err: any) {
         console.error('Error fetching analysis:', err);
         setError(err.message);
         setIsLoading(false);
+        toast.error(language === 'en' 
+          ? 'Failed to load document analysis' 
+          : 'No se pudo cargar el análisis del documento');
       }
     };
     
     fetchAnalysis();
-  }, [documentId]);
+  }, [documentId, user, language]);
   
   if (isLoading) {
     return (
@@ -113,10 +167,53 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({ docum
     );
   }
   
-  if (error || !resultData) {
+  if (error || !analysis) {
     return (
       <Card className="p-4 bg-red-50 text-red-800 text-center">
         <p>{error || (language === 'en' ? 'Analysis not available' : 'Análisis no disponible')}</p>
+      </Card>
+    );
+  }
+  
+  // Document exists but is not completed
+  if (analysis.status !== 'completed') {
+    return (
+      <Card className="p-6 bg-white">
+        <div className="text-center">
+          <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-primary" />
+          <h3 className="text-lg font-medium mb-2">
+            {analysis.status === 'pending' 
+              ? (language === 'en' ? "Analysis Pending" : "Análisis Pendiente") 
+              : (language === 'en' ? "Processing Document" : "Procesando Documento")}
+          </h3>
+          <p className="text-gray-500">
+            {analysis.status === 'pending'
+              ? (language === 'en' ? "Your document is in queue for analysis." : "Tu documento está en cola para análisis.")
+              : (language === 'en' ? "We're analyzing your document. This may take several minutes." : "Estamos analizando tu documento. Esto puede tomar varios minutos.")}
+          </p>
+          <div className="mt-4 p-4 bg-gray-100 rounded text-left">
+            <h4 className="font-medium mb-1">{analysis.file_name}</h4>
+            <p className="text-sm text-gray-700">
+              {analysis.discipline === 'dressage' 
+                ? (language === 'en' ? "Dressage" : "Doma") 
+                : (language === 'en' ? "Jumping" : "Salto")}
+              {" - "}
+              {analysis.horse_name}
+            </p>
+            <p className="text-sm text-gray-700 mt-1">
+              {language === 'en' ? "Uploaded on: " : "Subido el: "}
+              {new Date(analysis.created_at).toLocaleString()}
+            </p>
+          </div>
+        </div>
+      </Card>
+    );
+  }
+  
+  if (!resultData) {
+    return (
+      <Card className="p-4 bg-yellow-50 text-yellow-800 text-center">
+        <p>{language === 'en' ? 'Results not available yet' : 'Resultados aún no disponibles'}</p>
       </Card>
     );
   }
