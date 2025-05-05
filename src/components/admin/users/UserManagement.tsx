@@ -39,33 +39,64 @@ const UserManagement = () => {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      // Get all users from the profiles table
+      console.log("Fetching all users...");
+      
+      // First get all users from auth.users using admin API (via Supabase Edge Function)
+      // Normally we would do this, but we're using a different approach with profiles
+      
+      // Get all profiles from the database
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('*');
-
+      
       if (profilesError) {
+        console.error("Error fetching profiles:", profilesError);
         throw profilesError;
       }
-
-      // Process the profiles and create user objects
+      
+      console.log("Fetched profiles:", profiles);
+      
+      if (!profiles || profiles.length === 0) {
+        console.warn("No profiles found in the database");
+        setUsers([]);
+        setFilteredUsers([]);
+        setLoading(false);
+        toast({
+          title: "No users found",
+          description: "There are no users in the database.",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      // Create an array to hold all the user objects
       const fetchedUsers: User[] = [];
       
-      for (const profile of profiles || []) {
+      // Process each profile to create user objects
+      for (const profile of profiles) {
         try {
+          console.log("Processing profile:", profile.id);
+          
           // Check if the user is an admin using the is_admin RPC function
           const { data: isAdmin, error: roleError } = await supabase.rpc('is_admin', {
             user_uuid: profile.id
           });
           
-          if (roleError) console.log(`Error checking role for ${profile.id}:`, roleError);
+          if (roleError) {
+            console.error(`Error checking role for ${profile.id}:`, roleError);
+          }
           
-          // Create a user object from the profile
+          console.log(`User ${profile.id} admin status:`, isAdmin);
+          
+          // Generate an email address based on the profile data or ID
+          const email = profile.coach_name 
+            ? `${profile.coach_name.toLowerCase().replace(/\s+/g, '.')}@example.com` 
+            : `user-${profile.id.substring(0, 8)}@example.com`;
+          
+          // Create a user object from the profile data
           const userObj: User = {
             id: profile.id,
-            email: profile.coach_name ? 
-              `${profile.coach_name.toLowerCase().replace(/\s+/g, '.')}@example.com` : 
-              `user-${profile.id.substring(0, 8)}@example.com`,
+            email: email,
             created_at: profile.created_at || new Date().toISOString(),
             user_metadata: {
               full_name: profile.coach_name || `User ${profile.id.substring(0, 5)}`
@@ -81,9 +112,12 @@ const UserManagement = () => {
           console.error('Error processing user:', profile.id, error);
         }
       }
-
+      
+      console.log("Processed users:", fetchedUsers);
+      
       setUsers(fetchedUsers);
       setFilteredUsers(fetchedUsers);
+      
       toast({
         title: "Users loaded",
         description: `${fetchedUsers.length} users retrieved successfully.`,
