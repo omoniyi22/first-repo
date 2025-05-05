@@ -103,7 +103,9 @@ const Navbar = () => {
   };
 
   // Check if user is an admin
-  const isAdmin = user?.email?.endsWith('@equineaintelligence.com') || user?.email === 'admin@example.com';
+  const isAdmin = user?.email?.endsWith('@equineaintelligence.com') || 
+                 user?.email?.endsWith('@appetitecreative.com') || 
+                 user?.email === 'admin@example.com';
 
   return (
     <header 
@@ -379,6 +381,16 @@ const Navbar = () => {
                 >
                   {t["profile-setup"]}
                 </Link>
+                
+                {/* Add admin dashboard link for mobile users */}
+                {isAdmin && (
+                  <Link 
+                    to="/admin" 
+                    className={`text-white text-base font-medium font-sans ${isActive('/admin') ? 'text-purple-300' : ''}`}
+                  >
+                    Admin Dashboard
+                  </Link>
+                )}
               </>
             )}
             

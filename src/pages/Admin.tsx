@@ -24,6 +24,7 @@ const Admin = () => {
       // Check if the user's email is an admin email
       // In a production environment, this should be replaced with a proper role check from the database
       const isAdmin = user.email?.endsWith('@equineaintelligence.com') || 
+                     user.email?.endsWith('@appetitecreative.com') ||
                      user.email === 'admin@example.com'; // For testing
       
       if (!isAdmin) {
