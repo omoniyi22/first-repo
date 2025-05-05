@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Card } from '@/components/ui/card';
@@ -42,7 +42,9 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({ videoId }) 
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [currentTime, setCurrentTime] = useState<number>(0);
   const [duration, setDuration] = useState<number>(0);
-  const [videoElement, setVideoElement] = useState<HTMLVideoElement | null>(null);
+  
+  // Use useRef instead of useState for the video element to maintain a stable reference
+  const videoRef = useRef<HTMLVideoElement>(null);
   
   useEffect(() => {
     const fetchAnalysis = async () => {
@@ -67,6 +69,7 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({ videoId }) 
         }
         
         if (data) {
+          console.log("Retrieved video data:", data);
           setAnalysis(data as VideoAnalysisData);
         } else {
           setError(language === 'en' ? 'Video not found' : 'Video no encontrado');
@@ -90,32 +93,48 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({ videoId }) 
   
   // Video player controls
   const togglePlayPause = () => {
-    if (!videoElement) return;
+    if (!videoRef.current) return;
     
     if (isPlaying) {
-      videoElement.pause();
+      videoRef.current.pause();
     } else {
-      videoElement.play();
+      // Ensure video is loaded before playing
+      const playPromise = videoRef.current.play();
+      
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            // Video started playing successfully
+            setIsPlaying(true);
+          })
+          .catch(error => {
+            // Auto-play was prevented
+            console.error("Video playback failed:", error);
+            setIsPlaying(false);
+          });
+      }
+      return;
     }
     
     setIsPlaying(!isPlaying);
   };
   
   const handleTimeUpdate = () => {
-    if (videoElement) {
-      setCurrentTime(videoElement.currentTime);
+    if (videoRef.current) {
+      setCurrentTime(videoRef.current.currentTime);
     }
   };
   
   const handleLoadedMetadata = () => {
-    if (videoElement) {
-      setDuration(videoElement.duration);
+    if (videoRef.current) {
+      console.log("Video metadata loaded, duration:", videoRef.current.duration);
+      setDuration(videoRef.current.duration);
     }
   };
   
   const handleSliderChange = (value: number[]) => {
-    if (videoElement) {
-      videoElement.currentTime = value[0];
+    if (videoRef.current) {
+      videoRef.current.currentTime = value[0];
       setCurrentTime(value[0]);
     }
   };
@@ -125,14 +144,14 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({ videoId }) 
   };
   
   const seekBackward = () => {
-    if (videoElement) {
-      videoElement.currentTime = Math.max(0, videoElement.currentTime - 5);
+    if (videoRef.current) {
+      videoRef.current.currentTime = Math.max(0, videoRef.current.currentTime - 5);
     }
   };
   
   const seekForward = () => {
-    if (videoElement) {
-      videoElement.currentTime = Math.min(duration, videoElement.currentTime + 5);
+    if (videoRef.current) {
+      videoRef.current.currentTime = Math.min(duration, videoRef.current.currentTime + 5);
     }
   };
   
@@ -242,14 +261,16 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({ videoId }) 
       
       {/* Video player */}
       <div className="mb-6">
-        <div className="relative bg-black rounded-lg overflow-hidden">
+        <div className="relative bg-black rounded-lg overflow-hidden aspect-video">
           <video
-            ref={(el) => setVideoElement(el)}
+            ref={videoRef}
             src={analysis.document_url}
-            className="w-full"
+            className="w-full h-full"
             onTimeUpdate={handleTimeUpdate}
             onLoadedMetadata={handleLoadedMetadata}
             onEnded={handleVideoEnded}
+            preload="metadata"
+            playsInline
             controls={false}
           />
         </div>
@@ -274,6 +295,7 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({ videoId }) 
               variant="outline" 
               size="icon" 
               onClick={seekBackward}
+              aria-label="Skip backward 5 seconds"
             >
               <SkipBack className="h-5 w-5" />
             </Button>
@@ -281,6 +303,7 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({ videoId }) 
               variant="outline" 
               size="icon"
               onClick={togglePlayPause}
+              aria-label={isPlaying ? "Pause" : "Play"}
             >
               {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
             </Button>
@@ -288,6 +311,7 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({ videoId }) 
               variant="outline" 
               size="icon"
               onClick={seekForward}
+              aria-label="Skip forward 5 seconds"
             >
               <SkipForward className="h-5 w-5" />
             </Button>
