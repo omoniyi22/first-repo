@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Check } from 'lucide-react';
 import PricingToggle from './PricingToggle';
@@ -255,16 +254,16 @@ const PricingTiers = () => {
                   </Badge>
                 )}
                 
-                <div className="mb-8">
-                  <h2 className="text-2xl font-serif font-semibold text-purple-900 mb-2">
+                <div className="mb-10">
+                  <h2 className="text-2xl font-serif font-semibold text-purple-900 mb-4">
                     {plan.name}
                   </h2>
                   
-                  <p className="text-purple-700 mb-8 text-sm h-12">
+                  <p className="text-purple-700 mb-10 text-sm h-12">
                     {plan.tagline[language]}
                   </p>
                   
-                  <div className="flex items-baseline mb-3">
+                  <div className="flex items-baseline mb-5">
                     <span className="text-4xl font-bold text-purple-900">
                       £{isAnnual ? plan.annualPrice : plan.monthlyPrice}
                     </span>
@@ -274,14 +273,14 @@ const PricingTiers = () => {
                   </div>
                   
                   {isAnnual && (
-                    <p className="text-sm text-purple-600 mb-8">
+                    <p className="text-sm text-purple-600 mb-10">
                       {t["billed-annually"]} (£{(isAnnual ? plan.annualPrice : plan.monthlyPrice) * 12}/{t["year"]})
                     </p>
                   )}
                 </div>
                 
                 <Button 
-                  className={`w-full py-6 rounded-lg text-base mb-8 cursor-not-allowed opacity-70 ${
+                  className={`w-full py-6 rounded-lg text-base mb-10 cursor-not-allowed opacity-70 ${
                     plan.highlighted 
                       ? 'bg-purple-700 hover:bg-purple-800 text-white font-semibold h-auto' 
                       : plan.id === 'basic'
@@ -293,12 +292,12 @@ const PricingTiers = () => {
                   {plan.buttonText[language]}
                 </Button>
                 
-                <div className="space-y-4 mt-auto">
-                  <h3 className="font-medium text-purple-900 border-b border-silver-200 pb-2">
+                <div className="space-y-5 mt-auto">
+                  <h3 className="font-medium text-purple-900 border-b border-silver-200 pb-3">
                     {t["features-include"]}
                   </h3>
                   
-                  <ul className="space-y-3">
+                  <ul className="space-y-4">
                     {plan.features.map((feature, i) => (
                       <li key={i} className={`flex items-start ${!feature.included ? 'opacity-60' : ''}`}>
                         <Check className={`h-5 w-5 mr-3 mt-0.5 flex-shrink-0 ${feature.included ? 'text-purple-600' : 'text-silver-400'}`} />
