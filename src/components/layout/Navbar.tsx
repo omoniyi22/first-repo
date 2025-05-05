@@ -94,10 +94,42 @@ const Navbar = () => {
     }
   };
 
-  const getSimplifiedNavItems = () => {
-    return [
-      { path: "/", label: t["home"], icon: <Home className="h-4 w-4 mr-2" /> }
-    ];
+  // Always show the main navigation links regardless of the current discipline
+  const getMainNavItems = () => {
+    return (
+      <>
+        <Link 
+          to="/" 
+          className={`nav-link ${isActive('/') ? 'active' : ''} text-white`}
+        >
+          {t["home"]}
+        </Link>
+        <Link 
+          to="/how-it-works" 
+          className={`nav-link ${isActive('/how-it-works') ? 'active' : ''} text-white`}
+        >
+          {t["how-it-works"]}
+        </Link>
+        <Link 
+          to="/pricing" 
+          className={`nav-link ${isActive('/pricing') ? 'active' : ''} text-white`}
+        >
+          {t["pricing"]}
+        </Link>
+        <Link 
+          to="/blog" 
+          className={`nav-link ${isActive('/blog') ? 'active' : ''} text-white`}
+        >
+          {t["blog"]}
+        </Link>
+        <Link 
+          to="/about"
+          className={`nav-link ${isActive('/about') ? 'active' : ''} text-white`}
+        >
+          {t["about"]}
+        </Link>
+      </>
+    );
   };
 
   return (
@@ -119,51 +151,11 @@ const Navbar = () => {
                 {getBrandName()}
               </h1>
             </Link>
-            
-            {(location.pathname.startsWith('/dressage') || location.pathname.startsWith('/jumping')) && (
-              <Link to="/" className="ml-6 flex items-center text-white hover:text-white/80 transition-colors">
-                <Home className="h-4 w-4 mr-1" />
-                <span>{t["home"]}</span>
-              </Link>
-            )}
           </div>
           
           {/* Desktop navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            {!location.pathname.startsWith('/dressage') && !location.pathname.startsWith('/jumping') && (
-              <>
-                <Link 
-                  to="/" 
-                  className={`nav-link ${isActive('/') ? 'active' : ''} text-white`}
-                >
-                  {t["home"]}
-                </Link>
-                <Link 
-                  to="/how-it-works" 
-                  className={`nav-link ${isActive('/how-it-works') ? 'active' : ''} text-white`}
-                >
-                  {t["how-it-works"]}
-                </Link>
-                <Link 
-                  to="/pricing" 
-                  className={`nav-link ${isActive('/pricing') ? 'active' : ''} text-white`}
-                >
-                  {t["pricing"]}
-                </Link>
-                <Link 
-                  to="/blog" 
-                  className={`nav-link ${isActive('/blog') ? 'active' : ''} text-white`}
-                >
-                  {t["blog"]}
-                </Link>
-                <Link 
-                  to="/about"
-                  className={`nav-link ${isActive('/about') ? 'active' : ''} text-white`}
-                >
-                  {t["about"]}
-                </Link>
-              </>
-            )}
+            {getMainNavItems()}
             
             {user ? (
               <div className="flex items-center ml-3 space-x-4">
@@ -253,34 +245,30 @@ const Navbar = () => {
             >
               {t["home"]}
             </Link>
-            {!location.pathname.startsWith('/dressage') && !location.pathname.startsWith('/jumping') && (
-              <>
-                <Link 
-                  to="/how-it-works"
-                  className={`text-white text-lg font-medium ${isActive('/how-it-works') ? 'text-purple-300' : ''}`}
-                >
-                  {t["how-it-works"]}
-                </Link>
-                <Link 
-                  to="/pricing" 
-                  className={`text-white text-lg font-medium ${isActive('/pricing') ? 'text-purple-300' : ''}`}
-                >
-                  {t["pricing"]}
-                </Link>
-                <Link 
-                  to="/blog" 
-                  className={`text-white text-lg font-medium ${isActive('/blog') ? 'text-purple-300' : ''}`}
-                >
-                  {t["blog"]}
-                </Link>
-                <Link 
-                  to="/about"
-                  className={`text-white text-lg font-medium ${isActive('/about') ? 'text-purple-300' : ''}`}
-                >
-                  {t["about"]}
-                </Link>
-              </>
-            )}
+            <Link 
+              to="/how-it-works"
+              className={`text-white text-lg font-medium ${isActive('/how-it-works') ? 'text-purple-300' : ''}`}
+            >
+              {t["how-it-works"]}
+            </Link>
+            <Link 
+              to="/pricing" 
+              className={`text-white text-lg font-medium ${isActive('/pricing') ? 'text-purple-300' : ''}`}
+            >
+              {t["pricing"]}
+            </Link>
+            <Link 
+              to="/blog" 
+              className={`text-white text-lg font-medium ${isActive('/blog') ? 'text-purple-300' : ''}`}
+            >
+              {t["blog"]}
+            </Link>
+            <Link 
+              to="/about"
+              className={`text-white text-lg font-medium ${isActive('/about') ? 'text-purple-300' : ''}`}
+            >
+              {t["about"]}
+            </Link>
             
             {user && (
               <>
