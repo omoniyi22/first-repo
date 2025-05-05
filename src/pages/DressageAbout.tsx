@@ -54,23 +54,25 @@ const DressageAbout = () => {
     <div className="min-h-screen bg-gradient-to-b from-purple-100 to-white">
       <SEO {...seoMetadata} />
       <Navbar />
-      <div className="container mx-auto px-6 pt-24 pb-6">
-        <Link to="/dressage">
-          <Button variant="ghost" className="flex items-center gap-2 mb-4 -ml-2">
-            <ArrowLeft className="h-4 w-4" />
-            <span>Back to AI Dressage</span>
-          </Button>
-        </Link>
+      <div className="container mx-auto px-6 pt-24 pb-4">
         <div className="flex items-center justify-between">
-          <div className="inline-block px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium mb-2">
-            About AI Dressage Trainer
+          <div className="flex items-center">
+            <Link to="/dressage">
+              <Button variant="ghost" className="flex items-center gap-2 -ml-2 hover:bg-purple-100 hover:text-purple-800">
+                <ArrowLeft className="h-4 w-4" />
+                <span>Back to AI Dressage</span>
+              </Button>
+            </Link>
+            <div className="ml-4 px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium">
+              About
+            </div>
           </div>
           <Link to="/dressage/how-it-works" className="text-purple-600 hover:text-purple-800 text-sm font-medium">
             How It Works
           </Link>
         </div>
       </div>
-      <main className="pt-0">
+      <main className="pt-2">
         <MissionSection />
         <TeamSection />
       </main>
