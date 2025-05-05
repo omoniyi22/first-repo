@@ -260,11 +260,11 @@ const PricingTiers = () => {
                     {plan.name}
                   </h2>
                   
-                  <p className="text-purple-700 mb-6 text-sm h-12">
+                  <p className="text-purple-700 mb-8 text-sm h-12">
                     {plan.tagline[language]}
                   </p>
                   
-                  <div className="flex items-baseline mb-1">
+                  <div className="flex items-baseline mb-3">
                     <span className="text-4xl font-bold text-purple-900">
                       £{isAnnual ? plan.annualPrice : plan.monthlyPrice}
                     </span>
@@ -274,7 +274,7 @@ const PricingTiers = () => {
                   </div>
                   
                   {isAnnual && (
-                    <p className="text-sm text-purple-600 mb-6">
+                    <p className="text-sm text-purple-600 mb-8">
                       {t["billed-annually"]} (£{(isAnnual ? plan.annualPrice : plan.monthlyPrice) * 12}/{t["year"]})
                     </p>
                   )}
