@@ -1,5 +1,5 @@
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
@@ -12,17 +12,44 @@ import { Button } from '@/components/ui/button';
 import { User, Upload, Settings } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { SEO, getPageMetadata } from '@/lib/seo';
+import { supabase } from '@/integrations/supabase/client';
 
 const Dashboard = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const { language } = useLanguage();
+  const [isAdmin, setIsAdmin] = useState(false);
   
   // Get dashboard SEO metadata
   const seoMetadata = getPageMetadata('dashboard', {
     // Add noindex tag since this is a private page
     noIndex: true
   });
+  
+  // Check if user is an admin
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      if (!user) return;
+      
+      try {
+        // Call the Supabase function to check if the user is an admin
+        const { data, error } = await supabase.rpc('is_admin', {
+          user_uuid: user.id
+        });
+        
+        if (error) {
+          console.error("Failed to check admin status:", error);
+          return;
+        }
+        
+        setIsAdmin(!!data);
+      } catch (error) {
+        console.error("Error checking admin status:", error);
+      }
+    };
+    
+    checkAdminStatus();
+  }, [user]);
   
   // If not logged in and not loading, redirect to sign in
   useEffect(() => {
@@ -45,10 +72,6 @@ const Dashboard = () => {
   if (!user) {
     return null;
   }
-
-  // Check if user is an admin (by email or role)
-  const isAdmin = user.email === 'jenny@appetitecreative.com' || 
-                  user.user_metadata?.role === 'admin';
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white">

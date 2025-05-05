@@ -22,14 +22,14 @@ const Admin = () => {
     if (!user) return false;
     
     try {
-      // Check if the user is jenny@appetitecreative.com or has admin role
-      const isJenny = user.email === 'jenny@appetitecreative.com';
+      // Call the Supabase function to check if the user is an admin
+      const { data, error } = await supabase.rpc('is_admin', {
+        user_uuid: user.id
+      });
       
-      // Check for admin role in user metadata
-      const hasAdminRole = user.user_metadata?.role === 'admin';
+      if (error) throw error;
       
-      // Only allow access to jenny or users with admin role
-      const isAdmin = isJenny || hasAdminRole;
+      const isAdmin = !!data;
       
       if (!isAdmin) {
         toast({
@@ -43,6 +43,12 @@ const Admin = () => {
       return isAdmin;
     } catch (error) {
       console.error("Failed to verify admin status:", error);
+      toast({
+        title: "Error",
+        description: "Failed to verify admin status. Please try again.",
+        variant: "destructive"
+      });
+      navigate('/dashboard');
       return false;
     }
   };

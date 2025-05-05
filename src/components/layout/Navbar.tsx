@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import LanguageSwitcher from '@/components/language/LanguageSwitcher';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { supabase } from '@/integrations/supabase/client';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,6 +28,7 @@ import { cn } from "@/lib/utils";
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
@@ -46,6 +48,31 @@ const Navbar = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+  
+  // Check if user is an admin using the backend function
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      if (!user) return;
+      
+      try {
+        // Call the Supabase function to check if user is admin
+        const { data, error } = await supabase.rpc('is_admin', {
+          user_uuid: user.id
+        });
+        
+        if (error) {
+          console.error("Failed to check admin status:", error);
+          return;
+        }
+        
+        setIsAdmin(!!data);
+      } catch (error) {
+        console.error("Error checking admin status:", error);
+      }
+    };
+    
+    checkAdminStatus();
+  }, [user]);
   
   // Close mobile menu when route changes
   useEffect(() => {
@@ -101,10 +128,6 @@ const Navbar = () => {
       return 'text-white';  // Default theme
     }
   };
-
-  // Check if user is an admin
-  const isAdmin = user?.email === 'jenny@appetitecreative.com' || 
-                 user?.user_metadata?.role === 'admin';
 
   return (
     <header 

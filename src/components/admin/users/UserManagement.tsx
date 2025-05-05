@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Search, RefreshCw, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -111,9 +112,41 @@ const UserManagement = () => {
     }
   };
 
+  // Get user roles from the database
+  const fetchUserRoles = async () => {
+    try {
+      const { data: roles, error } = await supabase
+        .from('user_roles')
+        .select('user_id, role');
+      
+      if (error) throw error;
+      
+      if (roles && roles.length > 0) {
+        // Update users with their roles from the database
+        setUsers(prevUsers => {
+          return prevUsers.map(user => {
+            const userRole = roles.find(r => r.user_id === user.id);
+            if (userRole) {
+              return { ...user, role: userRole.role };
+            }
+            return user;
+          });
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching user roles:', error);
+    }
+  };
+
   useEffect(() => {
     fetchUsers();
   }, []);
+  
+  useEffect(() => {
+    if (users.length > 0) {
+      fetchUserRoles();
+    }
+  }, [users]);
 
   useEffect(() => {
     let result = users;
@@ -138,45 +171,32 @@ const UserManagement = () => {
     setFilteredUsers(result);
   }, [searchTerm, regionFilter, roleFilter, users]);
 
-  // Add function to set admin role for a user
+  // Add function to set admin role for a user using the database function
   const setAdminRole = async (email: string) => {
     try {
-      // Find the user in our list
-      const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+      // Call the database function to set admin role
+      const { data, error } = await supabase.rpc('set_admin_role', {
+        email_address: email
+      });
       
-      if (!user) {
+      if (error) throw error;
+      
+      if (data) {
+        toast({
+          title: "Admin role assigned",
+          description: `${email} has been granted admin privileges.`,
+          variant: "default"
+        });
+        
+        // Refresh users to show updated role
+        fetchUsers();
+      } else {
         toast({
           title: "User not found",
           description: `No user found with email ${email}. They need to register first.`,
           variant: "destructive"
         });
-        return;
       }
-      
-      // Update the user's role in Supabase
-      const { error } = await supabase.auth.admin.updateUserById(
-        user.id,
-        {
-          user_metadata: {
-            ...user.user_metadata,
-            role: 'admin'
-          }
-        }
-      );
-      
-      if (error) throw error;
-      
-      // Update local state
-      handleUpdateUser(user.id, { 
-        role: 'admin',
-        user_metadata: { ...user.user_metadata }
-      });
-      
-      toast({
-        title: "Admin role assigned",
-        description: `${email} has been granted admin privileges.`,
-        variant: "default"
-      });
     } catch (error) {
       console.error('Error setting admin role:', error);
       toast({
