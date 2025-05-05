@@ -9,7 +9,7 @@ import RecentVideos from '@/components/dashboard/RecentVideos';
 import UpcomingEvents from '@/components/dashboard/UpcomingEvents';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { User, Upload } from 'lucide-react';
+import { User, Upload, Settings } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { SEO, getPageMetadata } from '@/lib/seo';
 
@@ -46,6 +46,10 @@ const Dashboard = () => {
     return null;
   }
 
+  // Check if user is an admin (This is a simplified check - in production, use roles from database)
+  const isAdmin = user.email?.endsWith('@equineaintelligence.com') || 
+                  user.email === 'admin@example.com';
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white">
       <SEO {...seoMetadata} />
@@ -69,6 +73,17 @@ const Dashboard = () => {
               <User className="mr-2 h-4 w-4" />
               {language === 'en' ? 'View Profile' : 'Ver Perfil'}
             </Button>
+            
+            {isAdmin && (
+              <Button 
+                variant="outline" 
+                className="text-blue-700 border-blue-200 hover:bg-blue-50 text-sm sm:text-base"
+                onClick={() => navigate('/admin')}
+              >
+                <Settings className="mr-2 h-4 w-4" />
+                Admin Panel
+              </Button>
+            )}
           </div>
         </div>
         <DashboardStats />

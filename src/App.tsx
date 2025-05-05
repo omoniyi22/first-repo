@@ -33,6 +33,15 @@ import DressageAbout from "./pages/DressageAbout";
 import JumpingAbout from "./pages/JumpingAbout";
 import EquestrianAbout from "./pages/EquestrianAbout";
 
+// Admin Routes
+import Admin from "./pages/Admin";
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminBlog from "./pages/AdminBlog";
+import AdminUsers from "./pages/AdminUsers";
+import AdminContent from "./pages/AdminContent";
+import AdminMedia from "./pages/AdminMedia";
+import AdminSettings from "./pages/AdminSettings";
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -74,6 +83,17 @@ const App = () => (
                 <Route path="/profile-setup" element={<ProfileQuestionnaire />} />
                 <Route path="/jump-profile-setup" element={<JumpProfileSetup />} />
                 <Route path="/analysis" element={<Analysis />} />
+                
+                {/* Admin Routes */}
+                <Route path="/admin" element={<Admin />}>
+                  <Route index element={<AdminDashboard />} />
+                  <Route path="blog" element={<AdminBlog />} />
+                  <Route path="users" element={<AdminUsers />} />
+                  <Route path="content" element={<AdminContent />} />
+                  <Route path="media" element={<AdminMedia />} />
+                  <Route path="settings" element={<AdminSettings />} />
+                </Route>
+                
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </TooltipProvider>
