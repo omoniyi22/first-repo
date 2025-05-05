@@ -27,17 +27,6 @@ const Footer = () => {
                 ? "Transform your equestrian training with AI-powered analysis and personalized recommendations."
                 : "Transforma tu entrenamiento ecuestre con análisis impulsado por IA y recomendaciones personalizadas."}
             </p>
-            <div className="mt-6 flex justify-center">
-              <a 
-                href="https://www.instagram.com/ai_equestrian?igsh=MXU4ajRhdWtlYjMydA==" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="text-gray-300 hover:text-white transition-colors"
-                aria-label="Instagram"
-              >
-                <Instagram size={18} />
-              </a>
-            </div>
           </div>
           
           <div className="col-span-1">
@@ -115,6 +104,18 @@ const Footer = () => {
                 <Mail size={16} className="mr-2 mt-1 text-gray-300" />
                 <a href="mailto:info@equineaintelligence.com" className="text-gray-300 hover:text-white transition-colors text-sm">
                   info@equineaintelligence.com
+                </a>
+              </li>
+              <li className="flex items-center mt-2">
+                <Instagram size={16} className="mr-2 text-gray-300" />
+                <a 
+                  href="https://www.instagram.com/ai_equestrian?igsh=MXU4ajRhdWtlYjMydA==" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="text-gray-300 hover:text-white transition-colors text-sm"
+                  aria-label="Instagram"
+                >
+                  ai_equestrian
                 </a>
               </li>
             </ul>
