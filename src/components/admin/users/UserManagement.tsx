@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Search, RefreshCw, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -46,18 +45,28 @@ const UserManagement = () => {
 
       if (profilesError) throw profilesError;
 
-      // Get user roles (using our database function)
-      const { data: userRoles, error: rolesError } = await supabase
-        .from('user_roles')
-        .select('user_id, role');
-
-      if (rolesError) throw rolesError;
-
+      // Instead of directly querying user_roles, use RPC function to get roles
+      // We'll create an array to store the role information
+      const userRolesMap = new Map();
+      
+      // For each profile, try to get their role separately to avoid the recursion issue
+      for (const profile of profiles || []) {
+        try {
+          // Call the is_admin RPC function for each user
+          const { data: isAdmin } = await supabase.rpc('is_admin', {
+            user_uuid: profile.id
+          });
+          
+          // Set role based on the function's response
+          userRolesMap.set(profile.id, isAdmin ? 'admin' : 'user');
+        } catch (error) {
+          console.log(`Could not determine role for user ${profile.id}:`, error);
+          userRolesMap.set(profile.id, 'user'); // Default to user role
+        }
+      }
+      
       // Build our user list from profiles
       const fetchedUsers: User[] = (profiles || []).map((profile: any) => {
-        // Try to find role information
-        const userRole = userRoles?.find((r: any) => r.user_id === profile.id);
-        
         // Format the data
         return {
           id: profile.id,
@@ -67,7 +76,7 @@ const UserManagement = () => {
             full_name: profile.coach_name || `User ${Math.floor(Math.random() * 1000)}`
           },
           last_sign_in_at: profile.updated_at || null,
-          role: userRole?.role || 'user',
+          role: userRolesMap.get(profile.id) || 'user',
           region: profile.region || 'Unknown',
           is_active: true
         };
