@@ -34,7 +34,7 @@ export const blogPosts: BlogPost[] = [
     date: 'April 25, 2025',
     discipline: 'Jumping',
     category: 'Technology',
-    image: '/lovable-uploads/987a3f3b-1917-439f-a3a9-8fabc609cffa.png',
+    image: '/lovable-uploads/cda0d16d-c48f-433b-a4ca-31552d80f3fc.png',
     readingTime: '5 min read',
     translations: {
       es: {
@@ -54,7 +54,7 @@ export const blogPosts: BlogPost[] = [
     date: 'April 22, 2025',
     discipline: 'Jumping',
     category: 'Analytics',
-    image: '/lovable-uploads/3b7c24a2-ef67-42cc-9b46-875418451128.png',
+    image: '/lovable-uploads/28c8b566-c53d-4197-b758-abac7ac25848.png',
     readingTime: '7 min read',
     translations: {
       es: {
@@ -74,7 +74,7 @@ export const blogPosts: BlogPost[] = [
     date: 'April 19, 2025',
     discipline: 'Jumping',
     category: 'Training',
-    image: '/lovable-uploads/15df63d0-27e1-486c-98ee-bcf44eb600f4.png',
+    image: '/lovable-uploads/223982c4-1359-486a-a3d7-876e251274bc.png',
     readingTime: '6 min read',
     translations: {
       es: {
@@ -94,7 +94,7 @@ export const blogPosts: BlogPost[] = [
     date: 'April 16, 2025',
     discipline: 'Jumping',
     category: 'Guides',
-    image: '/lovable-uploads/4c938b42-7713-4f2d-947a-1e70c3caca32.png',
+    image: '/lovable-uploads/b4c7d6ae-2c74-42dc-984a-32d0c758a7aa.png',
     readingTime: '9 min read',
     translations: {
       es: {
@@ -114,7 +114,7 @@ export const blogPosts: BlogPost[] = [
     date: 'April 13, 2025',
     discipline: 'Jumping',
     category: 'Competition',
-    image: '/lovable-uploads/b729b0be-9b4c-4b4b-bdec-6bd2f849b8f8.png',
+    image: '/lovable-uploads/8029655e-ccba-4c36-a1da-598829a73f0c.png',
     readingTime: '8 min read',
     translations: {
       es: {
@@ -134,7 +134,7 @@ export const blogPosts: BlogPost[] = [
     date: 'April 10, 2025',
     discipline: 'Jumping',
     category: 'Analytics',
-    image: '/lovable-uploads/79f64a37-cb8e-4627-b743-c5330837a1b0.png',
+    image: '/lovable-uploads/c297b60b-8892-4358-8ba3-62e317f4a7ee.png',
     readingTime: '6 min read',
     translations: {
       es: {
@@ -156,7 +156,7 @@ export const blogPosts: BlogPost[] = [
     date: 'April 29, 2025',
     discipline: 'Dressage',
     category: 'Technology',
-    image: '/lovable-uploads/15df63d0-27e1-486c-98ee-bcf44eb600f4.png',
+    image: '/lovable-uploads/e2cfe504-4899-4458-9af3-b8deb0a24a4b.png',
     readingTime: '7 min read',
     translations: {
       es: {
@@ -176,7 +176,7 @@ export const blogPosts: BlogPost[] = [
     date: 'April 27, 2025',
     discipline: 'Dressage',
     category: 'Analytics',
-    image: '/lovable-uploads/4c938b42-7713-4f2d-947a-1e70c3caca32.png',
+    image: '/lovable-uploads/2d7d12d5-7cbc-4747-878c-897c94ab8d18.png',
     readingTime: '8 min read',
     translations: {
       es: {
@@ -196,7 +196,7 @@ export const blogPosts: BlogPost[] = [
     date: 'April 25, 2025',
     discipline: 'Dressage',
     category: 'Guides',
-    image: '/lovable-uploads/b729b0be-9b4c-4b4b-bdec-6bd2f849b8f8.png',
+    image: '/lovable-uploads/ce48f309-50d3-454b-9c23-a64f55cba5ba.png',
     readingTime: '6 min read',
     translations: {
       es: {
@@ -216,7 +216,7 @@ export const blogPosts: BlogPost[] = [
     date: 'April 22, 2025',
     discipline: 'Dressage',
     category: 'Competition',
-    image: '/lovable-uploads/3b7c24a2-ef67-42cc-9b46-875418451128.png',
+    image: '/lovable-uploads/2389697e-6b82-4b92-b764-c24f61fca8d4.png',
     readingTime: '9 min read',
     translations: {
       es: {
@@ -236,7 +236,7 @@ export const blogPosts: BlogPost[] = [
     date: 'April 20, 2025',
     discipline: 'Dressage',
     category: 'Training',
-    image: '/lovable-uploads/79f64a37-cb8e-4627-b743-c5330837a1b0.png',
+    image: '/lovable-uploads/ce48f309-50d3-454b-9c23-a64f55cba5ba.png',
     readingTime: '5 min read',
     translations: {
       es: {
@@ -256,7 +256,7 @@ export const blogPosts: BlogPost[] = [
     date: 'April 18, 2025',
     discipline: 'Dressage',
     category: 'Competition',
-    image: '/lovable-uploads/987a3f3b-1917-439f-a3a9-8fabc609cffa.png',
+    image: '/lovable-uploads/2d7d12d5-7cbc-4747-878c-897c94ab8d18.png',
     readingTime: '7 min read',
     translations: {
       es: {
