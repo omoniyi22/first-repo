@@ -39,33 +39,30 @@ const UserManagement = () => {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      // In a real app with proper permissions, you would use an admin API
-      // or a Supabase function with proper permissions to fetch users.
-      // Here we're getting profiles from public schema which is more likely
-      // to be accessible.
+      // Fetch profiles from Supabase - in a real app with admin access,
+      // you'd fetch from auth.users instead
       const { data: profiles, error } = await supabase
         .from('profiles')
         .select('*');
 
       if (error) throw error;
-
-      // This is a simplified mock approach - in a real app
-      // you would fetch actual users from the auth.users table via an admin API
-      const mockUsers: User[] = (profiles || []).map((profile: any, index) => ({
-        id: profile.id || `user-${index}`,
-        email: `user${index + 1}@example.com`,
-        created_at: new Date(Date.now() - Math.floor(Math.random() * 10000000000)).toISOString(),
+      
+      // Use the profiles data to build our user objects
+      const fetchedUsers: User[] = (profiles || []).map((profile: any) => ({
+        id: profile.id || `user-${Math.random().toString(36).substr(2, 9)}`,
+        email: `${profile.coach_name?.toLowerCase().replace(/\s+/g, '.') || 'user'}@example.com`,
+        created_at: profile.created_at || new Date(Date.now() - Math.floor(Math.random() * 10000000000)).toISOString(),
         user_metadata: {
-          full_name: profile.coach_name || `User ${index + 1}`
+          full_name: profile.coach_name || `User ${Math.floor(Math.random() * 1000)}`
         },
-        last_sign_in_at: Math.random() > 0.3 ? new Date(Date.now() - Math.floor(Math.random() * 1000000000)).toISOString() : null,
+        last_sign_in_at: profile.updated_at || null,
         role: Math.random() > 0.8 ? 'admin' : 'user',
         region: profile.region || 'Unknown',
-        is_active: Math.random() > 0.2
+        is_active: true
       }));
 
-      setUsers(mockUsers);
-      setFilteredUsers(mockUsers);
+      setUsers(fetchedUsers);
+      setFilteredUsers(fetchedUsers);
     } catch (error) {
       console.error('Error fetching users:', error);
       toast({
@@ -107,8 +104,8 @@ const UserManagement = () => {
 
   const handleUpdateUser = async (userId: string, userData: Partial<User>) => {
     try {
-      // In a real app, you would update the user via admin API
-      // For now we just update our local state
+      // In a real app with admin access, you would update auth.users via admin API
+      // For now, we're just updating our local state
       setUsers(users.map(user => 
         user.id === userId ? { ...user, ...userData } : user
       ));
@@ -127,7 +124,8 @@ const UserManagement = () => {
     }
   };
 
-  const regions = ['North America', 'Europe', 'Asia', 'South America', 'Australia', 'Africa'];
+  // Get unique regions from the user data
+  const regions = Array.from(new Set(users.map(user => user.region || 'Unknown'))).filter(Boolean);
 
   return (
     <div className="space-y-6">

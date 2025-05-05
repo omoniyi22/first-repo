@@ -36,9 +36,10 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 interface MediaGridViewProps {
   items: MediaItem[];
   onDelete: (id: string) => void;
+  onSelect?: (item: MediaItem) => void;
 }
 
-const MediaGridView = ({ items, onDelete }: MediaGridViewProps) => {
+const MediaGridView = ({ items, onDelete, onSelect }: MediaGridViewProps) => {
   const [itemToDelete, setItemToDelete] = useState<MediaItem | null>(null);
   const [previewItem, setPreviewItem] = useState<MediaItem | null>(null);
   const [brokenImages, setBrokenImages] = useState<Set<string>>(new Set());
@@ -84,17 +85,25 @@ const MediaGridView = ({ items, onDelete }: MediaGridViewProps) => {
     }
   };
 
+  const handleItemClick = (item: MediaItem) => {
+    if (onSelect) {
+      onSelect(item);
+    } else {
+      setPreviewItem(item);
+    }
+  };
+
   return (
     <>
       <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
         {items.map((item) => (
           <div 
             key={item.id} 
-            className="group relative border rounded-md overflow-hidden bg-gray-50 flex flex-col"
+            className="group relative border rounded-md overflow-hidden bg-gray-50 flex flex-col cursor-pointer hover:border-primary"
+            onClick={() => handleItemClick(item)}
           >
             <div 
-              className="h-32 overflow-hidden bg-white flex items-center justify-center cursor-pointer"
-              onClick={() => setPreviewItem(item)}
+              className="h-32 overflow-hidden bg-white flex items-center justify-center"
             >
               {item.type === 'image' ? (
                 brokenImages.has(item.id) ? (
@@ -133,12 +142,17 @@ const MediaGridView = ({ items, onDelete }: MediaGridViewProps) => {
                 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-6 w-6">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-6 w-6"
+                      onClick={(e) => e.stopPropagation()} // Prevent triggering item selection
+                    >
                       <MoreHorizontal className="h-3.5 w-3.5" />
                       <span className="sr-only">Actions</span>
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
+                  <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
                     <DropdownMenuItem onClick={() => setPreviewItem(item)}>
                       <Eye className="mr-2 h-4 w-4" />
                       Preview

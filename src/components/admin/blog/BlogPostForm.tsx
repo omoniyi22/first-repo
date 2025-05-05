@@ -15,6 +15,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import MediaSelector from "../media/MediaSelector";
 
 interface BlogPostFormProps {
   post: BlogPost | null;
@@ -259,28 +260,14 @@ const BlogPostForm = ({ post, onSave, onCancel }: BlogPostFormProps) => {
           name="image"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Featured Image URL</FormLabel>
+              <FormLabel>Featured Image</FormLabel>
               <FormControl>
-                <Input placeholder="Image URL" {...field} />
+                <MediaSelector
+                  value={field.value}
+                  onChange={field.onChange}
+                />
               </FormControl>
               <FormMessage />
-              
-              {field.value && (
-                <div className="mt-2">
-                  <p className="text-sm text-gray-500 mb-1">Preview:</p>
-                  <div className="w-40 h-24 border rounded-md overflow-hidden">
-                    <img 
-                      src={field.value}
-                      alt="Preview" 
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src = "/placeholder.svg";
-                      }}
-                    />
-                  </div>
-                </div>
-              )}
             </FormItem>
           )}
         />
