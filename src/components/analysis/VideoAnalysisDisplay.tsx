@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, Play, Pause, SkipBack, SkipForward } from 'lucide-react';
+import { Loader2, Play, Pause, SkipBack, SkipForward, AlertCircle } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -42,8 +42,9 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({ videoId }) 
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [currentTime, setCurrentTime] = useState<number>(0);
   const [duration, setDuration] = useState<number>(0);
+  const [videoError, setVideoError] = useState<boolean>(false);
+  const [decodedUrl, setDecodedUrl] = useState<string | null>(null);
   
-  // Use useRef instead of useState for the video element to maintain a stable reference
   const videoRef = useRef<HTMLVideoElement>(null);
   
   useEffect(() => {
@@ -71,6 +72,12 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({ videoId }) 
         if (data) {
           console.log("Retrieved video data:", data);
           setAnalysis(data as VideoAnalysisData);
+          
+          // Properly decode the URL to ensure it works correctly
+          if (data.document_url) {
+            const decoded = decodeURIComponent(data.document_url);
+            setDecodedUrl(decoded);
+          }
         } else {
           setError(language === 'en' ? 'Video not found' : 'Video no encontrado');
         }
@@ -97,26 +104,35 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({ videoId }) 
     
     if (isPlaying) {
       videoRef.current.pause();
+      setIsPlaying(false);
     } else {
       // Ensure video is loaded before playing
-      const playPromise = videoRef.current.play();
+      try {
+        const playPromise = videoRef.current.play();
       
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            // Video started playing successfully
-            setIsPlaying(true);
-          })
-          .catch(error => {
-            // Auto-play was prevented
-            console.error("Video playback failed:", error);
-            setIsPlaying(false);
-          });
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => {
+              // Video started playing successfully
+              setIsPlaying(true);
+              setVideoError(false);
+            })
+            .catch(error => {
+              // Auto-play was prevented
+              console.error("Video playback failed:", error);
+              setIsPlaying(false);
+              setVideoError(true);
+              
+              toast.error(language === 'en' 
+                ? 'Failed to play video. The format might not be supported.' 
+                : 'No se pudo reproducir el video. El formato puede no ser compatible.');
+            });
+        }
+      } catch (error) {
+        console.error("Video playback error:", error);
+        setVideoError(true);
       }
-      return;
     }
-    
-    setIsPlaying(!isPlaying);
   };
   
   const handleTimeUpdate = () => {
@@ -129,6 +145,7 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({ videoId }) 
     if (videoRef.current) {
       console.log("Video metadata loaded, duration:", videoRef.current.duration);
       setDuration(videoRef.current.duration);
+      setVideoError(false);
     }
   };
   
@@ -141,6 +158,15 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({ videoId }) 
   
   const handleVideoEnded = () => {
     setIsPlaying(false);
+  };
+  
+  const handleVideoError = (e: React.SyntheticEvent<HTMLVideoElement, Event>) => {
+    console.error("Video error event:", e);
+    setVideoError(true);
+    setIsPlaying(false);
+    toast.error(language === 'en' 
+      ? 'Failed to load video. The format might not be supported or the URL is invalid.' 
+      : 'No se pudo cargar el video. El formato puede no ser compatible o la URL no es válida.');
   };
   
   const seekBackward = () => {
@@ -262,16 +288,41 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({ videoId }) 
       {/* Video player */}
       <div className="mb-6">
         <div className="relative bg-black rounded-lg overflow-hidden aspect-video">
+          {videoError ? (
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-white bg-gray-900 bg-opacity-80 p-4">
+              <AlertCircle className="h-12 w-12 mb-2 text-red-400" />
+              <p className="text-center mb-4">
+                {language === 'en' 
+                  ? "There was a problem playing this video." 
+                  : "Hubo un problema al reproducir este video."}
+              </p>
+              <Button 
+                variant="outline" 
+                className="text-white border-white hover:bg-white hover:text-gray-900"
+                onClick={() => {
+                  setVideoError(false);
+                  if (videoRef.current) {
+                    videoRef.current.load();
+                  }
+                }}
+              >
+                {language === 'en' ? "Try Again" : "Intentar de nuevo"}
+              </Button>
+            </div>
+          ) : null}
+          
           <video
             ref={videoRef}
-            src={analysis.document_url}
+            src={decodedUrl || analysis.document_url}
             className="w-full h-full"
             onTimeUpdate={handleTimeUpdate}
             onLoadedMetadata={handleLoadedMetadata}
             onEnded={handleVideoEnded}
+            onError={handleVideoError}
             preload="metadata"
             playsInline
             controls={false}
+            crossOrigin="anonymous"
           />
         </div>
         
@@ -288,6 +339,7 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({ videoId }) 
             step={0.1}
             onValueChange={handleSliderChange}
             className="mb-4"
+            disabled={videoError}
           />
           
           <div className="flex justify-center gap-4">
@@ -296,6 +348,7 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({ videoId }) 
               size="icon" 
               onClick={seekBackward}
               aria-label="Skip backward 5 seconds"
+              disabled={videoError}
             >
               <SkipBack className="h-5 w-5" />
             </Button>
@@ -304,6 +357,7 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({ videoId }) 
               size="icon"
               onClick={togglePlayPause}
               aria-label={isPlaying ? "Pause" : "Play"}
+              disabled={videoError}
             >
               {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
             </Button>
@@ -312,6 +366,7 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({ videoId }) 
               size="icon"
               onClick={seekForward}
               aria-label="Skip forward 5 seconds"
+              disabled={videoError}
             >
               <SkipForward className="h-5 w-5" />
             </Button>
