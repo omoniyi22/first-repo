@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Search, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -149,7 +148,7 @@ const UserManagement = () => {
             <SelectValue placeholder="Filter by region" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Regions</SelectItem>
+            <SelectItem value="all">All Regions</SelectItem>
             {regions.map(region => (
               <SelectItem key={region} value={region}>{region}</SelectItem>
             ))}
@@ -160,7 +159,7 @@ const UserManagement = () => {
             <SelectValue placeholder="Filter by role" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Roles</SelectItem>
+            <SelectItem value="all">All Roles</SelectItem>
             <SelectItem value="admin">Admin</SelectItem>
             <SelectItem value="user">User</SelectItem>
           </SelectContent>
