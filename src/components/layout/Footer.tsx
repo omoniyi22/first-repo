@@ -1,12 +1,5 @@
-
 import { Link } from 'react-router-dom';
-import { 
-  Facebook, 
-  Instagram, 
-  Twitter, 
-  Linkedin, 
-  Mail 
-} from 'lucide-react';
+import { Instagram } from 'lucide-react';
 import NewsletterForm from './NewsletterForm';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -34,17 +27,14 @@ const Footer = () => {
                 : "Transforma tu entrenamiento ecuestre con análisis impulsado por IA y recomendaciones personalizadas."}
             </p>
             <div className="mt-6 flex space-x-4">
-              <a href="#" className="text-gray-300 hover:text-white transition-colors">
-                <Facebook size={18} />
-              </a>
-              <a href="#" className="text-gray-300 hover:text-white transition-colors">
+              <a 
+                href="https://www.instagram.com/ai_equestrian?igsh=MXU4ajRhdWtlYjMydA==" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="text-gray-300 hover:text-white transition-colors"
+                aria-label="Instagram"
+              >
                 <Instagram size={18} />
-              </a>
-              <a href="#" className="text-gray-300 hover:text-white transition-colors">
-                <Twitter size={18} />
-              </a>
-              <a href="#" className="text-gray-300 hover:text-white transition-colors">
-                <Linkedin size={18} />
               </a>
             </div>
           </div>
