@@ -49,18 +49,35 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
     return sampleImages;
   };
 
+  // Load media items when component mounts
   useEffect(() => {
-    // Load media items on component mount
-    if (mediaItems.length === 0) {
+    // Try to load items from local storage first
+    const savedItems = localStorage.getItem('mediaItems');
+    if (savedItems) {
+      try {
+        const parsedItems = JSON.parse(savedItems);
+        setMediaItems(parsedItems);
+      } catch (e) {
+        console.error("Error parsing saved media items:", e);
+        setMediaItems(generateSampleMediaItems());
+      }
+    } else if (mediaItems.length === 0) {
       setMediaItems(generateSampleMediaItems());
     }
   }, []);
 
+  // Save media items to local storage whenever they change
+  useEffect(() => {
+    if (mediaItems.length > 0) {
+      localStorage.setItem('mediaItems', JSON.stringify(mediaItems));
+    }
+  }, [mediaItems]);
+
   const handleOpenChange = (open: boolean) => {
     setIsDialogOpen(open);
-    if (open && !isUploadView && mediaItems.length === 0) {
-      // Load media items when dialog is opened
-      setMediaItems(generateSampleMediaItems());
+    if (open) {
+      // Reset upload view when opening dialog
+      setIsUploadView(false);
     }
   };
 
@@ -73,8 +90,9 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
   };
 
   const handleUploadComplete = (newItems: MediaItem[]) => {
-    // Add new items to the media collection
-    setMediaItems([...newItems, ...mediaItems]);
+    // Add new items to the beginning of the media collection for visibility
+    const updatedItems = [...newItems, ...mediaItems];
+    setMediaItems(updatedItems);
     
     // Set to view mode after upload completes
     setIsUploadView(false);
@@ -86,10 +104,15 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
         onImageSelect(newItems[0]);
       }
     }
+    
+    // Save to localStorage
+    localStorage.setItem('mediaItems', JSON.stringify(updatedItems));
   };
 
   const handleDeleteMedia = (id: string) => {
-    setMediaItems(prevItems => prevItems.filter(item => item.id !== id));
+    const updatedItems = mediaItems.filter(item => item.id !== id);
+    setMediaItems(updatedItems);
+    localStorage.setItem('mediaItems', JSON.stringify(updatedItems));
   };
 
   return (
