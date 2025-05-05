@@ -1,4 +1,4 @@
-// Import the Mail icon at the top of your file, along with other imports
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Mail } from 'lucide-react';

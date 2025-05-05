@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -102,29 +103,6 @@ const Navbar = () => {
     }
   };
 
-  // Custom NavigationMenuLink component for standard nav links
-  const NavLink = React.forwardRef<
-    React.ElementRef<"a">,
-    React.ComponentPropsWithoutRef<"a">
-  >(({ className, title, children, ...props }, ref) => {
-    return (
-      <a
-        ref={ref}
-        className={cn(
-          "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
-          className
-        )}
-        {...props}
-      >
-        <div className="text-sm font-medium leading-none">{title}</div>
-        <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-          {children}
-        </p>
-      </a>
-    );
-  });
-  NavLink.displayName = "NavLink";
-  
   return (
     <header 
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
@@ -146,128 +124,82 @@ const Navbar = () => {
             </Link>
           </div>
           
-          {/* Desktop navigation with dropdowns */}
+          {/* Desktop navigation with streamlined dropdowns */}
           <div className="hidden md:flex items-center space-x-6">
-            <NavigationMenu>
-              <NavigationMenuList className="space-x-4">
-                <NavigationMenuItem>
-                  <Link 
-                    to="/" 
-                    className={`text-white font-sans text-sm ${isActive('/') ? 'font-semibold text-purple-300' : ''}`}
-                  >
-                    {t["home"]}
-                  </Link>
-                </NavigationMenuItem>
-                
-                {/* How It Works Dropdown */}
-                <NavigationMenuItem>
-                  <NavigationMenuTrigger className="bg-transparent text-white hover:bg-purple-700/40 font-sans text-sm">
-                    {t["how-it-works"]}
-                  </NavigationMenuTrigger>
-                  <NavigationMenuContent>
-                    <ul className="grid gap-3 p-4 md:w-[380px] lg:w-[450px] lg:grid-cols-[.75fr_1fr] bg-white rounded-md shadow-md">
-                      <li className="row-span-3">
-                        <NavigationMenuLink asChild>
-                          <Link
-                            className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-purple-600 to-purple-800 p-5 no-underline outline-none"
-                            to="/how-it-works"
-                          >
-                            <div className="mb-2 mt-4 text-lg font-medium text-white">
-                              AI Equestrian
-                            </div>
-                            <p className="text-sm leading-tight text-white/90">
-                              Learn how our AI technology works for all equestrian disciplines
-                            </p>
-                          </Link>
-                        </NavigationMenuLink>
-                      </li>
-                      <li>
-                        <Link to="/dressage/how-it-works" className="block select-none space-y-1 rounded-md p-2.5 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
-                          <div className="text-sm font-medium leading-none">AI Dressage</div>
-                          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                            How the AI Dressage Trainer works
-                          </p>
-                        </Link>
-                      </li>
-                      <li>
-                        <Link to="/jumping/how-it-works" className="block select-none space-y-1 rounded-md p-2.5 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
-                          <div className="text-sm font-medium leading-none">AI Jumping</div>
-                          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                            How the AI Jumping Trainer works
-                          </p>
-                        </Link>
-                      </li>
-                    </ul>
-                  </NavigationMenuContent>
-                </NavigationMenuItem>
-                
-                <NavigationMenuItem>
-                  <Link 
-                    to="/pricing" 
-                    className={`text-white font-sans text-sm ${isActive('/pricing') ? 'font-semibold text-purple-300' : ''}`}
-                  >
-                    {t["pricing"]}
-                  </Link>
-                </NavigationMenuItem>
-                
-                <NavigationMenuItem>
-                  <Link 
-                    to="/blog" 
-                    className={`text-white font-sans text-sm ${isActive('/blog') ? 'font-semibold text-purple-300' : ''}`}
-                  >
-                    {t["blog"]}
-                  </Link>
-                </NavigationMenuItem>
-                
-                {/* About Dropdown */}
-                <NavigationMenuItem>
-                  <NavigationMenuTrigger className="bg-transparent text-white hover:bg-purple-700/40 font-sans text-sm">
-                    {t["about"]}
-                  </NavigationMenuTrigger>
-                  <NavigationMenuContent>
-                    <ul className="grid gap-3 p-4 md:w-[380px] lg:w-[450px] lg:grid-cols-[.75fr_1fr] bg-white rounded-md shadow-md">
-                      <li className="row-span-3">
-                        <NavigationMenuLink asChild>
-                          <Link
-                            className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-purple-600 to-purple-800 p-5 no-underline outline-none"
-                            to="/about"
-                          >
-                            <div className="mb-2 mt-4 text-lg font-medium text-white">
-                              AI Equestrian
-                            </div>
-                            <p className="text-sm leading-tight text-white/90">
-                              About our mission and the team behind our AI equestrian platform
-                            </p>
-                          </Link>
-                        </NavigationMenuLink>
-                      </li>
-                      <li>
-                        <Link to="/dressage/about" className="block select-none space-y-1 rounded-md p-2.5 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
-                          <div className="text-sm font-medium leading-none">AI Dressage</div>
-                          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                            About the AI Dressage Trainer
-                          </p>
-                        </Link>
-                      </li>
-                      <li>
-                        <Link to="/jumping/about" className="block select-none space-y-1 rounded-md p-2.5 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
-                          <div className="text-sm font-medium leading-none">AI Jumping</div>
-                          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                            About the AI Jumping Trainer
-                          </p>
-                        </Link>
-                      </li>
-                    </ul>
-                  </NavigationMenuContent>
-                </NavigationMenuItem>
-              </NavigationMenuList>
-            </NavigationMenu>
+            <nav className="flex items-center space-x-5">
+              <Link 
+                to="/" 
+                className={`text-white font-sans text-sm ${isActive('/') ? 'font-semibold text-purple-300' : 'hover:text-purple-200'}`}
+              >
+                {t["home"]}
+              </Link>
+              
+              {/* How It Works Dropdown - Simplified */}
+              <div className="relative group">
+                <button className="text-white font-sans text-sm flex items-center hover:text-purple-200">
+                  {t["how-it-works"]}
+                  <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                  </svg>
+                </button>
+                <div className="absolute left-0 top-full mt-1 w-48 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                  <div className="py-1">
+                    <Link to="/how-it-works" className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-700">
+                      AI Equestrian
+                    </Link>
+                    <Link to="/dressage/how-it-works" className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-700">
+                      AI Dressage
+                    </Link>
+                    <Link to="/jumping/how-it-works" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700">
+                      AI Jumping
+                    </Link>
+                  </div>
+                </div>
+              </div>
+              
+              <Link 
+                to="/pricing" 
+                className={`text-white font-sans text-sm ${isActive('/pricing') ? 'font-semibold text-purple-300' : 'hover:text-purple-200'}`}
+              >
+                {t["pricing"]}
+              </Link>
+              
+              <Link 
+                to="/blog" 
+                className={`text-white font-sans text-sm ${isActive('/blog') ? 'font-semibold text-purple-300' : 'hover:text-purple-200'}`}
+              >
+                {t["blog"]}
+              </Link>
+              
+              {/* About Dropdown - Simplified */}
+              <div className="relative group">
+                <button className="text-white font-sans text-sm flex items-center hover:text-purple-200">
+                  {t["about"]}
+                  <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                  </svg>
+                </button>
+                <div className="absolute left-0 top-full mt-1 w-48 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                  <div className="py-1">
+                    <Link to="/about" className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-700">
+                      AI Equestrian
+                    </Link>
+                    <Link to="/dressage/about" className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-700">
+                      AI Dressage
+                    </Link>
+                    <Link to="/jumping/about" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700">
+                      AI Jumping
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </nav>
             
             {user ? (
               <div className="flex items-center ml-3 space-x-4">
                 <Link 
                   to="/dashboard" 
-                  className={`nav-link ${isActive('/dashboard') ? 'active' : ''} text-white font-sans text-sm`}
+                  className={`text-white font-sans text-sm ${isActive('/dashboard') ? 'font-semibold text-purple-300' : 'hover:text-purple-200'}`}
                 >
                   {t["dashboard"]}
                 </Link>
@@ -372,7 +304,7 @@ const Navbar = () => {
                 </Link>
                 <Link 
                   to="/jumping/how-it-works"
-                  className={`text-white/80 font-sans ${isActive('/jumping/how-it-works') ? 'text-purple-300' : ''}`}
+                  className={`text-white/80 font-sans ${isActive('/jumping/how-it-works') ? 'text-blue-300' : ''}`}
                 >
                   AI Jumping
                 </Link>
@@ -413,7 +345,7 @@ const Navbar = () => {
                 </Link>
                 <Link 
                   to="/jumping/about"
-                  className={`text-white/80 font-sans ${isActive('/jumping/about') ? 'text-purple-300' : ''}`}
+                  className={`text-white/80 font-sans ${isActive('/jumping/about') ? 'text-blue-300' : ''}`}
                 >
                   AI Jumping
                 </Link>
