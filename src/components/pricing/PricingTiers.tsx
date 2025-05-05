@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Check } from 'lucide-react';
 import PricingToggle from './PricingToggle';
@@ -6,6 +5,7 @@ import AnimatedSection from '../ui/AnimatedSection';
 import { Button } from '@/components/ui/button';
 import EmailSignupForm from './EmailSignupForm';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { Badge } from '@/components/ui/badge';
 
 interface Plan {
   id: string;
@@ -243,19 +243,17 @@ const PricingTiers = () => {
               delay={`delay-${(index + 1) * 100}` as any}
               className={`relative ${plan.highlighted ? 'md:-mt-4 md:mb-4' : ''}`}
             >
-              {plan.highlighted && (
-                <div className="absolute top-0 inset-x-0 -translate-y-1/2 flex justify-center">
-                  <span className="bg-purple-700 text-white px-4 py-1.5 rounded-full text-sm font-semibold shadow-md">
-                    {t["most-popular"]}
-                  </span>
-                </div>
-              )}
-              
               <div className={`h-full rounded-xl p-8 flex flex-col relative z-10 ${
                 plan.highlighted 
                   ? 'border-2 border-purple-600 shadow-xl bg-white' 
                   : 'border border-silver-200 bg-white shadow-md'
               }`}>
+                {plan.highlighted && (
+                  <Badge className="absolute -left-2 top-6 bg-purple-700 hover:bg-purple-800 px-3 py-1 rounded-full text-white font-semibold shadow-md">
+                    {t["most-popular"]}
+                  </Badge>
+                )}
+                
                 <div className="mb-8">
                   <h2 className="text-2xl font-serif font-semibold text-purple-900 mb-2">
                     {plan.name}
