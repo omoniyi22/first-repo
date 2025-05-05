@@ -45,7 +45,7 @@ const JumpingHowItWorks = () => {
   // Get discipline-specific metadata
   const seoMetadata = generateDisciplineMetadata('Jumping', {
     canonicalUrl: '/jumping/how-it-works',
-    ogImage: '/lovable-uploads/28c8b566-c53d-4197-b758-abac7ac25848.png'
+    ogImage: '/lovable-uploads/photo-1438565434616-3ef039228b15.jpeg'
   });
 
   return (
@@ -57,7 +57,7 @@ const JumpingHowItWorks = () => {
       <div className="relative pt-24 mb-12">
         <div className="w-full h-80 md:h-96 overflow-hidden relative">
           <img 
-            src="/lovable-uploads/b4c7d6ae-2c74-42dc-984a-32d0c758a7aa.png" 
+            src="/lovable-uploads/photo-1438565434616-3ef039228b15.jpeg" 
             alt="Show jumping competition with rider clearing a jump"
             className="w-full h-full object-cover"
           />

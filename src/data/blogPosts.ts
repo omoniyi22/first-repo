@@ -34,7 +34,7 @@ export const blogPosts: BlogPost[] = [
     date: 'April 25, 2025',
     discipline: 'Jumping',
     category: 'Technology',
-    image: '/lovable-uploads/cda0d16d-c48f-433b-a4ca-31552d80f3fc.png',
+    image: '/lovable-uploads/photo-1472396961693-142e6e269027.jpeg',
     readingTime: '5 min read',
     translations: {
       es: {
@@ -54,7 +54,7 @@ export const blogPosts: BlogPost[] = [
     date: 'April 22, 2025',
     discipline: 'Jumping',
     category: 'Analytics',
-    image: '/lovable-uploads/28c8b566-c53d-4197-b758-abac7ac25848.png',
+    image: '/lovable-uploads/photo-1466721591366-2d5fba72006d.jpeg',
     readingTime: '7 min read',
     translations: {
       es: {
@@ -74,7 +74,7 @@ export const blogPosts: BlogPost[] = [
     date: 'April 19, 2025',
     discipline: 'Jumping',
     category: 'Training',
-    image: '/lovable-uploads/223982c4-1359-486a-a3d7-876e251274bc.png',
+    image: '/lovable-uploads/photo-1493962853295-0fd70327578a.jpeg',
     readingTime: '6 min read',
     translations: {
       es: {
@@ -94,7 +94,7 @@ export const blogPosts: BlogPost[] = [
     date: 'April 16, 2025',
     discipline: 'Jumping',
     category: 'Guides',
-    image: '/lovable-uploads/b4c7d6ae-2c74-42dc-984a-32d0c758a7aa.png',
+    image: '/lovable-uploads/photo-1438565434616-3ef039228b15.jpeg',
     readingTime: '9 min read',
     translations: {
       es: {
@@ -114,7 +114,7 @@ export const blogPosts: BlogPost[] = [
     date: 'April 13, 2025',
     discipline: 'Jumping',
     category: 'Competition',
-    image: '/lovable-uploads/8029655e-ccba-4c36-a1da-598829a73f0c.png',
+    image: '/lovable-uploads/photo-1452378174528-3090a4bba7b2.jpeg',
     readingTime: '8 min read',
     translations: {
       es: {
@@ -134,7 +134,7 @@ export const blogPosts: BlogPost[] = [
     date: 'April 10, 2025',
     discipline: 'Jumping',
     category: 'Analytics',
-    image: '/lovable-uploads/c297b60b-8892-4358-8ba3-62e317f4a7ee.png',
+    image: '/lovable-uploads/photo-1472396961693-142e6e269027.jpeg',
     readingTime: '6 min read',
     translations: {
       es: {
