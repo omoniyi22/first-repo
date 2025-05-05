@@ -149,7 +149,7 @@ const UserManagement = () => {
             <SelectValue placeholder="Filter by region" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Regions</SelectItem>
+            <SelectItem value="">All Regions</SelectItem>
             {regions.map(region => (
               <SelectItem key={region} value={region}>{region}</SelectItem>
             ))}
@@ -160,7 +160,7 @@ const UserManagement = () => {
             <SelectValue placeholder="Filter by role" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Roles</SelectItem>
+            <SelectItem value="">All Roles</SelectItem>
             <SelectItem value="admin">Admin</SelectItem>
             <SelectItem value="user">User</SelectItem>
           </SelectContent>
