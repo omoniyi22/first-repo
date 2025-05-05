@@ -41,6 +41,7 @@ interface MediaGridViewProps {
 const MediaGridView = ({ items, onDelete }: MediaGridViewProps) => {
   const [itemToDelete, setItemToDelete] = useState<MediaItem | null>(null);
   const [previewItem, setPreviewItem] = useState<MediaItem | null>(null);
+  const [brokenImages, setBrokenImages] = useState<Set<string>>(new Set());
   const { toast } = useToast();
 
   const confirmDelete = () => {
@@ -64,6 +65,10 @@ const MediaGridView = ({ items, onDelete }: MediaGridViewProps) => {
         variant: "destructive"
       });
     });
+  };
+
+  const handleImageError = (itemId: string) => {
+    setBrokenImages(prev => new Set(prev).add(itemId));
   };
 
   const getFileIcon = (type: string) => {
@@ -92,15 +97,18 @@ const MediaGridView = ({ items, onDelete }: MediaGridViewProps) => {
               onClick={() => setPreviewItem(item)}
             >
               {item.type === 'image' ? (
-                <img 
-                  src={item.url} 
-                  alt={item.name} 
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.src = "/placeholder.svg";
-                  }}
-                />
+                brokenImages.has(item.id) ? (
+                  <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                    <ImageIcon className="h-8 w-8 text-gray-400" />
+                  </div>
+                ) : (
+                  <img 
+                    src={item.url} 
+                    alt={item.name} 
+                    className="w-full h-full object-cover"
+                    onError={() => handleImageError(item.id)}
+                  />
+                )
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
                   {getFileIcon(item.type)}
@@ -185,11 +193,20 @@ const MediaGridView = ({ items, onDelete }: MediaGridViewProps) => {
           <div className="flex flex-col space-y-4">
             <div className="flex-1 flex items-center justify-center min-h-[300px] bg-gray-100 rounded-md">
               {previewItem?.type === 'image' ? (
-                <img 
-                  src={previewItem.url} 
-                  alt={previewItem.name} 
-                  className="max-h-[70vh] max-w-full object-contain"
-                />
+                brokenImages.has(previewItem.id) ? (
+                  <div className="text-center p-6">
+                    <ImageIcon className="h-16 w-16 mx-auto text-gray-400 mb-4" />
+                    <p className="text-lg font-medium">Image Preview Unavailable</p>
+                    <p className="text-gray-500">The image could not be loaded</p>
+                  </div>
+                ) : (
+                  <img 
+                    src={previewItem.url} 
+                    alt={previewItem.name} 
+                    className="max-h-[70vh] max-w-full object-contain"
+                    onError={() => handleImageError(previewItem.id)}
+                  />
+                )
               ) : previewItem?.type === 'video' ? (
                 <div className="text-center p-6">
                   <FileVideo className="h-16 w-16 mx-auto text-purple-500 mb-4" />

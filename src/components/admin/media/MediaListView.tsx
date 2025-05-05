@@ -48,6 +48,7 @@ interface MediaListViewProps {
 
 const MediaListView = ({ items, onDelete, formatFileSize }: MediaListViewProps) => {
   const [itemToDelete, setItemToDelete] = useState<MediaItem | null>(null);
+  const [brokenImages, setBrokenImages] = useState<Set<string>>(new Set());
   const { toast } = useToast();
 
   const confirmDelete = () => {
@@ -71,6 +72,10 @@ const MediaListView = ({ items, onDelete, formatFileSize }: MediaListViewProps) 
         variant: "destructive"
       });
     });
+  };
+
+  const handleImageError = (itemId: string) => {
+    setBrokenImages(prev => new Set(prev).add(itemId));
   };
 
   const getFileIcon = (type: string) => {
