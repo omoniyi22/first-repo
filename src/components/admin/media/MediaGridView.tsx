@@ -208,7 +208,7 @@ const MediaGridView = ({ items, onDelete }: MediaGridViewProps) => {
                   <FileText className="h-16 w-16 mx-auto text-amber-500 mb-4" />
                   <p className="text-lg font-medium">Document Preview</p>
                   <Button className="mt-4" asChild>
-                    <a href={previewItem.url} target="_blank" rel="noopener noreferrer">
+                    <a href={previewItem?.url || '#'} target="_blank" rel="noopener noreferrer">
                       Open Document
                     </a>
                   </Button>
@@ -222,29 +222,33 @@ const MediaGridView = ({ items, onDelete }: MediaGridViewProps) => {
                 <p className="text-sm text-gray-500">
                   {previewItem?.type === 'image' && previewItem?.dimensions ? 
                     `${previewItem.dimensions.width} × ${previewItem.dimensions.height}` : 
-                    previewItem?.type.charAt(0).toUpperCase() + (previewItem?.type.slice(1) || '')
+                    previewItem?.type ? previewItem.type.charAt(0).toUpperCase() + previewItem.type.slice(1) : ''
                   }
                 </p>
               </div>
               
               <div className="space-x-2">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={() => copyToClipboard(previewItem?.url || '')}
-                >
-                  <Copy className="mr-2 h-4 w-4" />
-                  Copy URL
-                </Button>
-                <Button 
-                  size="sm" 
-                  asChild
-                >
-                  <a href={previewItem?.url} target="_blank" rel="noopener noreferrer">
-                    <ExternalLink className="mr-2 h-4 w-4" />
-                    Open
-                  </a>
-                </Button>
+                {previewItem && (
+                  <>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => copyToClipboard(previewItem.url)}
+                    >
+                      <Copy className="mr-2 h-4 w-4" />
+                      Copy URL
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      asChild
+                    >
+                      <a href={previewItem.url} target="_blank" rel="noopener noreferrer">
+                        <ExternalLink className="mr-2 h-4 w-4" />
+                        Open
+                      </a>
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
           </div>
