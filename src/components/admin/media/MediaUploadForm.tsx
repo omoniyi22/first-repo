@@ -1,10 +1,8 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
 import { UploadCloud, X, File, CheckCircle, AlertCircle } from "lucide-react";
 import { MediaItem } from "./MediaLibrary";
-import { uploadOptimizedImage } from "@/lib/storage";
 import { useToast } from "@/hooks/use-toast";
 
 interface MediaUploadFormProps {
@@ -19,6 +17,57 @@ interface UploadFile {
   status: 'pending' | 'uploading' | 'complete' | 'error';
   error?: string;
 }
+
+// Helper to resize image and reduce quality
+const resizeImage = async (file: File, maxWidth = 1200, maxHeight = 1200, quality = 0.7): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+        
+        // Calculate new dimensions
+        if (width > height) {
+          if (width > maxWidth) {
+            height = Math.round(height * maxWidth / width);
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width = Math.round(width * maxHeight / height);
+            height = maxHeight;
+          }
+        }
+        
+        // Create canvas and resize
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          reject(new Error('Could not get canvas context'));
+          return;
+        }
+        
+        ctx.drawImage(img, 0, 0, width, height);
+        
+        // Get the resized data URL
+        const dataUrl = canvas.toDataURL('image/jpeg', quality);
+        resolve(dataUrl);
+      };
+      img.onerror = () => {
+        reject(new Error('Error loading image'));
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.onerror = () => {
+      reject(new Error('Error reading file'));
+    };
+    reader.readAsDataURL(file);
+  });
+};
 
 const MediaUploadForm = ({ onComplete, onCancel }: MediaUploadFormProps) => {
   const [files, setFiles] = useState<UploadFile[]>([]);
@@ -55,6 +104,26 @@ const MediaUploadForm = ({ onComplete, onCancel }: MediaUploadFormProps) => {
     
     for (let i = 0; i < fileList.length; i++) {
       const file = fileList[i];
+      
+      // Check if file is an image
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Unsupported File Type",
+          description: `${file.name} is not an image file. Only images are supported currently.`,
+          variant: "destructive"
+        });
+        continue;
+      }
+      
+      // Check file size (limit to 5MB for browser storage)
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: "File Too Large",
+          description: `${file.name} exceeds the 5MB size limit for browser storage.`,
+          variant: "destructive"
+        });
+        continue;
+      }
       
       // Generate a unique ID
       const id = `upload-${Date.now()}-${i}`;
@@ -105,71 +174,60 @@ const MediaUploadForm = ({ onComplete, onCancel }: MediaUploadFormProps) => {
           });
         }, 200);
         
-        // Store the file in localStorage as a data URL for persistence
-        const reader = new FileReader();
+        // Resize image before storage to reduce size
+        let dataUrl;
+        try {
+          dataUrl = await resizeImage(file.file);
+        } catch (resizeError) {
+          console.error("Error resizing image:", resizeError);
+          // Fall back to original if resize fails
+          const reader = new FileReader();
+          dataUrl = await new Promise<string>((resolve, reject) => {
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = reject;
+            reader.readAsDataURL(file.file);
+          });
+        }
         
-        await new Promise<void>((resolve, reject) => {
-          reader.onload = () => {
-            const dataUrl = reader.result as string;
-            
-            // In a real app, we would upload to Supabase or another storage
-            // For now, we'll simulate a successful upload and store in localStorage
-            
-            setTimeout(() => {
-              clearInterval(progressInterval);
-              
-              // Determine file type
-              const isImage = file.file.type.startsWith('image/');
-              const isVideo = file.file.type.startsWith('video/');
-              
-              // Create a unique but deterministic ID for the file
-              const fileId = `media-${Date.now()}-${file.file.name.replace(/\s+/g, '-').toLowerCase()}`;
-              
-              // Create a MediaItem from the uploaded file
-              const mediaItem: MediaItem = {
-                id: fileId,
-                name: file.file.name,
-                url: isImage ? dataUrl : "/placeholder.svg",
-                type: isImage ? 'image' : isVideo ? 'video' : 'document',
-                size: file.file.size,
-                uploadedAt: new Date().toISOString(),
-                // Add dimensions for images
-                ...(isImage && { dimensions: { width: 800, height: 600 } })
-              };
-              
-              // Store the media item in localStorage for persistence
-              const existingMediaJson = localStorage.getItem('mediaItemsData') || '{}';
-              let existingMedia;
-              
-              try {
-                existingMedia = JSON.parse(existingMediaJson);
-              } catch (e) {
-                existingMedia = {};
-              }
-              
-              existingMedia[fileId] = mediaItem;
-              localStorage.setItem('mediaItemsData', JSON.stringify(existingMedia));
-              
-              // Add to successful uploads
-              successfulUploads.push(mediaItem);
-              
-              // Update file status to complete
-              setFiles(prevFiles => 
-                prevFiles.map(f => 
-                  f.id === file.id ? { ...f, progress: 100, status: 'complete' } : f
-                )
-              );
-              
-              resolve();
-            }, 1000);
+        // Create a unique but deterministic ID for the file
+        const fileId = `media-${Date.now()}-${file.file.name.replace(/\s+/g, '-').toLowerCase()}`;
+          
+        // Create a MediaItem from the uploaded file
+        const mediaItem: MediaItem = {
+          id: fileId,
+          name: file.file.name,
+          url: dataUrl,
+          type: 'image',
+          size: file.file.size,
+          uploadedAt: new Date().toISOString(),
+          dimensions: { width: 800, height: 600 } // Approximate dimensions
+        };
+          
+        // Store each media item individually
+        try {
+          localStorage.setItem(`media_item_${fileId}`, dataUrl);
+          
+          // For the index, store a version without the data URL to save space
+          const metadataItem = {
+            ...mediaItem,
+            // Keep the URL as is - we'll retrieve it from storage when needed
           };
           
-          reader.onerror = () => {
-            reject(new Error('Failed to read file'));
-          };
+          // Add to successful uploads
+          successfulUploads.push(mediaItem);
           
-          reader.readAsDataURL(file.file);
-        });
+          clearInterval(progressInterval);
+          
+          // Update file status to complete
+          setFiles(prevFiles => 
+            prevFiles.map(f => 
+              f.id === file.id ? { ...f, progress: 100, status: 'complete' } : f
+            )
+          );
+        } catch (storageError) {
+          console.error('Error storing file:', storageError);
+          throw new Error('Storage limit exceeded');
+        }
       } catch (error) {
         console.error('Error processing file:', error);
         
@@ -249,13 +307,14 @@ const MediaUploadForm = ({ onComplete, onCancel }: MediaUploadFormProps) => {
             <input
               type="file"
               multiple
+              accept="image/*"
               className="hidden"
               onChange={handleFileInputChange}
               disabled={isUploading}
             />
           </label>
           <p className="text-xs text-gray-400 mt-2">
-            Support for images, videos, and documents up to 10MB
+            Support for images up to 5MB
           </p>
         </div>
       </div>
@@ -348,4 +407,3 @@ const MediaUploadForm = ({ onComplete, onCancel }: MediaUploadFormProps) => {
 };
 
 export default MediaUploadForm;
-

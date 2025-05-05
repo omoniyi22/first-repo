@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -5,6 +6,7 @@ import { ImageIcon, Upload } from "lucide-react";
 import { MediaItem } from "./MediaLibrary";
 import MediaGridView from "./MediaGridView";
 import MediaUploadForm from "./MediaUploadForm";
+import { useToast } from "@/hooks/use-toast";
 
 interface MediaSelectorProps {
   value: string;
@@ -16,6 +18,7 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isUploadView, setIsUploadView] = useState(false);
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
+  const { toast } = useToast();
   
   // Simulated media items for the demo
   const generateSampleMediaItems = () => {
@@ -50,53 +53,34 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
 
   // Load media items when component mounts
   useEffect(() => {
-    // First load from mediaItemsData which contains the actual data URLs
-    const mediaItemsData = localStorage.getItem('mediaItemsData');
-    let userUploadedItems: MediaItem[] = [];
-    
-    if (mediaItemsData) {
-      try {
-        const parsedData = JSON.parse(mediaItemsData);
-        userUploadedItems = Object.values(parsedData) as MediaItem[];
-        console.log("Loaded user uploaded items:", userUploadedItems);
-      } catch (e) {
-        console.error("Error parsing media items data:", e);
-        userUploadedItems = [];
-      }
-    }
-    
-    // Then load or merge with any previously saved mediaItems list
-    const savedItemsList = localStorage.getItem('mediaItems');
-    if (savedItemsList) {
-      try {
-        const parsedItems = JSON.parse(savedItemsList);
-        
-        // Skip sample items if we have user uploads
-        if (userUploadedItems.length > 0) {
-          // Merge but prioritize user uploaded items that have data URLs
-          const existingIds = new Set(userUploadedItems.map(item => item.id));
-          const filteredItems = parsedItems.filter((item: MediaItem) => !existingIds.has(item.id));
-          setMediaItems([...userUploadedItems, ...filteredItems]);
-        } else {
-          // Just use the saved list
-          setMediaItems(parsedItems);
+    try {
+      // Get the media item metadata without the full data URLs
+      const mediaItemsIndex = localStorage.getItem('mediaItemsIndex');
+      let userUploadedItems: MediaItem[] = [];
+      
+      if (mediaItemsIndex) {
+        try {
+          userUploadedItems = JSON.parse(mediaItemsIndex);
+          console.log("Loaded user uploaded items metadata:", userUploadedItems.length);
+        } catch (e) {
+          console.error("Error parsing media items index:", e);
+          userUploadedItems = [];
         }
-      } catch (e) {
-        console.error("Error parsing saved media items list:", e);
-        setMediaItems([...userUploadedItems, ...generateSampleMediaItems()]);
       }
-    } else {
-      // If no saved list, use user uploads + samples
+      
+      // Combine with sample items
       setMediaItems([...userUploadedItems, ...generateSampleMediaItems()]);
+      
+    } catch (error) {
+      console.error("Error loading media items:", error);
+      toast({
+        title: "Error Loading Media",
+        description: "There was a problem loading your media library.",
+        variant: "destructive"
+      });
+      setMediaItems(generateSampleMediaItems());
     }
   }, []);
-
-  // Save media items to local storage whenever they change
-  useEffect(() => {
-    if (mediaItems.length > 0) {
-      localStorage.setItem('mediaItems', JSON.stringify(mediaItems));
-    }
-  }, [mediaItems]);
 
   const handleOpenChange = (open: boolean) => {
     setIsDialogOpen(open);
@@ -117,43 +101,84 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
   const handleUploadComplete = (newItems: MediaItem[]) => {
     console.log("Upload complete, new items:", newItems);
     
-    // Add new items to the beginning of the media collection for visibility
-    const updatedItems = [...newItems, ...mediaItems];
-    setMediaItems(updatedItems);
-    
-    // Set to view mode after upload completes
-    setIsUploadView(false);
-    
-    // If there are new items, automatically select the first one
-    if (newItems.length > 0) {
-      onChange(newItems[0].url);
-      if (onImageSelect && newItems[0]) {
-        onImageSelect(newItems[0]);
+    try {
+      // Add new items to the beginning of the media collection for visibility
+      const updatedItems = [...newItems, ...mediaItems];
+      setMediaItems(updatedItems);
+      
+      // Save just the metadata to localStorage (not the full data URLs)
+      const metadataItems = updatedItems.map(item => ({
+        id: item.id,
+        name: item.name,
+        url: item.url,
+        type: item.type,
+        size: item.size,
+        uploadedAt: item.uploadedAt,
+        dimensions: item.dimensions
+      }));
+      
+      try {
+        localStorage.setItem('mediaItemsIndex', JSON.stringify(metadataItems));
+      } catch (storageError) {
+        console.error("Failed to save to localStorage:", storageError);
+        toast({
+          title: "Storage Limit Reached",
+          description: "Unable to save all media items to browser storage. Some items may not persist after refresh.",
+          variant: "destructive"
+        });
       }
+      
+      // Set to view mode after upload completes
+      setIsUploadView(false);
+      
+      // If there are new items, automatically select the first one
+      if (newItems.length > 0) {
+        onChange(newItems[0].url);
+        if (onImageSelect && newItems[0]) {
+          onImageSelect(newItems[0]);
+        }
+      }
+    } catch (error) {
+      console.error("Error handling upload completion:", error);
+      toast({
+        title: "Upload Processing Error",
+        description: "There was a problem processing your uploaded files.",
+        variant: "destructive"
+      });
     }
-    
-    // Save to localStorage
-    localStorage.setItem('mediaItems', JSON.stringify(updatedItems));
   };
 
   const handleDeleteMedia = (id: string) => {
-    // Remove from mediaItems list
-    const updatedItems = mediaItems.filter(item => item.id !== id);
-    setMediaItems(updatedItems);
-    localStorage.setItem('mediaItems', JSON.stringify(updatedItems));
-    
-    // Also remove from mediaItemsData if it exists there
-    const mediaItemsData = localStorage.getItem('mediaItemsData');
-    if (mediaItemsData) {
+    try {
+      // Remove from mediaItems list
+      const updatedItems = mediaItems.filter(item => item.id !== id);
+      setMediaItems(updatedItems);
+      
+      // Save updated metadata index
+      const metadataItems = updatedItems.map(item => ({
+        id: item.id,
+        name: item.name,
+        url: item.url,
+        type: item.type,
+        size: item.size,
+        uploadedAt: item.uploadedAt,
+        dimensions: item.dimensions
+      }));
+      localStorage.setItem('mediaItemsIndex', JSON.stringify(metadataItems));
+      
+      // Also remove the individual item data if it exists
       try {
-        const parsedData = JSON.parse(mediaItemsData);
-        if (parsedData[id]) {
-          delete parsedData[id];
-          localStorage.setItem('mediaItemsData', JSON.stringify(parsedData));
-        }
+        localStorage.removeItem(`media_item_${id}`);
       } catch (e) {
-        console.error("Error removing item from mediaItemsData:", e);
+        console.error("Error removing individual media item:", e);
       }
+    } catch (error) {
+      console.error("Error deleting media:", error);
+      toast({
+        title: "Delete Failed",
+        description: "Failed to delete the media item.",
+        variant: "destructive"
+      });
     }
   };
 
