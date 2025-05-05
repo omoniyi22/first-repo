@@ -110,6 +110,11 @@ const Navbar = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <Link to="/" className="flex items-center">
+              <img 
+                src="/lovable-uploads/ddb7f47e-072a-4346-9fd3-a8a055f13bba.png" 
+                alt="AI Equestrian Logo" 
+                className="h-10 w-10 mr-2"
+              />
               <h1 className={`font-serif text-xl font-semibold ${getBrandColorClass()}`}>
                 {getBrandName()}
               </h1>

@@ -1,4 +1,3 @@
-
 import { Link } from 'react-router-dom';
 import { 
   Facebook, 
@@ -19,6 +18,11 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
           <div className="col-span-1 md:col-span-1">
             <Link to="/" className="flex items-center">
+              <img 
+                src="/lovable-uploads/ddb7f47e-072a-4346-9fd3-a8a055f13bba.png" 
+                alt="AI Equestrian Logo" 
+                className="h-12 w-12 mr-2" 
+              />
               <h2 className="font-serif text-2xl font-semibold text-white">
                 AI Equestrian
               </h2>
@@ -133,6 +137,14 @@ const Footer = () => {
         </div>
         
         <div className="border-t border-purple-800 mt-12 pt-8 text-center text-purple-400 text-sm">
+          <div className="flex justify-center items-center mb-4">
+            <img 
+              src="/lovable-uploads/ddb7f47e-072a-4346-9fd3-a8a055f13bba.png" 
+              alt="AI Equestrian Logo" 
+              className="h-8 w-8 mr-2" 
+            />
+            <span>AI Equestrian</span>
+          </div>
           <p>© {new Date().getFullYear()} AI Equestrian. {language === 'en' ? "All rights reserved." : "Todos los derechos reservados."}</p>
         </div>
       </div>
