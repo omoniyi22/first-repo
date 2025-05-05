@@ -103,9 +103,8 @@ const Navbar = () => {
   };
 
   // Check if user is an admin
-  const isAdmin = user?.email?.endsWith('@equineaintelligence.com') || 
-                 user?.email?.endsWith('@appetitecreative.com') || 
-                 user?.email === 'admin@example.com';
+  const isAdmin = user?.email === 'jenny@appetitecreative.com' || 
+                 user?.user_metadata?.role === 'admin';
 
   return (
     <header 
