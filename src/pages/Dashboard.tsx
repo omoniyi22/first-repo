@@ -46,9 +46,9 @@ const Dashboard = () => {
     return null;
   }
 
-  // Check if user is an admin (This is a simplified check - in production, use roles from database)
-  const isAdmin = user.email?.endsWith('@equineaintelligence.com') || 
-                  user.email === 'admin@example.com';
+  // Check if user is an admin (by email or role)
+  const isAdmin = user.email === 'jenny@appetitecreative.com' || 
+                  user.user_metadata?.role === 'admin';
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white">

@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import AdminSidebar from '@/components/admin/AdminSidebar';
 import { SEO, getPageMetadata } from '@/lib/seo';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 const Admin = () => {
   const { user, loading } = useAuth();
@@ -21,11 +22,14 @@ const Admin = () => {
     if (!user) return false;
     
     try {
-      // Check if the user's email is an admin email
-      // In a production environment, this should be replaced with a proper role check from the database
-      const isAdmin = user.email?.endsWith('@equineaintelligence.com') || 
-                     user.email?.endsWith('@appetitecreative.com') ||
-                     user.email === 'admin@example.com'; // For testing
+      // Check if the user is jenny@appetitecreative.com or has admin role
+      const isJenny = user.email === 'jenny@appetitecreative.com';
+      
+      // Check for admin role in user metadata
+      const hasAdminRole = user.user_metadata?.role === 'admin';
+      
+      // Only allow access to jenny or users with admin role
+      const isAdmin = isJenny || hasAdminRole;
       
       if (!isAdmin) {
         toast({
