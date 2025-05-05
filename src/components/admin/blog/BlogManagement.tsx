@@ -119,7 +119,7 @@ const BlogManagement = () => {
             <SelectValue placeholder="Filter by discipline" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Disciplines</SelectItem>
+            <SelectItem value="all">All Disciplines</SelectItem>
             <SelectItem value="Jumping">Jumping</SelectItem>
             <SelectItem value="Dressage">Dressage</SelectItem>
           </SelectContent>
@@ -129,7 +129,7 @@ const BlogManagement = () => {
             <SelectValue placeholder="Filter by category" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Categories</SelectItem>
+            <SelectItem value="all">All Categories</SelectItem>
             <SelectItem value="Technology">Technology</SelectItem>
             <SelectItem value="Analytics">Analytics</SelectItem>
             <SelectItem value="Training">Training</SelectItem>

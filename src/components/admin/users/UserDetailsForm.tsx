@@ -130,7 +130,7 @@ const UserDetailsForm = ({ user, onSave, onCancel }: UserDetailsFormProps) => {
                 <FormLabel>Region</FormLabel>
                 <Select 
                   onValueChange={field.onChange} 
-                  defaultValue={field.value || ""}
+                  defaultValue={field.value || "unknown"}
                 >
                   <FormControl>
                     <SelectTrigger>
@@ -138,7 +138,7 @@ const UserDetailsForm = ({ user, onSave, onCancel }: UserDetailsFormProps) => {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="">Unknown</SelectItem>
+                    <SelectItem value="unknown">Unknown</SelectItem>
                     <SelectItem value="North America">North America</SelectItem>
                     <SelectItem value="Europe">Europe</SelectItem>
                     <SelectItem value="Asia">Asia</SelectItem>
