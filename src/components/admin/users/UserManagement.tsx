@@ -53,12 +53,6 @@ const UserManagement = () => {
 
       if (rolesError) throw rolesError;
 
-      // Get all user emails (if available)
-      const { data: authUsers, error: authError } = await supabase
-        .from('auth.users') // This won't work, but we'll try to handle it gracefully
-        .select('id, email')
-        .catch(() => ({ data: [], error: null }));
-
       // Build our user list from profiles
       const fetchedUsers: User[] = (profiles || []).map((profile: any) => {
         // Try to find role information
@@ -67,8 +61,7 @@ const UserManagement = () => {
         // Format the data
         return {
           id: profile.id,
-          email: authUsers?.find((u: any) => u.id === profile.id)?.email || 
-                `${profile.coach_name?.toLowerCase().replace(/\s+/g, '.') || 'user'}@example.com`,
+          email: `${profile.coach_name?.toLowerCase().replace(/\s+/g, '.') || 'user'}@example.com`,
           created_at: profile.created_at || new Date(Date.now() - Math.floor(Math.random() * 10000000000)).toISOString(),
           user_metadata: {
             full_name: profile.coach_name || `User ${Math.floor(Math.random() * 1000)}`
