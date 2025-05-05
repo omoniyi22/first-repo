@@ -27,7 +27,7 @@ const Footer = () => {
                 ? "Transform your equestrian training with AI-powered analysis and personalized recommendations."
                 : "Transforma tu entrenamiento ecuestre con análisis impulsado por IA y recomendaciones personalizadas."}
             </p>
-            <div className="mt-6 flex space-x-4">
+            <div className="mt-6 flex justify-center">
               <a 
                 href="https://www.instagram.com/ai_equestrian?igsh=MXU4ajRhdWtlYjMydA==" 
                 target="_blank" 
