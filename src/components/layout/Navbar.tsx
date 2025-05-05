@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, X, UserCircle, LogOut, Settings, User, Home, Mail } from 'lucide-react';
+import { Menu, X, UserCircle, LogOut, Settings, User, Home, Mail, LayoutDashboard } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import LanguageSwitcher from '@/components/language/LanguageSwitcher';
@@ -102,6 +101,9 @@ const Navbar = () => {
       return 'text-white';  // Default theme
     }
   };
+
+  // Check if user is an admin
+  const isAdmin = user?.email?.endsWith('@equineaintelligence.com') || user?.email === 'admin@example.com';
 
   return (
     <header 
@@ -221,6 +223,17 @@ const Navbar = () => {
                       <Settings className="h-4 w-4 mr-2" />
                       <span>{t["dashboard"]}</span>
                     </DropdownMenuItem>
+                    
+                    {isAdmin && (
+                      <DropdownMenuItem 
+                        onClick={() => navigate('/admin')}
+                        className="cursor-pointer font-sans text-sm px-2.5 py-1.5 rounded-sm"
+                      >
+                        <LayoutDashboard className="h-4 w-4 mr-2" />
+                        <span>Admin Dashboard</span>
+                      </DropdownMenuItem>
+                    )}
+                    
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-red-600 font-sans text-sm px-2.5 py-1.5 rounded-sm">
                       <LogOut className="h-4 w-4 mr-2" />
