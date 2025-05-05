@@ -19,6 +19,7 @@ import JumpingHowItWorks from "./pages/JumpingHowItWorks";
 import Pricing from "./pages/Pricing";
 import About from "./pages/About";
 import SignIn from "./pages/SignIn";
+import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
@@ -74,6 +75,7 @@ const App = () => (
                 <Route path="/dressage/about" element={<DressageAbout />} />
                 <Route path="/jumping/about" element={<JumpingAbout />} />
                 <Route path="/sign-in" element={<SignIn />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/terms" element={<TermsOfService />} />

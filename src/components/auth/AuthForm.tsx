@@ -1,8 +1,9 @@
+
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Check, X, Loader2 } from 'lucide-react';
+import { Check, X, Loader2, ArrowLeft } from 'lucide-react';
 import AnimatedSection from '../ui/AnimatedSection';
 import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -24,6 +25,10 @@ const AuthForm = () => {
   // SSO status tracking
   const [isProcessingSSO, setIsProcessingSSO] = useState(false);
   
+  // Password reset state
+  const [isResetPassword, setIsResetPassword] = useState(false);
+  const [resetEmailSent, setResetEmailSent] = useState(false);
+  
   useEffect(() => {
     setIsSignUp(searchParams.get('signup') === 'true');
   }, [searchParams]);
@@ -31,6 +36,8 @@ const AuthForm = () => {
   const toggleMode = () => {
     setIsSignUp(!isSignUp);
     setFormErrors({});
+    setIsResetPassword(false);
+    setResetEmailSent(false);
   };
 
   const validateForm = () => {
@@ -43,12 +50,14 @@ const AuthForm = () => {
       errors.email = 'Please enter a valid email address';
     }
     
-    // Password validation
-    if (!password) {
-      errors.password = 'Password is required';
-    } else if (isSignUp) {
-      if (password.length < 8) {
-        errors.password = 'Password must be at least 8 characters';
+    // Password validation (not required for password reset)
+    if (!isResetPassword) {
+      if (!password) {
+        errors.password = 'Password is required';
+      } else if (isSignUp) {
+        if (password.length < 8) {
+          errors.password = 'Password must be at least 8 characters';
+        }
       }
     }
     
@@ -58,6 +67,45 @@ const AuthForm = () => {
     }
     
     return errors;
+  };
+  
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!email) {
+      setFormErrors({email: 'Email is required'});
+      return;
+    }
+    
+    if (!/\S+@\S+\.\S+/.test(email)) {
+      setFormErrors({email: 'Please enter a valid email address'});
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      
+      if (error) throw error;
+      
+      setResetEmailSent(true);
+      toast({
+        title: "Password reset email sent",
+        description: "Check your email for a link to reset your password.",
+      });
+    } catch (error) {
+      console.error('Password reset error:', error);
+      toast({
+        title: "Password reset failed",
+        description: error instanceof Error ? error.message : 'Failed to send password reset email',
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
   
   const handleSubmit = async (e: React.FormEvent) => {
@@ -161,6 +209,106 @@ const AuthForm = () => {
   const hasLowerCase = /[a-z]/.test(password);
   const hasNumber = /[0-9]/.test(password);
   const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+  // Handle back button for password reset
+  const handleBackToSignIn = () => {
+    setIsResetPassword(false);
+    setResetEmailSent(false);
+  };
+
+  // Render password reset form
+  if (isResetPassword) {
+    return (
+      <section className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-silver-50">
+        <div className="sm:mx-auto sm:w-full sm:max-w-md">
+          <AnimatedSection animation="fade-in" className="text-center">
+            <h1 className="text-3xl font-serif font-semibold text-navy-900">
+              Reset your password
+            </h1>
+            <p className="mt-2 text-navy-700">
+              {resetEmailSent 
+                ? "Check your email for reset instructions" 
+                : "Enter your email address to receive a password reset link"}
+            </p>
+          </AnimatedSection>
+        </div>
+
+        <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+          <AnimatedSection animation="fade-in" delay="delay-100">
+            <div className="bg-white py-8 px-4 shadow-sm sm:rounded-xl sm:px-10 border border-silver-100">
+              <button
+                onClick={handleBackToSignIn}
+                className="flex items-center text-navy-600 hover:text-navy-800 mb-6"
+              >
+                <ArrowLeft className="h-4 w-4 mr-1" />
+                Back to sign in
+              </button>
+              
+              {!resetEmailSent ? (
+                <form className="space-y-6" onSubmit={handleResetPassword}>
+                  <div>
+                    <label htmlFor="email" className="block text-sm font-medium text-navy-800">
+                      Email address
+                    </label>
+                    <div className="mt-1">
+                      <Input
+                        id="email"
+                        name="email"
+                        type="email"
+                        autoComplete="email"
+                        required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className={`w-full ${formErrors.email ? 'border-red-500' : ''}`}
+                        aria-invalid={formErrors.email ? 'true' : 'false'}
+                      />
+                      {formErrors.email && (
+                        <p className="mt-1 text-sm text-red-600">{formErrors.email}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <Button
+                      type="submit"
+                      className="w-full bg-navy-700 hover:bg-navy-800 py-6"
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Sending reset email...
+                        </>
+                      ) : (
+                        <>Send reset instructions</>
+                      )}
+                    </Button>
+                  </div>
+                </form>
+              ) : (
+                <div className="text-center space-y-4">
+                  <div className="bg-green-50 border-green-200 border p-4 rounded-md">
+                    <Check className="w-10 h-10 text-green-500 mx-auto mb-2" />
+                    <p className="text-green-800">
+                      Password reset email sent! Check your inbox for instructions.
+                    </p>
+                  </div>
+                  
+                  <Button 
+                    onClick={handleBackToSignIn} 
+                    variant="outline"
+                    className="mt-4"
+                  >
+                    Return to sign in
+                  </Button>
+                </div>
+              )}
+            </div>
+          </AnimatedSection>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-silver-50">
@@ -405,9 +553,13 @@ const AuthForm = () => {
                   </div>
 
                   <div className="text-sm">
-                    <a href="#" className="font-medium text-navy-600 hover:text-navy-800">
+                    <button 
+                      type="button"
+                      onClick={() => setIsResetPassword(true)}
+                      className="font-medium text-navy-600 hover:text-navy-800"
+                    >
                       Forgot your password?
-                    </a>
+                    </button>
                   </div>
                 </div>
               )}
