@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Check } from 'lucide-react';
 import PricingToggle from './PricingToggle';
@@ -249,7 +250,7 @@ const PricingTiers = () => {
                   : 'border border-silver-200 bg-white shadow-md'
               }`}>
                 {plan.highlighted && (
-                  <Badge className="absolute -left-2 top-6 bg-purple-700 hover:bg-purple-800 px-3 py-1 rounded-full text-white font-semibold shadow-md">
+                  <Badge className="absolute top-0 left-0 right-0 -translate-y-1/2 mx-auto w-max bg-purple-700 hover:bg-purple-800 px-3 py-1 rounded-full text-white font-semibold shadow-md">
                     {t["most-popular"]}
                   </Badge>
                 )}
