@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Search, RefreshCw, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -38,49 +39,48 @@ const UserManagement = () => {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      // Get profiles (available to all authenticated users)
+      // Get all users from the profiles table
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('*');
 
-      if (profilesError) throw profilesError;
+      if (profilesError) {
+        throw profilesError;
+      }
 
-      // Instead of directly querying user_roles, use RPC function to get roles
-      // We'll create an array to store the role information
-      const userRolesMap = new Map();
+      // Process the profiles and create user objects
+      const fetchedUsers: User[] = [];
       
-      // For each profile, try to get their role separately to avoid the recursion issue
       for (const profile of profiles || []) {
         try {
-          // Call the is_admin RPC function for each user
-          const { data: isAdmin } = await supabase.rpc('is_admin', {
+          // Check if the user is an admin using the is_admin RPC function
+          const { data: isAdmin, error: roleError } = await supabase.rpc('is_admin', {
             user_uuid: profile.id
           });
           
-          // Set role based on the function's response
-          userRolesMap.set(profile.id, isAdmin ? 'admin' : 'user');
+          if (roleError) console.log(`Error checking role for ${profile.id}:`, roleError);
+          
+          // Create a user object from the profile
+          const userObj: User = {
+            id: profile.id,
+            email: profile.coach_name ? 
+              `${profile.coach_name.toLowerCase().replace(/\s+/g, '.')}@example.com` : 
+              `user-${profile.id.substring(0, 8)}@example.com`,
+            created_at: profile.created_at || new Date().toISOString(),
+            user_metadata: {
+              full_name: profile.coach_name || `User ${profile.id.substring(0, 5)}`
+            },
+            last_sign_in_at: profile.updated_at || null,
+            role: isAdmin ? 'admin' : 'user',
+            region: profile.region || 'Unknown',
+            is_active: true
+          };
+          
+          fetchedUsers.push(userObj);
         } catch (error) {
-          console.log(`Could not determine role for user ${profile.id}:`, error);
-          userRolesMap.set(profile.id, 'user'); // Default to user role
+          console.error('Error processing user:', profile.id, error);
         }
       }
-      
-      // Build our user list from profiles
-      const fetchedUsers: User[] = (profiles || []).map((profile: any) => {
-        // Format the data
-        return {
-          id: profile.id,
-          email: `${profile.coach_name?.toLowerCase().replace(/\s+/g, '.') || 'user'}@example.com`,
-          created_at: profile.created_at || new Date(Date.now() - Math.floor(Math.random() * 10000000000)).toISOString(),
-          user_metadata: {
-            full_name: profile.coach_name || `User ${Math.floor(Math.random() * 1000)}`
-          },
-          last_sign_in_at: profile.updated_at || null,
-          role: userRolesMap.get(profile.id) || 'user',
-          region: profile.region || 'Unknown',
-          is_active: true
-        };
-      });
 
       setUsers(fetchedUsers);
       setFilteredUsers(fetchedUsers);
@@ -166,20 +166,41 @@ const UserManagement = () => {
 
   const handleUpdateUser = async (userId: string, userData: Partial<User>) => {
     try {
-      // In a real app, we would update the profile and role information
-      // For now, we're just updating the local state
+      // Update profile in the database if we're changing user data
+      if (userData.user_metadata?.full_name || userData.region) {
+        const updateData: any = {};
+        
+        // Map user properties to profile fields
+        if (userData.user_metadata?.full_name) {
+          updateData.coach_name = userData.user_metadata.full_name;
+        }
+        
+        if (userData.region) {
+          updateData.region = userData.region;
+        }
+        
+        // Update the profile
+        const { error } = await supabase
+          .from('profiles')
+          .update(updateData)
+          .eq('id', userId);
+          
+        if (error) throw error;
+      }
+      
+      // If role is changing, update the role using our function
+      if (userData.role === 'admin') {
+        // Get the email to use with set_admin_role
+        const userToUpdate = users.find(u => u.id === userId);
+        if (userToUpdate?.email) {
+          await setAdminRole(userToUpdate.email);
+        }
+      }
+
+      // Update the local state
       setUsers(users.map(user => 
         user.id === userId ? { ...user, ...userData } : user
       ));
-
-      // If role is changing, update the role in the database
-      if (userData.role) {
-        // This would be the proper implementation but we'll leave it for now
-        // await supabase.from('user_roles').upsert({
-        //   user_id: userId,
-        //   role: userData.role
-        // });
-      }
 
       toast({
         title: "User updated",
