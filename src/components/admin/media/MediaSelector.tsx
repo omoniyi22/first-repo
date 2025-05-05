@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -51,18 +50,44 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
 
   // Load media items when component mounts
   useEffect(() => {
-    // Try to load items from local storage first
-    const savedItems = localStorage.getItem('mediaItems');
-    if (savedItems) {
+    // First load from mediaItemsData which contains the actual data URLs
+    const mediaItemsData = localStorage.getItem('mediaItemsData');
+    let userUploadedItems: MediaItem[] = [];
+    
+    if (mediaItemsData) {
       try {
-        const parsedItems = JSON.parse(savedItems);
-        setMediaItems(parsedItems);
+        const parsedData = JSON.parse(mediaItemsData);
+        userUploadedItems = Object.values(parsedData) as MediaItem[];
+        console.log("Loaded user uploaded items:", userUploadedItems);
       } catch (e) {
-        console.error("Error parsing saved media items:", e);
-        setMediaItems(generateSampleMediaItems());
+        console.error("Error parsing media items data:", e);
+        userUploadedItems = [];
       }
-    } else if (mediaItems.length === 0) {
-      setMediaItems(generateSampleMediaItems());
+    }
+    
+    // Then load or merge with any previously saved mediaItems list
+    const savedItemsList = localStorage.getItem('mediaItems');
+    if (savedItemsList) {
+      try {
+        const parsedItems = JSON.parse(savedItemsList);
+        
+        // Skip sample items if we have user uploads
+        if (userUploadedItems.length > 0) {
+          // Merge but prioritize user uploaded items that have data URLs
+          const existingIds = new Set(userUploadedItems.map(item => item.id));
+          const filteredItems = parsedItems.filter((item: MediaItem) => !existingIds.has(item.id));
+          setMediaItems([...userUploadedItems, ...filteredItems]);
+        } else {
+          // Just use the saved list
+          setMediaItems(parsedItems);
+        }
+      } catch (e) {
+        console.error("Error parsing saved media items list:", e);
+        setMediaItems([...userUploadedItems, ...generateSampleMediaItems()]);
+      }
+    } else {
+      // If no saved list, use user uploads + samples
+      setMediaItems([...userUploadedItems, ...generateSampleMediaItems()]);
     }
   }, []);
 
@@ -90,6 +115,8 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
   };
 
   const handleUploadComplete = (newItems: MediaItem[]) => {
+    console.log("Upload complete, new items:", newItems);
+    
     // Add new items to the beginning of the media collection for visibility
     const updatedItems = [...newItems, ...mediaItems];
     setMediaItems(updatedItems);
@@ -110,9 +137,24 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
   };
 
   const handleDeleteMedia = (id: string) => {
+    // Remove from mediaItems list
     const updatedItems = mediaItems.filter(item => item.id !== id);
     setMediaItems(updatedItems);
     localStorage.setItem('mediaItems', JSON.stringify(updatedItems));
+    
+    // Also remove from mediaItemsData if it exists there
+    const mediaItemsData = localStorage.getItem('mediaItemsData');
+    if (mediaItemsData) {
+      try {
+        const parsedData = JSON.parse(mediaItemsData);
+        if (parsedData[id]) {
+          delete parsedData[id];
+          localStorage.setItem('mediaItemsData', JSON.stringify(parsedData));
+        }
+      } catch (e) {
+        console.error("Error removing item from mediaItemsData:", e);
+      }
+    }
   };
 
   return (

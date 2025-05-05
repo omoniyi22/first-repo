@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
 import { UploadCloud, X, File, CheckCircle, AlertCircle } from "lucide-react";
 import { MediaItem } from "./MediaLibrary";
+import { uploadOptimizedImage } from "@/lib/storage";
+import { useToast } from "@/hooks/use-toast";
 
 interface MediaUploadFormProps {
   onComplete: (items: MediaItem[]) => void;
@@ -22,6 +24,7 @@ const MediaUploadForm = ({ onComplete, onCancel }: MediaUploadFormProps) => {
   const [files, setFiles] = useState<UploadFile[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const { toast } = useToast();
   
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -71,83 +74,138 @@ const MediaUploadForm = ({ onComplete, onCancel }: MediaUploadFormProps) => {
     setFiles(files.filter(file => file.id !== id));
   };
   
-  const handleUpload = () => {
+  const handleUpload = async () => {
     if (files.length === 0) return;
     
     setIsUploading(true);
     
-    // Simulate upload progress for each file
-    const uploadPromises = files.map((file) => {
-      return new Promise<void>((resolve) => {
-        // Update status to uploading
-        setFiles(prevFiles => 
-          prevFiles.map(f => 
-            f.id === file.id ? { ...f, status: 'uploading' } : f
-          )
-        );
-        
+    const successfulUploads: MediaItem[] = [];
+    
+    for (const file of files) {
+      // Update status to uploading
+      setFiles(prevFiles => 
+        prevFiles.map(f => 
+          f.id === file.id ? { ...f, status: 'uploading' } : f
+        )
+      );
+      
+      try {
         // Simulate upload progress
-        const interval = setInterval(() => {
+        const progressInterval = setInterval(() => {
           setFiles(prevFiles => {
             const fileToUpdate = prevFiles.find(f => f.id === file.id);
-            if (fileToUpdate && fileToUpdate.progress < 100) {
-              const newProgress = Math.min(fileToUpdate.progress + Math.random() * 20, 100);
+            if (fileToUpdate && fileToUpdate.progress < 90) { // Only go up to 90% for simulation
+              const newProgress = Math.min(fileToUpdate.progress + Math.random() * 20, 90);
               return prevFiles.map(f => 
                 f.id === file.id ? { ...f, progress: newProgress } : f
               );
             } else {
-              clearInterval(interval);
               return prevFiles;
             }
           });
         }, 200);
         
-        // Simulate completion after a delay
-        setTimeout(() => {
-          clearInterval(interval);
-          
-          // Randomly decide if the upload fails (10% chance)
-          const success = Math.random() > 0.1;
-          
-          setFiles(prevFiles => 
-            prevFiles.map(f => 
-              f.id === file.id ? { 
-                ...f, 
-                progress: success ? 100 : f.progress,
-                status: success ? 'complete' : 'error',
-                error: success ? undefined : 'Upload failed'
-              } : f
-            )
-          );
-          
-          resolve();
-        }, 1000 + Math.random() * 1000); // Random delay between 1-2 seconds
-      });
-    });
-    
-    // When all uploads are done
-    Promise.all(uploadPromises).then(() => {
-      setTimeout(() => {
-        const successfulFiles = files.filter(f => f.status === 'complete');
+        // Store the file in localStorage as a data URL for persistence
+        const reader = new FileReader();
         
-        // Create media items for successfully uploaded files
-        const newMediaItems: MediaItem[] = successfulFiles.map(file => {
-          const isImage = file.file.type.startsWith('image/');
-          const isVideo = file.file.type.startsWith('video/');
-          
-          return {
-            id: file.id,
-            name: file.file.name,
-            url: isImage ? URL.createObjectURL(file.file) : "/placeholder.svg", // In a real app, this would be the URL from storage
-            type: isImage ? 'image' : isVideo ? 'video' : 'document',
-            size: file.file.size,
-            uploadedAt: new Date().toISOString()
+        await new Promise<void>((resolve, reject) => {
+          reader.onload = () => {
+            const dataUrl = reader.result as string;
+            
+            // In a real app, we would upload to Supabase or another storage
+            // For now, we'll simulate a successful upload and store in localStorage
+            
+            setTimeout(() => {
+              clearInterval(progressInterval);
+              
+              // Determine file type
+              const isImage = file.file.type.startsWith('image/');
+              const isVideo = file.file.type.startsWith('video/');
+              
+              // Create a unique but deterministic ID for the file
+              const fileId = `media-${Date.now()}-${file.file.name.replace(/\s+/g, '-').toLowerCase()}`;
+              
+              // Create a MediaItem from the uploaded file
+              const mediaItem: MediaItem = {
+                id: fileId,
+                name: file.file.name,
+                url: isImage ? dataUrl : "/placeholder.svg",
+                type: isImage ? 'image' : isVideo ? 'video' : 'document',
+                size: file.file.size,
+                uploadedAt: new Date().toISOString(),
+                // Add dimensions for images
+                ...(isImage && { dimensions: { width: 800, height: 600 } })
+              };
+              
+              // Store the media item in localStorage for persistence
+              const existingMediaJson = localStorage.getItem('mediaItemsData') || '{}';
+              let existingMedia;
+              
+              try {
+                existingMedia = JSON.parse(existingMediaJson);
+              } catch (e) {
+                existingMedia = {};
+              }
+              
+              existingMedia[fileId] = mediaItem;
+              localStorage.setItem('mediaItemsData', JSON.stringify(existingMedia));
+              
+              // Add to successful uploads
+              successfulUploads.push(mediaItem);
+              
+              // Update file status to complete
+              setFiles(prevFiles => 
+                prevFiles.map(f => 
+                  f.id === file.id ? { ...f, progress: 100, status: 'complete' } : f
+                )
+              );
+              
+              resolve();
+            }, 1000);
           };
+          
+          reader.onerror = () => {
+            reject(new Error('Failed to read file'));
+          };
+          
+          reader.readAsDataURL(file.file);
         });
+      } catch (error) {
+        console.error('Error processing file:', error);
         
-        onComplete(newMediaItems);
+        // Update file status to error
+        setFiles(prevFiles => 
+          prevFiles.map(f => 
+            f.id === file.id ? { 
+              ...f, 
+              status: 'error',
+              error: error instanceof Error ? error.message : 'Upload failed'
+            } : f
+          )
+        );
+      }
+    }
+    
+    // When all uploads are complete
+    if (successfulUploads.length > 0) {
+      toast({
+        title: "Upload Complete",
+        description: `${successfulUploads.length} file(s) uploaded successfully.`
+      });
+      
+      // Wait a moment before completing
+      setTimeout(() => {
+        onComplete(successfulUploads);
+        setIsUploading(false);
       }, 500);
-    });
+    } else {
+      toast({
+        title: "Upload Failed",
+        description: "No files were uploaded successfully.",
+        variant: "destructive"
+      });
+      setIsUploading(false);
+    }
   };
   
   const getFileTypeIcon = (file: File) => {
@@ -290,3 +348,4 @@ const MediaUploadForm = ({ onComplete, onCancel }: MediaUploadFormProps) => {
 };
 
 export default MediaUploadForm;
+
