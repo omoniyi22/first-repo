@@ -1,5 +1,5 @@
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, Outlet } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import AdminSidebar from '@/components/admin/AdminSidebar';
@@ -11,13 +11,14 @@ const Admin = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   
   // SEO metadata for admin dashboard (with noindex)
   const seoMetadata = getPageMetadata('admin', {
     noIndex: true
   });
   
-  // Check if user has admin privileges
+  // Check if user has admin privileges using the database function
   const checkAdmin = async () => {
     if (!user) return false;
     
@@ -29,9 +30,10 @@ const Admin = () => {
       
       if (error) throw error;
       
-      const isAdmin = !!data;
+      const hasAdminRole = !!data;
+      setIsAdmin(hasAdminRole);
       
-      if (!isAdmin) {
+      if (!hasAdminRole) {
         toast({
           title: "Access Denied",
           description: "You don't have permission to access the admin area.",
@@ -40,7 +42,7 @@ const Admin = () => {
         navigate('/dashboard');
       }
       
-      return isAdmin;
+      return hasAdminRole;
     } catch (error) {
       console.error("Failed to verify admin status:", error);
       toast({
@@ -59,13 +61,13 @@ const Admin = () => {
       navigate('/sign-in');
     } 
     // If logged in, check admin status
-    else if (!loading && user) {
+    else if (!loading && user && isAdmin === null) {
       checkAdmin();
     }
-  }, [user, loading, navigate]);
+  }, [user, loading, navigate, isAdmin]);
 
   // Show nothing while checking auth status
-  if (loading || !user) {
+  if (loading || !user || isAdmin === null) {
     return null;
   }
 
