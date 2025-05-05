@@ -1,6 +1,5 @@
-
 import { useState, useEffect } from "react";
-import { Search, RefreshCw } from "lucide-react";
+import { Search, RefreshCw, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import UsersList from "@/components/admin/users/UsersList";
@@ -139,6 +138,55 @@ const UserManagement = () => {
     setFilteredUsers(result);
   }, [searchTerm, regionFilter, roleFilter, users]);
 
+  // Add function to set admin role for a user
+  const setAdminRole = async (email: string) => {
+    try {
+      // Find the user in our list
+      const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+      
+      if (!user) {
+        toast({
+          title: "User not found",
+          description: `No user found with email ${email}. They need to register first.`,
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      // Update the user's role in Supabase
+      const { error } = await supabase.auth.admin.updateUserById(
+        user.id,
+        {
+          user_metadata: {
+            ...user.user_metadata,
+            role: 'admin'
+          }
+        }
+      );
+      
+      if (error) throw error;
+      
+      // Update local state
+      handleUpdateUser(user.id, { 
+        role: 'admin',
+        user_metadata: { ...user.user_metadata }
+      });
+      
+      toast({
+        title: "Admin role assigned",
+        description: `${email} has been granted admin privileges.`,
+        variant: "default"
+      });
+    } catch (error) {
+      console.error('Error setting admin role:', error);
+      toast({
+        title: "Error assigning admin role",
+        description: "Make sure you have the necessary permissions.",
+        variant: "destructive"
+      });
+    }
+  };
+
   const handleUpdateUser = async (userId: string, userData: Partial<User>) => {
     try {
       // In a real app, you would update the user through Supabase admin API
@@ -209,6 +257,13 @@ const UserManagement = () => {
         >
           <RefreshCw className={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
           Refresh
+        </Button>
+        <Button
+          onClick={() => setAdminRole('jenny@appetitecreative.com')}
+          className="bg-purple-600 hover:bg-purple-700 text-white"
+        >
+          <UserPlus className="mr-2 h-4 w-4" />
+          Add Jenny as Admin
         </Button>
       </div>
 
