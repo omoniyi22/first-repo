@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -20,7 +19,7 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
   
   // Simulated media items for the demo
   const generateSampleMediaItems = () => {
-    const sampleImages = [
+    const sampleImages: MediaItem[] = [
       { 
         id: "img1", 
         name: "Sample Image 1.jpg", 
