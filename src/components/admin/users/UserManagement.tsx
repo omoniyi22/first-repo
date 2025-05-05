@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Search, RefreshCw, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -39,77 +38,87 @@ const UserManagement = () => {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      console.log("Fetching all users...");
+      console.log("Fetching all users from auth system...");
       
-      // First get all users from auth.users using admin API (via Supabase Edge Function)
-      // Normally we would do this, but we're using a different approach with profiles
+      // Fetch users directly from auth.users using service role (bypassing RLS)
+      const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
       
-      // Get all profiles from the database
-      const { data: profiles, error: profilesError } = await supabase
-        .from('profiles')
-        .select('*');
-      
-      if (profilesError) {
-        console.error("Error fetching profiles:", profilesError);
-        throw profilesError;
+      if (authError) {
+        console.error("Error fetching auth users:", authError);
+        throw authError;
       }
       
-      console.log("Fetched profiles:", profiles);
+      console.log("Fetched auth users:", authUsers);
       
-      if (!profiles || profiles.length === 0) {
-        console.warn("No profiles found in the database");
+      if (!authUsers || !authUsers.users || authUsers.users.length === 0) {
+        console.warn("No users found in the auth system");
         setUsers([]);
         setFilteredUsers([]);
         setLoading(false);
         toast({
           title: "No users found",
-          description: "There are no users in the database.",
+          description: "There are no users in the authentication system.",
           variant: "destructive"
         });
         return;
       }
       
-      // Create an array to hold all the user objects
+      // Fetch profiles to get additional user data
+      const { data: profiles, error: profilesError } = await supabase
+        .from('profiles')
+        .select('*');
+      
+      console.log("Fetched profiles:", profiles || []);
+      
+      // Create a map of profiles by user ID for easy lookup
+      const profilesMap = new Map();
+      if (profiles && profiles.length > 0) {
+        profiles.forEach(profile => {
+          profilesMap.set(profile.id, profile);
+        });
+      }
+      
+      // Process each auth user and combine with profile data if available
       const fetchedUsers: User[] = [];
       
-      // Process each profile to create user objects
-      for (const profile of profiles) {
+      for (const authUser of authUsers.users) {
         try {
-          console.log("Processing profile:", profile.id);
+          console.log("Processing user:", authUser.id);
+          
+          // Get the profile for this user if it exists
+          const userProfile = profilesMap.get(authUser.id);
           
           // Check if the user is an admin using the is_admin RPC function
           const { data: isAdmin, error: roleError } = await supabase.rpc('is_admin', {
-            user_uuid: profile.id
+            user_uuid: authUser.id
           });
           
           if (roleError) {
-            console.error(`Error checking role for ${profile.id}:`, roleError);
+            console.error(`Error checking role for ${authUser.id}:`, roleError);
           }
           
-          console.log(`User ${profile.id} admin status:`, isAdmin);
+          console.log(`User ${authUser.id} admin status:`, isAdmin);
           
-          // Generate an email address based on the profile data or ID
-          const email = profile.coach_name 
-            ? `${profile.coach_name.toLowerCase().replace(/\s+/g, '.')}@example.com` 
-            : `user-${profile.id.substring(0, 8)}@example.com`;
-          
-          // Create a user object from the profile data
+          // Create a user object that combines auth data and profile data
           const userObj: User = {
-            id: profile.id,
-            email: email,
-            created_at: profile.created_at || new Date().toISOString(),
+            id: authUser.id,
+            email: authUser.email || `user-${authUser.id.substring(0, 8)}@example.com`,
+            created_at: authUser.created_at || new Date().toISOString(),
             user_metadata: {
-              full_name: profile.coach_name || `User ${profile.id.substring(0, 5)}`
+              full_name: (userProfile?.coach_name || 
+                         authUser.user_metadata?.full_name || 
+                         authUser.user_metadata?.name || 
+                         `User ${authUser.id.substring(0, 5)}`)
             },
-            last_sign_in_at: profile.updated_at || null,
+            last_sign_in_at: authUser.last_sign_in_at,
             role: isAdmin ? 'admin' : 'user',
-            region: profile.region || 'Unknown',
-            is_active: true
+            region: userProfile?.region || 'Unknown',
+            is_active: !authUser.banned
           };
           
           fetchedUsers.push(userObj);
         } catch (error) {
-          console.error('Error processing user:', profile.id, error);
+          console.error('Error processing user:', authUser.id, error);
         }
       }
       
