@@ -44,7 +44,7 @@ const UserDetailsForm = ({ user, onSave, onCancel }: UserDetailsFormProps) => {
       full_name: user.user_metadata.full_name || "",
       email: user.email,
       role: user.role || "user",
-      region: user.region || "",
+      region: user.region || "unknown",
       is_active: user.is_active !== false, // Default to true if undefined
     },
   });
