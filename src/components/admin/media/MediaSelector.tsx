@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ImageIcon, Upload } from "lucide-react";
@@ -48,6 +49,13 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
     return sampleImages;
   };
 
+  useEffect(() => {
+    // Load media items on component mount
+    if (mediaItems.length === 0) {
+      setMediaItems(generateSampleMediaItems());
+    }
+  }, []);
+
   const handleOpenChange = (open: boolean) => {
     setIsDialogOpen(open);
     if (open && !isUploadView && mediaItems.length === 0) {
@@ -65,14 +73,19 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
   };
 
   const handleUploadComplete = (newItems: MediaItem[]) => {
+    // Add new items to the media collection
     setMediaItems([...newItems, ...mediaItems]);
+    
+    // Set to view mode after upload completes
+    setIsUploadView(false);
+    
+    // If there are new items, automatically select the first one
     if (newItems.length > 0) {
       onChange(newItems[0].url);
       if (onImageSelect && newItems[0]) {
         onImageSelect(newItems[0]);
       }
     }
-    setIsUploadView(false);
   };
 
   const handleDeleteMedia = (id: string) => {
