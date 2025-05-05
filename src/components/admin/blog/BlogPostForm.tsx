@@ -264,26 +264,26 @@ const BlogPostForm = ({ post, onSave, onCancel }: BlogPostFormProps) => {
                 <Input placeholder="Image URL" {...field} />
               </FormControl>
               <FormMessage />
+              
+              {field.value && (
+                <div className="mt-2">
+                  <p className="text-sm text-gray-500 mb-1">Preview:</p>
+                  <div className="w-40 h-24 border rounded-md overflow-hidden">
+                    <img 
+                      src={field.value}
+                      alt="Preview" 
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = "/placeholder.svg";
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
             </FormItem>
           )}
         />
-
-        {field.value && (
-          <div className="mt-2">
-            <p className="text-sm text-gray-500 mb-1">Preview:</p>
-            <div className="w-40 h-24 border rounded-md overflow-hidden">
-              <img 
-                src={field.value}
-                alt="Preview" 
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.src = "/placeholder.svg";
-                }}
-              />
-            </div>
-          </div>
-        )}
 
         <div className="flex justify-end gap-3">
           <Button type="button" variant="outline" onClick={onCancel}>

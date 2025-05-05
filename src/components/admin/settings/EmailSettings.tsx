@@ -238,7 +238,7 @@ const EmailSettings = () => {
                   className="font-mono text-sm"
                 />
                 <p className="text-xs text-gray-500">
-                  Available variables: {{name}}, {{email}}, {{loginUrl}}
+                  Available variables: {"{{"}<span>name</span>{"}}"},  {"{{"}<span>email</span>{"}}"},  {"{{"}<span>loginUrl</span>{"}}"} 
                 </p>
               </div>
             </TabsContent>
@@ -263,7 +263,7 @@ const EmailSettings = () => {
                   className="font-mono text-sm"
                 />
                 <p className="text-xs text-gray-500">
-                  Available variables: {{name}}, {{email}}, {{resetLink}}
+                  Available variables: {"{{"}<span>name</span>{"}}"},  {"{{"}<span>email</span>{"}}"},  {"{{"}<span>resetLink</span>{"}}"} 
                 </p>
               </div>
             </TabsContent>
@@ -288,7 +288,7 @@ const EmailSettings = () => {
                   className="font-mono text-sm"
                 />
                 <p className="text-xs text-gray-500">
-                  Available variables: {{name}}, {{email}}, {{reportLink}}, {{reportName}}
+                  Available variables: {"{{"}<span>name</span>{"}}"},  {"{{"}<span>email</span>{"}}"},  {"{{"}<span>reportLink</span>{"}}"},  {"{{"}<span>reportName</span>{"}}"} 
                 </p>
               </div>
             </TabsContent>
