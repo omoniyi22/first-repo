@@ -47,11 +47,7 @@ const UsersList = ({ users, onUpdateUser, loading }: UsersListProps) => {
     console.log('Opening edit dialog for user:', user.id);
     if (isMountedRef.current) {
       setSelectedUser(user);
-      setTimeout(() => {
-        if (isMountedRef.current) {
-          setDialogOpen(true);
-        }
-      }, 0);
+      setDialogOpen(true);
     }
   }, []);
 
@@ -242,21 +238,10 @@ const UsersList = ({ users, onUpdateUser, loading }: UsersListProps) => {
           console.log("Dialog open state changed to:", open);
           if (!open && dialogOpen) {
             handleCloseDialog();
-          } else if (open && !dialogOpen && selectedUser) {
-            setDialogOpen(true);
           }
         }}
       >
-        <DialogContent 
-          className="sm:max-w-[425px]"
-          onInteractOutside={(e) => {
-            e.preventDefault();
-          }}
-          onEscapeKeyDown={(e) => {
-            e.preventDefault();
-            handleCloseDialog();
-          }}
-        >
+        <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Edit User</DialogTitle>
             <DialogDescription>
