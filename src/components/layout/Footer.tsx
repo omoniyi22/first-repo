@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Mail } from 'lucide-react';
+import { Instagram, Mail } from 'lucide-react';
 
 const Footer = () => {
   return (
@@ -41,18 +41,27 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Third Section - Contact Information */}
+          {/* Third Section - Social Media */}
           <div>
-            <h4 className="text-lg font-semibold mb-4">Contact Us</h4>
-            <p className="text-gray-300 mb-2">
-              123 Equestrian Lane, Lexington, KY 40505
-            </p>
-            <p className="flex items-center text-gray-300 mb-2">
-              <Mail className="w-4 h-4 mr-1.5" />
-              info@aiequestrian.com
-            </p>
-            <p className="text-gray-300">
-              (555) 123-4567
+            <h4 className="text-lg font-semibold mb-4">Connect With Us</h4>
+            <div className="flex space-x-4">
+              <a 
+                href="https://instagram.com/aiequestrian" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-gray-300 hover:text-white transition-colors"
+              >
+                <Instagram className="w-6 h-6" />
+              </a>
+              <a 
+                href="mailto:info@aiequestrian.com" 
+                className="text-gray-300 hover:text-white transition-colors"
+              >
+                <Mail className="w-6 h-6" />
+              </a>
+            </div>
+            <p className="text-gray-300 mt-4">
+              Follow us for updates and insights into AI-powered equestrian training.
             </p>
           </div>
         </div>
