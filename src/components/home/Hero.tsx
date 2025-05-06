@@ -36,10 +36,10 @@ const Hero = () => {
       {/* Overlay gradient */}
       <div className="absolute inset-0 bg-gradient-to-r from-purple-900/70 to-purple-900/40"></div>
       
-      <div className="container relative z-10 mx-auto px-6 text-center">
+      <div className="container relative z-20 mx-auto px-6 text-center">
         <div className={`max-w-2xl mx-auto transition-all duration-1000 transform ${loaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
           <AnimatedSection animation="fade-in" delay="delay-100">
-            <div className="inline-block px-6 py-3 mb-6 bg-gradient-to-r from-purple-600 to-blue-500 rounded-xl backdrop-blur-sm">
+            <div className="inline-block px-6 py-3 mb-6 bg-gradient-to-r from-purple-600 to-blue-500 rounded-xl backdrop-blur-sm z-20 relative">
               <span className="text-white font-medium">
                 {language === 'en' 
                   ? "Next Generation Dressage Training" 
@@ -67,13 +67,13 @@ const Hero = () => {
           <AnimatedSection animation="fade-in" delay="delay-400">
             <div className="flex flex-col sm:flex-row gap-4 mb-8 justify-center">
               <Link to="/sign-in?signup=true">
-                <Button className="navy-button flex items-center gap-2 text-base group">
+                <Button variant="navy" size="lg" animation="bounce" className="flex items-center gap-2 text-base group">
                   {language === 'en' ? "Get Started" : "Comenzar"}
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Button>
               </Link>
               <Link to="/how-it-works">
-                <Button variant="outline" className="outline-button text-base">
+                <Button variant="outlinePurple" size="lg" className="text-base">
                   {language === 'en' ? "How It Works" : "Cómo Funciona"}
                 </Button>
               </Link>
