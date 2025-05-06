@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Search, RefreshCw, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -171,6 +172,8 @@ const UserManagement = () => {
 
   const handleUpdateUser = async (userId: string, userData: Partial<User>) => {
     try {
+      console.log("Updating user:", userId, userData);
+      
       // Update profile in the database if we're changing user data
       if (userData.user_metadata?.full_name || userData.region) {
         const updateData: any = {};
@@ -184,13 +187,18 @@ const UserManagement = () => {
           updateData.region = userData.region;
         }
         
+        console.log("Updating profile with data:", updateData);
+        
         // Update the profile
         const { error } = await supabase
           .from('profiles')
           .update(updateData)
           .eq('id', userId);
           
-        if (error) throw error;
+        if (error) {
+          console.error("Error updating profile:", error);
+          throw error;
+        }
       }
       
       // If role is changing, update the role using our function
@@ -202,10 +210,14 @@ const UserManagement = () => {
         }
       }
 
-      // Update the local state
-      setUsers(users.map(user => 
-        user.id === userId ? { ...user, ...userData } : user
-      ));
+      // Update the local state with the new data
+      setUsers(prevUsers => 
+        prevUsers.map(user => 
+          user.id === userId ? { ...user, ...userData } : user
+        )
+      );
+      
+      console.log("User updated successfully");
 
       toast({
         title: "User updated",

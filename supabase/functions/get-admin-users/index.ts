@@ -39,7 +39,16 @@ serve(async (req) => {
       throw profilesError;
     }
 
-    // Create a map of profiles by user ID for easy lookup
+    // Get user roles
+    const { data: userRoles, error: userRolesError } = await supabaseClient
+      .from("user_roles")
+      .select("*");
+
+    if (userRolesError) {
+      throw userRolesError;
+    }
+
+    // Create maps for profiles and roles
     const profilesMap = {};
     if (profiles) {
       profiles.forEach((profile) => {
@@ -47,9 +56,24 @@ serve(async (req) => {
       });
     }
 
+    const rolesMap = {};
+    if (userRoles) {
+      userRoles.forEach((roleEntry) => {
+        rolesMap[roleEntry.user_id] = roleEntry.role;
+      });
+    }
+
     // Combine user and profile data
     const users = authUsers.users.map((user) => {
       const profile = profilesMap[user.id] || {};
+      
+      // Check if user is an admin either via user_roles or being Jenny
+      const isAdmin = rolesMap[user.id] === 'admin' || 
+                      user.email === 'jenny@appetitecreative.com';
+      
+      if (isAdmin && profile) {
+        profile.role = 'admin';
+      }
       
       return {
         ...user,
