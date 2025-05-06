@@ -46,8 +46,15 @@ const UsersList = ({ users, onUpdateUser, loading }: UsersListProps) => {
   const handleEditUser = useCallback((user: User) => {
     console.log('Opening edit dialog for user:', user.id);
     if (isMountedRef.current) {
+      // Set the selected user first
       setSelectedUser(user);
-      setDialogOpen(true);
+      // Then open the dialog with a slight delay to ensure React has updated the state
+      setTimeout(() => {
+        if (isMountedRef.current) {
+          console.log('Setting dialog open to true');
+          setDialogOpen(true);
+        }
+      }, 50);
     }
   }, []);
 
@@ -86,6 +93,11 @@ const UsersList = ({ users, onUpdateUser, loading }: UsersListProps) => {
       return 'Invalid date';
     }
   };
+
+  // Debug user effect
+  useEffect(() => {
+    console.log('Current state - selectedUser:', selectedUser?.id, 'dialogOpen:', dialogOpen);
+  }, [selectedUser, dialogOpen]);
 
   return (
     <>
@@ -232,16 +244,29 @@ const UsersList = ({ users, onUpdateUser, loading }: UsersListProps) => {
         </Table>
       </div>
 
+      {/* Controlled Dialog component with debugging */}
       <Dialog 
         open={dialogOpen} 
         onOpenChange={(open) => {
           console.log("Dialog open state changed to:", open);
-          if (!open && dialogOpen) {
+          if (!open) {
             handleCloseDialog();
           }
         }}
       >
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent 
+          className="sm:max-w-[425px]"
+          onInteractOutside={(e) => {
+            // Prevent close on outside click
+            console.log("Interaction outside dialog prevented");
+            e.preventDefault();
+          }}
+          onEscapeKeyDown={(e) => {
+            console.log("Escape key pressed, closing dialog");
+            e.preventDefault();
+            handleCloseDialog();
+          }}
+        >
           <DialogHeader>
             <DialogTitle>Edit User</DialogTitle>
             <DialogDescription>
