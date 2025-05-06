@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { uploadToCloudinary } from '@/services/cloudinaryService';
 
@@ -362,7 +363,6 @@ export const uploadOptimizedImage = async (
                   publicUrl: dataUrl,
                   width: options.maxWidth,
                   height: options.quality
-                  // Removed fileId property as it's not in the return type
                 }
               });
             };
@@ -389,7 +389,6 @@ export const uploadOptimizedImage = async (
           publicUrl: publicUrlData.publicUrl,
           width: options.maxWidth,
           height: options.quality
-          // Removed fileId property as it's not in the return type
         }
       };
     }
@@ -411,7 +410,21 @@ export const uploadOptimizedImage = async (
           }
           
           const dataUrl = e.target.result.toString();
-          localStorage.setItem(`media_item_${fileId}`, dataUrl);
+          try {
+            localStorage.setItem(`media_item_${fileId}`, dataUrl);
+          } catch (storageError) {
+            console.error("Storage quota exceeded:", storageError);
+            // Create a temporary URL instead
+            const tempUrl = URL.createObjectURL(file);
+            return resolve({
+              success: true,
+              data: {
+                publicUrl: tempUrl,
+                width: options.maxWidth,
+                height: options.quality
+              }
+            });
+          }
           
           resolve({
             success: true,
@@ -419,7 +432,6 @@ export const uploadOptimizedImage = async (
               publicUrl: dataUrl,
               width: options.maxWidth,
               height: options.quality
-              // Removed fileId property as it's not in the return type
             }
           });
         };
@@ -438,6 +450,6 @@ export const uploadOptimizedImage = async (
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown upload error"
-    };
+    }
   }
 };

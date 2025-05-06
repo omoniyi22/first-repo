@@ -16,7 +16,7 @@ export const cloudinary = new Cloudinary({
 
 // Base URL for unsigned uploads to Cloudinary
 const CLOUDINARY_UPLOAD_URL = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
-const UPLOAD_PRESET = "ml_default";  // Change to your upload preset if you have one
+const UPLOAD_PRESET = "khek4for";  // Using an unsigned upload preset
 
 /**
  * Uploads an image to Cloudinary
