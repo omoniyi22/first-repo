@@ -61,15 +61,38 @@ serve(async (req) => {
       }
     }
     
-    // Handle role updates if present and user is admin
-    if (updateData.role === 'admin' && await isAdmin(supabaseClient, requestingUserId)) {
-      const { error: roleError } = await supabaseClient.rpc('set_admin_role', {
-        email_address: updateData.email
-      });
+    // Handle role updates - make sure we're storing roles in the user_roles table
+    if (updateData.role) {
+      console.log(`Updating user ${userId} role to: ${updateData.role}`);
       
-      if (roleError) {
-        console.error("Role update error:", roleError);
-        throw roleError;
+      // Check if a role entry exists
+      const { data: existingRole } = await supabaseClient
+        .from("user_roles")
+        .select("*")
+        .eq("user_id", userId)
+        .single();
+        
+      if (existingRole) {
+        // Update existing role
+        const { error: roleUpdateError } = await supabaseClient
+          .from("user_roles")
+          .update({ role: updateData.role })
+          .eq("user_id", userId);
+          
+        if (roleUpdateError) {
+          console.error("Role update error:", roleUpdateError);
+          throw roleUpdateError;
+        }
+      } else {
+        // Insert new role
+        const { error: roleInsertError } = await supabaseClient
+          .from("user_roles")
+          .insert({ user_id: userId, role: updateData.role });
+          
+        if (roleInsertError) {
+          console.error("Role insert error:", roleInsertError);
+          throw roleInsertError;
+        }
       }
     }
     

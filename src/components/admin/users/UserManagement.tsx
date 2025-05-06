@@ -145,10 +145,12 @@ const UserManagement = () => {
         throw new Error("You must be logged in to update users");
       }
       
-      const updatePayload = {
-        profile: {} as any,
-        role: undefined as string | undefined,
-        email: undefined as string | undefined
+      const updatePayload: {
+        profile: Record<string, any>;
+        role?: string;
+        email?: string;
+      } = {
+        profile: {},
       };
       
       // Handle profile fields
@@ -160,11 +162,11 @@ const UserManagement = () => {
         updatePayload.profile.region = userData.region;
       }
       
-      // Handle role change
-      if (userData.role === 'admin') {
+      // Handle role change - directly pass the role value in the update payload
+      if (userData.role) {
+        updatePayload.role = userData.role;
         const userToUpdate = users.find(u => u.id === userId);
         if (userToUpdate?.email) {
-          updatePayload.role = 'admin';
           updatePayload.email = userToUpdate.email;
         }
       }
@@ -204,6 +206,10 @@ const UserManagement = () => {
         title: "User updated",
         description: "User information has been updated successfully.",
       });
+      
+      // Fetch users again to ensure the updated data is displayed
+      fetchUsers();
+      
     } catch (error) {
       console.error('Error updating user:', error);
       toast({
