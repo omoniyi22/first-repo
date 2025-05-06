@@ -3,7 +3,6 @@ import { useState } from "react";
 import {
   MoreHorizontal,
   Trash2,
-  Download,
   ExternalLink,
   Copy,
   Eye,
@@ -91,6 +90,14 @@ const MediaGridView = ({ items, onDelete, onSelect }: MediaGridViewProps) => {
     } else {
       setPreviewItem(item);
     }
+  };
+
+  // Format video duration
+  const formatDuration = (seconds?: number): string => {
+    if (!seconds) return '0:00';
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   return (
@@ -226,7 +233,7 @@ const MediaGridView = ({ items, onDelete, onSelect }: MediaGridViewProps) => {
                   <FileVideo className="h-16 w-16 mx-auto text-purple-500 mb-4" />
                   <p className="text-lg font-medium">Video Preview</p>
                   <p className="text-gray-500">
-                    Duration: {Math.floor((previewItem.duration || 0) / 60)}:{String((previewItem.duration || 0) % 60).padStart(2, '0')}
+                    Duration: {formatDuration(previewItem.duration)}
                   </p>
                   <Button className="mt-4" asChild>
                     <a href={previewItem.url} target="_blank" rel="noopener noreferrer">

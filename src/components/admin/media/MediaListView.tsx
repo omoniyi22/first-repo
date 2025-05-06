@@ -3,7 +3,6 @@ import { useState } from "react";
 import {
   MoreHorizontal,
   Trash2,
-  Download,
   ExternalLink,
   Copy,
   Eye,
@@ -44,9 +43,10 @@ interface MediaListViewProps {
   items: MediaItem[];
   onDelete: (id: string) => void;
   formatFileSize: (bytes: number) => string;
+  onSelect?: (item: MediaItem) => void;
 }
 
-const MediaListView = ({ items, onDelete, formatFileSize }: MediaListViewProps) => {
+const MediaListView = ({ items, onDelete, formatFileSize, onSelect }: MediaListViewProps) => {
   const [itemToDelete, setItemToDelete] = useState<MediaItem | null>(null);
   const [brokenImages, setBrokenImages] = useState<Set<string>>(new Set());
   const { toast } = useToast();
@@ -91,6 +91,12 @@ const MediaListView = ({ items, onDelete, formatFileSize }: MediaListViewProps) 
     }
   };
 
+  const handleItemClick = (item: MediaItem) => {
+    if (onSelect) {
+      onSelect(item);
+    }
+  };
+
   return (
     <>
       <div className="rounded-md border">
@@ -106,7 +112,11 @@ const MediaListView = ({ items, onDelete, formatFileSize }: MediaListViewProps) 
           </TableHeader>
           <TableBody>
             {items.map((item) => (
-              <TableRow key={item.id}>
+              <TableRow 
+                key={item.id} 
+                className={onSelect ? "cursor-pointer hover:bg-gray-50" : ""}
+                onClick={() => handleItemClick(item)}
+              >
                 <TableCell>
                   <div className="flex items-center gap-2">
                     {getFileIcon(item.type)}
@@ -128,16 +138,23 @@ const MediaListView = ({ items, onDelete, formatFileSize }: MediaListViewProps) 
                     size="icon"
                     asChild
                     className="h-8 w-8"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      window.open(item.url, '_blank');
+                    }}
                   >
-                    <a href={item.url} target="_blank" rel="noopener noreferrer">
+                    <span>
                       <Eye className="h-4 w-4" />
                       <span className="sr-only">Preview</span>
-                    </a>
+                    </span>
                   </Button>
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => copyToClipboard(item.url)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      copyToClipboard(item.url);
+                    }}
                     className="h-8 w-8"
                   >
                     <Copy className="h-4 w-4" />
@@ -145,12 +162,17 @@ const MediaListView = ({ items, onDelete, formatFileSize }: MediaListViewProps) 
                   </Button>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-8 w-8"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <MoreHorizontal className="h-4 w-4" />
                         <span className="sr-only">More options</span>
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
+                    <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
                       <DropdownMenuItem 
                         onClick={() => window.open(item.url, '_blank')}
                       >

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -18,7 +19,8 @@ export interface MediaItem {
     width?: number;
     height?: number;
   };
-  cloudinaryId?: string; // Add Cloudinary ID field
+  cloudinaryId?: string;
+  duration?: number; // Add duration for video files
 }
 
 interface MediaLibraryProps {
@@ -39,6 +41,15 @@ const MediaLibrary: React.FC<MediaLibraryProps> = () => {
   const handleDeleteMedia = (id: string) => {
     // Delete media item logic here
     setMediaItems(prevItems => prevItems.filter(item => item.id !== id));
+  };
+  
+  // Format file size for display
+  const formatFileSize = (bytes: number): string => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
   return (
@@ -67,7 +78,7 @@ const MediaLibrary: React.FC<MediaLibraryProps> = () => {
             <MediaGridView items={mediaItems} onDelete={handleDeleteMedia} onSelect={() => {}} />
           </TabsContent>
           <TabsContent value="list" className="outline-none">
-            <MediaListView items={mediaItems} onDelete={handleDeleteMedia} onSelect={() => {}} />
+            <MediaListView items={mediaItems} onDelete={handleDeleteMedia} formatFileSize={formatFileSize} />
           </TabsContent>
         </Tabs>
 
