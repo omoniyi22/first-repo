@@ -1,4 +1,3 @@
-
 import { useEffect } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
@@ -320,12 +319,12 @@ const About = () => {
           </div>
         </section>
         
-        {/* Experience AI Equestrian Section - With side-by-side layout */}
+        {/* Experience AI Equestrian Section - UPDATED with image on the left */}
         <section className="py-16 bg-gradient-to-r from-purple-100 to-blue-100">
           <div className="container mx-auto px-6">
             <div className="flex flex-col md:flex-row items-center md:space-x-12 max-w-6xl mx-auto">
-              {/* Left side - Image */}
-              <div className="md:w-1/2 mb-8 md:mb-0 reveal-scroll">
+              {/* Left side - Image (moved to left) */}
+              <div className="md:w-1/2 mb-8 md:mb-0 reveal-scroll order-2 md:order-1">
                 <img 
                   src="/lovable-uploads/3b7c24a2-ef67-42cc-9b46-875418451128.png" 
                   alt="AI Equestrian Experience" 
@@ -334,7 +333,7 @@ const About = () => {
               </div>
               
               {/* Right side - Text content */}
-              <div className="md:w-1/2 reveal-scroll">
+              <div className="md:w-1/2 reveal-scroll order-1 md:order-2">
                 <h2 className="text-3xl md:text-4xl font-serif font-semibold mb-4">Experience AI Equestrian Training</h2>
                 <p className="text-lg text-gray-700 mb-8">
                   Have questions about our platform or want to learn more about how AI Equestrian can help you achieve your riding goals? Get in touch with our team.
