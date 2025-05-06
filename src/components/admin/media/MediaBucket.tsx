@@ -64,8 +64,8 @@ export const MediaBucket = ({ bucketId, onInitialized }: MediaBucketProps) => {
           // Show unobtrusive info toast only once per session
           if (!hasShownStorageToast && retryCount === 0) {
             toast({
-              title: "Using Local Storage",
-              description: "Media uploads will be saved to browser storage.",
+              title: "Using Browser Storage",
+              description: "Images will be stored in your browser. They may not be available on other devices.",
               variant: "default",
               duration: 3000
             });
@@ -101,7 +101,7 @@ export const MediaBucket = ({ bucketId, onInitialized }: MediaBucketProps) => {
   if (error && retryCount > 0) {
     return (
       <div className="text-xs text-gray-400 flex items-center gap-2">
-        <span>Local storage active</span>
+        <span>Browser storage active</span>
         <button 
           onClick={() => {
             setRetryCount(prev => prev + 1);

@@ -270,6 +270,7 @@ export const uploadOptimizedImage = async (
     maxWidth?: number;
     quality?: number;
     altText?: string;
+    fileId?: string;
     metadata?: Record<string, string>;
   } = {}
 ): Promise<{
@@ -286,7 +287,7 @@ export const uploadOptimizedImage = async (
 }> => {
   try {
     // Generate a fileId for deduplication
-    const fileId = await generateFileHash(file);
+    const fileId = options.fileId || await generateFileHash(file);
     
     // First create bucket if it doesn't exist
     const bucketResult = await createBucketIfNotExists(bucket);

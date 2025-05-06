@@ -73,7 +73,7 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
       const metadataItems = items.map(item => ({
         id: item.id,
         name: item.name,
-        url: item.url,
+        url: item.url.startsWith('data:') ? `data_url_ref_${item.id}` : item.url, // Store reference instead of full data URL
         type: item.type,
         size: item.size,
         uploadedAt: item.uploadedAt,
@@ -152,18 +152,26 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
         
         if (mediaItemsIndex) {
           try {
-            userUploadedItems = JSON.parse(mediaItemsIndex);
-            console.log("Loaded user uploaded items metadata:", userUploadedItems.length);
+            const parsedItems = JSON.parse(mediaItemsIndex);
+            console.log("Loaded user uploaded items metadata:", parsedItems.length);
             
-            // Check for any data URLs in localStorage and restore them
-            userUploadedItems = userUploadedItems.map(item => {
-              if (item.id) {
-                const storedDataUrl = localStorage.getItem(`media_item_${item.id}`);
-                if (storedDataUrl && (item.url.startsWith('data:') || item.url.startsWith('blob:'))) {
-                  console.log(`Restored data URL for item ${item.id}`);
+            // Process the items to restore any data URLs
+            userUploadedItems = parsedItems.map((item: any) => {
+              // If the URL is a data URL reference, load the actual data URL from storage
+              if (item.url && item.url.startsWith('data_url_ref_') && item.id) {
+                const dataUrlId = item.id;
+                const storedDataUrl = localStorage.getItem(`media_item_${dataUrlId}`);
+                if (storedDataUrl) {
+                  console.log(`Restored data URL for item ${dataUrlId}`);
                   return { ...item, url: storedDataUrl };
+                } else {
+                  console.warn(`Could not find data URL for item ${dataUrlId}`);
+                  // Fallback to a placeholder
+                  return { ...item, url: '/placeholder.svg' };
                 }
               }
+              
+              // For other URLs, just use what's in the metadata
               return item;
             });
             
@@ -208,14 +216,18 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
         
         // If not, we should create an entry for it to ensure it persists
         if (!existingItem && !isInitializing) {
+          const newItemId = `selected_${INSTANCE_ID}`;
           const newItem: MediaItem = {
-            id: `selected_${INSTANCE_ID}`,
-            name: `Selected Image ${INSTANCE_ID}`,
+            id: newItemId,
+            name: `Selected Image ${INSTANCE_ID.substring(0, 4)}`,
             url: value,
             type: "image",
             size: 0,
             uploadedAt: new Date().toISOString()
           };
+          
+          // Also save the data URL specifically
+          localStorage.setItem(`media_item_${newItemId}`, value);
           
           // Add to media items and save
           const updatedItems = [newItem, ...mediaItems];
@@ -226,7 +238,7 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
         console.error("Failed to save image data URI:", e);
       }
     }
-  }, [value, mediaItems, isInitializing]);
+  }, [value, mediaItems, isInitializing, INSTANCE_ID]);
 
   const handleOpenChange = (open: boolean) => {
     setIsDialogOpen(open);
@@ -348,7 +360,7 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
           </div>
           
           {value && (
-            <div className="border rounded-md p-2 w-40 h-24">
+            <div className="border rounded-md p-2 w-40 h-24 bg-gray-50">
               <img 
                 src={value} 
                 alt="Selected image" 
@@ -356,6 +368,7 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
                   target.src = "/placeholder.svg";
+                  console.error("Error loading image:", value);
                 }}
               />
             </div>
@@ -389,8 +402,8 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
                   </Button>
                 </div>
                 {!isBucketReady && (
-                  <div className="p-2 bg-gray-50 rounded-md text-xs text-gray-500 flex items-center justify-between">
-                    <span>Using browser storage - uploads may not persist across devices</span>
+                  <div className="p-2 bg-gray-50 rounded-md text-xs text-gray-500">
+                    <span>Using browser storage - images are saved locally</span>
                   </div>
                 )}
                 <MediaGridView 
