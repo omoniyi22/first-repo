@@ -328,7 +328,7 @@ const AuthForm = () => {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <AnimatedSection animation="fade-in" delay="delay-100">
           <div className="bg-white py-8 px-4 shadow-sm sm:rounded-xl sm:px-10 border border-silver-100">
-            {/* SSO Buttons Section */}
+            {/* SSO Buttons Section - Only Google */}
             <div className="space-y-4 mb-8">
               <Button
                 type="button"
@@ -350,52 +350,6 @@ const AuthForm = () => {
                       <path d="M12.0004 24.0001C15.2404 24.0001 17.9654 22.935 19.9454 21.095L16.0804 18.095C15.0054 18.82 13.6204 19.245 12.0004 19.245C8.8704 19.245 6.21537 17.135 5.2654 14.29L1.27539 17.385C3.25539 21.31 7.3104 24.0001 12.0004 24.0001Z" fill="#34A853" />
                     </svg>
                     Continue with Google
-                  </>
-                )}
-              </Button>
-              
-              <Button
-                type="button"
-                className="w-full bg-white text-navy-700 border border-silver-300 hover:bg-silver-50"
-                disabled={isProcessingSSO}
-                onClick={() => handleSSOAuth('github')}
-              >
-                {isProcessingSSO ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Signing in...
-                  </>
-                ) : (
-                  <>
-                    <svg className="h-5 w-5 mr-2" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 0C4.477 0 0 4.477 0 10c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V19c0 .27.16.59.67.5C17.14 18.16 20 14.42 20 10A10 10 0 0010 0z" clipRule="evenodd" />
-                    </svg>
-                    Continue with GitHub
-                  </>
-                )}
-              </Button>
-              
-              <Button
-                type="button"
-                className="w-full bg-white text-navy-700 border border-silver-300 hover:bg-silver-50"
-                disabled={isProcessingSSO}
-                onClick={() => handleSSOAuth('azure')}
-              >
-                {isProcessingSSO ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Signing in...
-                  </>
-                ) : (
-                  <>
-                    <svg className="h-5 w-5 mr-2" aria-hidden="true" fill="currentColor" viewBox="0 0 23 23">
-                      <path fill="#f3f3f3" d="M0 0h23v23H0z"/>
-                      <path fill="#f35325" d="M1 1h10v10H1z"/>
-                      <path fill="#81bc06" d="M12 1h10v10H12z"/>
-                      <path fill="#05a6f0" d="M1 12h10v10H1z"/>
-                      <path fill="#ffba08" d="M12 12h10v10H12z"/>
-                    </svg>
-                    Continue with Microsoft
                   </>
                 )}
               </Button>
