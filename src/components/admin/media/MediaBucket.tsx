@@ -16,6 +16,9 @@ export const MediaBucket = ({ bucketId, onInitialized }: MediaBucketProps) => {
   const { toast } = useToast();
 
   useEffect(() => {
+    // Check if we've already shown the storage toast in this session
+    const hasShownStorageToast = sessionStorage.getItem('hasShownStorageToast') === 'true';
+    
     const initBucket = async () => {
       try {
         console.log(`Initializing bucket: ${bucketId} (attempt ${retryCount + 1})`);
@@ -46,13 +49,16 @@ export const MediaBucket = ({ bucketId, onInitialized }: MediaBucketProps) => {
           // Notify parent component
           if (onInitialized) onInitialized(false);
           
-          // Show error toast only on first attempt
-          if (retryCount === 0) {
+          // Show error toast only on first attempt and if we haven't shown it before in this session
+          if (retryCount === 0 && !hasShownStorageToast) {
             toast({
               title: "Storage Information",
               description: "Using local storage for media. Uploads will be saved to your browser.",
               duration: 5000
             });
+            
+            // Mark that we've shown the toast in this session
+            sessionStorage.setItem('hasShownStorageToast', 'true');
           }
         }
       } catch (err) {
@@ -81,7 +87,11 @@ export const MediaBucket = ({ bucketId, onInitialized }: MediaBucketProps) => {
       <div className="text-sm text-gray-500 flex items-center gap-2">
         <span>Using local storage</span>
         <button 
-          onClick={() => setRetryCount(prev => prev + 1)}
+          onClick={() => {
+            setRetryCount(prev => prev + 1);
+            // Clear the toast flag when user tries to reconnect
+            sessionStorage.removeItem('hasShownStorageToast');
+          }}
           className="text-xs bg-gray-200 px-2 py-1 rounded hover:bg-gray-300"
         >
           Retry cloud storage
