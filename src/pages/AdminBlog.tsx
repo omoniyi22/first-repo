@@ -12,8 +12,8 @@ const AdminBlog = () => {
     setIsBucketReady(success);
     
     if (!success) {
-      // This toast is now handled in the MediaBucket component
-      console.log("Media bucket initialization failed, using fallback mechanism");
+      // Now we just log this, as the user-facing toast is shown in MediaBucket
+      console.log("Media bucket initialization failed, using local storage");
     } else {
       console.log("Media bucket successfully initialized");
     }

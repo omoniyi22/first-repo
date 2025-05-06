@@ -12,12 +12,10 @@ const AdminMedia = () => {
     setIsBucketReady(success);
     
     if (!success) {
-      toast({
-        title: "Storage Error",
-        description: "Could not initialize media storage. Media library functionality may be limited.",
-        variant: "destructive",
-        duration: 5000
-      });
+      // The toast is now shown by the MediaBucket component itself
+      console.log("Media bucket initialization failed, using local storage");
+    } else {
+      console.log("Media bucket successfully initialized");
     }
   };
   

@@ -49,9 +49,8 @@ export const MediaBucket = ({ bucketId, onInitialized }: MediaBucketProps) => {
           // Show error toast only on first attempt
           if (retryCount === 0) {
             toast({
-              title: "Storage Error",
-              description: "Could not initialize media storage. This might be due to permissions issues. Using fallback local storage.",
-              variant: "destructive",
+              title: "Storage Information",
+              description: "Using local storage for media. Uploads will be saved to your browser.",
               duration: 5000
             });
           }
@@ -79,13 +78,13 @@ export const MediaBucket = ({ bucketId, onInitialized }: MediaBucketProps) => {
   // If there's an error, show retry button after first attempt
   if (error && retryCount > 0) {
     return (
-      <div className="text-sm text-red-500 flex items-center gap-2">
-        <span>Storage initialization error</span>
+      <div className="text-sm text-gray-500 flex items-center gap-2">
+        <span>Using local storage</span>
         <button 
           onClick={() => setRetryCount(prev => prev + 1)}
           className="text-xs bg-gray-200 px-2 py-1 rounded hover:bg-gray-300"
         >
-          Retry
+          Retry cloud storage
         </button>
       </div>
     );

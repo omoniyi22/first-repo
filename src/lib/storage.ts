@@ -91,19 +91,27 @@ export const createBucketIfNotExists = async (bucketId: string, options = { publ
         console.error(`Error checking bucket '${bucketId}':`, checkError);
       }
       
-      // Create bucket if it doesn't exist
-      const { data, error: createError } = await supabase.storage.createBucket(bucketId, options);
-      
-      if (createError) {
-        console.error(`Failed to create bucket '${bucketId}':`, createError);
+      try {
+        // Create bucket if it doesn't exist
+        const { data, error: createError } = await supabase.storage.createBucket(bucketId, options);
+        
+        if (createError) {
+          console.error(`Failed to create bucket '${bucketId}':`, createError);
+          return { 
+            success: false, 
+            error: createError.message || 'Failed to create bucket'
+          };
+        }
+        
+        console.log(`Successfully created bucket '${bucketId}'`);
+        return { success: true, data, created: true };
+      } catch (createError) {
+        console.error(`Exception creating bucket '${bucketId}':`, createError);
         return { 
           success: false, 
-          error: createError.message || 'Failed to create bucket'
+          error: createError instanceof Error ? createError.message : 'Unknown error' 
         };
       }
-      
-      console.log(`Successfully created bucket '${bucketId}'`);
-      return { success: true, data, created: true };
     } else {
       console.log(`Bucket '${bucketId}' already exists:`, existingBucket);
       return { success: true, created: false };
