@@ -19,9 +19,6 @@ const BLOG_MEDIA_BUCKET = "blog-images";
 // Create a unique ID for this instance to prevent duplicates across components
 const INSTANCE_ID = Math.random().toString(36).substring(2, 9);
 
-// Import cloud name directly from cloudinaryService to use in the component
-import { cloudName } from "@/services/cloudinaryService";
-
 const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isUploadView, setIsUploadView] = useState(false);
@@ -357,7 +354,7 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
                 
                 <MediaGridView 
                   items={mediaItems} 
-                  onDelete={handleDeleteMedia} 
+                  onDelete={handleDeleteMedia}
                   onSelect={handleMediaSelect}
                 />
               </div>
