@@ -16,7 +16,8 @@ export const cloudinary = new Cloudinary({
 
 // Base URL for unsigned uploads to Cloudinary
 const CLOUDINARY_UPLOAD_URL = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
-const UPLOAD_PRESET = "khek4for";  // Using an unsigned upload preset
+// Update the upload preset to a valid one - this was causing the error
+const UPLOAD_PRESET = "ml_default";  // Using the default unsigned upload preset
 
 /**
  * Uploads an image to Cloudinary

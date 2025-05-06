@@ -96,7 +96,7 @@ const MediaUploadForm = ({ onComplete, onCancel, bucketId = "profiles" }: MediaU
         try {
           console.log(`Uploading file: ${file.name} to Cloudinary`);
           
-          // Upload directly to Cloudinary - simplified to focus on Cloudinary
+          // Upload directly to Cloudinary
           const result = await uploadToCloudinary(file);
           
           if (result.success && result.url) {
@@ -129,6 +129,11 @@ const MediaUploadForm = ({ onComplete, onCancel, bucketId = "profiles" }: MediaU
           }
         } catch (error) {
           console.error("Error uploading file:", file.name, error);
+          toast({
+            title: "Upload Error",
+            description: `Error uploading ${file.name}. Please try again.`,
+            variant: "destructive"
+          });
         }
         
         // Update progress
