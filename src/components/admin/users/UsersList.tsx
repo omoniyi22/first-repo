@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Calendar, Mail, MoreVertical, Shield, UserIcon } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
@@ -39,16 +40,18 @@ const UsersList = ({ users, onUpdateUser, loading }: UsersListProps) => {
   useEffect(() => {
     return () => {
       isMountedRef.current = false;
-      // Clean up any state when component unmounts
-      setSelectedUser(null);
-      setDialogOpen(false);
     };
   }, []);
 
   const handleEditUser = useCallback((user: User) => {
+    console.log('Opening edit dialog for user:', user.id);
     if (isMountedRef.current) {
       setSelectedUser(user);
-      setDialogOpen(true);
+      setTimeout(() => {
+        if (isMountedRef.current) {
+          setDialogOpen(true);
+        }
+      }, 0);
     }
   }, []);
 
@@ -60,19 +63,24 @@ const UsersList = ({ users, onUpdateUser, loading }: UsersListProps) => {
   }, [selectedUser, onUpdateUser]);
   
   const handleCloseDialog = useCallback(() => {
+    console.log('Closing dialog');
     if (isMountedRef.current) {
-      console.log('Closing dialog');
       setDialogOpen(false);
-      
-      // Use setTimeout to ensure the closing animation completes before clearing selected user
-      setTimeout(() => {
-        if (isMountedRef.current) {
-          console.log('Clearing selected user');
-          setSelectedUser(null);
-        }
-      }, 300); // Match this with dialog animation duration
     }
   }, []);
+
+  // Reset selected user when dialog is closed
+  useEffect(() => {
+    if (!dialogOpen && selectedUser) {
+      const timer = setTimeout(() => {
+        if (isMountedRef.current) {
+          setSelectedUser(null);
+          console.log('Selected user cleared');
+        }
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [dialogOpen, selectedUser]);
 
   const formatDate = (dateString: string | null) => {
     if (!dateString) return 'Never';
@@ -208,7 +216,9 @@ const UsersList = ({ users, onUpdateUser, loading }: UsersListProps) => {
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => handleEditUser(user)}>
+                        <DropdownMenuItem 
+                          onClick={() => handleEditUser(user)}
+                        >
                           Edit user
                         </DropdownMenuItem>
                         <DropdownMenuItem 
@@ -226,16 +236,27 @@ const UsersList = ({ users, onUpdateUser, loading }: UsersListProps) => {
         </Table>
       </div>
 
-      {/* Only render Dialog when needed, and ensure it's properly closed */}
       <Dialog 
         open={dialogOpen} 
         onOpenChange={(open) => {
+          console.log("Dialog open state changed to:", open);
           if (!open && dialogOpen) {
             handleCloseDialog();
+          } else if (open && !dialogOpen && selectedUser) {
+            setDialogOpen(true);
           }
         }}
       >
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent 
+          className="sm:max-w-[425px]"
+          onInteractOutside={(e) => {
+            e.preventDefault();
+          }}
+          onEscapeKeyDown={(e) => {
+            e.preventDefault();
+            handleCloseDialog();
+          }}
+        >
           <DialogHeader>
             <DialogTitle>Edit User</DialogTitle>
             <DialogDescription>
