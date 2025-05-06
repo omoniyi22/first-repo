@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Calendar, Mail, MoreVertical, Shield, UserIcon } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
@@ -35,6 +35,15 @@ const UsersList = ({ users, onUpdateUser, loading }: UsersListProps) => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
 
+  // Add a cleanup effect when the component unmounts
+  useEffect(() => {
+    return () => {
+      // Clean up any state when component unmounts
+      setSelectedUser(null);
+      setDialogOpen(false);
+    };
+  }, []);
+
   const handleEditUser = (user: User) => {
     setSelectedUser(user);
     setDialogOpen(true);
@@ -49,12 +58,8 @@ const UsersList = ({ users, onUpdateUser, loading }: UsersListProps) => {
   
   const handleCloseDialog = () => {
     setDialogOpen(false);
-    // Make sure to clean up after a short delay to ensure transitions complete
-    setTimeout(() => {
-      if (!dialogOpen) {
-        setSelectedUser(null);
-      }
-    }, 300);
+    // Immediately clean up the selected user state
+    setSelectedUser(null);
   };
 
   const formatDate = (dateString: string | null) => {
@@ -209,25 +214,29 @@ const UsersList = ({ users, onUpdateUser, loading }: UsersListProps) => {
         </Table>
       </div>
 
-      {selectedUser && (
-        <Dialog open={dialogOpen} onOpenChange={(open) => {
-          setDialogOpen(open);
+      <Dialog 
+        open={dialogOpen} 
+        onOpenChange={(open) => {
           if (!open) {
             handleCloseDialog();
+          } else {
+            setDialogOpen(true);
           }
-        }}>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Edit User</DialogTitle>
-            </DialogHeader>
+        }}
+      >
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Edit User</DialogTitle>
+          </DialogHeader>
+          {selectedUser && (
             <UserDetailsForm
               user={selectedUser}
               onSave={handleSaveUser}
               onCancel={handleCloseDialog}
             />
-          </DialogContent>
-        </Dialog>
-      )}
+          )}
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
