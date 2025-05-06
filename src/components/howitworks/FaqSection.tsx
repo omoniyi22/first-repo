@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import AnimatedSection from '../ui/AnimatedSection';
+import { Button } from '@/components/ui/button';
 
 interface FaqItemProps {
   question: string;
@@ -12,21 +13,21 @@ interface FaqItemProps {
 
 const FaqItem = ({ question, answer, isOpen, toggleOpen }: FaqItemProps) => {
   return (
-    <div className="border-b border-silver-200 last:border-b-0">
+    <div className="border-b border-gray-200 last:border-b-0">
       <button
         className="flex justify-between items-center w-full py-5 text-left"
         onClick={toggleOpen}
         aria-expanded={isOpen}
       >
-        <h3 className="font-medium text-lg text-navy-900">{question}</h3>
-        <ChevronDown className={`w-5 h-5 text-navy-600 transition-transform duration-300 ${isOpen ? 'transform rotate-180' : ''}`} />
+        <h3 className="font-medium text-lg text-gray-900">{question}</h3>
+        <ChevronDown className={`w-5 h-5 text-gray-600 transition-transform duration-300 ${isOpen ? 'transform rotate-180' : ''}`} />
       </button>
       <div
         className={`overflow-hidden transition-all duration-300 ${
           isOpen ? 'max-h-96 opacity-100 pb-5' : 'max-h-0 opacity-0'
         }`}
       >
-        <p className="text-navy-700">{answer}</p>
+        <p className="text-gray-700">{answer}</p>
       </div>
     </div>
   );
@@ -75,13 +76,13 @@ const FaqSection = () => {
   };
 
   return (
-    <section className="py-20 bg-silver-50">
+    <section className="py-20 bg-purple-50">
       <div className="container mx-auto px-6">
         <AnimatedSection animation="fade-in" className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-3xl md:text-4xl font-serif font-semibold text-navy-900 mb-4">
+          <h2 className="text-3xl md:text-4xl font-serif font-semibold text-gray-900 mb-4">
             Frequently Asked Questions
           </h2>
-          <p className="text-lg text-navy-700">
+          <p className="text-lg text-gray-700">
             Have questions about AI Dressage Trainer? Find answers to the most common questions below.
           </p>
         </AnimatedSection>
@@ -99,15 +100,15 @@ const FaqSection = () => {
         </div>
         
         <AnimatedSection animation="fade-in" className="text-center max-w-2xl mx-auto mt-12">
-          <h3 className="text-xl font-medium text-navy-900 mb-4">
+          <h3 className="text-xl font-medium text-gray-900 mb-4">
             Still have questions?
           </h3>
-          <p className="text-navy-700 mb-6">
+          <p className="text-gray-700 mb-6">
             If you couldn't find the answer to your question, please don't hesitate to reach out to our support team.
           </p>
-          <button className="navy-button">
+          <Button variant="primary">
             Contact Support
-          </button>
+          </Button>
         </AnimatedSection>
       </div>
     </section>

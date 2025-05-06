@@ -1,14 +1,20 @@
 
 import React from 'react';
 import { useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { SEO, generateDisciplineMetadata } from '@/lib/seo';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import StepsSection from '@/components/howitworks/StepsSection';
 import FaqSection from '@/components/howitworks/FaqSection';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbSeparator
+} from "@/components/ui/breadcrumb";
+import { Link } from 'react-router-dom';
 
 const DressageHowItWorks = () => {
   // Initialize scroll reveal for animations
@@ -55,19 +61,25 @@ const DressageHowItWorks = () => {
       <SEO {...seoMetadata} />
       <Navbar />
       <div className="container mx-auto px-6 pt-24 pb-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center">
-            <Link to="/dressage">
-              <Button variant="ghost" className="flex items-center gap-2 -ml-2 hover:bg-purple-100 hover:text-purple-800">
-                <ArrowLeft className="h-4 w-4" />
-                <span>Back to AI Dressage</span>
-              </Button>
-            </Link>
-            <div className="ml-4 px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium">
-              How It Works
-            </div>
-          </div>
-        </div>
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link to="/">Home</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link to="/dressage">Dressage</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink>How It Works</BreadcrumbLink>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
       </div>
       <main className="pt-2">
         <StepsSection />
