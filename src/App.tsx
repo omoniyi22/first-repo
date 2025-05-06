@@ -4,7 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { HelmetProvider } from "react-helmet-async";
@@ -80,6 +80,10 @@ const App = () => (
                 <Route path="/profile-setup" element={<ProfileQuestionnaire />} />
                 <Route path="/jump-profile-setup" element={<JumpProfileSetup />} />
                 <Route path="/analysis" element={<Analysis />} />
+                
+                {/* Redirect discipline-specific about pages to main about page */}
+                <Route path="/dressage/about" element={<Navigate to="/about" replace />} />
+                <Route path="/jumping/about" element={<Navigate to="/about" replace />} />
                 
                 {/* Admin Routes */}
                 <Route path="/admin" element={<Admin />}>
