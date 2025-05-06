@@ -1,5 +1,4 @@
-
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Calendar, Mail, MoreVertical, Shield, UserIcon } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
@@ -21,7 +20,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { User } from '@/components/admin/users/UserManagement';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import UserDetailsForm from '@/components/admin/users/UserDetailsForm';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -34,32 +33,45 @@ interface UsersListProps {
 const UsersList = ({ users, onUpdateUser, loading }: UsersListProps) => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const isMountedRef = useRef(true);
 
   // Add a cleanup effect when the component unmounts
   useEffect(() => {
     return () => {
+      isMountedRef.current = false;
       // Clean up any state when component unmounts
       setSelectedUser(null);
       setDialogOpen(false);
     };
   }, []);
 
-  const handleEditUser = (user: User) => {
-    setSelectedUser(user);
-    setDialogOpen(true);
-  };
+  const handleEditUser = useCallback((user: User) => {
+    if (isMountedRef.current) {
+      setSelectedUser(user);
+      setDialogOpen(true);
+    }
+  }, []);
 
-  const handleSaveUser = (userData: Partial<User>) => {
+  const handleSaveUser = useCallback((userData: Partial<User>) => {
     if (selectedUser) {
       onUpdateUser(selectedUser.id, userData);
       handleCloseDialog();
     }
-  };
+  }, [selectedUser, onUpdateUser]);
   
   const handleCloseDialog = useCallback(() => {
-    setDialogOpen(false);
-    // Immediately clean up the selected user state
-    setSelectedUser(null);
+    if (isMountedRef.current) {
+      console.log('Closing dialog');
+      setDialogOpen(false);
+      
+      // Use setTimeout to ensure the closing animation completes before clearing selected user
+      setTimeout(() => {
+        if (isMountedRef.current) {
+          console.log('Clearing selected user');
+          setSelectedUser(null);
+        }
+      }, 300); // Match this with dialog animation duration
+    }
   }, []);
 
   const formatDate = (dateString: string | null) => {
@@ -214,21 +226,22 @@ const UsersList = ({ users, onUpdateUser, loading }: UsersListProps) => {
         </Table>
       </div>
 
+      {/* Only render Dialog when needed, and ensure it's properly closed */}
       <Dialog 
         open={dialogOpen} 
         onOpenChange={(open) => {
-          if (!open) {
+          if (!open && dialogOpen) {
             handleCloseDialog();
-          } else {
-            setDialogOpen(true);
           }
         }}
       >
-        <DialogContent className="sm:max-w-[425px]" aria-describedby="user-edit-description">
+        <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Edit User</DialogTitle>
+            <DialogDescription>
+              Make changes to the user account here. Click save when you're done.
+            </DialogDescription>
           </DialogHeader>
-          <div id="user-edit-description" className="sr-only">Edit user details form</div>
           {selectedUser && (
             <UserDetailsForm
               user={selectedUser}
