@@ -6,6 +6,14 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import JumpingStepsSection from '@/components/howitworks/JumpingStepsSection';
 import JumpingFaqSection from '@/components/howitworks/JumpingFaqSection';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbSeparator
+} from "@/components/ui/breadcrumb";
+import { Link } from 'react-router-dom';
 
 const JumpingHowItWorks = () => {
   // Initialize scroll reveal for animations
@@ -53,8 +61,30 @@ const JumpingHowItWorks = () => {
       <SEO {...seoMetadata} />
       <Navbar />
       
+      <div className="container mx-auto px-6 pt-24 pb-4">
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link to="/">Home</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link to="/jumping">Jumping</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink>How It Works</BreadcrumbLink>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+      </div>
+      
       {/* Hero Section */}
-      <div className="relative pt-24 mb-12">
+      <div className="relative mb-12">
         <div className="w-full h-80 md:h-96 overflow-hidden relative">
           <img 
             src="/lovable-uploads/photo-1438565434616-3ef039228b15.jpeg" 

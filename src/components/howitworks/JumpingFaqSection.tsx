@@ -1,10 +1,40 @@
 
 import { useState } from 'react';
+import { ChevronDown } from 'lucide-react';
 import AnimatedSection from '../ui/AnimatedSection';
 import { Button } from '@/components/ui/button';
 
+interface FaqItemProps {
+  question: string;
+  answer: string;
+  isOpen: boolean;
+  toggleOpen: () => void;
+}
+
+const FaqItem = ({ question, answer, isOpen, toggleOpen }: FaqItemProps) => {
+  return (
+    <div className="border-b border-gray-200 last:border-b-0">
+      <button
+        className="flex justify-between items-center w-full py-5 text-left"
+        onClick={toggleOpen}
+        aria-expanded={isOpen}
+      >
+        <h3 className="font-medium text-lg text-gray-900">{question}</h3>
+        <ChevronDown className={`w-5 h-5 text-gray-600 transition-transform duration-300 ${isOpen ? 'transform rotate-180' : ''}`} />
+      </button>
+      <div
+        className={`overflow-hidden transition-all duration-300 ${
+          isOpen ? 'max-h-96 opacity-100 pb-5' : 'max-h-0 opacity-0'
+        }`}
+      >
+        <p className="text-gray-700">{answer}</p>
+      </div>
+    </div>
+  );
+};
+
 const JumpingFaqSection = () => {
-  const [openFaqId, setOpenFaqId] = useState<number | null>(null);
+  const [openFaqId, setOpenFaqId] = useState<number | null>(0);
   
   const toggleFaq = (id: number) => {
     if (openFaqId === id) {
@@ -58,13 +88,13 @@ const JumpingFaqSection = () => {
   ];
 
   return (
-    <section className="py-24 bg-gray-50">
+    <section className="py-24 bg-purple-50">
       <div className="container mx-auto px-6">
         <AnimatedSection animation="fade-in" className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-3xl md:text-4xl font-serif font-semibold text-navy-900 mb-6">
+          <h2 className="text-3xl md:text-4xl font-serif font-semibold text-gray-900 mb-6">
             Frequently Asked Questions
           </h2>
-          <p className="text-lg text-navy-700">
+          <p className="text-lg text-gray-700">
             Have questions about AI Jumping Trainer? Find answers to the most common questions below.
           </p>
         </AnimatedSection>
@@ -82,17 +112,12 @@ const JumpingFaqSection = () => {
                   onClick={() => toggleFaq(faq.id)}
                   className="w-full text-left px-6 py-4 flex justify-between items-center focus:outline-none"
                 >
-                  <span className="font-medium text-navy-900">{faq.question}</span>
-                  <svg
-                    className={`w-5 h-5 text-navy-700 transition-transform duration-300 ${
+                  <span className="font-medium text-gray-900">{faq.question}</span>
+                  <ChevronDown
+                    className={`w-5 h-5 text-gray-700 transition-transform duration-300 ${
                       openFaqId === faq.id ? 'transform rotate-180' : ''
                     }`}
-                    fill="none"
-                    viewBox="0 0 24 24" 
-                    stroke="currentColor"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
+                  />
                 </button>
                 
                 <div 
@@ -109,11 +134,11 @@ const JumpingFaqSection = () => {
           </AnimatedSection>
           
           <AnimatedSection animation="fade-in" className="mt-12 text-center">
-            <h3 className="text-xl font-medium mb-4">Still have questions?</h3>
+            <h3 className="text-xl font-medium mb-4 text-gray-900">Still have questions?</h3>
             <p className="text-gray-700 mb-6">
               If you couldn't find the answer to your question, please don't hesitate to reach out to our support team.
             </p>
-            <Button className="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white">
+            <Button variant="primary">
               Contact Support
             </Button>
           </AnimatedSection>

@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { FilePenLine, BarChart3, BookOpen, Lightbulb } from 'lucide-react';
 import AnimatedSection from '../ui/AnimatedSection';
+import { Button } from '@/components/ui/button';
 
 const JumpingStepsSection = () => {
   const [activeStep, setActiveStep] = useState(1);
@@ -67,10 +68,10 @@ const JumpingStepsSection = () => {
     <section className="py-24 bg-white">
       <div className="container mx-auto px-6">
         <AnimatedSection animation="fade-in" className="text-center max-w-3xl mx-auto mb-16">
-          <h1 className="text-4xl md:text-5xl font-serif font-semibold text-navy-900 mb-6">
+          <h1 className="text-4xl md:text-5xl font-serif font-semibold text-gray-900 mb-6">
             How AI Jumping Trainer Works
           </h1>
-          <p className="text-lg text-navy-700">
+          <p className="text-lg text-gray-700">
             Our advanced platform combines state-of-the-art AI technology with expert show jumping knowledge to provide detailed course analysis and 
             personalized training recommendations that enhance your riding technique and competition results.
           </p>
@@ -86,19 +87,19 @@ const JumpingStepsSection = () => {
                     onClick={() => setActiveStep(step.id)}
                     className={`w-full text-left p-5 rounded-xl flex items-center transition-all duration-300 ${
                       activeStep === step.id 
-                        ? 'bg-blue-700 text-white shadow-md' 
-                        : 'bg-silver-50 text-navy-800 hover:bg-silver-100'
+                        ? 'bg-purple-700 text-white shadow-md' 
+                        : 'bg-purple-50 text-gray-800 hover:bg-purple-100'
                     }`}
                   >
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center mr-4 ${
-                      activeStep === step.id ? 'bg-blue-500' : 'bg-white'
+                      activeStep === step.id ? 'bg-purple-500' : 'bg-white'
                     }`}>
                       {step.icon}
                     </div>
                     <div>
                       <div className="font-medium">{step.title}</div>
                       <div className={`text-sm ${
-                        activeStep === step.id ? 'text-blue-100' : 'text-navy-600'
+                        activeStep === step.id ? 'text-purple-100' : 'text-gray-600'
                       }`}>
                         Step {step.id}
                       </div>
@@ -113,40 +114,40 @@ const JumpingStepsSection = () => {
             <AnimatedSection 
               key={activeStep}
               animation="fade-in"
-              className="bg-white rounded-xl border border-silver-100 overflow-hidden shadow-sm"
+              className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm"
             >
-              <div className="aspect-video bg-navy-50 flex items-center justify-center">
-                <div className="w-full h-full bg-navy-100 flex items-center justify-center">
+              <div className="aspect-video bg-purple-50 flex items-center justify-center">
+                <div className="w-full h-full bg-purple-100 flex items-center justify-center">
                   {/* This would be a real image or animation in production */}
                   <div className="text-center p-8">
-                    <div className="w-16 h-16 rounded-full bg-navy-200 mx-auto flex items-center justify-center mb-4">
+                    <div className="w-16 h-16 rounded-full bg-purple-200 mx-auto flex items-center justify-center mb-4">
                       {activeStepData.icon}
                     </div>
-                    <h3 className="text-navy-800 font-medium">Step {activeStepData.id}: {activeStepData.title}</h3>
+                    <h3 className="text-gray-800 font-medium">Step {activeStepData.id}: {activeStepData.title}</h3>
                   </div>
                 </div>
               </div>
               
               <div className="p-8">
-                <h2 className="text-2xl font-serif font-semibold text-navy-900 mb-4">
+                <h2 className="text-2xl font-serif font-semibold text-gray-900 mb-4">
                   {activeStepData.title}
                 </h2>
                 
-                <p className="text-navy-700 mb-8">
+                <p className="text-gray-700 mb-8">
                   {activeStepData.description}
                 </p>
                 
-                <h3 className="text-lg font-medium text-navy-900 mb-4">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">
                   Key Features:
                 </h3>
                 
                 <ul className="space-y-3">
                   {activeStepData.features.map((feature, index) => (
                     <li key={index} className="flex items-start">
-                      <svg className="h-5 w-5 text-blue-600 mr-3 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg className="h-5 w-5 text-purple-600 mr-3 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
-                      <span className="text-navy-700">{feature}</span>
+                      <span className="text-gray-700">{feature}</span>
                     </li>
                   ))}
                 </ul>
@@ -155,38 +156,38 @@ const JumpingStepsSection = () => {
           </div>
         </div>
         
-        <AnimatedSection animation="fade-in" className="bg-navy-50 rounded-2xl p-8 md:p-12">
+        <AnimatedSection animation="fade-in" className="bg-purple-50 rounded-2xl p-8 md:p-12">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             <div>
-              <h2 className="text-2xl md:text-3xl font-serif font-semibold text-navy-900 mb-6">
+              <h2 className="text-2xl md:text-3xl font-serif font-semibold text-gray-900 mb-6">
                 See the Platform in Action
               </h2>
               
-              <p className="text-navy-700 mb-8">
+              <p className="text-gray-700 mb-8">
                 Watch our demo to see how AI Jumping Trainer can transform your training approach with powerful analysis
                 of courses, faults, and jumping technique.
               </p>
               
-              <button className="blue-button bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800 transition-colors flex items-center hover:bg-blue-800 hover:text-white">
+              <Button variant="primary" className="flex items-center">
                 Watch Demo
                 <svg className="ml-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-              </button>
+              </Button>
             </div>
             
             <div className="relative">
-              <div className="absolute -inset-4 bg-gradient-to-r from-navy-200/20 to-navy-400/20 rounded-xl transform rotate-2 -z-10" />
+              <div className="absolute -inset-4 bg-gradient-to-r from-purple-200/20 to-purple-400/20 rounded-xl transform rotate-2 -z-10" />
               <div className="aspect-video bg-white rounded-xl overflow-hidden shadow-sm flex items-center justify-center">
                 {/* This would be a video thumbnail in production */}
                 <div className="text-center">
-                  <div className="w-16 h-16 rounded-full bg-blue-700 mx-auto flex items-center justify-center mb-4 cursor-pointer hover:bg-blue-800 transition-colors">
+                  <div className="w-16 h-16 rounded-full bg-purple-700 mx-auto flex items-center justify-center mb-4 cursor-pointer hover:bg-purple-800 transition-colors">
                     <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
                     </svg>
                   </div>
-                  <p className="text-navy-600 font-medium">Platform Demo</p>
+                  <p className="text-gray-600 font-medium">Platform Demo</p>
                 </div>
               </div>
             </div>
