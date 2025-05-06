@@ -53,7 +53,7 @@ const JumpingHowItWorks = () => {
   // Get discipline-specific metadata
   const seoMetadata = generateDisciplineMetadata('Jumping', {
     canonicalUrl: '/jumping/how-it-works',
-    ogImage: '/lovable-uploads/photo-1438565434616-3ef039228b15.jpeg'
+    ogImage: '/lovable-uploads/photo-1469474968028-56623f02e42e.jpeg'
   });
 
   return (
@@ -87,11 +87,11 @@ const JumpingHowItWorks = () => {
       <div className="relative mb-12">
         <div className="w-full h-80 md:h-96 overflow-hidden relative">
           <img 
-            src="/lovable-uploads/photo-1452378174528-3090a4bba7b2.jpeg" 
-            alt="Show jumping horses"
+            src="/lovable-uploads/photo-1469474968028-56623f02e42e.jpeg" 
+            alt="Landscape view of mountains with sunlight"
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-900/50 to-transparent"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-900/60 to-transparent"></div>
           <div className="absolute inset-0 flex items-center">
             <div className="container mx-auto px-6">
               <h1 className="text-4xl md:text-5xl font-serif font-bold text-white max-w-2xl drop-shadow-md">
