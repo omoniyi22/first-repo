@@ -7,6 +7,7 @@ import { MediaItem } from "./MediaLibrary";
 import MediaGridView from "./MediaGridView";
 import MediaUploadForm from "./MediaUploadForm";
 import { useToast } from "@/hooks/use-toast";
+import MediaBucket from "./MediaBucket";
 
 interface MediaSelectorProps {
   value: string;
@@ -14,10 +15,13 @@ interface MediaSelectorProps {
   onImageSelect?: (mediaItem: MediaItem) => void;
 }
 
+const BLOG_MEDIA_BUCKET = "blog-images";
+
 const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isUploadView, setIsUploadView] = useState(false);
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
+  const [isBucketReady, setIsBucketReady] = useState(false);
   const { toast } = useToast();
   
   // Simulated media items for the demo
@@ -53,6 +57,8 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
 
   // Load media items when component mounts
   useEffect(() => {
+    if (!isBucketReady) return;
+    
     try {
       // Get the media item metadata without the full data URLs
       const mediaItemsIndex = localStorage.getItem('mediaItemsIndex');
@@ -80,7 +86,7 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
       });
       setMediaItems(generateSampleMediaItems());
     }
-  }, []);
+  }, [isBucketReady]);
 
   const handleOpenChange = (open: boolean) => {
     setIsDialogOpen(open);
@@ -184,6 +190,11 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
 
   return (
     <div className="space-y-4">
+      <MediaBucket 
+        bucketId={BLOG_MEDIA_BUCKET}
+        onInitialized={setIsBucketReady}
+      />
+      
       <Dialog open={isDialogOpen} onOpenChange={handleOpenChange}>
         <div className="space-y-2">
           <div className="flex items-center gap-2">
@@ -221,12 +232,18 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
         </div>
         
         <DialogContent className="max-w-3xl">
-          {isUploadView ? (
+          {!isBucketReady ? (
+            <div className="text-center p-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+              <p>Initializing media storage...</p>
+            </div>
+          ) : isUploadView ? (
             <div>
               <h3 className="text-lg font-medium mb-4">Upload Media</h3>
               <MediaUploadForm 
                 onComplete={handleUploadComplete} 
-                onCancel={() => setIsUploadView(false)} 
+                onCancel={() => setIsUploadView(false)}
+                bucketId={BLOG_MEDIA_BUCKET}
               />
             </div>
           ) : (
