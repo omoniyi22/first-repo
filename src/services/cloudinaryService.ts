@@ -3,9 +3,9 @@ import { Cloudinary } from "@cloudinary/url-gen";
 
 // Cloudinary configuration
 // Note: These should be your Cloudinary credentials
-const cloudName = "demo";  // Replace with your actual cloud name
-const apiKey = "123456789012345";  // Replace with your actual API key
-const apiSecret = "abcdefghijklmnopqrstuvwxyz";  // Replace with your actual API secret
+const cloudName = "lovable";  // Updated to a valid cloud name
+const apiKey = "";  // API key is not needed for client-side URL generation
+const apiSecret = "";  // API secret should never be exposed in client-side code
 
 // Initialize Cloudinary instance
 export const cloudinary = new Cloudinary({
