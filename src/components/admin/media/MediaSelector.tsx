@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { ImageIcon, Upload } from "lucide-react";
+import { ImageIcon, Upload, Loader2 } from "lucide-react";
 import { MediaItem } from "./MediaLibrary";
 import MediaGridView from "./MediaGridView";
 import MediaUploadForm from "./MediaUploadForm";
@@ -22,7 +22,23 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
   const [isUploadView, setIsUploadView] = useState(false);
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
   const [isBucketReady, setIsBucketReady] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(true);
   const { toast } = useToast();
+  
+  // Handle bucket initialization
+  const handleBucketInitialized = (success: boolean) => {
+    console.log("Bucket initialization complete, success:", success);
+    setIsBucketReady(success);
+    setIsInitializing(false);
+    
+    if (!success) {
+      toast({
+        title: "Storage Error",
+        description: "Could not initialize media storage. Some features may not work correctly.",
+        variant: "destructive"
+      });
+    }
+  };
   
   // Simulated media items for the demo
   const generateSampleMediaItems = () => {
@@ -57,8 +73,17 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
 
   // Load media items when component mounts
   useEffect(() => {
-    if (!isBucketReady) return;
+    if (!isBucketReady && !isInitializing) {
+      console.log("Bucket is not ready, not loading media items");
+      return;
+    }
     
+    if (isInitializing) {
+      console.log("Still initializing, waiting before loading media items");
+      return;
+    }
+    
+    console.log("Loading media items");
     try {
       // Get the media item metadata without the full data URLs
       const mediaItemsIndex = localStorage.getItem('mediaItemsIndex');
@@ -86,7 +111,7 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
       });
       setMediaItems(generateSampleMediaItems());
     }
-  }, [isBucketReady]);
+  }, [isBucketReady, isInitializing]);
 
   const handleOpenChange = (open: boolean) => {
     setIsDialogOpen(open);
@@ -192,7 +217,7 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
     <div className="space-y-4">
       <MediaBucket 
         bucketId={BLOG_MEDIA_BUCKET}
-        onInitialized={setIsBucketReady}
+        onInitialized={handleBucketInitialized}
       />
       
       <Dialog open={isDialogOpen} onOpenChange={handleOpenChange}>
@@ -232,10 +257,28 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
         </div>
         
         <DialogContent className="max-w-3xl">
-          {!isBucketReady ? (
+          {isInitializing ? (
             <div className="text-center p-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-              <p>Initializing media storage...</p>
+              <div className="flex flex-col items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
+                <p>Initializing media storage...</p>
+              </div>
+            </div>
+          ) : !isBucketReady ? (
+            <div className="text-center p-8">
+              <div className="flex flex-col items-center justify-center">
+                <p className="text-red-500">Failed to initialize media storage.</p>
+                <Button 
+                  variant="outline" 
+                  onClick={() => {
+                    setIsInitializing(true);
+                    window.location.reload();
+                  }}
+                  className="mt-4"
+                >
+                  Retry
+                </Button>
+              </div>
             </div>
           ) : isUploadView ? (
             <div>

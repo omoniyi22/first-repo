@@ -70,22 +70,36 @@ export const getStorageBucketInfo = async (bucketId: string) => {
  */
 export const createBucketIfNotExists = async (bucketId: string, options = { public: true }) => {
   try {
+    console.log(`Checking if bucket '${bucketId}' exists...`);
+    
     // Check if bucket exists
-    const { error: checkError } = await supabase.storage.getBucket(bucketId);
+    const { data: existingBucket, error: checkError } = await supabase.storage.getBucket(bucketId);
     
     if (checkError) {
+      if (checkError.code === 'PGRST116') {
+        // This is a "not found" error, which is expected if the bucket doesn't exist
+        console.log(`Bucket '${bucketId}' not found, creating it...`);
+      } else {
+        console.error(`Error checking bucket '${bucketId}':`, checkError);
+      }
+      
       // Create bucket if it doesn't exist
       const { data, error: createError } = await supabase.storage.createBucket(bucketId, options);
       
       if (createError) {
+        console.error(`Failed to create bucket '${bucketId}':`, createError);
         return { success: false, error: createError };
       }
       
+      console.log(`Successfully created bucket '${bucketId}'`);
       return { success: true, data, created: true };
+    } else {
+      console.log(`Bucket '${bucketId}' already exists:`, existingBucket);
+      return { success: true, created: false };
     }
     
-    return { success: true, created: false };
   } catch (error) {
+    console.error(`Exception in createBucketIfNotExists for '${bucketId}':`, error);
     return { 
       success: false, 
       error: error instanceof Error ? error.message : 'Unknown error' 
@@ -95,8 +109,6 @@ export const createBucketIfNotExists = async (bucketId: string, options = { publ
 
 /**
  * Optimizes image for SEO before upload
- * @param file The image file to be processed
- * @param options Optimization options
  */
 export const optimizeImageForSEO = async (
   file: File, 
@@ -194,10 +206,6 @@ export const optimizeImageForSEO = async (
 
 /**
  * Uploads an image with SEO optimization
- * @param file The image file to upload
- * @param path The storage path
- * @param bucket The storage bucket name
- * @param options Options for optimization and metadata
  */
 export const uploadOptimizedImage = async (
   file: File,
