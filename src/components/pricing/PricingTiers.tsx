@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Check } from 'lucide-react';
 import PricingToggle from './PricingToggle';
@@ -215,18 +216,18 @@ const PricingTiers = () => {
     <section className="py-24 bg-white">
       <div className="container mx-auto px-6">
         <AnimatedSection animation="fade-in" className="text-center max-w-3xl mx-auto mb-12">
-          <h1 className="text-4xl md:text-5xl font-serif font-semibold text-purple-900 mb-6">
+          <h1 className="text-4xl md:text-5xl font-serif font-semibold text-navy-900 mb-6">
             {t["simple-pricing"]}
           </h1>
-          <p className="text-lg text-purple-700">
+          <p className="text-lg text-gray-700">
             {t["try-free"]}
           </p>
         </AnimatedSection>
         
         <div className="max-w-md mx-auto mb-12">
           <div className="bg-purple-100 rounded-xl p-8 text-center">
-            <h2 className="text-2xl font-bold text-purple-900 mb-4">{t["coming-soon"]}</h2>
-            <p className="text-purple-700 mb-6">
+            <h2 className="text-2xl font-bold text-navy-900 mb-4">{t["coming-soon"]}</h2>
+            <p className="text-gray-700 mb-6">
               {t["pricing-waitlist"]}
             </p>
             <EmailSignupForm />
@@ -249,31 +250,31 @@ const PricingTiers = () => {
                   : 'border border-silver-200 bg-white shadow-md'
               }`}>
                 {plan.highlighted && (
-                  <Badge className="absolute top-0 left-0 right-0 -translate-y-1/2 mx-auto w-max bg-purple-700 hover:bg-purple-800 px-3 py-1 rounded-full text-white font-semibold shadow-md">
+                  <Badge className="absolute top-0 left-0 right-0 -translate-y-1/2 mx-auto w-max bg-purple-700 hover:bg-purple-800 px-3 py-1 rounded-full text-white font-semibold shadow-md pricing-badge">
                     {t["most-popular"]}
                   </Badge>
                 )}
                 
                 <div className="mb-10">
-                  <h2 className="text-2xl font-serif font-semibold text-purple-900 mb-4">
+                  <h2 className="text-2xl font-serif font-semibold text-navy-900 mb-4">
                     {plan.name}
                   </h2>
                   
-                  <p className="text-purple-700 mb-10 text-sm h-12">
+                  <p className="text-gray-700 mb-10 text-sm h-12">
                     {plan.tagline[language]}
                   </p>
                   
                   <div className="flex items-baseline mb-5">
-                    <span className="text-4xl font-bold text-purple-900">
+                    <span className="text-4xl font-bold text-navy-900">
                       £{isAnnual ? plan.annualPrice : plan.monthlyPrice}
                     </span>
-                    <span className="text-purple-600 ml-2 text-base">
+                    <span className="text-gray-600 ml-2 text-base">
                       /{language === 'en' ? 'month' : 'mes'}
                     </span>
                   </div>
                   
                   {isAnnual && (
-                    <p className="text-sm text-purple-600 mb-10">
+                    <p className="text-sm text-gray-600 mb-10">
                       {t["billed-annually"]} (£{(isAnnual ? plan.annualPrice : plan.monthlyPrice) * 12}/{t["year"]})
                     </p>
                   )}
@@ -293,7 +294,7 @@ const PricingTiers = () => {
                 </Button>
                 
                 <div className="space-y-5 mt-auto">
-                  <h3 className="font-medium text-purple-900 border-b border-silver-200 pb-3">
+                  <h3 className="font-medium text-navy-900 border-b border-silver-200 pb-3">
                     {t["features-include"]}
                   </h3>
                   
@@ -301,7 +302,7 @@ const PricingTiers = () => {
                     {plan.features.map((feature, i) => (
                       <li key={i} className={`flex items-start ${!feature.included ? 'opacity-60' : ''}`}>
                         <Check className={`h-5 w-5 mr-3 mt-0.5 flex-shrink-0 ${feature.included ? 'text-purple-600' : 'text-silver-400'}`} />
-                        <span className="text-sm text-purple-800">
+                        <span className="text-sm text-gray-700">
                           {feature.text[language]}
                         </span>
                       </li>
@@ -316,16 +317,16 @@ const PricingTiers = () => {
         <AnimatedSection animation="fade-in" className="mt-20 bg-purple-50 rounded-xl p-8 md:p-12">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div>
-              <h2 className="text-2xl md:text-3xl font-serif font-semibold text-purple-900 mb-4">
+              <h2 className="text-2xl md:text-3xl font-serif font-semibold text-navy-900 mb-4">
                 {t["faq-title"]}
               </h2>
               
               <div className="space-y-6 mt-8">
                 <div>
-                  <h3 className="font-medium text-purple-900 mb-2">
+                  <h3 className="font-medium text-navy-900 mb-2">
                     {language === 'en' ? 'How does the free trial work?' : '¿Cómo funciona la prueba gratuita?'}
                   </h3>
-                  <p className="text-purple-700">
+                  <p className="text-gray-700">
                     {language === 'en' 
                       ? 'You can upload one dressage test score sheet for free analysis after creating an account. No credit card required to get started.'
                       : 'Puedes cargar una hoja de puntuación de prueba de doma para análisis gratuito después de crear una cuenta. No se requiere tarjeta de crédito para comenzar.'}
@@ -333,10 +334,10 @@ const PricingTiers = () => {
                 </div>
                 
                 <div>
-                  <h3 className="font-medium text-purple-900 mb-2">
+                  <h3 className="font-medium text-navy-900 mb-2">
                     {language === 'en' ? 'Can I switch plans later?' : '¿Puedo cambiar de plan más tarde?'}
                   </h3>
-                  <p className="text-purple-700">
+                  <p className="text-gray-700">
                     {language === 'en'
                       ? 'Yes, you can upgrade or downgrade your plan at any time. Changes to your subscription will be applied immediately.'
                       : 'Sí, puedes actualizar o degradar tu plan en cualquier momento. Los cambios en tu suscripción se aplicarán inmediatamente.'}
@@ -344,10 +345,10 @@ const PricingTiers = () => {
                 </div>
                 
                 <div>
-                  <h3 className="font-medium text-purple-900 mb-2">
+                  <h3 className="font-medium text-navy-900 mb-2">
                     {language === 'en' ? 'Are there any additional fees?' : '¿Hay alguna tarifa adicional?'}
                   </h3>
-                  <p className="text-purple-700">
+                  <p className="text-gray-700">
                     {language === 'en'
                       ? 'No, the listed price includes all features for that plan. There are no hidden fees or additional charges.'
                       : 'No, el precio indicado incluye todas las características para ese plan. No hay tarifas ocultas ni cargos adicionales.'}
@@ -364,17 +365,17 @@ const PricingTiers = () => {
                       <path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm0-2a8 8 0 100-16 8 8 0 000 16zm-1-5h2v2h-2v-2zm2-1.645V14h-2v-1.5a1 1 0 011-1 1.5 1.5 0 10-1.471-1.794l-1.962-.393A3.5 3.5 0 1113 13.355z" />
                     </svg>
                   </div>
-                  <h3 className="text-xl font-serif font-medium text-purple-900">
+                  <h3 className="text-xl font-serif font-medium text-navy-900">
                     {t["help-choosing"]}
                   </h3>
                 </div>
                 
-                <p className="text-purple-700 mb-8">
+                <p className="text-gray-700 mb-8">
                   {t["help-text"]}
                 </p>
                 
-                <div className="space-y-4">
-                  <Button variant="outline" className="w-full bg-transparent border border-purple-600 text-purple-700 py-3 rounded-lg font-medium transition-colors hover:bg-purple-50 h-auto">
+                <div className="flex justify-center">
+                  <Button variant="outline" className="bg-transparent border border-purple-600 text-purple-700 py-3 rounded-lg font-medium transition-colors hover:bg-purple-50 h-auto">
                     {t["contact-support"]}
                   </Button>
                 </div>

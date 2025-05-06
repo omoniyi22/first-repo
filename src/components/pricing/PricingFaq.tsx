@@ -90,7 +90,7 @@ const PricingFaq = () => {
           <h2 className="text-3xl md:text-4xl font-serif font-semibold text-navy-900 mb-4">
             {t["faq-title"]}
           </h2>
-          <p className="text-lg text-navy-700">
+          <p className="text-lg text-gray-700">
             {t["faq-description"]}
           </p>
         </AnimatedSection>
@@ -102,7 +102,7 @@ const PricingFaq = () => {
                 <AccordionTrigger className="text-left font-medium text-lg text-navy-900 py-5 hover:no-underline">
                   {faq.question}
                 </AccordionTrigger>
-                <AccordionContent className="text-navy-700 pb-5">
+                <AccordionContent className="text-gray-700 pb-5">
                   {faq.answer}
                 </AccordionContent>
               </AccordionItem>
@@ -114,13 +114,15 @@ const PricingFaq = () => {
           <h3 className="text-xl font-medium text-navy-900 mb-4">
             {t["still-questions"]}
           </h3>
-          <p className="text-navy-700 mb-6">
+          <p className="text-gray-700 mb-6">
             {t["questions-text"]}
           </p>
-          <Button className="bg-navy-700 hover:bg-navy-800 text-white px-6 py-3 rounded-lg text-base font-medium h-auto flex items-center gap-2">
-            <MessageCircle className="w-5 h-5" />
-            {t["contact-support"]}
-          </Button>
+          <div className="flex justify-center">
+            <Button className="bg-navy-700 hover:bg-navy-800 text-white px-6 py-3 rounded-lg text-base font-medium h-auto flex items-center gap-2">
+              <MessageCircle className="w-5 h-5" />
+              {t["contact-support"]}
+            </Button>
+          </div>
         </AnimatedSection>
       </div>
     </section>
