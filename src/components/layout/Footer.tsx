@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Instagram, Mail } from 'lucide-react';
+import { Instagram, Mail, MapPin, Phone } from 'lucide-react';
 
 const Footer = () => {
   return (
@@ -40,9 +40,23 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Third Section - Social Media */}
+          {/* Third Section - Contact Information */}
           <div>
             <h4 className="text-lg font-semibold mb-4">Connect With Us</h4>
+            
+            {/* Address and Contact Info */}
+            <div className="mb-4">
+              <div className="flex items-center mb-2">
+                <MapPin className="w-4 h-4 mr-2 text-purple-300" />
+                <span className="text-gray-300">123 Equestrian Way, London, UK</span>
+              </div>
+              <div className="flex items-center">
+                <Phone className="w-4 h-4 mr-2 text-purple-300" />
+                <span className="text-gray-300">+44 (0) 123 456 7890</span>
+              </div>
+            </div>
+            
+            {/* Social Media */}
             <div className="flex space-x-4">
               <a 
                 href="https://instagram.com/aiequestrian" 
@@ -65,8 +79,8 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Footer Bottom - Copyright */}
-        <div className="mt-12 text-center text-gray-400 border-t border-gray-700 pt-8">
+        {/* Footer Bottom - Copyright with darker background */}
+        <div className="mt-12 text-center text-gray-400 border-t border-gray-700 pt-8 bg-purple-900">
           &copy; {new Date().getFullYear()} AI Equestrian. All rights reserved.
         </div>
       </div>
