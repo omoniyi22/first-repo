@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Calendar, Mail, MoreVertical, Shield, UserIcon } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
@@ -56,11 +56,11 @@ const UsersList = ({ users, onUpdateUser, loading }: UsersListProps) => {
     }
   };
   
-  const handleCloseDialog = () => {
+  const handleCloseDialog = useCallback(() => {
     setDialogOpen(false);
     // Immediately clean up the selected user state
     setSelectedUser(null);
-  };
+  }, []);
 
   const formatDate = (dateString: string | null) => {
     if (!dateString) return 'Never';
@@ -224,10 +224,11 @@ const UsersList = ({ users, onUpdateUser, loading }: UsersListProps) => {
           }
         }}
       >
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px]" aria-describedby="user-edit-description">
           <DialogHeader>
             <DialogTitle>Edit User</DialogTitle>
           </DialogHeader>
+          <div id="user-edit-description" className="sr-only">Edit user details form</div>
           {selectedUser && (
             <UserDetailsForm
               user={selectedUser}
