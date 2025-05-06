@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -77,7 +76,8 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
         type: item.type,
         size: item.size,
         uploadedAt: item.uploadedAt,
-        dimensions: item.dimensions
+        dimensions: item.dimensions,
+        cloudinaryId: item.cloudinaryId // Save Cloudinary ID if available
       }));
       
       localStorage.setItem(getStorageKey(), JSON.stringify(metadataItems));
@@ -85,29 +85,6 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
     } catch (error) {
       console.error("Error saving media items to localStorage:", error);
     }
-  };
-  
-  // Helper to ensure data URLs are properly saved to local storage
-  const ensureDataUrlPersistence = (item: MediaItem) => {
-    if (item.url && item.url.startsWith('data:')) {
-      try {
-        // Save the data URL under the item's ID
-        const storageKey = `media_item_${item.id}`;
-        localStorage.setItem(storageKey, item.url);
-        console.log(`Saved data URL for item ${item.id} to localStorage`);
-      } catch (error) {
-        console.error(`Failed to save data URL for item ${item.id}:`, error);
-      }
-    }
-  };
-  
-  // Helper to ensure data URLs for all items are stored
-  const ensureAllDataUrlsPersisted = (items: MediaItem[]) => {
-    items.forEach(item => {
-      if (item.url?.startsWith('data:')) {
-        ensureDataUrlPersistence(item);
-      }
-    });
   };
   
   // Load media items when component mounts
@@ -155,8 +132,22 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
             const parsedItems = JSON.parse(mediaItemsIndex);
             console.log("Loaded user uploaded items metadata:", parsedItems.length);
             
-            // Process the items to restore any data URLs
+            // Process the items - prefer Cloudinary URLs
             userUploadedItems = parsedItems.map((item: any) => {
+              // If the URL is a data URL reference and we have a Cloudinary ID, return the Cloudinary URL
+              if (item.url.startsWith('data_url_ref_') && item.cloudinaryId) {
+                console.log(`Found Cloudinary image: ${item.cloudinaryId}`);
+                return item;
+              }
+              
+              // If URL is a Cloudinary URL, use it
+              if (item.url && 
+                 (item.url.includes('cloudinary.com') || 
+                  (item.cloudinaryId && item.url.includes('res.cloudinary.com')))) {
+                console.log(`Using Cloudinary URL: ${item.url}`);
+                return item;
+              }
+              
               // If the URL is a data URL reference, load the actual data URL from storage
               if (item.url && item.url.startsWith('data_url_ref_') && item.id) {
                 const dataUrlId = item.id;
@@ -194,52 +185,8 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
     // Remove duplicates and set items
     const uniqueItems = processDuplicates(allItems);
     setMediaItems(uniqueItems);
-    
-    // Ensure all data URLs are persisted
-    ensureAllDataUrlsPersisted(uniqueItems);
-    
   }, [isBucketReady, isInitializing, toast]);
   
-  // Special handling for the currently selected image value
-  useEffect(() => {
-    if (!value) return;
-    
-    // If the value is a data URI, we need to preserve it persistently
-    if (value.startsWith('data:') || value.startsWith('blob:')) {
-      // Try to save the data URI to localStorage for persistence
-      try {
-        const savedItemId = `current_selected_image_${INSTANCE_ID}`;
-        localStorage.setItem(savedItemId, value);
-        
-        // Check if this image is already in our media items
-        const existingItem = mediaItems.find(item => item.url === value);
-        
-        // If not, we should create an entry for it to ensure it persists
-        if (!existingItem && !isInitializing) {
-          const newItemId = `selected_${INSTANCE_ID}`;
-          const newItem: MediaItem = {
-            id: newItemId,
-            name: `Selected Image ${INSTANCE_ID.substring(0, 4)}`,
-            url: value,
-            type: "image",
-            size: 0,
-            uploadedAt: new Date().toISOString()
-          };
-          
-          // Also save the data URL specifically
-          localStorage.setItem(`media_item_${newItemId}`, value);
-          
-          // Add to media items and save
-          const updatedItems = [newItem, ...mediaItems];
-          setMediaItems(updatedItems);
-          saveMediaItems(updatedItems);
-        }
-      } catch (e) {
-        console.error("Failed to save image data URI:", e);
-      }
-    }
-  }, [value, mediaItems, isInitializing, INSTANCE_ID]);
-
   const handleOpenChange = (open: boolean) => {
     setIsDialogOpen(open);
     if (open) {
@@ -249,11 +196,6 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
   };
 
   const handleMediaSelect = (item: MediaItem) => {
-    // If it's a data URL, ensure it's persisted
-    if (item.url.startsWith('data:')) {
-      ensureDataUrlPersistence(item);
-    }
-    
     onChange(item.url);
     if (onImageSelect) {
       onImageSelect(item);
@@ -265,13 +207,6 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
     console.log("Upload complete, new items:", newItems);
     
     try {
-      // First ensure all data URLs in the new items are persisted
-      newItems.forEach(item => {
-        if (item.url.startsWith('data:')) {
-          ensureDataUrlPersistence(item);
-        }
-      });
-      
       // Add new items to the beginning of the media collection for visibility
       // But first, merge with existing items and remove duplicates
       const updatedItems = processDuplicates([...newItems, ...mediaItems]);

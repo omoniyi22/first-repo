@@ -160,7 +160,8 @@ const MediaUploadForm = ({ onComplete, onCancel, bucketId = "profiles" }: MediaU
         const filePath = `uploads/${fileId}.${fileExt}`;
         
         try {
-          // Try to upload the file to Supabase storage first
+          // Upload the file - this will now try Cloudinary first
+          console.log(`Uploading file: ${file.name} to Cloudinary/Storage`);
           const result = await uploadOptimizedImage(
             file,
             filePath,
@@ -174,6 +175,8 @@ const MediaUploadForm = ({ onComplete, onCancel, bucketId = "profiles" }: MediaU
           );
           
           if (result.success && result.data) {
+            console.log(`File uploaded successfully to ${result.data.cloudinaryId ? 'Cloudinary' : 'Storage'}`);
+            
             // Create a MediaItem from the uploaded file
             const mediaItem: MediaItem = {
               id: fileId,
@@ -185,38 +188,19 @@ const MediaUploadForm = ({ onComplete, onCancel, bucketId = "profiles" }: MediaU
               dimensions: {
                 width: result.data.width,
                 height: result.data.height
-              }
+              },
+              cloudinaryId: result.data.cloudinaryId
             };
             
             uploadedItems.push(mediaItem);
             successCount++;
           } else {
-            console.error("Supabase upload failed for file", file.name, result.error);
-            
-            // Fallback to local storage
-            console.log("Trying localStorage fallback for file:", file.name);
-            const localResult = await saveToLocalStorage(file, fileId);
-            
-            if (localResult.success) {
-              // Create a MediaItem from the locally stored file
-              const mediaItem: MediaItem = {
-                id: fileId,
-                name: file.name,
-                url: localResult.url,
-                type: "image",
-                size: file.size,
-                uploadedAt: new Date().toISOString(),
-                dimensions: {
-                  width: localResult.width,
-                  height: localResult.height
-                }
-              };
-              
-              uploadedItems.push(mediaItem);
-              successCount++;
-            } else {
-              console.error("Both Supabase and localStorage uploads failed for file:", file.name);
-            }
+            console.error("Upload failed for file", file.name, result.error);
+            toast({
+              title: "Upload Failed",
+              description: `Failed to upload ${file.name}. ${result.error || "Unknown error"}`,
+              variant: "destructive"
+            });
           }
         } catch (error) {
           console.error("Error uploading file:", file.name, error);

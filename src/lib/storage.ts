@@ -1,5 +1,5 @@
-
 import { supabase } from '@/integrations/supabase/client';
+import { uploadToCloudinary } from '@/services/cloudinaryService';
 
 /**
  * Tests the Supabase storage functionality
@@ -260,7 +260,7 @@ export const optimizeImageForSEO = async (
 };
 
 /**
- * Uploads an image with SEO optimization
+ * Uploads an image with SEO optimization to Cloudinary
  */
 export const uploadOptimizedImage = async (
   file: File,
@@ -282,18 +282,13 @@ export const uploadOptimizedImage = async (
     height: number;
     altText: string;
     fileId: string;
+    cloudinaryId?: string;
   };
   error?: any;
 }> => {
   try {
     // Generate a fileId for deduplication
     const fileId = options.fileId || await generateFileHash(file);
-    
-    // First create bucket if it doesn't exist
-    const bucketResult = await createBucketIfNotExists(bucket);
-    if (!bucketResult.success) {
-      return { success: false, error: bucketResult.error };
-    }
     
     // Optimize the image
     const { optimizedFile, width, height, altText } = await optimizeImageForSEO(file, {
@@ -303,7 +298,36 @@ export const uploadOptimizedImage = async (
       fileId
     });
     
-    // Upload the optimized image
+    // First try Cloudinary upload
+    console.log("Uploading to Cloudinary...");
+    const cloudinaryResult = await uploadToCloudinary(optimizedFile);
+    
+    if (cloudinaryResult.success && cloudinaryResult.url) {
+      // Successfully uploaded to Cloudinary
+      return {
+        success: true,
+        data: {
+          path,
+          publicUrl: cloudinaryResult.url,
+          width: cloudinaryResult.width || width,
+          height: cloudinaryResult.height || height,
+          altText,
+          fileId,
+          cloudinaryId: cloudinaryResult.publicId
+        }
+      };
+    }
+    
+    // If Cloudinary fails, fallback to Supabase
+    console.log("Cloudinary upload failed, trying Supabase...");
+    
+    // Create bucket if it doesn't exist
+    const bucketResult = await createBucketIfNotExists(bucket);
+    if (!bucketResult.success) {
+      return { success: false, error: bucketResult.error };
+    }
+    
+    // Upload the optimized image to Supabase
     const { data, error } = await supabase.storage
       .from(bucket)
       .upload(path, optimizedFile, {
@@ -313,10 +337,46 @@ export const uploadOptimizedImage = async (
       });
       
     if (error) {
-      return { success: false, error };
+      console.log("Supabase upload also failed, using localStorage as last resort");
+      
+      // Save image data URL to localStorage as last resort
+      try {
+        const reader = new FileReader();
+        return new Promise((resolve) => {
+          reader.onload = (e) => {
+            if (!e.target || !e.target.result) {
+              resolve({ success: false, error: "Failed to read file" });
+              return;
+            }
+            
+            const dataUrl = e.target.result.toString();
+            localStorage.setItem(`media_item_${fileId}`, dataUrl);
+            
+            resolve({
+              success: true,
+              data: {
+                path: `local_storage/${fileId}`,
+                publicUrl: dataUrl,
+                width,
+                height,
+                altText,
+                fileId
+              }
+            });
+          };
+          
+          reader.onerror = () => {
+            resolve({ success: false, error: "Failed to read file" });
+          };
+          
+          reader.readAsDataURL(optimizedFile);
+        });
+      } catch (localError) {
+        return { success: false, error: localError };
+      }
     }
     
-    // Get public URL
+    // Get public URL from Supabase
     const { data: publicUrlData } = supabase.storage
       .from(bucket)
       .getPublicUrl(path);
