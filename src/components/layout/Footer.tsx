@@ -19,24 +19,23 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Second Section - Quick Links */}
+          {/* Second Section - Links (without title) */}
           <div>
-            <h4 className="text-lg font-semibold mb-4">Quick Links</h4>
             <ul className="text-gray-300">
               <li className="mb-2">
-                <Link to="/" className="hover:underline">Home</Link>
+                <Link to="/" className="text-gray-300 hover:text-white hover:underline transition-colors">Home</Link>
               </li>
               <li className="mb-2">
-                <Link to="/how-it-works" className="hover:underline">How It Works</Link>
+                <Link to="/how-it-works" className="text-gray-300 hover:text-white hover:underline transition-colors">How It Works</Link>
               </li>
               <li className="mb-2">
-                <Link to="/pricing" className="hover:underline">Pricing</Link>
+                <Link to="/pricing" className="text-gray-300 hover:text-white hover:underline transition-colors">Pricing</Link>
               </li>
               <li className="mb-2">
-                <Link to="/blog" className="hover:underline">Blog</Link>
+                <Link to="/blog" className="text-gray-300 hover:text-white hover:underline transition-colors">Blog</Link>
               </li>
               <li>
-                <Link to="/contact" className="hover:underline">Contact</Link>
+                <Link to="/contact" className="text-gray-300 hover:text-white hover:underline transition-colors">Contact</Link>
               </li>
             </ul>
           </div>
