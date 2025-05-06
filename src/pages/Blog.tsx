@@ -5,7 +5,6 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator, BreadcrumbPage } from '@/components/ui/breadcrumb';
 import BlogFilter from '@/components/blog/BlogFilter';
 import FeaturedPost from '@/components/blog/FeaturedPost';
 import BlogPostCard from '@/components/blog/BlogPostCard';
@@ -173,21 +172,8 @@ const Blog = () => {
       <SEO {...seoMetadata} />
       <Navbar />
       <main className="container mx-auto px-6 pt-32 pb-16">
-        {/* SEO-optimized heading structure */}
+        {/* SEO-optimized heading structure - Removed breadcrumb */}
         <div className="mb-6">
-          <Breadcrumb className="mb-4">
-            <BreadcrumbList>
-              <BreadcrumbItem>
-                <BreadcrumbLink asChild>
-                  <Link to="/">{t["home"]}</Link>
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbPage>{t["blog"]}</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
           <h1 className="text-4xl md:text-5xl font-serif font-bold text-gray-900 mb-4">{t["blog-title"]}</h1>
           <p className="text-xl text-gray-700 max-w-3xl">
             {t["blog-description"]}
