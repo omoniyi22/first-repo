@@ -344,7 +344,9 @@ export const uploadOptimizedImage = async (
         try {
           const reader = new FileReader();
           return new Promise((resolve) => {
-            // Convert the callbacks to use local variables instead of await
+            // Pre-compute file hash to avoid using await in callback
+            const fileId = fileIdToUse;
+            
             reader.onload = (e) => {
               if (!e.target || !e.target.result) {
                 resolve({ success: false, error: "Failed to read file" });
@@ -352,15 +354,15 @@ export const uploadOptimizedImage = async (
               }
               
               const dataUrl = e.target.result.toString();
-              localStorage.setItem(`media_item_${fileIdToUse}`, dataUrl);
+              localStorage.setItem(`media_item_${fileId}`, dataUrl);
               
               resolve({
                 success: true,
                 data: {
                   publicUrl: dataUrl,
                   width: options.maxWidth,
-                  height: options.quality,
-                  fileId: fileIdToUse
+                  height: options.quality
+                  // Removed fileId property as it's not in the return type
                 }
               });
             };
@@ -386,8 +388,8 @@ export const uploadOptimizedImage = async (
         data: {
           publicUrl: publicUrlData.publicUrl,
           width: options.maxWidth,
-          height: options.quality,
-          fileId: fileIdToUse
+          height: options.quality
+          // Removed fileId property as it's not in the return type
         }
       };
     }
@@ -399,7 +401,9 @@ export const uploadOptimizedImage = async (
     try {
       const reader = new FileReader();
       return new Promise((resolve) => {
-        // Convert the callbacks to use local variables instead of await
+        // Pre-compute file hash to avoid using await in callback
+        const fileId = fileIdToUse;
+        
         reader.onload = (e) => {
           if (!e.target || !e.target.result) {
             resolve({ success: false, error: "Failed to read file" });
@@ -407,15 +411,15 @@ export const uploadOptimizedImage = async (
           }
           
           const dataUrl = e.target.result.toString();
-          localStorage.setItem(`media_item_${fileIdToUse}`, dataUrl);
+          localStorage.setItem(`media_item_${fileId}`, dataUrl);
           
           resolve({
             success: true,
             data: {
               publicUrl: dataUrl,
               width: options.maxWidth,
-              height: options.quality,
-              fileId: fileIdToUse
+              height: options.quality
+              // Removed fileId property as it's not in the return type
             }
           });
         };
