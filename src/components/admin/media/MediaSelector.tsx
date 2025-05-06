@@ -7,6 +7,7 @@ import MediaGridView from "./MediaGridView";
 import MediaUploadForm from "./MediaUploadForm";
 import { useToast } from "@/hooks/use-toast";
 import MediaBucket from "./MediaBucket";
+import { cloudName } from "@/services/cloudinaryService";
 
 interface MediaSelectorProps {
   value: string;
@@ -44,7 +45,6 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
     // Create maps to track seen URLs and file hashes
     const seenUrls = new Map<string, boolean>();
     const seenHashes = new Map<string, boolean>();
-    const uniqueItems: MediaItem[] = [];
     const cloudinaryItems: MediaItem[] = [];
     const otherItems: MediaItem[] = [];
     
@@ -350,11 +350,11 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
                     Upload New
                   </Button>
                 </div>
-                {!isBucketReady && (
-                  <div className="p-2 bg-gray-50 rounded-md text-xs text-gray-500">
-                    <span>Using browser storage - images are saved locally</span>
-                  </div>
-                )}
+                
+                <div className="p-2 bg-green-50 border border-green-200 rounded-md text-sm text-green-700">
+                  <span>Images are stored in Cloudinary for better performance and reliability</span>
+                </div>
+                
                 <MediaGridView 
                   items={mediaItems} 
                   onDelete={handleDeleteMedia} 

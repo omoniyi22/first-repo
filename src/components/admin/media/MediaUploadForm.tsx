@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Upload, File, X } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
-import { uploadOptimizedImage, generateFileHash } from "@/lib/storage";
+import { generateFileHash } from "@/lib/storage";
 import { MediaItem } from "./MediaLibrary";
 import { uploadToCloudinary } from "@/services/cloudinaryService";
 
@@ -69,70 +69,6 @@ const MediaUploadForm = ({ onComplete, onCancel, bucketId = "profiles" }: MediaU
     setSelectedFiles(prev => prev.filter((_, i) => i !== index));
   }, []);
   
-  // Fallback method to use browser storage when Supabase bucket is not available
-  const saveToLocalStorage = async (file: File, fileId: string) => {
-    return new Promise<{ success: boolean; url: string; width?: number; height?: number }>((resolve) => {
-      try {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          if (!e.target || !e.target.result) {
-            resolve({ success: false, url: "" });
-            return;
-          }
-          
-          const dataUrl = e.target.result.toString();
-          
-          // Create an image element to get dimensions
-          const img = new Image();
-          img.onload = () => {
-            const dimensions = {
-              width: img.width,
-              height: img.height
-            };
-            
-            // Store the data URL in localStorage
-            try {
-              // Persistent storage of the full image data
-              localStorage.setItem(`media_item_${fileId}`, dataUrl);
-              resolve({ 
-                success: true, 
-                url: dataUrl,
-                width: dimensions.width,
-                height: dimensions.height 
-              });
-            } catch (error) {
-              console.error("Failed to save to localStorage:", error);
-              
-              // If localStorage fails (quota exceeded), use an object URL as fallback
-              const objectUrl = URL.createObjectURL(file);
-              resolve({ 
-                success: true, 
-                url: objectUrl,
-                width: dimensions.width,
-                height: dimensions.height 
-              });
-            }
-          };
-          
-          img.onerror = () => {
-            resolve({ success: false, url: "" });
-          };
-          
-          img.src = dataUrl;
-        };
-        
-        reader.onerror = () => {
-          resolve({ success: false, url: "" });
-        };
-        
-        reader.readAsDataURL(file);
-      } catch (error) {
-        console.error("Error in saveToLocalStorage:", error);
-        resolve({ success: false, url: "" });
-      }
-    });
-  };
-  
   const handleUpload = async () => {
     if (selectedFiles.length === 0) {
       toast({
@@ -157,13 +93,10 @@ const MediaUploadForm = ({ onComplete, onCancel, bucketId = "profiles" }: MediaU
         const fileHash = await generateFileHash(file);
         const fileId = `hash_${fileHash}`;
         
-        const fileExt = file.name.split('.').pop() || 'jpg';
-        const filePath = `uploads/${fileId}.${fileExt}`;
-        
         try {
           console.log(`Uploading file: ${file.name} to Cloudinary`);
           
-          // Upload directly to Cloudinary
+          // Upload directly to Cloudinary - simplified to focus on Cloudinary
           const result = await uploadToCloudinary(file);
           
           if (result.success && result.url) {
@@ -187,49 +120,12 @@ const MediaUploadForm = ({ onComplete, onCancel, bucketId = "profiles" }: MediaU
             uploadedItems.push(mediaItem);
             successCount++;
           } else {
-            // If Cloudinary fails, try the fallback approach
-            console.log("Cloudinary direct upload failed, trying optimized upload approach");
-            
-            const optimizedResult = await uploadOptimizedImage(
-              file,
-              filePath,
-              bucketId,
-              { 
-                maxWidth: 1920,
-                quality: 0.85,
-                altText: file.name.split('.')[0],
-                fileId
-              }
-            );
-            
-            if (optimizedResult.success && optimizedResult.data) {
-              console.log(`File uploaded successfully using fallback: ${optimizedResult.data.publicUrl}`);
-              
-              // Create a MediaItem from the uploaded file
-              const mediaItem: MediaItem = {
-                id: fileId,
-                name: file.name,
-                url: optimizedResult.data.publicUrl,
-                type: "image",
-                size: file.size,
-                uploadedAt: new Date().toISOString(),
-                dimensions: {
-                  width: optimizedResult.data.width,
-                  height: optimizedResult.data.height
-                },
-                cloudinaryId: optimizedResult.data.cloudinaryId
-              };
-              
-              uploadedItems.push(mediaItem);
-              successCount++;
-            } else {
-              console.error("Upload failed for file", file.name, optimizedResult.error);
-              toast({
-                title: "Upload Failed",
-                description: `Failed to upload ${file.name}. ${optimizedResult.error || "Unknown error"}`,
-                variant: "destructive"
-              });
-            }
+            console.error("Upload failed for file", file.name, result.error);
+            toast({
+              title: "Upload Failed",
+              description: `Failed to upload ${file.name}. ${result.error || "Unknown error"}`,
+              variant: "destructive"
+            });
           }
         } catch (error) {
           console.error("Error uploading file:", file.name, error);

@@ -30,6 +30,8 @@ export const uploadToCloudinary = async (file: File): Promise<{
   error?: string;
 }> => {
   try {
+    console.log("Starting Cloudinary upload process for:", file.name);
+    
     // Create form data for upload
     const formData = new FormData();
     formData.append("file", file);
