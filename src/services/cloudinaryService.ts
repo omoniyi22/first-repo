@@ -75,6 +75,6 @@ export const uploadToCloudinary = async (file: File): Promise<{
 /**
  * Generates a Cloudinary URL for an image
  */
-export const getCloudinaryUrl = (publicId: string, options = {}) => {
+export const getCloudinaryUrl = (publicId: string, options = {}): string => {
   return cloudinary.image(publicId).toURL();
 };
