@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Instagram, Mail, MapPin, Phone } from 'lucide-react';
+import { Instagram, Mail } from 'lucide-react';
 
 const Footer = () => {
   return (
@@ -40,21 +40,9 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Third Section - Contact Information */}
+          {/* Third Section - Social Media */}
           <div>
             <h4 className="text-lg font-semibold mb-4">Connect With Us</h4>
-            
-            {/* Address and Contact Info */}
-            <div className="mb-4">
-              <div className="flex items-center mb-2">
-                <MapPin className="w-4 h-4 mr-2 text-purple-300" />
-                <span className="text-gray-300">123 Equestrian Way, London, UK</span>
-              </div>
-              <div className="flex items-center">
-                <Phone className="w-4 h-4 mr-2 text-purple-300" />
-                <span className="text-gray-300">+44 (0) 123 456 7890</span>
-              </div>
-            </div>
             
             {/* Social Media */}
             <div className="flex space-x-4">
