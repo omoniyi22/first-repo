@@ -43,8 +43,18 @@ const UsersList = ({ users, onUpdateUser, loading }: UsersListProps) => {
   const handleSaveUser = (userData: Partial<User>) => {
     if (selectedUser) {
       onUpdateUser(selectedUser.id, userData);
-      setDialogOpen(false);
+      handleCloseDialog();
     }
+  };
+  
+  const handleCloseDialog = () => {
+    setDialogOpen(false);
+    // Make sure to clean up after a short delay to ensure transitions complete
+    setTimeout(() => {
+      if (!dialogOpen) {
+        setSelectedUser(null);
+      }
+    }, 300);
   };
 
   const formatDate = (dateString: string | null) => {
@@ -200,15 +210,20 @@ const UsersList = ({ users, onUpdateUser, loading }: UsersListProps) => {
       </div>
 
       {selectedUser && (
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogContent>
+        <Dialog open={dialogOpen} onOpenChange={(open) => {
+          setDialogOpen(open);
+          if (!open) {
+            handleCloseDialog();
+          }
+        }}>
+          <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
               <DialogTitle>Edit User</DialogTitle>
             </DialogHeader>
             <UserDetailsForm
               user={selectedUser}
               onSave={handleSaveUser}
-              onCancel={() => setDialogOpen(false)}
+              onCancel={handleCloseDialog}
             />
           </DialogContent>
         </Dialog>

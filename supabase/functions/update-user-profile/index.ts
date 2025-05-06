@@ -45,6 +45,9 @@ serve(async (req) => {
       );
     }
     
+    console.log("Processing update for user:", userId);
+    console.log("Update data:", updateData);
+    
     // Handle profile updates
     if (updateData.profile) {
       const { error: profileUpdateError } = await supabaseClient
@@ -52,7 +55,10 @@ serve(async (req) => {
         .update(updateData.profile)
         .eq("id", userId);
       
-      if (profileUpdateError) throw profileUpdateError;
+      if (profileUpdateError) {
+        console.error("Profile update error:", profileUpdateError);
+        throw profileUpdateError;
+      }
     }
     
     // Handle role updates if present and user is admin
@@ -61,7 +67,10 @@ serve(async (req) => {
         email_address: updateData.email
       });
       
-      if (roleError) throw roleError;
+      if (roleError) {
+        console.error("Role update error:", roleError);
+        throw roleError;
+      }
     }
     
     return new Response(
