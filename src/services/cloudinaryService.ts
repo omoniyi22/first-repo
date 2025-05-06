@@ -3,7 +3,7 @@ import { Cloudinary } from "@cloudinary/url-gen";
 
 // Cloudinary configuration
 // Note: These should be your Cloudinary credentials
-const cloudName = "lovable";  // Updated to a valid cloud name
+const cloudName = "dtnjamtbu";  // Your cloud name
 const apiKey = "";  // API key is not needed for client-side URL generation
 const apiSecret = "";  // API secret should never be exposed in client-side code
 
