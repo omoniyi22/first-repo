@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 export interface User {
   id: string;
@@ -35,6 +36,7 @@ const UserManagement = () => {
   const [roleFilter, setRoleFilter] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -134,17 +136,101 @@ const UserManagement = () => {
     setFilteredUsers(result);
   }, [searchTerm, regionFilter, roleFilter, users]);
 
+  // Updated function to use the secure edge function
+  const handleUpdateUser = async (userId: string, userData: Partial<User>) => {
+    try {
+      console.log("Updating user:", userId, userData);
+      
+      if (!user) {
+        throw new Error("You must be logged in to update users");
+      }
+      
+      const updatePayload = {
+        profile: {} as any,
+        role: undefined as string | undefined,
+        email: undefined as string | undefined
+      };
+      
+      // Handle profile fields
+      if (userData.user_metadata?.full_name) {
+        updatePayload.profile.coach_name = userData.user_metadata.full_name;
+      }
+      
+      if (userData.region) {
+        updatePayload.profile.region = userData.region;
+      }
+      
+      // Handle role change
+      if (userData.role === 'admin') {
+        const userToUpdate = users.find(u => u.id === userId);
+        if (userToUpdate?.email) {
+          updatePayload.role = 'admin';
+          updatePayload.email = userToUpdate.email;
+        }
+      }
+      
+      console.log("Sending update to edge function:", updatePayload);
+      
+      // Call the secure edge function for updates
+      const { data, error } = await supabase.functions.invoke('update-user-profile', {
+        body: {
+          userId,
+          updateData: updatePayload,
+          requestingUserId: user.id
+        }
+      });
+      
+      if (error) {
+        console.error("Error from edge function:", error);
+        throw error;
+      }
+      
+      console.log("Edge function response:", data);
+      
+      if (!data || !data.success) {
+        throw new Error(data?.message || "Failed to update user");
+      }
+
+      // Update the local state with the new data
+      setUsers(prevUsers => 
+        prevUsers.map(u => 
+          u.id === userId ? { ...u, ...userData } : u
+        )
+      );
+      
+      console.log("User updated successfully");
+
+      toast({
+        title: "User updated",
+        description: "User information has been updated successfully.",
+      });
+    } catch (error) {
+      console.error('Error updating user:', error);
+      toast({
+        title: "Error updating user",
+        description: error.message || "Please try again later.",
+        variant: "destructive"
+      });
+    }
+  };
+
   // Add function to set admin role for a user using the database function
   const setAdminRole = async (email: string) => {
     try {
-      // Call the database function to set admin role
-      const { data, error } = await supabase.rpc('set_admin_role', {
-        email_address: email
+      // Call the secure edge function
+      const { data, error } = await supabase.functions.invoke('update-user-profile', {
+        body: {
+          updateData: {
+            role: 'admin',
+            email: email
+          },
+          requestingUserId: user?.id
+        }
       });
       
       if (error) throw error;
       
-      if (data) {
+      if (data?.success) {
         toast({
           title: "Admin role assigned",
           description: `${email} has been granted admin privileges.`,
@@ -165,69 +251,6 @@ const UserManagement = () => {
       toast({
         title: "Error assigning admin role",
         description: "Make sure you have the necessary permissions.",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleUpdateUser = async (userId: string, userData: Partial<User>) => {
-    try {
-      console.log("Updating user:", userId, userData);
-      
-      // Update profile in the database if we're changing user data
-      if (userData.user_metadata?.full_name || userData.region) {
-        const updateData: any = {};
-        
-        // Map user properties to profile fields
-        if (userData.user_metadata?.full_name) {
-          updateData.coach_name = userData.user_metadata.full_name;
-        }
-        
-        if (userData.region) {
-          updateData.region = userData.region;
-        }
-        
-        console.log("Updating profile with data:", updateData);
-        
-        // Update the profile
-        const { error } = await supabase
-          .from('profiles')
-          .update(updateData)
-          .eq('id', userId);
-          
-        if (error) {
-          console.error("Error updating profile:", error);
-          throw error;
-        }
-      }
-      
-      // If role is changing, update the role using our function
-      if (userData.role === 'admin') {
-        // Get the email to use with set_admin_role
-        const userToUpdate = users.find(u => u.id === userId);
-        if (userToUpdate?.email) {
-          await setAdminRole(userToUpdate.email);
-        }
-      }
-
-      // Update the local state with the new data
-      setUsers(prevUsers => 
-        prevUsers.map(user => 
-          user.id === userId ? { ...user, ...userData } : user
-        )
-      );
-      
-      console.log("User updated successfully");
-
-      toast({
-        title: "User updated",
-        description: "User information has been updated successfully.",
-      });
-    } catch (error) {
-      console.error('Error updating user:', error);
-      toast({
-        title: "Error updating user",
-        description: "Please try again later.",
         variant: "destructive"
       });
     }

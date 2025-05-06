@@ -4,27 +4,19 @@ project_id = "uwrmtukgjnsjxcojqmic"
 [api]
 enabled = true
 port = 54321
-schemas = ["public", "storage", "graphql_public"]
+schemas = ["public", "storage"]
 
 [db]
 port = 54322
 
-[studio]
-port = 54323
-
-[inbucket]
-port = 54324
-
-[auth]
+[realtime]
 enabled = true
-uri = "http://localhost:54321/auth/v1"
 
 [storage]
 enabled = true
 
-[realtime]
-enabled = true
+[functions.get-admin-users]
+verify_jwt = true
 
-[functions]
-[functions.process-document-analysis]
+[functions.update-user-profile]
 verify_jwt = true
