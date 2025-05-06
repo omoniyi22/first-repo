@@ -36,12 +36,14 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
   // Generate a stable storage key for this bucket
   const getStorageKey = () => `mediaItemsIndex_${BLOG_MEDIA_BUCKET}`;
   
-  // Process media items and remove duplicates by URL and file hash
+  // Process media items and prioritize Cloudinary images
   const processDuplicates = (items: MediaItem[]) => {
     // Create maps to track seen URLs and file hashes
     const seenUrls = new Map<string, boolean>();
     const seenHashes = new Map<string, boolean>();
     const uniqueItems: MediaItem[] = [];
+    const cloudinaryItems: MediaItem[] = [];
+    const otherItems: MediaItem[] = [];
     
     for (const item of items) {
       // Skip items with no URL
@@ -57,12 +59,18 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
         if (item.id && item.id.startsWith('hash_')) {
           seenHashes.set(item.id.substring(5), true);
         }
-        // Add to unique items
-        uniqueItems.push(item);
+        
+        // Separate Cloudinary items from others
+        if (item.cloudinaryId || (item.url && item.url.includes('cloudinary.com'))) {
+          cloudinaryItems.push(item);
+        } else {
+          otherItems.push(item);
+        }
       }
     }
     
-    return uniqueItems;
+    // Prioritize Cloudinary items by putting them first
+    return [...cloudinaryItems, ...otherItems];
   };
   
   // Save currently loaded media items to localStorage
@@ -134,10 +142,13 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
             
             // Process the items - prefer Cloudinary URLs
             userUploadedItems = parsedItems.map((item: any) => {
-              // If the URL is a data URL reference and we have a Cloudinary ID, return the Cloudinary URL
+              // If the URL is a data URL reference and we have a Cloudinary ID, use Cloudinary URL
               if (item.url.startsWith('data_url_ref_') && item.cloudinaryId) {
                 console.log(`Found Cloudinary image: ${item.cloudinaryId}`);
-                return item;
+                return {
+                  ...item,
+                  url: `https://res.cloudinary.com/${cloudName}/image/upload/${item.cloudinaryId}`
+                };
               }
               
               // If URL is a Cloudinary URL, use it

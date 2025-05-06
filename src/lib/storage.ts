@@ -263,139 +263,167 @@ export const optimizeImageForSEO = async (
  * Uploads an image with SEO optimization to Cloudinary
  */
 export const uploadOptimizedImage = async (
-  file: File,
-  path: string,
-  bucket: string = 'profiles',
+  file: File, 
+  filePath: string,
+  bucketId: string = "blog-images",
   options: {
     maxWidth?: number;
     quality?: number;
     altText?: string;
     fileId?: string;
-    metadata?: Record<string, string>;
   } = {}
 ): Promise<{
   success: boolean;
   data?: {
-    path: string;
     publicUrl: string;
-    width: number;
-    height: number;
-    altText: string;
-    fileId: string;
     cloudinaryId?: string;
+    width?: number;
+    height?: number;
   };
-  error?: any;
+  error?: string;
 }> => {
   try {
-    // Generate a fileId for deduplication
-    const fileId = options.fileId || await generateFileHash(file);
+    console.log("Starting optimized image upload process...");
     
-    // Optimize the image
-    const { optimizedFile, width, height, altText } = await optimizeImageForSEO(file, {
-      maxWidth: options.maxWidth || 1200,
-      quality: options.quality || 0.85,
-      altText: options.altText,
-      fileId
-    });
-    
-    // First try Cloudinary upload
-    console.log("Uploading to Cloudinary...");
-    const cloudinaryResult = await uploadToCloudinary(optimizedFile);
+    // Try Cloudinary first
+    console.log("Attempting to upload to Cloudinary...");
+    const cloudinaryResult = await uploadToCloudinary(file);
     
     if (cloudinaryResult.success && cloudinaryResult.url) {
-      // Successfully uploaded to Cloudinary
+      console.log("Successfully uploaded to Cloudinary:", cloudinaryResult.url);
       return {
         success: true,
         data: {
-          path,
           publicUrl: cloudinaryResult.url,
-          width: cloudinaryResult.width || width,
-          height: cloudinaryResult.height || height,
-          altText,
-          fileId,
-          cloudinaryId: cloudinaryResult.publicId
+          cloudinaryId: cloudinaryResult.publicId,
+          width: cloudinaryResult.width,
+          height: cloudinaryResult.height
         }
       };
     }
     
-    // If Cloudinary fails, fallback to Supabase
-    console.log("Cloudinary upload failed, trying Supabase...");
+    console.log("Cloudinary upload failed, falling back to other storage options...");
     
-    // Create bucket if it doesn't exist
-    const bucketResult = await createBucketIfNotExists(bucket);
-    if (!bucketResult.success) {
-      return { success: false, error: bucketResult.error };
-    }
+    // Check if Supabase bucket exists and is available
+    const bucketAvailable = localStorage.getItem(`bucket_available_${bucketId}`) === 'true';
     
-    // Upload the optimized image to Supabase
-    const { data, error } = await supabase.storage
-      .from(bucket)
-      .upload(path, optimizedFile, {
-        cacheControl: '3600',
-        upsert: true,
-        contentType: 'image/jpeg',
-      });
+    // Try Supabase if available
+    if (bucketAvailable) {
+      console.log("Attempting to upload to Supabase storage...");
       
-    if (error) {
-      console.log("Supabase upload also failed, using localStorage as last resort");
+      // Create bucket if it doesn't exist
+      const bucketResult = await createBucketIfNotExists(bucketId);
+      if (!bucketResult.success) {
+        return { success: false, error: bucketResult.error };
+      }
       
-      // Save image data URL to localStorage as last resort
-      try {
-        const reader = new FileReader();
-        return new Promise((resolve) => {
-          reader.onload = (e) => {
-            if (!e.target || !e.target.result) {
-              resolve({ success: false, error: "Failed to read file" });
-              return;
-            }
-            
-            const dataUrl = e.target.result.toString();
-            localStorage.setItem(`media_item_${fileId}`, dataUrl);
-            
-            resolve({
-              success: true,
-              data: {
-                path: `local_storage/${fileId}`,
-                publicUrl: dataUrl,
-                width,
-                height,
-                altText,
-                fileId
-              }
-            });
-          };
-          
-          reader.onerror = () => {
-            resolve({ success: false, error: "Failed to read file" });
-          };
-          
-          reader.readAsDataURL(optimizedFile);
+      // Upload the optimized image to Supabase
+      const { data, error } = await supabase.storage
+        .from(bucketId)
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: true,
+          contentType: 'image/jpeg',
         });
-      } catch (localError) {
-        return { success: false, error: localError };
+        
+      if (error) {
+        console.log("Supabase upload also failed, using localStorage as last resort");
+        
+        // Save image data URL to localStorage as last resort
+        try {
+          const reader = new FileReader();
+          return new Promise((resolve) => {
+            reader.onload = (e) => {
+              if (!e.target || !e.target.result) {
+                resolve({ success: false, error: "Failed to read file" });
+                return;
+              }
+              
+              const dataUrl = e.target.result.toString();
+              localStorage.setItem(`media_item_${options.fileId || await generateFileHash(file)}`, dataUrl);
+              
+              resolve({
+                success: true,
+                data: {
+                  publicUrl: dataUrl,
+                  width: options.width,
+                  height: options.height,
+                  altText: options.altText,
+                  fileId: options.fileId || await generateFileHash(file)
+                }
+              });
+            };
+            
+            reader.onerror = () => {
+              resolve({ success: false, error: "Failed to read file" });
+            };
+            
+            reader.readAsDataURL(file);
+          });
+        } catch (localError) {
+          return { success: false, error: localError };
+        }
       }
+      
+      // Get public URL from Supabase
+      const { data: publicUrlData } = supabase.storage
+        .from(bucketId)
+        .getPublicUrl(filePath);
+      
+      return {
+        success: true,
+        data: {
+          publicUrl: publicUrlData.publicUrl,
+          width: options.width,
+          height: options.height,
+          altText: options.altText,
+          fileId: options.fileId || await generateFileHash(file)
+        }
+      };
     }
     
-    // Get public URL from Supabase
-    const { data: publicUrlData } = supabase.storage
-      .from(bucket)
-      .getPublicUrl(path);
+    // Fall back to client-side storage
+    console.log("Falling back to local storage...");
     
-    return {
-      success: true,
-      data: {
-        path: data.path,
-        publicUrl: publicUrlData.publicUrl,
-        width,
-        height,
-        altText,
-        fileId
-      }
-    };
+    // Save image data URL to localStorage as last resort
+    try {
+      const reader = new FileReader();
+      return new Promise((resolve) => {
+        reader.onload = (e) => {
+          if (!e.target || !e.target.result) {
+            resolve({ success: false, error: "Failed to read file" });
+            return;
+          }
+          
+          const dataUrl = e.target.result.toString();
+          localStorage.setItem(`media_item_${options.fileId || await generateFileHash(file)}`, dataUrl);
+          
+          resolve({
+            success: true,
+            data: {
+              publicUrl: dataUrl,
+              width: options.width,
+              height: options.height,
+              altText: options.altText,
+              fileId: options.fileId || await generateFileHash(file)
+            }
+          });
+        };
+        
+        reader.onerror = () => {
+          resolve({ success: false, error: "Failed to read file" });
+        };
+        
+        reader.readAsDataURL(file);
+      });
+    } catch (localError) {
+      return { success: false, error: localError };
+    }
   } catch (error) {
+    console.error("Error in uploadOptimizedImage:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : "Unknown upload error"
     };
   }
 };

@@ -5,6 +5,7 @@ import { Upload, File, X } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 import { uploadOptimizedImage, generateFileHash } from "@/lib/storage";
 import { MediaItem } from "./MediaLibrary";
+import { uploadToCloudinary } from "@/services/cloudinaryService";
 
 interface MediaUploadFormProps {
   onComplete: (mediaItems: MediaItem[]) => void;
@@ -160,47 +161,75 @@ const MediaUploadForm = ({ onComplete, onCancel, bucketId = "profiles" }: MediaU
         const filePath = `uploads/${fileId}.${fileExt}`;
         
         try {
-          // Upload the file - this will now try Cloudinary first
-          console.log(`Uploading file: ${file.name} to Cloudinary/Storage`);
-          const result = await uploadOptimizedImage(
-            file,
-            filePath,
-            bucketId,
-            { 
-              maxWidth: 1920,
-              quality: 0.85,
-              altText: file.name.split('.')[0],
-              fileId
-            }
-          );
+          console.log(`Uploading file: ${file.name} to Cloudinary`);
           
-          if (result.success && result.data) {
-            console.log(`File uploaded successfully to ${result.data.cloudinaryId ? 'Cloudinary' : 'Storage'}`);
+          // Upload directly to Cloudinary
+          const result = await uploadToCloudinary(file);
+          
+          if (result.success && result.url) {
+            console.log(`File uploaded successfully to Cloudinary: ${result.url}`);
             
             // Create a MediaItem from the uploaded file
             const mediaItem: MediaItem = {
               id: fileId,
               name: file.name,
-              url: result.data.publicUrl,
+              url: result.url,
               type: "image",
               size: file.size,
               uploadedAt: new Date().toISOString(),
               dimensions: {
-                width: result.data.width,
-                height: result.data.height
+                width: result.width,
+                height: result.height
               },
-              cloudinaryId: result.data.cloudinaryId
+              cloudinaryId: result.publicId
             };
             
             uploadedItems.push(mediaItem);
             successCount++;
           } else {
-            console.error("Upload failed for file", file.name, result.error);
-            toast({
-              title: "Upload Failed",
-              description: `Failed to upload ${file.name}. ${result.error || "Unknown error"}`,
-              variant: "destructive"
-            });
+            // If Cloudinary fails, try the fallback approach
+            console.log("Cloudinary direct upload failed, trying optimized upload approach");
+            
+            const optimizedResult = await uploadOptimizedImage(
+              file,
+              filePath,
+              bucketId,
+              { 
+                maxWidth: 1920,
+                quality: 0.85,
+                altText: file.name.split('.')[0],
+                fileId
+              }
+            );
+            
+            if (optimizedResult.success && optimizedResult.data) {
+              console.log(`File uploaded successfully using fallback: ${optimizedResult.data.publicUrl}`);
+              
+              // Create a MediaItem from the uploaded file
+              const mediaItem: MediaItem = {
+                id: fileId,
+                name: file.name,
+                url: optimizedResult.data.publicUrl,
+                type: "image",
+                size: file.size,
+                uploadedAt: new Date().toISOString(),
+                dimensions: {
+                  width: optimizedResult.data.width,
+                  height: optimizedResult.data.height
+                },
+                cloudinaryId: optimizedResult.data.cloudinaryId
+              };
+              
+              uploadedItems.push(mediaItem);
+              successCount++;
+            } else {
+              console.error("Upload failed for file", file.name, optimizedResult.error);
+              toast({
+                title: "Upload Failed",
+                description: `Failed to upload ${file.name}. ${optimizedResult.error || "Unknown error"}`,
+                variant: "destructive"
+              });
+            }
           }
         } catch (error) {
           console.error("Error uploading file:", file.name, error);

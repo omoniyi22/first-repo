@@ -64,7 +64,8 @@ const BlogPostForm = ({ post, onSave, onCancel }: BlogPostFormProps) => {
     setIsSubmitting(true);
     try {
       // In a real app, we would upload the image if it's a file
-
+      // We're now using Cloudinary for image management
+      
       const updatedPost: BlogPost = {
         id: post?.id || 0, // Will be replaced on save for new posts
         title: values.title,
@@ -75,7 +76,7 @@ const BlogPostForm = ({ post, onSave, onCancel }: BlogPostFormProps) => {
         discipline: values.discipline,
         category: values.category,
         slug: values.slug,
-        image: values.image,
+        image: values.image, // This is now a Cloudinary URL
         readingTime: post?.readingTime || "5 min read",
         authorImage: post?.authorImage || "/placeholder.svg",
         translations: post?.translations || {},
