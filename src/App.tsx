@@ -30,9 +30,6 @@ import BlogPost from "./pages/BlogPost";
 import ProfileQuestionnaire from "./pages/ProfileQuestionnaire";
 import JumpProfileSetup from "./pages/JumpProfileSetup";
 import Analysis from "./pages/Analysis";
-import DressageAbout from "./pages/DressageAbout";
-import JumpingAbout from "./pages/JumpingAbout";
-import EquestrianAbout from "./pages/EquestrianAbout";
 
 // Admin Routes
 import Admin from "./pages/Admin";
@@ -71,9 +68,7 @@ const App = () => (
                 <Route path="/dressage/how-it-works" element={<DressageHowItWorks />} />
                 <Route path="/jumping/how-it-works" element={<JumpingHowItWorks />} />
                 <Route path="/pricing" element={<Pricing />} />
-                <Route path="/about" element={<EquestrianAbout />} />
-                <Route path="/dressage/about" element={<DressageAbout />} />
-                <Route path="/jumping/about" element={<JumpingAbout />} />
+                <Route path="/about" element={<About />} />
                 <Route path="/sign-in" element={<SignIn />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/dashboard" element={<Dashboard />} />
