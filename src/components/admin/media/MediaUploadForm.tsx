@@ -1,9 +1,10 @@
+
 import { useState, useCallback, ChangeEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Upload, File, X } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
-import { uploadOptimizedImage } from "@/lib/storage";
+import { uploadOptimizedImage, generateFileHash } from "@/lib/storage";
 import { MediaItem } from "./MediaLibrary";
 
 interface MediaUploadFormProps {
@@ -91,6 +92,7 @@ const MediaUploadForm = ({ onComplete, onCancel, bucketId = "profiles" }: MediaU
             
             // Store the data URL in localStorage
             try {
+              // Persistent storage of the full image data
               localStorage.setItem(`media_item_${fileId}`, dataUrl);
               resolve({ 
                 success: true, 
@@ -150,7 +152,11 @@ const MediaUploadForm = ({ onComplete, onCancel, bucketId = "profiles" }: MediaU
     try {
       for (let i = 0; i < selectedFiles.length; i++) {
         const file = selectedFiles[i];
-        const fileId = uuidv4();
+        
+        // Generate file hash for deduplication
+        const fileHash = await generateFileHash(file);
+        const fileId = `hash_${fileHash}`;
+        
         const fileExt = file.name.split('.').pop() || 'jpg';
         const filePath = `uploads/${fileId}.${fileExt}`;
         
@@ -163,7 +169,8 @@ const MediaUploadForm = ({ onComplete, onCancel, bucketId = "profiles" }: MediaU
             { 
               maxWidth: 1920,
               quality: 0.85,
-              altText: file.name.split('.')[0] 
+              altText: file.name.split('.')[0],
+              fileId
             }
           );
           

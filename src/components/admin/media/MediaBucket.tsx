@@ -31,6 +31,10 @@ export const MediaBucket = ({ bucketId, onInitialized }: MediaBucketProps) => {
           setIsInitialized(true);
           setIsLoading(false);
           setError(null);
+          
+          // Set a key in localStorage to indicate this bucket is available in the cloud
+          localStorage.setItem(`bucket_available_${bucketId}`, 'true');
+          
           if (onInitialized) onInitialized(true);
           return;
         }
@@ -42,31 +46,40 @@ export const MediaBucket = ({ bucketId, onInitialized }: MediaBucketProps) => {
         if (result.success) {
           setIsInitialized(true);
           setError(null);
+          
+          // Set a key in localStorage to indicate this bucket is available
+          localStorage.setItem(`bucket_available_${bucketId}`, 'true');
+          
           if (onInitialized) onInitialized(true);
         } else {
           setError(`Failed to initialize bucket: ${result.error || 'Unknown error'}`);
           console.error(`Bucket creation error:`, result.error);
           
+          // Remove the key from localStorage to indicate bucket is not available
+          localStorage.removeItem(`bucket_available_${bucketId}`);
+          
           // Notify parent component
           if (onInitialized) onInitialized(false);
           
-          // Show storage info toast only once per session for this specific bucket
-          // But only on the first try, not on subsequent retries
+          // Show unobtrusive info toast only once per session
           if (!hasShownStorageToast && retryCount === 0) {
             toast({
-              title: "Local Storage Mode",
-              description: "Media uploads will be saved to your browser storage.",
-              variant: "default", // Using default variant to make it less alarming
+              title: "Using Local Storage",
+              description: "Media uploads will be saved to browser storage.",
+              variant: "default",
               duration: 3000
             });
             
-            // Mark that we've shown the toast for this specific bucket in this session
+            // Mark that we've shown the toast for this bucket in this session
             sessionStorage.setItem(`storageToast_${bucketId}`, 'true');
           }
         }
       } catch (err) {
         console.error('Error initializing media bucket:', err);
         setError(err instanceof Error ? err.message : 'Failed to initialize media storage');
+        
+        // Remove the key from localStorage to indicate bucket is not available
+        localStorage.removeItem(`bucket_available_${bucketId}`);
         
         if (onInitialized) {
           onInitialized(false);

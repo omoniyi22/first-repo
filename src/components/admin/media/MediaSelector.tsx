@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -33,27 +34,80 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
     setIsInitializing(false);
   };
   
-  // Generate a stable storage key for this instance to avoid overlaps
+  // Generate a stable storage key for this bucket
   const getStorageKey = () => `mediaItemsIndex_${BLOG_MEDIA_BUCKET}`;
   
-  // Process media items and remove duplicates by URL
+  // Process media items and remove duplicates by URL and file hash
   const processDuplicates = (items: MediaItem[]) => {
-    // Create a map to track seen URLs
+    // Create maps to track seen URLs and file hashes
     const seenUrls = new Map<string, boolean>();
+    const seenHashes = new Map<string, boolean>();
     const uniqueItems: MediaItem[] = [];
     
     for (const item of items) {
       // Skip items with no URL
       if (!item.url) continue;
       
-      // Only keep the first occurrence of each URL
-      if (!seenUrls.has(item.url)) {
+      // Check if we've seen this URL or file hash before
+      const isDuplicate = seenUrls.has(item.url) || 
+                          (item.id && item.id.startsWith('hash_') && seenHashes.has(item.id.substring(5)));
+      
+      if (!isDuplicate) {
+        // Add to seen maps
         seenUrls.set(item.url, true);
+        if (item.id && item.id.startsWith('hash_')) {
+          seenHashes.set(item.id.substring(5), true);
+        }
+        // Add to unique items
         uniqueItems.push(item);
       }
     }
     
     return uniqueItems;
+  };
+  
+  // Save currently loaded media items to localStorage
+  const saveMediaItems = (items: MediaItem[]) => {
+    try {
+      // Save just the metadata (without the full data URLs) to localStorage
+      const metadataItems = items.map(item => ({
+        id: item.id,
+        name: item.name,
+        url: item.url,
+        type: item.type,
+        size: item.size,
+        uploadedAt: item.uploadedAt,
+        dimensions: item.dimensions
+      }));
+      
+      localStorage.setItem(getStorageKey(), JSON.stringify(metadataItems));
+      console.log(`Saved ${metadataItems.length} items to localStorage index`);
+    } catch (error) {
+      console.error("Error saving media items to localStorage:", error);
+    }
+  };
+  
+  // Helper to ensure data URLs are properly saved to local storage
+  const ensureDataUrlPersistence = (item: MediaItem) => {
+    if (item.url && item.url.startsWith('data:')) {
+      try {
+        // Save the data URL under the item's ID
+        const storageKey = `media_item_${item.id}`;
+        localStorage.setItem(storageKey, item.url);
+        console.log(`Saved data URL for item ${item.id} to localStorage`);
+      } catch (error) {
+        console.error(`Failed to save data URL for item ${item.id}:`, error);
+      }
+    }
+  };
+  
+  // Helper to ensure data URLs for all items are stored
+  const ensureAllDataUrlsPersisted = (items: MediaItem[]) => {
+    items.forEach(item => {
+      if (item.url?.startsWith('data:')) {
+        ensureDataUrlPersistence(item);
+      }
+    });
   };
   
   // Load media items when component mounts
@@ -101,6 +155,18 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
             userUploadedItems = JSON.parse(mediaItemsIndex);
             console.log("Loaded user uploaded items metadata:", userUploadedItems.length);
             
+            // Check for any data URLs in localStorage and restore them
+            userUploadedItems = userUploadedItems.map(item => {
+              if (item.id) {
+                const storedDataUrl = localStorage.getItem(`media_item_${item.id}`);
+                if (storedDataUrl && (item.url.startsWith('data:') || item.url.startsWith('blob:'))) {
+                  console.log(`Restored data URL for item ${item.id}`);
+                  return { ...item, url: storedDataUrl };
+                }
+              }
+              return item;
+            });
+            
             // Add user items to the beginning for visibility
             allItems = [...userUploadedItems, ...sampleImages];
           } catch (e) {
@@ -120,22 +186,47 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
     // Remove duplicates and set items
     const uniqueItems = processDuplicates(allItems);
     setMediaItems(uniqueItems);
+    
+    // Ensure all data URLs are persisted
+    ensureAllDataUrlsPersisted(uniqueItems);
+    
   }, [isBucketReady, isInitializing, toast]);
   
-  // If the URL happens to be a data URI, we need to preserve it persistently
+  // Special handling for the currently selected image value
   useEffect(() => {
-    if (value && value.startsWith('data:')) {
-      // Check if this data URI is already saved
-      const savedItemId = `current_selected_image_${INSTANCE_ID}`;
-      
+    if (!value) return;
+    
+    // If the value is a data URI, we need to preserve it persistently
+    if (value.startsWith('data:') || value.startsWith('blob:')) {
       // Try to save the data URI to localStorage for persistence
       try {
+        const savedItemId = `current_selected_image_${INSTANCE_ID}`;
         localStorage.setItem(savedItemId, value);
+        
+        // Check if this image is already in our media items
+        const existingItem = mediaItems.find(item => item.url === value);
+        
+        // If not, we should create an entry for it to ensure it persists
+        if (!existingItem && !isInitializing) {
+          const newItem: MediaItem = {
+            id: `selected_${INSTANCE_ID}`,
+            name: `Selected Image ${INSTANCE_ID}`,
+            url: value,
+            type: "image",
+            size: 0,
+            uploadedAt: new Date().toISOString()
+          };
+          
+          // Add to media items and save
+          const updatedItems = [newItem, ...mediaItems];
+          setMediaItems(updatedItems);
+          saveMediaItems(updatedItems);
+        }
       } catch (e) {
         console.error("Failed to save image data URI:", e);
       }
     }
-  }, [value]);
+  }, [value, mediaItems, isInitializing]);
 
   const handleOpenChange = (open: boolean) => {
     setIsDialogOpen(open);
@@ -146,6 +237,11 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
   };
 
   const handleMediaSelect = (item: MediaItem) => {
+    // If it's a data URL, ensure it's persisted
+    if (item.url.startsWith('data:')) {
+      ensureDataUrlPersistence(item);
+    }
+    
     onChange(item.url);
     if (onImageSelect) {
       onImageSelect(item);
@@ -157,32 +253,20 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
     console.log("Upload complete, new items:", newItems);
     
     try {
+      // First ensure all data URLs in the new items are persisted
+      newItems.forEach(item => {
+        if (item.url.startsWith('data:')) {
+          ensureDataUrlPersistence(item);
+        }
+      });
+      
       // Add new items to the beginning of the media collection for visibility
       // But first, merge with existing items and remove duplicates
       const updatedItems = processDuplicates([...newItems, ...mediaItems]);
       setMediaItems(updatedItems);
       
-      // Save just the metadata to localStorage (not the full data URLs)
-      const metadataItems = updatedItems.map(item => ({
-        id: item.id,
-        name: item.name,
-        url: item.url,
-        type: item.type,
-        size: item.size,
-        uploadedAt: item.uploadedAt,
-        dimensions: item.dimensions
-      }));
-      
-      try {
-        localStorage.setItem(getStorageKey(), JSON.stringify(metadataItems));
-      } catch (storageError) {
-        console.error("Failed to save to localStorage:", storageError);
-        toast({
-          title: "Storage Limit Reached",
-          description: "Unable to save all media items to browser storage. Some items may not persist after refresh.",
-          variant: "destructive"
-        });
-      }
+      // Save to localStorage
+      saveMediaItems(updatedItems);
       
       // Set to view mode after upload completes
       setIsUploadView(false);
@@ -206,27 +290,24 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
 
   const handleDeleteMedia = (id: string) => {
     try {
+      // Find the item before we remove it
+      const itemToDelete = mediaItems.find(item => item.id === id);
+      
       // Remove from mediaItems list
       const updatedItems = mediaItems.filter(item => item.id !== id);
       setMediaItems(updatedItems);
       
-      // Save updated metadata index
-      const metadataItems = updatedItems.map(item => ({
-        id: item.id,
-        name: item.name,
-        url: item.url,
-        type: item.type,
-        size: item.size,
-        uploadedAt: item.uploadedAt,
-        dimensions: item.dimensions
-      }));
-      localStorage.setItem(getStorageKey(), JSON.stringify(metadataItems));
+      // Update localStorage index
+      saveMediaItems(updatedItems);
       
-      // Also remove the individual item data if it exists
-      try {
-        localStorage.removeItem(`media_item_${id}`);
-      } catch (e) {
-        console.error("Error removing individual media item:", e);
+      // Also remove the individual data URL item if it exists
+      if (itemToDelete?.url.startsWith('data:')) {
+        try {
+          localStorage.removeItem(`media_item_${id}`);
+          console.log(`Removed data URL for item ${id} from localStorage`);
+        } catch (e) {
+          console.error("Error removing individual media item:", e);
+        }
       }
     } catch (error) {
       console.error("Error deleting media:", error);
