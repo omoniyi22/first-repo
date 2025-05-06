@@ -177,12 +177,17 @@ export const optimizeImageForSEO = async (
   altText: string;
   fileId: string;
 }> => {
+  // First, get the file hash if needed
+  let fileIdToUse = options.fileId;
+  if (!fileIdToUse) {
+    fileIdToUse = await generateFileHash(file);
+  }
+  
   const { 
     maxWidth = 1200, 
     quality = 0.85,
     generateAlt = true,
     altText = '',
-    fileId = await generateFileHash(file)
   } = options;
   
   // Create a promise that resolves with the processed image
@@ -242,7 +247,7 @@ export const optimizeImageForSEO = async (
             width,
             height,
             altText: finalAltText,
-            fileId
+            fileId: fileIdToUse as string
           });
         },
         'image/jpeg',
@@ -284,6 +289,12 @@ export const uploadOptimizedImage = async (
 }> => {
   try {
     console.log("Starting optimized image upload process...");
+    
+    // Pre-compute the file hash if needed
+    let fileIdToUse = options.fileId;
+    if (!fileIdToUse) {
+      fileIdToUse = await generateFileHash(file);
+    }
     
     // Try Cloudinary first
     console.log("Attempting to upload to Cloudinary...");
@@ -333,6 +344,7 @@ export const uploadOptimizedImage = async (
         try {
           const reader = new FileReader();
           return new Promise((resolve) => {
+            // Convert the callbacks to use local variables instead of await
             reader.onload = (e) => {
               if (!e.target || !e.target.result) {
                 resolve({ success: false, error: "Failed to read file" });
@@ -340,16 +352,15 @@ export const uploadOptimizedImage = async (
               }
               
               const dataUrl = e.target.result.toString();
-              localStorage.setItem(`media_item_${options.fileId || await generateFileHash(file)}`, dataUrl);
+              localStorage.setItem(`media_item_${fileIdToUse}`, dataUrl);
               
               resolve({
                 success: true,
                 data: {
                   publicUrl: dataUrl,
-                  width: options.width,
-                  height: options.height,
-                  altText: options.altText,
-                  fileId: options.fileId || await generateFileHash(file)
+                  width: options.maxWidth,
+                  height: options.quality,
+                  fileId: fileIdToUse
                 }
               });
             };
@@ -361,7 +372,7 @@ export const uploadOptimizedImage = async (
             reader.readAsDataURL(file);
           });
         } catch (localError) {
-          return { success: false, error: localError };
+          return { success: false, error: String(localError) };
         }
       }
       
@@ -374,10 +385,9 @@ export const uploadOptimizedImage = async (
         success: true,
         data: {
           publicUrl: publicUrlData.publicUrl,
-          width: options.width,
-          height: options.height,
-          altText: options.altText,
-          fileId: options.fileId || await generateFileHash(file)
+          width: options.maxWidth,
+          height: options.quality,
+          fileId: fileIdToUse
         }
       };
     }
@@ -389,6 +399,7 @@ export const uploadOptimizedImage = async (
     try {
       const reader = new FileReader();
       return new Promise((resolve) => {
+        // Convert the callbacks to use local variables instead of await
         reader.onload = (e) => {
           if (!e.target || !e.target.result) {
             resolve({ success: false, error: "Failed to read file" });
@@ -396,16 +407,15 @@ export const uploadOptimizedImage = async (
           }
           
           const dataUrl = e.target.result.toString();
-          localStorage.setItem(`media_item_${options.fileId || await generateFileHash(file)}`, dataUrl);
+          localStorage.setItem(`media_item_${fileIdToUse}`, dataUrl);
           
           resolve({
             success: true,
             data: {
               publicUrl: dataUrl,
-              width: options.width,
-              height: options.height,
-              altText: options.altText,
-              fileId: options.fileId || await generateFileHash(file)
+              width: options.maxWidth,
+              height: options.quality,
+              fileId: fileIdToUse
             }
           });
         };
@@ -417,7 +427,7 @@ export const uploadOptimizedImage = async (
         reader.readAsDataURL(file);
       });
     } catch (localError) {
-      return { success: false, error: localError };
+      return { success: false, error: String(localError) };
     }
   } catch (error) {
     console.error("Error in uploadOptimizedImage:", error);

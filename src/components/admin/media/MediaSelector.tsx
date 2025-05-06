@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,10 @@ interface MediaSelectorProps {
 const BLOG_MEDIA_BUCKET = "blog-images";
 // Create a unique ID for this instance to prevent duplicates across components
 const INSTANCE_ID = Math.random().toString(36).substring(2, 9);
+
+// Import cloud name from cloudinaryService to use in the component
+import { cloudinary } from "@/services/cloudinaryService";
+const cloudName = cloudinary.config().cloud.cloudName;
 
 const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
