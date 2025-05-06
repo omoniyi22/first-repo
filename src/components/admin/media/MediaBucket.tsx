@@ -17,7 +17,7 @@ export const MediaBucket = ({ bucketId, onInitialized }: MediaBucketProps) => {
 
   useEffect(() => {
     // Check if we've already shown the storage toast in this session
-    const hasShownStorageToast = sessionStorage.getItem('hasShownStorageToast') === 'true';
+    const hasShownStorageToast = sessionStorage.getItem(`storageToast_${bucketId}`) === 'true';
     
     const initBucket = async () => {
       try {
@@ -49,16 +49,17 @@ export const MediaBucket = ({ bucketId, onInitialized }: MediaBucketProps) => {
           // Notify parent component
           if (onInitialized) onInitialized(false);
           
-          // Show error toast only on first attempt and if we haven't shown it before in this session
-          if (retryCount === 0 && !hasShownStorageToast) {
+          // Show storage info toast only once per session for this specific bucket
+          if (!hasShownStorageToast) {
             toast({
-              title: "Storage Information",
-              description: "Using local storage for media. Uploads will be saved to your browser.",
-              duration: 5000
+              title: "Local Storage Mode",
+              description: "Media uploads will be saved to your browser storage.",
+              variant: "default", // Using default variant to make it less alarming
+              duration: 3000
             });
             
-            // Mark that we've shown the toast in this session
-            sessionStorage.setItem('hasShownStorageToast', 'true');
+            // Mark that we've shown the toast for this specific bucket in this session
+            sessionStorage.setItem(`storageToast_${bucketId}`, 'true');
           }
         }
       } catch (err) {
@@ -78,23 +79,23 @@ export const MediaBucket = ({ bucketId, onInitialized }: MediaBucketProps) => {
 
   // If we're in loading state, show a small indicator
   if (isLoading && retryCount === 0) {
-    return <div className="text-sm text-gray-500">Initializing media storage...</div>;
+    return <div className="text-xs text-gray-400">Initializing media storage...</div>;
   }
 
   // If there's an error, show retry button after first attempt
   if (error && retryCount > 0) {
     return (
-      <div className="text-sm text-gray-500 flex items-center gap-2">
-        <span>Using local storage</span>
+      <div className="text-xs text-gray-400 flex items-center gap-2">
+        <span>Local storage active</span>
         <button 
           onClick={() => {
             setRetryCount(prev => prev + 1);
             // Clear the toast flag when user tries to reconnect
-            sessionStorage.removeItem('hasShownStorageToast');
+            sessionStorage.removeItem(`storageToast_${bucketId}`);
           }}
-          className="text-xs bg-gray-200 px-2 py-1 rounded hover:bg-gray-300"
+          className="text-xs bg-gray-100 px-2 py-1 rounded hover:bg-gray-200"
         >
-          Retry cloud storage
+          Try cloud storage
         </button>
       </div>
     );

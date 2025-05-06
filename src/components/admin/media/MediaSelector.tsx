@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -30,8 +29,6 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
     console.log("MediaSelector: Bucket initialization complete, success:", success);
     setIsBucketReady(success);
     setIsInitializing(false);
-    
-    // Toast notification is now handled in the MediaBucket component
   };
   
   // Simulated media items for the demo
@@ -246,60 +243,45 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
         </div>
         
         <DialogContent className="max-w-3xl">
-          {isInitializing ? (
-            <div className="text-center p-8">
-              <div className="flex flex-col items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
-                <p>Initializing media storage...</p>
+          <DialogContent className="max-w-3xl">
+            {isInitializing ? (
+              <div className="text-center p-8">
+                <div className="flex flex-col items-center justify-center">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
+                  <p>Initializing media storage...</p>
+                </div>
               </div>
-            </div>
-          ) : !isBucketReady ? (
-            <div className="text-center p-8">
-              <div className="flex flex-col items-center justify-center">
-                <AlertTriangle className="h-8 w-8 text-amber-500 mb-4" />
-                <p>Using local storage mode due to Supabase bucket initialization issues.</p>
-                <p className="text-sm text-gray-500 mt-2">
-                  Your uploads will be saved to browser storage and may not persist across devices.
-                </p>
-                <Button 
-                  variant="outline" 
-                  onClick={() => {
-                    setIsInitializing(true);
-                    setTimeout(() => {
-                      window.location.reload();
-                    }, 300);
-                  }}
-                  className="mt-4"
-                >
-                  Retry Connection
-                </Button>
+            ) : isUploadView ? (
+              <div>
+                <h3 className="text-lg font-medium mb-4">Upload Media</h3>
+                <MediaUploadForm 
+                  onComplete={handleUploadComplete} 
+                  onCancel={() => setIsUploadView(false)}
+                  bucketId={BLOG_MEDIA_BUCKET}
+                />
               </div>
-            </div>
-          ) : isUploadView ? (
-            <div>
-              <h3 className="text-lg font-medium mb-4">Upload Media</h3>
-              <MediaUploadForm 
-                onComplete={handleUploadComplete} 
-                onCancel={() => setIsUploadView(false)}
-                bucketId={BLOG_MEDIA_BUCKET}
-              />
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-medium">Select an Image</h3>
-                <Button onClick={() => setIsUploadView(true)}>
-                  <Upload className="mr-2 h-4 w-4" />
-                  Upload New
-                </Button>
+            ) : (
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-medium">Select an Image</h3>
+                  <Button onClick={() => setIsUploadView(true)}>
+                    <Upload className="mr-2 h-4 w-4" />
+                    Upload New
+                  </Button>
+                </div>
+                {!isBucketReady && (
+                  <div className="p-2 bg-gray-50 rounded-md text-xs text-gray-500 flex items-center justify-between">
+                    <span>Using browser storage - uploads may not persist across devices</span>
+                  </div>
+                )}
+                <MediaGridView 
+                  items={mediaItems} 
+                  onDelete={handleDeleteMedia} 
+                  onSelect={handleMediaSelect}
+                />
               </div>
-              <MediaGridView 
-                items={mediaItems} 
-                onDelete={handleDeleteMedia} 
-                onSelect={handleMediaSelect}
-              />
-            </div>
-          )}
+            )}
+          </DialogContent>
         </DialogContent>
       </Dialog>
     </div>
