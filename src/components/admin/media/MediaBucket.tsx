@@ -30,6 +30,7 @@ export const MediaBucket = ({ bucketId, onInitialized }: MediaBucketProps) => {
           console.log(`Bucket ${bucketId} already exists and is accessible`);
           setIsInitialized(true);
           setIsLoading(false);
+          setError(null);
           if (onInitialized) onInitialized(true);
           return;
         }
@@ -50,7 +51,8 @@ export const MediaBucket = ({ bucketId, onInitialized }: MediaBucketProps) => {
           if (onInitialized) onInitialized(false);
           
           // Show storage info toast only once per session for this specific bucket
-          if (!hasShownStorageToast) {
+          // But only on the first try, not on subsequent retries
+          if (!hasShownStorageToast && retryCount === 0) {
             toast({
               title: "Local Storage Mode",
               description: "Media uploads will be saved to your browser storage.",

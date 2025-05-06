@@ -127,6 +127,38 @@ export const createBucketIfNotExists = async (bucketId: string, options = { publ
 };
 
 /**
+ * Generates a hash of an image file to use for deduplication
+ */
+export const generateFileHash = async (file: File): Promise<string> => {
+  try {
+    // A simple hash function that uses a subset of the file's bytes
+    // For a real application, you might want to use a more robust solution
+    const MAX_BYTES = 1024 * 50; // 50KB for hash calculation
+    const buffer = await file.slice(0, Math.min(file.size, MAX_BYTES)).arrayBuffer();
+    const byteArray = new Uint8Array(buffer);
+    
+    // Simple hash calculation
+    let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+    for (let i = 0; i < byteArray.length; i++) {
+      h1 = Math.imul(h1 ^ byteArray[i], 2654435761);
+      h2 = Math.imul(h2 ^ byteArray[i], 1597334677);
+    }
+    
+    h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507);
+    h1 ^= Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+    h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507);
+    h2 ^= Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+    
+    const hash = 4294967296 * (2097151 & h2) + (h1 >>> 0);
+    return hash.toString(16);
+  } catch (error) {
+    console.error("Error generating file hash:", error);
+    // Fallback to a random value if hashing fails
+    return Date.now().toString(36) + Math.random().toString(36).substring(2);
+  }
+};
+
+/**
  * Optimizes image for SEO before upload
  */
 export const optimizeImageForSEO = async (
@@ -136,18 +168,21 @@ export const optimizeImageForSEO = async (
     quality?: number; 
     generateAlt?: boolean;
     altText?: string;
+    fileId?: string;
   } = {}
 ): Promise<{ 
   optimizedFile: File; 
   width: number; 
   height: number; 
   altText: string;
+  fileId: string;
 }> => {
   const { 
     maxWidth = 1200, 
     quality = 0.85,
     generateAlt = true,
-    altText = ''
+    altText = '',
+    fileId = await generateFileHash(file)
   } = options;
   
   // Create a promise that resolves with the processed image
@@ -206,7 +241,8 @@ export const optimizeImageForSEO = async (
             optimizedFile,
             width,
             height,
-            altText: finalAltText
+            altText: finalAltText,
+            fileId
           });
         },
         'image/jpeg',
@@ -244,10 +280,14 @@ export const uploadOptimizedImage = async (
     width: number;
     height: number;
     altText: string;
+    fileId: string;
   };
   error?: any;
 }> => {
   try {
+    // Generate a fileId for deduplication
+    const fileId = await generateFileHash(file);
+    
     // First create bucket if it doesn't exist
     const bucketResult = await createBucketIfNotExists(bucket);
     if (!bucketResult.success) {
@@ -258,7 +298,8 @@ export const uploadOptimizedImage = async (
     const { optimizedFile, width, height, altText } = await optimizeImageForSEO(file, {
       maxWidth: options.maxWidth || 1200,
       quality: options.quality || 0.85,
-      altText: options.altText
+      altText: options.altText,
+      fileId
     });
     
     // Upload the optimized image
@@ -286,7 +327,8 @@ export const uploadOptimizedImage = async (
         publicUrl: publicUrlData.publicUrl,
         width,
         height,
-        altText
+        altText,
+        fileId
       }
     };
   } catch (error) {

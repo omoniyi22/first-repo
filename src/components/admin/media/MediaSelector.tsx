@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { ImageIcon, Upload, Loader2, AlertTriangle } from "lucide-react";
+import { ImageIcon, Upload, Loader2 } from "lucide-react";
 import { MediaItem } from "./MediaLibrary";
 import MediaGridView from "./MediaGridView";
 import MediaUploadForm from "./MediaUploadForm";
@@ -15,6 +15,8 @@ interface MediaSelectorProps {
 }
 
 const BLOG_MEDIA_BUCKET = "blog-images";
+// Create a unique ID for this instance to prevent duplicates across components
+const INSTANCE_ID = Math.random().toString(36).substring(2, 9);
 
 const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -31,8 +33,32 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
     setIsInitializing(false);
   };
   
-  // Simulated media items for the demo
-  const generateSampleMediaItems = () => {
+  // Generate a stable storage key for this instance to avoid overlaps
+  const getStorageKey = () => `mediaItemsIndex_${BLOG_MEDIA_BUCKET}`;
+  
+  // Process media items and remove duplicates by URL
+  const processDuplicates = (items: MediaItem[]) => {
+    // Create a map to track seen URLs
+    const seenUrls = new Map<string, boolean>();
+    const uniqueItems: MediaItem[] = [];
+    
+    for (const item of items) {
+      // Skip items with no URL
+      if (!item.url) continue;
+      
+      // Only keep the first occurrence of each URL
+      if (!seenUrls.has(item.url)) {
+        seenUrls.set(item.url, true);
+        uniqueItems.push(item);
+      }
+    }
+    
+    return uniqueItems;
+  };
+  
+  // Load media items when component mounts
+  useEffect(() => {
+    // Always load some default media
     const sampleImages: MediaItem[] = [
       { 
         id: "img1", 
@@ -59,20 +85,15 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
         uploadedAt: new Date().toISOString()
       }
     ];
-    return sampleImages;
-  };
-
-  // Load media items when component mounts
-  useEffect(() => {
-    // Always load some default media
-    let allItems: MediaItem[] = generateSampleMediaItems();
+    
+    let allItems: MediaItem[] = [...sampleImages];
     
     // Try to load saved items if storage is initialized
     if (!isInitializing) {
       console.log("Loading media items, bucket ready:", isBucketReady);
       try {
         // Get the media item metadata from localStorage 
-        const mediaItemsIndex = localStorage.getItem('mediaItemsIndex');
+        const mediaItemsIndex = localStorage.getItem(getStorageKey());
         let userUploadedItems: MediaItem[] = [];
         
         if (mediaItemsIndex) {
@@ -81,7 +102,7 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
             console.log("Loaded user uploaded items metadata:", userUploadedItems.length);
             
             // Add user items to the beginning for visibility
-            allItems = [...userUploadedItems, ...allItems];
+            allItems = [...userUploadedItems, ...sampleImages];
           } catch (e) {
             console.error("Error parsing media items index:", e);
           }
@@ -96,8 +117,25 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
       }
     }
     
-    setMediaItems(allItems);
+    // Remove duplicates and set items
+    const uniqueItems = processDuplicates(allItems);
+    setMediaItems(uniqueItems);
   }, [isBucketReady, isInitializing, toast]);
+  
+  // If the URL happens to be a data URI, we need to preserve it persistently
+  useEffect(() => {
+    if (value && value.startsWith('data:')) {
+      // Check if this data URI is already saved
+      const savedItemId = `current_selected_image_${INSTANCE_ID}`;
+      
+      // Try to save the data URI to localStorage for persistence
+      try {
+        localStorage.setItem(savedItemId, value);
+      } catch (e) {
+        console.error("Failed to save image data URI:", e);
+      }
+    }
+  }, [value]);
 
   const handleOpenChange = (open: boolean) => {
     setIsDialogOpen(open);
@@ -120,7 +158,8 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
     
     try {
       // Add new items to the beginning of the media collection for visibility
-      const updatedItems = [...newItems, ...mediaItems];
+      // But first, merge with existing items and remove duplicates
+      const updatedItems = processDuplicates([...newItems, ...mediaItems]);
       setMediaItems(updatedItems);
       
       // Save just the metadata to localStorage (not the full data URLs)
@@ -135,7 +174,7 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
       }));
       
       try {
-        localStorage.setItem('mediaItemsIndex', JSON.stringify(metadataItems));
+        localStorage.setItem(getStorageKey(), JSON.stringify(metadataItems));
       } catch (storageError) {
         console.error("Failed to save to localStorage:", storageError);
         toast({
@@ -181,7 +220,7 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
         uploadedAt: item.uploadedAt,
         dimensions: item.dimensions
       }));
-      localStorage.setItem('mediaItemsIndex', JSON.stringify(metadataItems));
+      localStorage.setItem(getStorageKey(), JSON.stringify(metadataItems));
       
       // Also remove the individual item data if it exists
       try {
@@ -243,7 +282,6 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
         </div>
         
         <DialogContent className="max-w-3xl">
-          <DialogContent className="max-w-3xl">
             {isInitializing ? (
               <div className="text-center p-8">
                 <div className="flex flex-col items-center justify-center">
@@ -281,7 +319,6 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
                 />
               </div>
             )}
-          </DialogContent>
         </DialogContent>
       </Dialog>
     </div>
