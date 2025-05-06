@@ -76,7 +76,8 @@ export const createBucketIfNotExists = async (bucketId: string, options = { publ
     const { data: existingBucket, error: checkError } = await supabase.storage.getBucket(bucketId);
     
     if (checkError) {
-      if (checkError.code === 'PGRST116') {
+      // Check for not found error by examining error message rather than using code property
+      if (checkError.message && checkError.message.includes('not found')) {
         // This is a "not found" error, which is expected if the bucket doesn't exist
         console.log(`Bucket '${bucketId}' not found, creating it...`);
       } else {
