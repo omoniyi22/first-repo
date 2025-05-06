@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { ImageIcon, Upload, Loader2 } from "lucide-react";
+import { ImageIcon, Upload, Loader2, AlertTriangle } from "lucide-react";
 import { MediaItem } from "./MediaLibrary";
 import MediaGridView from "./MediaGridView";
 import MediaUploadForm from "./MediaUploadForm";
@@ -27,17 +27,11 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
   
   // Handle bucket initialization
   const handleBucketInitialized = (success: boolean) => {
-    console.log("Bucket initialization complete, success:", success);
+    console.log("MediaSelector: Bucket initialization complete, success:", success);
     setIsBucketReady(success);
     setIsInitializing(false);
     
-    if (!success) {
-      toast({
-        title: "Storage Error",
-        description: "Could not initialize media storage. Some features may not work correctly.",
-        variant: "destructive"
-      });
-    }
+    // Toast notification is now handled in the MediaBucket component
   };
   
   // Simulated media items for the demo
@@ -73,45 +67,40 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
 
   // Load media items when component mounts
   useEffect(() => {
-    if (!isBucketReady && !isInitializing) {
-      console.log("Bucket is not ready, not loading media items");
-      return;
-    }
+    // Always load some default media
+    let allItems: MediaItem[] = generateSampleMediaItems();
     
-    if (isInitializing) {
-      console.log("Still initializing, waiting before loading media items");
-      return;
-    }
-    
-    console.log("Loading media items");
-    try {
-      // Get the media item metadata without the full data URLs
-      const mediaItemsIndex = localStorage.getItem('mediaItemsIndex');
-      let userUploadedItems: MediaItem[] = [];
-      
-      if (mediaItemsIndex) {
-        try {
-          userUploadedItems = JSON.parse(mediaItemsIndex);
-          console.log("Loaded user uploaded items metadata:", userUploadedItems.length);
-        } catch (e) {
-          console.error("Error parsing media items index:", e);
-          userUploadedItems = [];
+    // Try to load saved items if storage is initialized
+    if (!isInitializing) {
+      console.log("Loading media items, bucket ready:", isBucketReady);
+      try {
+        // Get the media item metadata from localStorage 
+        const mediaItemsIndex = localStorage.getItem('mediaItemsIndex');
+        let userUploadedItems: MediaItem[] = [];
+        
+        if (mediaItemsIndex) {
+          try {
+            userUploadedItems = JSON.parse(mediaItemsIndex);
+            console.log("Loaded user uploaded items metadata:", userUploadedItems.length);
+            
+            // Add user items to the beginning for visibility
+            allItems = [...userUploadedItems, ...allItems];
+          } catch (e) {
+            console.error("Error parsing media items index:", e);
+          }
         }
+      } catch (error) {
+        console.error("Error loading media items:", error);
+        toast({
+          title: "Error Loading Media",
+          description: "There was a problem loading your media library.",
+          variant: "destructive"
+        });
       }
-      
-      // Combine with sample items
-      setMediaItems([...userUploadedItems, ...generateSampleMediaItems()]);
-      
-    } catch (error) {
-      console.error("Error loading media items:", error);
-      toast({
-        title: "Error Loading Media",
-        description: "There was a problem loading your media library.",
-        variant: "destructive"
-      });
-      setMediaItems(generateSampleMediaItems());
     }
-  }, [isBucketReady, isInitializing]);
+    
+    setMediaItems(allItems);
+  }, [isBucketReady, isInitializing, toast]);
 
   const handleOpenChange = (open: boolean) => {
     setIsDialogOpen(open);
@@ -267,16 +256,22 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
           ) : !isBucketReady ? (
             <div className="text-center p-8">
               <div className="flex flex-col items-center justify-center">
-                <p className="text-red-500">Failed to initialize media storage.</p>
+                <AlertTriangle className="h-8 w-8 text-amber-500 mb-4" />
+                <p>Using local storage mode due to Supabase bucket initialization issues.</p>
+                <p className="text-sm text-gray-500 mt-2">
+                  Your uploads will be saved to browser storage and may not persist across devices.
+                </p>
                 <Button 
                   variant="outline" 
                   onClick={() => {
                     setIsInitializing(true);
-                    window.location.reload();
+                    setTimeout(() => {
+                      window.location.reload();
+                    }, 300);
                   }}
                   className="mt-4"
                 >
-                  Retry
+                  Retry Connection
                 </Button>
               </div>
             </div>

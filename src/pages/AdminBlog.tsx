@@ -12,12 +12,10 @@ const AdminBlog = () => {
     setIsBucketReady(success);
     
     if (!success) {
-      toast({
-        title: "Storage Error",
-        description: "Could not initialize blog media storage. Image uploads may not work.",
-        variant: "destructive",
-        duration: 5000
-      });
+      // This toast is now handled in the MediaBucket component
+      console.log("Media bucket initialization failed, using fallback mechanism");
+    } else {
+      console.log("Media bucket successfully initialized");
     }
   };
   

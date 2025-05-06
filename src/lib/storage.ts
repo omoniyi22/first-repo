@@ -50,14 +50,21 @@ export const testStorageUpload = async (): Promise<{ success: boolean; message: 
  */
 export const getStorageBucketInfo = async (bucketId: string) => {
   try {
+    console.log(`Getting info for bucket: ${bucketId}`);
     const { data, error } = await supabase.storage.getBucket(bucketId);
     
     if (error) {
-      return { success: false, error };
+      console.log(`Error getting bucket info for '${bucketId}':`, error);
+      return { 
+        success: false, 
+        error: error.message || 'Failed to get bucket info'
+      };
     }
     
+    console.log(`Successfully retrieved info for bucket '${bucketId}':`, data);
     return { success: true, data };
   } catch (error) {
+    console.error(`Exception in getStorageBucketInfo for '${bucketId}':`, error);
     return { 
       success: false, 
       error: error instanceof Error ? error.message : 'Unknown error' 
@@ -89,7 +96,10 @@ export const createBucketIfNotExists = async (bucketId: string, options = { publ
       
       if (createError) {
         console.error(`Failed to create bucket '${bucketId}':`, createError);
-        return { success: false, error: createError };
+        return { 
+          success: false, 
+          error: createError.message || 'Failed to create bucket'
+        };
       }
       
       console.log(`Successfully created bucket '${bucketId}'`);
