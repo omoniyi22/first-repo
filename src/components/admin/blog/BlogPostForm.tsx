@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
 import { BlogPost } from "@/data/blogPosts";
 import { Form } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,6 +9,7 @@ import ContentFields from "./forms/ContentFields";
 import MetadataFields from "./forms/MetadataFields";
 import FeaturedImageField from "./forms/FeaturedImageField";
 import FormActions from "./forms/FormActions";
+import { usePostFormSubmission } from "./hooks/usePostFormSubmission";
 
 interface BlogPostFormProps {
   post: BlogPost | null;
@@ -19,7 +19,8 @@ interface BlogPostFormProps {
 
 const BlogPostForm = ({ post, onSave, onCancel }: BlogPostFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  
+  // Initialize the form with default values or post data if editing
   const form = useForm<BlogFormData>({
     resolver: zodResolver(blogPostFormSchema),
     defaultValues: {
@@ -51,6 +52,7 @@ const BlogPostForm = ({ post, onSave, onCancel }: BlogPostFormProps) => {
     }
   }, [post, form]);
 
+  // Handle form submission
   const handleSubmit = async (values: BlogFormData) => {
     setIsSubmitting(true);
     try {
@@ -87,6 +89,7 @@ const BlogPostForm = ({ post, onSave, onCancel }: BlogPostFormProps) => {
     }
   };
 
+  // Function to generate slug from title
   const generateSlug = () => {
     const title = form.getValues("title");
     if (title) {
