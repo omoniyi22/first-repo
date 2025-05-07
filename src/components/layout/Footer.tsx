@@ -44,8 +44,8 @@ const Footer = () => {
           <div>
             <h4 className="text-lg font-semibold mb-4">Connect With Us</h4>
             
-            {/* Social Media - with clear horizontal layout */}
-            <div className="flex items-center space-x-4">
+            {/* Social Media - now with vertical layout */}
+            <div className="flex flex-col space-y-4">
               <div className="flex items-center">
                 <a 
                   href="https://instagram.com/aiequestrian" 
