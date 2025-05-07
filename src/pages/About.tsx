@@ -6,6 +6,7 @@ import Footer from '@/components/layout/Footer';
 import HeroSection from '@/components/about/HeroSection';
 import MissionAndVision from '@/components/about/MissionAndVision';
 import CoreValues from '@/components/about/CoreValues';
+import ProblemsWeSolve from '@/components/about/ProblemsWeSolve';
 import EquestrianTeamSection from '@/components/about/EquestrianTeamSection';
 
 // The following sections are preserved from the existing About page
@@ -69,6 +70,9 @@ const About = () => {
         
         {/* Core Values Section */}
         <CoreValues />
+        
+        {/* Problems We Solve Section - Newly redesigned */}
+        <ProblemsWeSolve />
         
         {/* Partnerships and Sponsorships Section - Preserved from existing About page */}
         <section className="py-16 bg-gray-50">

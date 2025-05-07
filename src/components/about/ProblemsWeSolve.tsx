@@ -1,53 +1,10 @@
 
+import { Card, CardContent } from "@/components/ui/card";
 import AnimatedSection from "@/components/ui/AnimatedSection";
-import { Check, ArrowRight, Lightbulb, Users, BarChart3, Eye, BookOpen } from "lucide-react";
-import { Card } from "@/components/ui/card";
-
-const ProblemCard = ({ title, description, icon }) => (
-  <Card className="bg-white p-6 rounded-lg shadow-sm border border-purple-100/60 hover:shadow-md transition-shadow duration-300">
-    <div className="flex items-start gap-4">
-      <div className="bg-gradient-to-br from-purple-100 to-blue-100 p-3 rounded-full">
-        {icon}
-      </div>
-      <div className="flex-1">
-        <h4 className="font-serif text-lg font-medium text-gray-900 mb-2">{title}</h4>
-        <p className="text-gray-700 text-sm leading-relaxed">
-          {description}
-        </p>
-      </div>
-    </div>
-  </Card>
-);
+import { ArrowRight, BarChart3, FileText, Eye, LightbulbIcon, Users } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const ProblemsWeSolve = () => {
-  const problems = [
-    {
-      title: "Limited Feedback Between Lessons",
-      description: "Most riders receive feedback only during infrequent lessons, creating long gaps in the learning process. AI Equestrian provides continuous analysis and guidance between professional coaching sessions.",
-      icon: <Users className="w-5 h-5 text-purple-700" />
-    },
-    {
-      title: "Difficulty Tracking Progress",
-      description: "Traditional methods make it challenging to objectively measure improvement over time. Our platform delivers quantifiable metrics and visual progress tracking to validate your training efforts.",
-      icon: <BarChart3 className="w-5 h-5 text-purple-700" />
-    },
-    {
-      title: "Inconsistent Performance Analysis",
-      description: "Relying solely on memory or scattered notes leads to fragmented analysis. We transform your test sheets and videos into comprehensive, organized insights that reveal meaningful patterns.",
-      icon: <BookOpen className="w-5 h-5 text-purple-700" />
-    },
-    {
-      title: "Missing the Unseen Details",
-      description: "The human eye can miss subtle elements that impact performance. Our AI technology captures and analyzes nuances in movement and position that might otherwise go unnoticed.",
-      icon: <Eye className="w-5 h-5 text-purple-700" />
-    },
-    {
-      title: "Training Program Uncertainty",
-      description: "Many riders struggle to develop structured training plans that address specific weaknesses. Our recommendation system creates targeted exercises based on your actual performance data.",
-      icon: <Lightbulb className="w-5 h-5 text-purple-700" />
-    }
-  ];
-  
   return (
     <section className="py-16 bg-gradient-to-b from-gray-50 to-white">
       <div className="container mx-auto px-6">
@@ -60,37 +17,113 @@ const ProblemsWeSolve = () => {
           </p>
         </AnimatedSection>
         
-        <AnimatedSection animation="fade-in" className="max-w-5xl mx-auto">
-          <div className="space-y-6">
-            <div className="max-w-3xl mx-auto">
-              <h3 className="text-2xl font-serif font-medium text-gray-900 mb-4 text-center">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-12">
+            {/* Left Column - Introduction */}
+            <AnimatedSection animation="fade-in" className="flex flex-col justify-center">
+              <h3 className="text-2xl font-serif font-medium text-gray-900 mb-4">
                 Transforming Equestrian Performance Through Intelligence
               </h3>
               
-              <p className="text-gray-700 text-center mb-10">
+              <p className="text-gray-700 mb-6">
                 Equestrian sports blend artistry with technical precision, demanding constant refinement from both horse and rider. 
                 At AI Equestrian, we're addressing the fundamental challenges that prevent riders from reaching their full potential.
               </p>
-            </div>
-            
-            <div className="grid md:grid-cols-2 gap-6">
-              {problems.map((problem, index) => (
-                <ProblemCard
-                  key={index}
-                  title={problem.title}
-                  description={problem.description}
-                  icon={problem.icon}
-                />
-              ))}
-            </div>
-            
-            <div className="mt-10 flex justify-center">
-              <a href="/how-it-works" className="inline-flex items-center py-3 px-6 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-lg transition-colors duration-300 font-medium">
+              
+              <Link to="/how-it-works" className="inline-flex items-center py-3 px-6 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-lg transition-colors duration-300 font-medium self-start mt-4">
                 Learn how our technology works <ArrowRight className="ml-2 h-4 w-4" />
-              </a>
-            </div>
+              </Link>
+            </AnimatedSection>
+            
+            {/* Right Column - Challenges and Solutions */}
+            <AnimatedSection animation="fade-in" className="space-y-5">
+              {/* Challenge 1 */}
+              <Card className="bg-white shadow-sm border-l-4 border-l-purple-500 hover:shadow-md transition-shadow duration-300">
+                <CardContent className="p-5">
+                  <div className="flex items-start gap-4">
+                    <div className="bg-purple-100 p-3 rounded-full shrink-0">
+                      <Users className="w-5 h-5 text-purple-700" />
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-gray-900 mb-1">Limited Feedback Between Lessons</h4>
+                      <p className="text-gray-600 text-sm">
+                        Most riders receive guidance only during infrequent lessons. AI Equestrian provides continuous analysis between coaching sessions.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              {/* Challenge 2 */}
+              <Card className="bg-white shadow-sm border-l-4 border-l-blue-500 hover:shadow-md transition-shadow duration-300">
+                <CardContent className="p-5">
+                  <div className="flex items-start gap-4">
+                    <div className="bg-blue-100 p-3 rounded-full shrink-0">
+                      <BarChart3 className="w-5 h-5 text-blue-700" />
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-gray-900 mb-1">Difficulty Tracking Progress</h4>
+                      <p className="text-gray-600 text-sm">
+                        Traditional methods make it challenging to measure improvement objectively. Our platform delivers quantifiable metrics and visual progress tracking.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              {/* Challenge 3 */}
+              <Card className="bg-white shadow-sm border-l-4 border-l-indigo-500 hover:shadow-md transition-shadow duration-300">
+                <CardContent className="p-5">
+                  <div className="flex items-start gap-4">
+                    <div className="bg-indigo-100 p-3 rounded-full shrink-0">
+                      <FileText className="w-5 h-5 text-indigo-700" />
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-gray-900 mb-1">Inconsistent Performance Analysis</h4>
+                      <p className="text-gray-600 text-sm">
+                        Relying on memory or scattered notes leads to fragmented insights. We transform test sheets and videos into comprehensive, organized analysis.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              {/* Challenge 4 */}
+              <Card className="bg-white shadow-sm border-l-4 border-l-cyan-500 hover:shadow-md transition-shadow duration-300">
+                <CardContent className="p-5">
+                  <div className="flex items-start gap-4">
+                    <div className="bg-cyan-100 p-3 rounded-full shrink-0">
+                      <Eye className="w-5 h-5 text-cyan-700" />
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-gray-900 mb-1">Missing the Unseen Details</h4>
+                      <p className="text-gray-600 text-sm">
+                        The human eye can miss subtle elements that impact performance. Our technology captures movement nuances that might otherwise go unnoticed.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              {/* Challenge 5 */}
+              <Card className="bg-white shadow-sm border-l-4 border-l-teal-500 hover:shadow-md transition-shadow duration-300">
+                <CardContent className="p-5">
+                  <div className="flex items-start gap-4">
+                    <div className="bg-teal-100 p-3 rounded-full shrink-0">
+                      <LightbulbIcon className="w-5 h-5 text-teal-700" />
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-gray-900 mb-1">Training Program Uncertainty</h4>
+                      <p className="text-gray-600 text-sm">
+                        Many riders struggle to develop structured training plans. Our recommendation system creates targeted exercises based on your actual performance data.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </AnimatedSection>
           </div>
-        </AnimatedSection>
+        </div>
       </div>
     </section>
   );
