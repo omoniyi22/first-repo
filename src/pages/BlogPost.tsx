@@ -7,18 +7,64 @@ import { Button } from '@/components/ui/button';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator, BreadcrumbPage } from '@/components/ui/breadcrumb';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { blogPosts } from '@/data/blogPosts';
 import { ArrowLeft, Clock, Calendar, Share2 } from 'lucide-react';
 import { SEO } from '@/lib/seo';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { fetchBlogPostBySlug, fetchAllBlogPosts } from '@/services/blogService';
+import { BlogPost } from '@/data/blogPosts';
+import { useToast } from '@/hooks/use-toast';
 
 const BlogPost = () => {
   const { slug } = useParams();
-  const post = blogPosts.find(p => p.slug === slug);
+  const [post, setPost] = useState<BlogPost | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [relatedPosts, setRelatedPosts] = useState<BlogPost[]>([]);
   const { language, translations } = useLanguage();
   const t = translations[language];
+  const { toast } = useToast();
   
-  const [relatedPosts, setRelatedPosts] = useState([]);
+  // Fetch the blog post data
+  useEffect(() => {
+    const loadBlogPost = async () => {
+      if (!slug) return;
+      
+      try {
+        setIsLoading(true);
+        const fetchedPost = await fetchBlogPostBySlug(slug);
+        setPost(fetchedPost);
+        
+        // Now that we have the post, fetch all posts for related articles
+        if (fetchedPost) {
+          const allPosts = await fetchAllBlogPosts();
+          
+          // Find 3 related posts from the same discipline and category
+          const sameDisciplineAndCategory = allPosts.filter(p => 
+            p.id !== fetchedPost.id && 
+            p.discipline === fetchedPost.discipline && 
+            p.category === fetchedPost.category
+          ).slice(0, 3);
+          
+          // Find additional posts from the other discipline
+          const otherDiscipline = allPosts.find(p => 
+            p.discipline !== fetchedPost.discipline
+          );
+          
+          setRelatedPosts([...sameDisciplineAndCategory, otherDiscipline].filter(Boolean));
+        }
+      } catch (error) {
+        console.error('Error loading blog post:', error);
+        toast({
+          title: t["error-occurred"] || "An error occurred",
+          description: t["failed-load-post"] || "Failed to load the blog post",
+          variant: "destructive"
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadBlogPost();
+  }, [slug, toast, t]);
   
   // Helper function to get localized content
   const getLocalizedContent = (content: string, fallback: string) => {
@@ -88,24 +134,17 @@ const BlogPost = () => {
     }
   }, [post, localizedTitle, localizedExcerpt]);
   
-  useEffect(() => {
-    if (post) {
-      // Find 3 related posts from the same discipline and category
-      const sameDisciplineAndCategory = blogPosts.filter(p => 
-        p.id !== post.id && 
-        p.discipline === post.discipline && 
-        p.category === post.category
-      ).slice(0, 3);
-      
-      // Find 1 post from the other discipline
-      const otherDiscipline = blogPosts.find(p => 
-        p.discipline !== post.discipline
-      );
-      
-      setRelatedPosts([...sameDisciplineAndCategory, otherDiscipline].filter(Boolean));
-    }
-  }, [post]);
-  
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-gray-600">{t["loading-post"]}</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!post) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -494,7 +533,7 @@ const BlogPost = () => {
                   }
                 </h3>
                 <div className="space-y-4">
-                  {blogPosts
+                  {relatedPosts
                     .filter(p => p.discipline === post.discipline && p.id !== post.id)
                     .slice(0, 3)
                     .map(popularPost => {

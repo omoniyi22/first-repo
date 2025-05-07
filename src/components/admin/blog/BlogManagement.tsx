@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { blogPosts, BlogPost } from "@/data/blogPosts";
+import { BlogPost } from "@/data/blogPosts";
 import BlogPostsList from "@/components/admin/blog/BlogPostsList";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import BlogPostForm from "@/components/admin/blog/BlogPostForm";
@@ -22,6 +22,8 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { fetchAllBlogPosts, createBlogPost, updateBlogPost, deleteBlogPost } from "@/services/blogService";
+import { useToast } from "@/hooks/use-toast";
 
 const POSTS_PER_PAGE = 5;
 
@@ -33,17 +35,34 @@ const BlogManagement = () => {
   const [categoryFilter, setCategoryFilter] = useState<string>("");
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [paginatedPosts, setPaginatedPosts] = useState<BlogPost[]>([]);
 
   useEffect(() => {
-    // In a real app, we would fetch posts from the API
-    // For now, we use the static data from blogPosts.ts
-    setPosts(blogPosts);
-    setFilteredPosts(blogPosts);
+    loadBlogPosts();
   }, []);
+
+  const loadBlogPosts = async () => {
+    try {
+      setIsLoading(true);
+      const fetchedPosts = await fetchAllBlogPosts();
+      setPosts(fetchedPosts);
+      setFilteredPosts(fetchedPosts);
+    } catch (error) {
+      console.error('Error fetching posts:', error);
+      toast({
+        title: "Failed to load posts",
+        description: "There was a problem loading blog posts from the database.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     let result = posts;
@@ -93,31 +112,112 @@ const BlogManagement = () => {
     setIsFormOpen(true);
   };
 
-  const handleDeletePost = (postId: number) => {
-    // In a real app, we would call the API to delete the post
-    // For now, we just filter it out from our state
-    setPosts(posts.filter(post => post.id !== postId));
+  const handleDeletePost = async (postId: number) => {
+    try {
+      // Find the post to get its Supabase UUID
+      const postToDelete = posts.find(p => p.id === postId);
+      
+      if (!postToDelete) {
+        throw new Error("Post not found");
+      }
+      
+      // For Supabase, we need the actual UUID, not our numeric ID
+      const supabaseId = postToDelete['supabaseId'] as string;
+      
+      if (!supabaseId) {
+        throw new Error("Supabase ID not found for this post");
+      }
+      
+      await deleteBlogPost(supabaseId);
+      
+      // Remove post from state
+      setPosts(posts.filter(post => post.id !== postId));
+      
+      toast({
+        title: "Post deleted",
+        description: "The blog post has been successfully deleted.",
+      });
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      
+      toast({
+        title: "Failed to delete post",
+        description: "There was a problem deleting the blog post.",
+        variant: "destructive"
+      });
+    }
   };
 
-  const handleSavePost = (post: BlogPost) => {
-    // In a real app, we would call the API to save the post
-    if (editingPost) {
-      // Update existing post
-      setPosts(posts.map(p => p.id === post.id ? post : p));
-    } else {
-      // Add new post
-      const newPost = {
-        ...post,
-        id: Math.max(...posts.map(p => p.id)) + 1,
-        date: new Date().toLocaleDateString('en-US', { 
-          year: 'numeric', 
-          month: 'long', 
-          day: 'numeric' 
-        })
-      };
-      setPosts([...posts, newPost]);
+  const handleSavePost = async (post: BlogPost) => {
+    try {
+      if (editingPost) {
+        // Update existing post
+        const supabaseId = editingPost['supabaseId'] as string;
+        
+        if (!supabaseId) {
+          throw new Error("Supabase ID not found for this post");
+        }
+        
+        await updateBlogPost(supabaseId, {
+          title: post.title,
+          slug: post.slug,
+          excerpt: post.excerpt,
+          content: post.content || null,
+          author: post.author,
+          discipline: post.discipline,
+          category: post.category,
+          image: post.image
+        });
+        
+        // Update the post in our local state
+        setPosts(prevPosts => 
+          prevPosts.map(p => p.id === post.id ? { ...post, supabaseId } : p)
+        );
+        
+        toast({
+          title: "Post updated",
+          description: "The blog post has been successfully updated.",
+        });
+      } else {
+        // Create new post
+        // Format date as string in the format expected by Supabase
+        const formattedDate = new Date().toISOString();
+        
+        const newPostId = await createBlogPost({
+          title: post.title,
+          slug: post.slug,
+          excerpt: post.excerpt,
+          content: post.content || null,
+          author: post.author,
+          author_image: post.authorImage || '/placeholder.svg',
+          date: formattedDate,
+          discipline: post.discipline,
+          category: post.category,
+          image: post.image,
+          reading_time: post.readingTime || '5 min read'
+        });
+        
+        if (newPostId) {
+          // Reload all posts to get the new one with correct ID
+          await loadBlogPosts();
+          
+          toast({
+            title: "Post created",
+            description: "The new blog post has been successfully created.",
+          });
+        }
+      }
+      
+      setIsFormOpen(false);
+    } catch (error) {
+      console.error('Error saving post:', error);
+      
+      toast({
+        title: "Failed to save post",
+        description: "There was a problem saving the blog post to the database.",
+        variant: "destructive"
+      });
     }
-    setIsFormOpen(false);
   };
 
   // Generate pagination items
@@ -234,11 +334,18 @@ const BlogManagement = () => {
         </Select>
       </div>
 
-      <BlogPostsList 
-        posts={paginatedPosts} 
-        onEdit={handleEditPost} 
-        onDelete={handleDeletePost} 
-      />
+      {isLoading ? (
+        <div className="py-20 text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading blog posts...</p>
+        </div>
+      ) : (
+        <BlogPostsList 
+          posts={paginatedPosts} 
+          onEdit={handleEditPost} 
+          onDelete={handleDeletePost} 
+        />
+      )}
       
       {totalPages > 1 && (
         <Pagination>

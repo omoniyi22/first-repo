@@ -8,12 +8,13 @@ import { Input } from '@/components/ui/input';
 import BlogFilter from '@/components/blog/BlogFilter';
 import FeaturedPost from '@/components/blog/FeaturedPost';
 import BlogPostCard from '@/components/blog/BlogPostCard';
-import { blogPosts, BlogPost } from '@/data/blogPosts';
+import { BlogPost } from '@/data/blogPosts';
 import { BookOpen, Search } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { SEO, getPageMetadata } from '@/lib/seo';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { fetchAllBlogPosts } from '@/services/blogService';
 
 const Blog = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -23,7 +24,9 @@ const Blog = () => {
   const [disciplineFilter, setDisciplineFilter] = useState(disciplineParam);
   const [categoryFilter, setCategoryFilter] = useState(categoryParam);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredPosts, setFilteredPosts] = useState<BlogPost[]>(blogPosts);
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
+  const [filteredPosts, setFilteredPosts] = useState<BlogPost[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const { language, translations } = useLanguage();
   const t = translations[language];
   const { toast } = useToast();
@@ -42,6 +45,28 @@ const Blog = () => {
       : undefined
   });
   
+  // Load blog posts from Supabase
+  useEffect(() => {
+    const loadBlogPosts = async () => {
+      try {
+        setIsLoading(true);
+        const posts = await fetchAllBlogPosts();
+        setBlogPosts(posts);
+      } catch (error) {
+        console.error('Failed to load blog posts:', error);
+        toast({
+          title: t["error-occurred"],
+          description: t["failed-load-posts"],
+          variant: "destructive"
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadBlogPosts();
+  }, [toast, t]);
+  
   // Update state when URL params change
   useEffect(() => {
     setDisciplineFilter(disciplineParam);
@@ -50,6 +75,8 @@ const Blog = () => {
   
   // Filter posts based on discipline, category, and search query
   useEffect(() => {
+    if (blogPosts.length === 0) return;
+    
     let result = [...blogPosts];
     
     // Filter by discipline
@@ -76,7 +103,7 @@ const Blog = () => {
     }
     
     setFilteredPosts(result);
-  }, [disciplineFilter, categoryFilter, searchQuery]);
+  }, [disciplineFilter, categoryFilter, searchQuery, blogPosts]);
   
   // Update URL parameters when filters change
   const updateFilters = (type: 'discipline' | 'category', value: string) => {
@@ -165,7 +192,7 @@ const Blog = () => {
     initScrollReveal();
   }, [filteredPosts]);
 
-  const featuredPost = blogPosts.find(post => post.id === 1);
+  const featuredPost = blogPosts.find(post => post.slug === 'how-ai-analysis-is-transforming-show-jumping-training');
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
@@ -202,54 +229,64 @@ const Blog = () => {
           />
         </div>
         
+        {/* Loading state */}
+        {isLoading && (
+          <div className="py-20 text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto"></div>
+            <p className="mt-4 text-gray-600">{t["loading-posts"]}</p>
+          </div>
+        )}
+        
         {/* Featured post */}
-        {featuredPost && disciplineFilter === 'all' && categoryFilter === 'all' && !searchQuery && (
+        {!isLoading && featuredPost && disciplineFilter === 'all' && categoryFilter === 'all' && !searchQuery && (
           <div className="reveal-scroll mb-12 opacity-0 translate-y-8 transition-all duration-700 ease-out">
             <FeaturedPost post={featuredPost} />
           </div>
         )}
         
         {/* Blog posts grid */}
-        <div className="mb-10">
-          {filteredPosts.length > 0 ? (
-            <>
-              <h2 className="text-2xl font-serif font-bold text-gray-900 mb-6">
-                {disciplineFilter !== 'all' || categoryFilter !== 'all' || searchQuery
-                  ? `${filteredPosts.length} ${filteredPosts.length === 1 ? t["result"] : t["results"]}`
-                  : t["latest-articles"]
-                }
-              </h2>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {filteredPosts.map((post, index) => (
-                  <div 
-                    key={post.id} 
-                    className="reveal-scroll opacity-0 translate-y-8 transition-all duration-700 ease-out"
-                    style={{ transitionDelay: `${index * 100}ms` }}
-                  >
-                    <BlogPostCard post={post} />
-                  </div>
-                ))}
+        {!isLoading && (
+          <div className="mb-10">
+            {filteredPosts.length > 0 ? (
+              <>
+                <h2 className="text-2xl font-serif font-bold text-gray-900 mb-6">
+                  {disciplineFilter !== 'all' || categoryFilter !== 'all' || searchQuery
+                    ? `${filteredPosts.length} ${filteredPosts.length === 1 ? t["result"] : t["results"]}`
+                    : t["latest-articles"]
+                  }
+                </h2>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {filteredPosts.map((post, index) => (
+                    <div 
+                      key={post.id} 
+                      className="reveal-scroll opacity-0 translate-y-8 transition-all duration-700 ease-out"
+                      style={{ transitionDelay: `${index * 100}ms` }}
+                    >
+                      <BlogPostCard post={post} />
+                    </div>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-16 bg-gray-50 rounded-xl">
+                <BookOpen className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                <h3 className="text-xl font-medium text-gray-900 mb-2">{t["no-articles"]}</h3>
+                <p className="text-gray-600 mb-6">{t["adjust-filters"]}</p>
+                <Button 
+                  variant="outline" 
+                  onClick={() => {
+                    setSearchParams(new URLSearchParams());
+                    setDisciplineFilter('all');
+                    setCategoryFilter('all');
+                    setSearchQuery('');
+                  }}
+                >
+                  {t["clear-filters"]}
+                </Button>
               </div>
-            </>
-          ) : (
-            <div className="text-center py-16 bg-gray-50 rounded-xl">
-              <BookOpen className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-              <h3 className="text-xl font-medium text-gray-900 mb-2">{t["no-articles"]}</h3>
-              <p className="text-gray-600 mb-6">{t["adjust-filters"]}</p>
-              <Button 
-                variant="outline" 
-                onClick={() => {
-                  setSearchParams(new URLSearchParams());
-                  setDisciplineFilter('all');
-                  setCategoryFilter('all');
-                  setSearchQuery('');
-                }}
-              >
-                {t["clear-filters"]}
-              </Button>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
         
         {/* Newsletter sign-up */}
         <div className="reveal-scroll mt-16 bg-gray-100 rounded-xl p-8 md:p-12 opacity-0 translate-y-8 transition-all duration-700 ease-out">

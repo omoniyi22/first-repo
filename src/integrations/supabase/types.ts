@@ -38,6 +38,101 @@ export type Database = {
           },
         ]
       }
+      blog_posts: {
+        Row: {
+          author: string
+          author_image: string | null
+          category: string
+          content: string | null
+          created_at: string
+          date: string
+          discipline: string
+          excerpt: string
+          id: string
+          image: string
+          reading_time: string | null
+          slug: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author: string
+          author_image?: string | null
+          category: string
+          content?: string | null
+          created_at?: string
+          date?: string
+          discipline: string
+          excerpt: string
+          id?: string
+          image: string
+          reading_time?: string | null
+          slug: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author?: string
+          author_image?: string | null
+          category?: string
+          content?: string | null
+          created_at?: string
+          date?: string
+          discipline?: string
+          excerpt?: string
+          id?: string
+          image?: string
+          reading_time?: string | null
+          slug?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      blog_translations: {
+        Row: {
+          blog_id: string
+          category: string | null
+          content: string | null
+          created_at: string
+          excerpt: string | null
+          id: string
+          language: string
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          blog_id: string
+          category?: string | null
+          content?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          language: string
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          blog_id?: string
+          category?: string | null
+          content?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          language?: string
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_translations_blog_id_fkey"
+            columns: ["blog_id"]
+            isOneToOne: false
+            referencedRelation: "blog_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       document_analysis: {
         Row: {
           competition_type: string | null

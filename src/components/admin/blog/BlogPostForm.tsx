@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -63,23 +62,26 @@ const BlogPostForm = ({ post, onSave, onCancel }: BlogPostFormProps) => {
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsSubmitting(true);
     try {
-      // In a real app, we would upload the image if it's a file
-      // We're now using Cloudinary for image management
-      
       const updatedPost: BlogPost = {
-        id: post?.id || 0, // Will be replaced on save for new posts
+        id: post?.id || Math.floor(Math.random() * 1000), // Will be replaced with real ID from Supabase
         title: values.title,
         excerpt: values.excerpt,
         content: values.content,
         author: values.author,
-        date: post?.date || new Date().toISOString(),
+        date: post?.date || new Date().toLocaleDateString('en-US', { 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric' 
+        }),
         discipline: values.discipline,
         category: values.category,
         slug: values.slug,
-        image: values.image, // This is now a Cloudinary URL
+        image: values.image,
         readingTime: post?.readingTime || "5 min read",
         authorImage: post?.authorImage || "/placeholder.svg",
         translations: post?.translations || {},
+        // Keep the Supabase ID if we're editing
+        ...(post && post['supabaseId'] ? { supabaseId: post['supabaseId'] } : {})
       };
 
       onSave(updatedPost);
