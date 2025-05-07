@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
@@ -43,8 +42,8 @@ const Index = () => {
     initScrollReveal();
   }, []);
 
-  const [imageLoaded, setImageLoaded] = useState(false);
-  const [secondImageLoaded, setSecondImageLoaded] = useState(false);
+  const [jumpingImageLoaded, setJumpingImageLoaded] = useState(false);
+  const [dressageImageLoaded, setDressageImageLoaded] = useState(false);
   
   // Get featured blog posts - one from each discipline
   const featuredJumpingPost = blogPosts.find(post => post.discipline === 'Jumping' && post.id === 1);
@@ -63,9 +62,27 @@ const Index = () => {
           <div className="absolute inset-0">
             {/* Split hero section with two images */}
             <div className="grid md:grid-cols-2 h-full">
-              {/* First image - Dressage */}
+              {/* First image - Jumping */}
               <div className="relative w-full h-full">
-                {!imageLoaded && (
+                {!jumpingImageLoaded && (
+                  <div className="absolute inset-0 bg-blue-100/50">
+                    <Skeleton className="w-full h-full" />
+                  </div>
+                )}
+                <img 
+                  src="/lovable-uploads/dbb9802b-bed7-4888-96a3-73b68198710b.png" 
+                  alt="Show jumping with AI analysis"
+                  className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${jumpingImageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                  onLoad={() => setJumpingImageLoaded(true)}
+                  style={{ objectPosition: 'center center' }}
+                />
+                {/* Overlay gradient for jumping */}
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-900/70 to-blue-900/40"></div>
+              </div>
+              
+              {/* Second image - Dressage */}
+              <div className="relative w-full h-full hidden md:block">
+                {!dressageImageLoaded && (
                   <div className="absolute inset-0 bg-purple-100/50">
                     <Skeleton className="w-full h-full" />
                   </div>
@@ -73,30 +90,12 @@ const Index = () => {
                 <img 
                   src="/lovable-uploads/7c32e2d9-4fce-4ed5-abba-0fb12abe96eb.png" 
                   alt="Dressage rider performing"
-                  className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
-                  onLoad={() => setImageLoaded(true)}
+                  className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${dressageImageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                  onLoad={() => setDressageImageLoaded(true)}
                   style={{ objectPosition: 'center 30%' }}
                 />
                 {/* Overlay gradient for dressage */}
                 <div className="absolute inset-0 bg-gradient-to-r from-purple-900/70 to-purple-900/40"></div>
-              </div>
-              
-              {/* Second image - Jumping */}
-              <div className="relative w-full h-full hidden md:block">
-                {!secondImageLoaded && (
-                  <div className="absolute inset-0 bg-blue-100/50">
-                    <Skeleton className="w-full h-full" />
-                  </div>
-                )}
-                <img 
-                  src="/lovable-uploads/b729b0be-9b4c-4b4b-bdec-6bd2f849b8f8.png" 
-                  alt="Show jumping with AI analysis"
-                  className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${secondImageLoaded ? 'opacity-100' : 'opacity-0'}`}
-                  onLoad={() => setSecondImageLoaded(true)}
-                  style={{ objectPosition: 'center center' }}
-                />
-                {/* Overlay gradient for jumping */}
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-900/70 to-blue-900/40"></div>
               </div>
             </div>
           </div>
