@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -57,7 +58,7 @@ const BlogPostForm = ({ post, onSave, onCancel }: BlogPostFormProps) => {
       form.reset({
         title: post.title,
         excerpt: post.excerpt,
-        content: post.content || "",
+        content: post.content ?? "", // Use nullish coalescing operator to handle null or undefined
         author: post.author,
         discipline: post.discipline,
         category: post.category,
@@ -70,11 +71,16 @@ const BlogPostForm = ({ post, onSave, onCancel }: BlogPostFormProps) => {
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsSubmitting(true);
     try {
+      console.log("Submitting blog post form with values:", values);
+      
+      // Ensure content is not null/undefined
+      const content = values.content || "";
+      
       const updatedPost: BlogPost = {
         id: post?.id || Math.floor(Math.random() * 1000), // Will be replaced with real ID from Supabase
         title: values.title,
         excerpt: values.excerpt,
-        content: values.content,
+        content: content, // Use the validated content
         author: values.author,
         date: post?.date || new Date().toLocaleDateString('en-US', { 
           year: 'numeric', 

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
@@ -51,6 +50,16 @@ const Blog = () => {
       try {
         setIsLoading(true);
         const posts = await fetchAllBlogPosts();
+        console.log('Blog posts loaded:', posts);
+        
+        // Check if the posts have content
+        if (posts.length > 0) {
+          const nullContentPosts = posts.filter(post => post.content === undefined || post.content === null);
+          if (nullContentPosts.length > 0) {
+            console.warn(`${nullContentPosts.length} posts have null/undefined content:`, nullContentPosts);
+          }
+        }
+        
         setBlogPosts(posts);
       } catch (error) {
         console.error('Failed to load blog posts:', error);

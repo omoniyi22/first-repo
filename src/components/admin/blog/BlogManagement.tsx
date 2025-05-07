@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -176,11 +177,16 @@ const BlogManagement = () => {
           throw new Error("Supabase ID not found for this post");
         }
         
+        // Ensure content is handled properly (empty string if null/undefined)
+        const content = post.content === undefined ? "" : post.content;
+        
+        console.log("Updating blog post with content:", content);
+        
         await updateBlogPost(supabaseId, {
           title: post.title,
           slug: post.slug,
           excerpt: post.excerpt,
-          content: post.content || null,
+          content: content, // This will be null or a string
           author: post.author,
           discipline: post.discipline,
           category: post.category,
@@ -201,11 +207,16 @@ const BlogManagement = () => {
         // Format date as string in the format expected by Supabase
         const formattedDate = new Date().toISOString();
         
+        // Handle content field (empty string if null/undefined)
+        const content = post.content === undefined ? "" : post.content;
+        
+        console.log("Creating new blog post with content:", content);
+        
         const newPostId = await createBlogPost({
           title: post.title,
           slug: post.slug,
           excerpt: post.excerpt,
-          content: post.content || null,
+          content: content, // This will be null or a string
           author: post.author,
           author_image: post.authorImage || '/placeholder.svg',
           date: formattedDate,

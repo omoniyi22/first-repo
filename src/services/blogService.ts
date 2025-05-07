@@ -29,6 +29,8 @@ export interface SupabaseBlogTranslation {
 
 // Convert Supabase blog post to our BlogPost format
 export const mapToBlogPost = (post: SupabaseBlogPost, translations?: SupabaseBlogTranslation[]): BlogPost => {
+  console.log('Mapping blog post to BlogPost format:', post);
+  
   const translationMap = translations?.reduce((acc, translation) => {
     const { language, title, excerpt, content, category } = translation;
     if (!acc[language]) {
@@ -48,7 +50,7 @@ export const mapToBlogPost = (post: SupabaseBlogPost, translations?: SupabaseBlo
     slug: post.slug,
     title: post.title,
     excerpt: post.excerpt,
-    content: post.content || undefined,
+    content: post.content || undefined, // Convert null to undefined
     author: post.author,
     authorImage: post.author_image || '/placeholder.svg',
     date: post.date,
@@ -63,6 +65,8 @@ export const mapToBlogPost = (post: SupabaseBlogPost, translations?: SupabaseBlo
 
 // Fetch all blog posts
 export const fetchAllBlogPosts = async (): Promise<BlogPost[]> => {
+  console.log('Fetching all blog posts');
+  
   const { data: posts, error } = await supabase
     .from('blog_posts')
     .select('*')
@@ -72,6 +76,8 @@ export const fetchAllBlogPosts = async (): Promise<BlogPost[]> => {
     console.error('Error fetching blog posts:', error);
     throw new Error('Failed to fetch blog posts');
   }
+
+  console.log('Fetched blog posts from database:', posts);
 
   const { data: translations, error: translationsError } = await supabase
     .from('blog_translations')
@@ -142,6 +148,8 @@ export const fetchBlogPostBySlug = async (slug: string): Promise<BlogPost | null
 
 // Create a new blog post
 export const createBlogPost = async (post: Omit<SupabaseBlogPost, 'id'>): Promise<string | null> => {
+  console.log('Creating new blog post:', post);
+  
   const { data, error } = await supabase
     .from('blog_posts')
     .insert([post])
@@ -158,6 +166,8 @@ export const createBlogPost = async (post: Omit<SupabaseBlogPost, 'id'>): Promis
 
 // Update an existing blog post
 export const updateBlogPost = async (id: string, post: Partial<SupabaseBlogPost>): Promise<void> => {
+  console.log('Updating blog post:', id, post);
+  
   // Make sure discipline and category are correctly typed
   const typedPost: Partial<SupabaseBlogPost> = {
     ...post,
@@ -178,6 +188,8 @@ export const updateBlogPost = async (id: string, post: Partial<SupabaseBlogPost>
 
 // Delete a blog post
 export const deleteBlogPost = async (id: string): Promise<void> => {
+  console.log('Deleting blog post:', id);
+  
   const { error } = await supabase
     .from('blog_posts')
     .delete()
@@ -195,6 +207,8 @@ export const upsertBlogTranslation = async (
   language: string, 
   translationData: Partial<SupabaseBlogTranslation>
 ): Promise<void> => {
+  console.log('Upserting blog translation:', blogId, language, translationData);
+  
   const { error } = await supabase
     .from('blog_translations')
     .upsert([
