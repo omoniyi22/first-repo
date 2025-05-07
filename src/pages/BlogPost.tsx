@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { fetchBlogPostBySlug } from '@/services/blogService';
@@ -84,7 +85,7 @@ const BlogPostPage = () => {
     ? getPageMetadata('blogPost', {
         title: post.title,
         description: post.excerpt,
-        ogImage: post.image, // Fixed property name from 'image' to 'ogImage'
+        ogImage: post.image, // This was fixed from 'image' to 'ogImage'
       })
     : getPageMetadata('blogPost');
 
