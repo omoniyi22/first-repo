@@ -40,6 +40,7 @@ import AdminContent from "./pages/AdminContent";
 import AdminMedia from "./pages/AdminMedia";
 import AdminSettings from "./pages/AdminSettings";
 
+// Ensure we create the QueryClient outside of component render
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -50,59 +51,61 @@ const queryClient = new QueryClient({
 });
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <BrowserRouter>
-      <HelmetProvider>
-        <AuthProvider>
-          <LanguageProvider>
-            <TooltipProvider>
-              <Toaster />
-              <Sonner />
-              <Routes>
-                <Route path="/test" element={<TestComponent />} />
-                <Route path="/" element={<Index />} />
-                <Route path="/dressage" element={<Dressage />} />
-                <Route path="/dressage-simple" element={<DressageSimple />} />
-                <Route path="/jumping" element={<Jumping />} />
-                <Route path="/how-it-works" element={<HowItWorks />} />
-                <Route path="/dressage/how-it-works" element={<DressageHowItWorks />} />
-                <Route path="/jumping/how-it-works" element={<JumpingHowItWorks />} />
-                <Route path="/pricing" element={<Pricing />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/sign-in" element={<SignIn />} />
-                <Route path="/reset-password" element={<ResetPassword />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/terms" element={<TermsOfService />} />
-                <Route path="/privacy" element={<Privacy />} />
-                <Route path="/blog" element={<Blog />} />
-                <Route path="/blog/:slug" element={<BlogPost />} />
-                <Route path="/profile-setup" element={<ProfileQuestionnaire />} />
-                <Route path="/jump-profile-setup" element={<JumpProfileSetup />} />
-                <Route path="/analysis" element={<Analysis />} />
-                
-                {/* Redirect old discipline-specific About routes to main About page */}
-                <Route path="/dressage/about" element={<Navigate to="/about" replace />} />
-                <Route path="/jumping/about" element={<Navigate to="/about" replace />} />
-                
-                {/* Admin Routes */}
-                <Route path="/admin" element={<Admin />}>
-                  <Route index element={<AdminDashboard />} />
-                  <Route path="blog" element={<AdminBlog />} />
-                  <Route path="users" element={<AdminUsers />} />
-                  <Route path="content" element={<AdminContent />} />
-                  <Route path="media" element={<AdminMedia />} />
-                  <Route path="settings" element={<AdminSettings />} />
-                </Route>
-                
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </TooltipProvider>
-          </LanguageProvider>
-        </AuthProvider>
-      </HelmetProvider>
-    </BrowserRouter>
-  </QueryClientProvider>
+  <React.StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <HelmetProvider>
+          <AuthProvider>
+            <LanguageProvider>
+              <TooltipProvider>
+                <Toaster />
+                <Sonner />
+                <Routes>
+                  <Route path="/test" element={<TestComponent />} />
+                  <Route path="/" element={<Index />} />
+                  <Route path="/dressage" element={<Dressage />} />
+                  <Route path="/dressage-simple" element={<DressageSimple />} />
+                  <Route path="/jumping" element={<Jumping />} />
+                  <Route path="/how-it-works" element={<HowItWorks />} />
+                  <Route path="/dressage/how-it-works" element={<DressageHowItWorks />} />
+                  <Route path="/jumping/how-it-works" element={<JumpingHowItWorks />} />
+                  <Route path="/pricing" element={<Pricing />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/sign-in" element={<SignIn />} />
+                  <Route path="/reset-password" element={<ResetPassword />} />
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/profile" element={<Profile />} />
+                  <Route path="/terms" element={<TermsOfService />} />
+                  <Route path="/privacy" element={<Privacy />} />
+                  <Route path="/blog" element={<Blog />} />
+                  <Route path="/blog/:slug" element={<BlogPost />} />
+                  <Route path="/profile-setup" element={<ProfileQuestionnaire />} />
+                  <Route path="/jump-profile-setup" element={<JumpProfileSetup />} />
+                  <Route path="/analysis" element={<Analysis />} />
+                  
+                  {/* Redirect old discipline-specific About routes to main About page */}
+                  <Route path="/dressage/about" element={<Navigate to="/about" replace />} />
+                  <Route path="/jumping/about" element={<Navigate to="/about" replace />} />
+                  
+                  {/* Admin Routes */}
+                  <Route path="/admin" element={<Admin />}>
+                    <Route index element={<AdminDashboard />} />
+                    <Route path="blog" element={<AdminBlog />} />
+                    <Route path="users" element={<AdminUsers />} />
+                    <Route path="content" element={<AdminContent />} />
+                    <Route path="media" element={<AdminMedia />} />
+                    <Route path="settings" element={<AdminSettings />} />
+                  </Route>
+                  
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </TooltipProvider>
+            </LanguageProvider>
+          </AuthProvider>
+        </HelmetProvider>
+      </BrowserRouter>
+    </QueryClientProvider>
+  </React.StrictMode>
 );
 
 export default App;
