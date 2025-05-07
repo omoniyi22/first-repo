@@ -16,7 +16,7 @@ const DressageTab = () => (
       </div>
       <div className="md:w-1/2">
         <img 
-          src="/lovable-uploads/6782ac64-8d3f-4d9e-902e-7cdb1240c449.png"
+          src="/lovable-uploads/3b7c24a2-ef67-42cc-9b46-875418451128.png"
           alt="Dressage training with AI analysis"
           className="rounded-lg w-full object-cover shadow-md h-64"
         />
@@ -75,7 +75,7 @@ const JumpingTab = () => (
       </div>
       <div className="md:w-1/2">
         <img 
-          src="/lovable-uploads/dbb9802b-bed7-4888-96a3-73b68198710b.png"
+          src="/lovable-uploads/6782ac64-8d3f-4d9e-902e-7cdb1240c449.png"
           alt="Show jumping with AI analysis"
           className="rounded-lg w-full object-cover shadow-md h-64"
         />
@@ -140,13 +140,13 @@ const DisciplineSpecificTabs = () => {
               value="dressage"
               className="data-[state=active]:bg-purple-100 data-[state=active]:text-purple-900 py-3"
             >
-              <span className="text-lg font-serif">AI Dressage</span>
+              <span className="text-xl font-serif font-semibold">AI Dressage</span>
             </TabsTrigger>
             <TabsTrigger 
               value="jumping"
               className="data-[state=active]:bg-blue-100 data-[state=active]:text-blue-900 py-3"
             >
-              <span className="text-lg font-serif">AI Jump</span>
+              <span className="text-xl font-serif font-semibold">AI Jump</span>
             </TabsTrigger>
           </TabsList>
           <TabsContent value="dressage" className="mt-6">
