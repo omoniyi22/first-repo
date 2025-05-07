@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -48,14 +47,40 @@ const FeaturedPost = ({ post }: FeaturedPostProps) => {
   const localizedExcerpt = getLocalizedContent('excerpt', post.excerpt);
   const localizedCategory = getLocalizedContent('category', post.category);
   
+  // Handle image path
+  const getImagePath = (imagePath: string) => {
+    // Check if the image path is a URL (starts with http or https)
+    if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+      return imagePath;
+    }
+    
+    // Check if the path already has /lovable-uploads/
+    if (imagePath.includes('/lovable-uploads/')) {
+      return imagePath;
+    }
+    
+    // Otherwise, add the /lovable-uploads/ prefix 
+    if (imagePath.startsWith('/')) {
+      return `/lovable-uploads${imagePath}`;
+    }
+    
+    return `/lovable-uploads/${imagePath}`;
+  };
+  
   return (
     <div className="bg-white rounded-xl overflow-hidden shadow-lg">
       <div className="md:flex">
         <div className="md:w-1/2">
           <img 
-            src={post.image} 
+            src={getImagePath(post.image)} 
             alt={localizedTitle}
             className="h-full w-full object-cover"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              console.log(`Failed to load image: ${target.src}`);
+              target.src = "/placeholder.svg"; // Fallback image
+              target.onerror = null; // Prevent infinite error loop
+            }}
           />
         </div>
         <div className="p-8 md:w-1/2 flex flex-col justify-center">
