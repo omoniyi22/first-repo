@@ -1,4 +1,3 @@
-
 import { useEffect } from 'react';
 import { SEO, getPageMetadata } from '@/lib/seo';
 import Navbar from '@/components/layout/Navbar';
@@ -70,9 +69,6 @@ const About = () => {
         {/* Mission & Vision Section */}
         <MissionAndVision />
         
-        {/* Gradient Divider */}
-        <div className="h-8 bg-gradient-to-r from-purple-600 to-blue-600 my-4"></div>
-        
         {/* Core Values Section */}
         <CoreValues />
         
@@ -84,9 +80,6 @@ const About = () => {
         
         {/* Discipline-Specific Tabs Section - now with gradient background */}
         <DisciplineSpecificTabs />
-        
-        {/* Gradient Divider */}
-        <div className="h-8 bg-gradient-to-r from-purple-600 to-blue-600 my-4"></div>
         
         {/* Team Section - Preserving existing section */}
         <EquestrianTeamSection />
