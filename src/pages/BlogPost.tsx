@@ -84,7 +84,7 @@ const BlogPostPage = () => {
     ? getPageMetadata('blogPost', {
         title: post.title,
         description: post.excerpt,
-        image: post.image,
+        ogImage: post.image, // Fixed property name from 'image' to 'ogImage'
       })
     : getPageMetadata('blogPost');
 

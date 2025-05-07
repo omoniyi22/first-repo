@@ -44,13 +44,17 @@ export const mapToBlogPost = (post: SupabaseBlogPost, translations?: SupabaseBlo
     
     return acc;
   }, {} as BlogPost['translations']);
+  
+  // Ensure content is properly handled even if it's null
+  const blogContent = post.content || '';
+  console.log(`Blog post "${post.title}" content status:`, post.content === null ? 'NULL' : 'Content length: ' + post.content?.length);
 
   return {
     id: parseInt(post.id.replace(/-/g, '').substring(0, 8), 16) % 1000, // Generate a stable numeric ID
     slug: post.slug,
     title: post.title,
     excerpt: post.excerpt,
-    content: post.content || undefined, // Convert null to undefined
+    content: blogContent, // Ensure we don't pass null but empty string
     author: post.author,
     authorImage: post.author_image || '/placeholder.svg',
     date: post.date,
@@ -125,6 +129,7 @@ export const fetchBlogPostBySlug = async (slug: string): Promise<BlogPost | null
   }
 
   console.log('Fetched blog post data:', post);
+  console.log('Content:', post.content === null ? 'NULL' : 'Content length: ' + post.content?.length);
 
   const { data: translations, error: translationsError } = await supabase
     .from('blog_translations')
@@ -150,9 +155,15 @@ export const fetchBlogPostBySlug = async (slug: string): Promise<BlogPost | null
 export const createBlogPost = async (post: Omit<SupabaseBlogPost, 'id'>): Promise<string | null> => {
   console.log('Creating new blog post:', post);
   
+  // If content is null or undefined, set it to an empty string
+  const finalPost = {
+    ...post,
+    content: post.content || ''  // Ensure content is never null
+  };
+
   const { data, error } = await supabase
     .from('blog_posts')
-    .insert([post])
+    .insert([finalPost])
     .select('id')
     .single();
 
@@ -168,16 +179,27 @@ export const createBlogPost = async (post: Omit<SupabaseBlogPost, 'id'>): Promis
 export const updateBlogPost = async (id: string, post: Partial<SupabaseBlogPost>): Promise<void> => {
   console.log('Updating blog post:', id, post);
   
-  // Make sure discipline and category are correctly typed
-  const typedPost: Partial<SupabaseBlogPost> = {
-    ...post,
-    discipline: post.discipline as 'Jumping' | 'Dressage',
-    category: post.category as 'Technology' | 'Analytics' | 'Training' | 'Guides' | 'Competition'
+  // If content is explicitly set to null, provide an empty string instead
+  const finalPost: Partial<SupabaseBlogPost> = {
+    ...post
   };
+  
+  if (post.content === null) {
+    finalPost.content = '';
+  }
+  
+  // Make sure discipline and category are correctly typed
+  if (finalPost.discipline) {
+    finalPost.discipline = finalPost.discipline as 'Jumping' | 'Dressage';
+  }
+  
+  if (finalPost.category) {
+    finalPost.category = finalPost.category as 'Technology' | 'Analytics' | 'Training' | 'Guides' | 'Competition';
+  }
   
   const { error } = await supabase
     .from('blog_posts')
-    .update(typedPost)
+    .update(finalPost)
     .eq('id', id);
 
   if (error) {
