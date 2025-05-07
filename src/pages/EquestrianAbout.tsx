@@ -6,6 +6,8 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import EquestrianMissionSection from '@/components/about/EquestrianMissionSection';
 import EquestrianTeamSection from '@/components/about/EquestrianTeamSection';
+import ProblemsWeSolve from '@/components/about/ProblemsWeSolve';
+import ExperienceSection from '@/components/about/ExperienceSection';
 
 const EquestrianAbout = () => {
   // Initialize scroll reveal for animations
@@ -55,7 +57,9 @@ const EquestrianAbout = () => {
       <Navbar />
       <main className="pt-20">
         <EquestrianMissionSection />
+        <ProblemsWeSolve />
         <EquestrianTeamSection />
+        <ExperienceSection />
       </main>
       <Footer />
     </div>
