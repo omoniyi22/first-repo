@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import BlogManagement from '@/components/admin/blog/BlogManagement';
 import MediaBucket from '@/components/admin/media/MediaBucket';
@@ -25,6 +24,7 @@ const AdminBlog = () => {
   
   return (
     <>
+      {/* We keep the MediaBucket for initialization but don't show the UI */}
       <MediaBucket 
         bucketId="blog-images" 
         onInitialized={handleBucketInitialized} 
