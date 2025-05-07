@@ -89,8 +89,8 @@ const PricingTiers = () => {
         }, included: false },
       ],
       buttonText: {
-        en: 'Coming Soon',
-        es: 'Próximamente'
+        en: 'Get Started',
+        es: 'Comenzar'
       },
     },
     {
@@ -146,8 +146,8 @@ const PricingTiers = () => {
         }, included: false },
       ],
       buttonText: {
-        en: 'Coming Soon',
-        es: 'Próximamente'
+        en: 'Get Started',
+        es: 'Comenzar'
       },
     },
     {
@@ -206,8 +206,8 @@ const PricingTiers = () => {
         }, included: true },
       ],
       buttonText: {
-        en: 'Coming Soon',
-        es: 'Próximamente'
+        en: 'Get Started',
+        es: 'Comenzar'
       },
     }
   ];
@@ -223,16 +223,6 @@ const PricingTiers = () => {
             {t["try-free"]}
           </p>
         </AnimatedSection>
-        
-        <div className="max-w-md mx-auto mb-12">
-          <div className="bg-purple-100 rounded-xl p-8 text-center">
-            <h2 className="text-2xl font-bold text-navy-900 mb-4">{t["coming-soon"]}</h2>
-            <p className="text-gray-700 mb-6">
-              {t["pricing-waitlist"]}
-            </p>
-            <EmailSignupForm />
-          </div>
-        </div>
         
         <PricingToggle onChange={setIsAnnual} />
         
@@ -281,14 +271,13 @@ const PricingTiers = () => {
                 </div>
                 
                 <Button 
-                  className={`w-full py-6 rounded-lg text-base mb-10 cursor-not-allowed opacity-70 ${
+                  className={`w-full py-6 rounded-lg text-base mb-10 h-auto ${
                     plan.highlighted 
-                      ? 'bg-purple-700 hover:bg-purple-800 text-white font-semibold h-auto' 
+                      ? 'bg-purple-700 hover:bg-purple-800 text-white font-semibold' 
                       : plan.id === 'basic'
-                      ? 'bg-purple-600 hover:bg-purple-700 text-white font-medium h-auto'
-                      : 'bg-purple-50 hover:bg-purple-100 text-purple-800 font-medium border border-purple-200 h-auto'
+                      ? 'bg-purple-600 hover:bg-purple-700 text-white font-medium'
+                      : 'bg-purple-50 hover:bg-purple-100 text-purple-800 font-medium border border-purple-200'
                   }`}
-                  disabled={true}
                 >
                   {plan.buttonText[language]}
                 </Button>
