@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
@@ -43,6 +44,7 @@ const Index = () => {
   }, []);
 
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [secondImageLoaded, setSecondImageLoaded] = useState(false);
   
   // Get featured blog posts - one from each discipline
   const featuredJumpingPost = blogPosts.find(post => post.discipline === 'Jumping' && post.id === 1);
@@ -58,22 +60,46 @@ const Index = () => {
       <main className="pt-0">
         {/* Hero Section */}
         <section className="relative h-screen flex items-center justify-center overflow-hidden">
-          {!imageLoaded && (
-            <div className="absolute inset-0 bg-gray-100/50">
-              <Skeleton className="w-full h-full" />
+          <div className="absolute inset-0">
+            {/* Split hero section with two images */}
+            <div className="grid md:grid-cols-2 h-full">
+              {/* First image - Dressage */}
+              <div className="relative w-full h-full">
+                {!imageLoaded && (
+                  <div className="absolute inset-0 bg-purple-100/50">
+                    <Skeleton className="w-full h-full" />
+                  </div>
+                )}
+                <img 
+                  src="/lovable-uploads/7c32e2d9-4fce-4ed5-abba-0fb12abe96eb.png" 
+                  alt="Dressage rider performing"
+                  className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                  onLoad={() => setImageLoaded(true)}
+                  style={{ objectPosition: 'center 30%' }}
+                />
+                {/* Overlay gradient for dressage */}
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-900/70 to-purple-900/40"></div>
+              </div>
+              
+              {/* Second image - Jumping */}
+              <div className="relative w-full h-full hidden md:block">
+                {!secondImageLoaded && (
+                  <div className="absolute inset-0 bg-blue-100/50">
+                    <Skeleton className="w-full h-full" />
+                  </div>
+                )}
+                <img 
+                  src="/lovable-uploads/ab569763-fb47-4333-878c-3f2418769e53.png" 
+                  alt="Show jumping with AI analysis"
+                  className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${secondImageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                  onLoad={() => setSecondImageLoaded(true)}
+                  style={{ objectPosition: 'center center' }}
+                />
+                {/* Overlay gradient for jumping */}
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-900/70 to-blue-900/40"></div>
+              </div>
             </div>
-          )}
-          
-          <img 
-            src="/lovable-uploads/7c32e2d9-4fce-4ed5-abba-0fb12abe96eb.png" 
-            alt="Professional equestrian using AI analytics to improve dressage performance"
-            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
-            onLoad={() => setImageLoaded(true)}
-            style={{ objectPosition: 'center 30%' }}
-          />
-          
-          {/* Overlay gradient */}
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-900/70 to-purple-900/40"></div>
+          </div>
           
           <div className="container relative z-10 mx-auto px-6 text-center">
             <div className="max-w-3xl mx-auto">

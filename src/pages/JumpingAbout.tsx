@@ -54,22 +54,37 @@ const JumpingAbout = () => {
     <div className="min-h-screen bg-gradient-to-b from-blue-100 to-white">
       <SEO {...seoMetadata} />
       <Navbar />
-      <div className="container mx-auto px-6 pt-24 pb-6">
-        <Link to="/jumping">
-          <Button variant="ghost" className="flex items-center gap-2 mb-4 -ml-2">
-            <ArrowLeft className="h-4 w-4" />
-            <span>Back to AI Jump</span>
-          </Button>
-        </Link>
-        <div className="flex items-center justify-between">
-          <div className="inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium mb-2">
-            About AI Jump Trainer
+      
+      {/* Hero Section with the new jumping horse image */}
+      <div className="relative mb-12">
+        <div className="w-full h-96 md:h-[500px] overflow-hidden relative">
+          <img 
+            src="/lovable-uploads/ab569763-fb47-4333-878c-3f2418769e53.png" 
+            alt="Horse and rider jumping with AI analysis overlay"
+            className="w-full h-full object-cover object-center"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-900/70 to-blue-800/40"></div>
+          <div className="absolute inset-0 flex items-center">
+            <div className="container mx-auto px-6">
+              <div className="max-w-2xl">
+                <Link to="/jumping">
+                  <Button variant="ghost" className="flex items-center gap-2 mb-4 -ml-2 text-white bg-blue-800/30 hover:bg-blue-800/50">
+                    <ArrowLeft className="h-4 w-4" />
+                    <span>Back to AI Jump</span>
+                  </Button>
+                </Link>
+                <div className="inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium mb-2">
+                  About AI Jump Trainer
+                </div>
+                <h1 className="text-4xl md:text-5xl font-serif font-bold text-white max-w-2xl drop-shadow-md mt-4">
+                  Transforming Jump Training Through AI
+                </h1>
+              </div>
+            </div>
           </div>
-          <Link to="/jumping/how-it-works" className="text-blue-600 hover:text-blue-800 text-sm font-medium">
-            How It Works
-          </Link>
         </div>
       </div>
+      
       <main className="pt-0">
         <JumpMissionSection />
         <JumpTeamSection />
