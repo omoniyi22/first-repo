@@ -16,6 +16,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import MediaSelector from "../media/MediaSelector";
+import RichTextEditor from "./RichTextEditor";
 
 interface BlogPostFormProps {
   post: BlogPost | null;
@@ -192,10 +193,9 @@ const BlogPostForm = ({ post, onSave, onCancel }: BlogPostFormProps) => {
             <FormItem>
               <FormLabel>Content</FormLabel>
               <FormControl>
-                <Textarea 
-                  placeholder="Enter blog content" 
-                  className="resize-none h-48" 
-                  {...field} 
+                <RichTextEditor 
+                  value={field.value || ''} 
+                  onChange={field.onChange} 
                 />
               </FormControl>
               <FormMessage />
