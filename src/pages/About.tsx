@@ -45,7 +45,7 @@ const About = () => {
 
   // Get page metadata
   const seoMetadata = getPageMetadata('about', {
-    title: 'About Our Technology | AI Equestrian',
+    title: 'About AI Equestrian | Advanced Equestrian Analytics',
     description: 'Learn about AI Equestrian\'s mission to transform dressage and jumping training through artificial intelligence and data-driven performance analysis.',
     canonicalUrl: '/about'
   });
@@ -56,139 +56,23 @@ const About = () => {
       <Navbar />
       <main className="pt-20">
         {/* Core Mission Section */}
-        <MissionSection />
-        
-        {/* Team Section - Modified for full-height images */}
-        <section className="py-20 bg-gradient-to-b from-purple-50 via-white to-blue-50">
+        <section className="py-24 bg-white">
           <div className="container mx-auto px-6">
-            <div className="max-w-3xl mx-auto text-center mb-16 reveal-scroll">
-              <h2 className="text-3xl md:text-4xl font-serif font-semibold text-gray-900 mb-4">
-                Meet Our Team
-              </h2>
+            <div className="text-center max-w-3xl mx-auto mb-16 reveal-scroll">
+              <h1 className="text-4xl md:text-5xl font-serif font-semibold text-gray-900 mb-6">
+                About AI Equestrian
+              </h1>
               <p className="text-lg text-gray-700">
-                We're a dedicated team of equestrian experts and AI specialists passionate about transforming training across disciplines.
+                We're on a mission to transform equestrian training through the power of artificial intelligence.
               </p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto mb-16">
-              {/* Team Member 1 */}
-              <div className="bg-white rounded-xl overflow-hidden shadow-sm h-full reveal-scroll">
-                <div className="grid grid-cols-1 md:grid-cols-2 h-full">
-                  <div className="h-full">
-                    <img 
-                      src="/lovable-uploads/592077d0-4e0a-4e4a-be25-565368837404.png" 
-                      alt="Jenny Stanley"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div className="p-6">
-                    <h3 className="text-xl font-serif font-medium text-gray-900 mb-1">
-                      Jenny Stanley
-                    </h3>
-                    
-                    <p className="text-gray-600 font-medium text-sm mb-4">
-                      Founder & CEO
-                    </p>
-                    
-                    <p className="text-gray-700 text-sm">
-                      With over 20 years experience in international sales management across the media, advertising and creative technology industries, Jenny combines her passion for dressage with her expertise in technology.
-                    </p>
-                    
-                    <div className="mt-4">
-                      <a 
-                        href="https://www.linkedin.com/in/jenny-stanley/" 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
-                        className="inline-flex items-center text-gray-600 hover:text-gray-800 transition-colors"
-                        aria-label="Jenny Stanley's LinkedIn profile"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 mr-1">
-                          <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
-                          <rect x="2" y="9" width="4" height="12"></rect>
-                          <circle cx="4" cy="4" r="2"></circle>
-                        </svg>
-                        <span className="text-sm">View LinkedIn Profile</span>
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Team Member 2 */}
-              <div className="bg-white rounded-xl overflow-hidden shadow-sm h-full reveal-scroll">
-                <div className="grid grid-cols-1 md:grid-cols-2 h-full">
-                  <div className="h-full">
-                    <img 
-                      src="https://randomuser.me/api/portraits/men/42.jpg" 
-                      alt="Marcus Chen"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div className="p-6">
-                    <h3 className="text-xl font-serif font-medium text-gray-900 mb-1">
-                      Marcus Chen
-                    </h3>
-                    
-                    <p className="text-gray-600 font-medium text-sm mb-4">
-                      Chief Technology Officer
-                    </p>
-                    
-                    <p className="text-gray-700 text-sm">
-                      With 15+ years of experience in AI and machine learning, Marcus leads our technology team in developing and refining our analysis algorithms and recommendation systems.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Our Approach Section */}
-            <div className="reveal-scroll mb-12">
-              <div className="bg-white rounded-xl p-8 md:p-12 shadow-sm">
-                <h3 className="text-2xl md:text-3xl font-serif font-semibold text-gray-900 mb-6 text-center">
-                  Our Approach
-                </h3>
-                
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                  <div className="p-6 bg-gradient-to-br from-gray-50 to-purple-100 rounded-lg">
-                    <div className="w-12 h-12 bg-gradient-to-br from-gray-100 to-purple-200 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <svg className="h-6 w-6 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                      </svg>
-                    </div>
-                    <h4 className="text-lg font-medium mb-2 text-center text-gray-900">Data-Driven</h4>
-                    <p className="text-gray-700 text-sm text-center">
-                      We utilize advanced data analytics to provide riders with actionable insights for improvement.
-                    </p>
-                  </div>
-                  
-                  <div className="p-6 bg-gradient-to-br from-gray-50 to-purple-100 rounded-lg">
-                    <div className="w-12 h-12 bg-gradient-to-br from-gray-100 to-purple-200 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <svg className="h-6 w-6 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-                      </svg>
-                    </div>
-                    <h4 className="text-lg font-medium mb-2 text-center text-gray-900">Personalized</h4>
-                    <p className="text-gray-700 text-sm text-center">
-                      Every rider receives custom training plans tailored to their specific goals and challenges.
-                    </p>
-                  </div>
-                  
-                  <div className="p-6 bg-gradient-to-br from-gray-50 to-purple-100 rounded-lg">
-                    <div className="w-12 h-12 bg-gradient-to-br from-gray-100 to-purple-200 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <svg className="h-6 w-6 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </div>
-                    <h4 className="text-lg font-medium mb-2 text-center text-gray-900">Accessible</h4>
-                    <p className="text-gray-700 text-sm text-center">
-                      We make elite-level equestrian training accessible to riders worldwide, regardless of location.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
+            
           </div>
         </section>
+        
+        {/* Team Section - Modified for full-height images */}
+        <TeamSection />
         
         {/* Specialized Disciplines Section */}
         <section className="py-16 bg-gradient-to-r from-gray-50 to-gray-100">
@@ -217,10 +101,15 @@ const About = () => {
                   <p className="text-gray-700 mb-5">
                     Our AI Dressage system analyzes rider position, horse gait, and movement harmony to provide real-time feedback for perfecting your dressage techniques and improving scores.
                   </p>
-                  <div className="flex justify-center">
+                  <div className="flex justify-center space-x-4">
+                    <Link to="/dressage/about">
+                      <Button variant="outline" className="border-purple-400 text-purple-800 hover:bg-purple-50">
+                        About AI Dressage
+                      </Button>
+                    </Link>
                     <Link to="/dressage/how-it-works">
                       <Button variant="outline" className="border-purple-400 text-purple-800 hover:bg-purple-50">
-                        Learn More
+                        How It Works
                       </Button>
                     </Link>
                   </div>
@@ -243,10 +132,15 @@ const About = () => {
                   <p className="text-gray-700 mb-5">
                     Our AI Jump system evaluates approach angles, timing, takeoff distances, and landing techniques to help riders optimize their jumping performance and reduce faults.
                   </p>
-                  <div className="flex justify-center">
+                  <div className="flex justify-center space-x-4">
+                    <Link to="/jumping/about">
+                      <Button variant="outline" className="border-blue-400 text-blue-800 hover:bg-blue-50">
+                        About AI Jump
+                      </Button>
+                    </Link>
                     <Link to="/jumping/how-it-works">
                       <Button variant="outline" className="border-blue-400 text-blue-800 hover:bg-blue-50">
-                        Learn More
+                        How It Works
                       </Button>
                     </Link>
                   </div>

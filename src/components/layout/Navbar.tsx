@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -198,13 +197,28 @@ const Navbar = () => {
                 {t["blog"]}
               </Link>
               
-              {/* About page - Single link */}
-              <Link 
-                to="/about" 
-                className={`text-white font-sans text-sm ${isActive('/about') ? 'font-semibold text-purple-300' : 'hover:text-purple-200'}`}
-              >
-                {t["about"]}
-              </Link>
+              {/* About dropdown menu */}
+              <div className="relative group">
+                <button className={`text-white font-sans text-sm flex items-center hover:text-purple-200 ${isActive('/about') ? 'font-semibold text-purple-300' : ''}`}>
+                  {t["about"]}
+                  <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                  </svg>
+                </button>
+                <div className="absolute left-0 top-full mt-1 w-48 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                  <div className="py-1">
+                    <Link to="/about" className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-700">
+                      AI Equestrian
+                    </Link>
+                    <Link to="/dressage/about" className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-700">
+                      AI Dressage
+                    </Link>
+                    <Link to="/jumping/about" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700">
+                      AI Jump
+                    </Link>
+                  </div>
+                </div>
+              </div>
             </nav>
             
             {user ? (
@@ -348,13 +362,32 @@ const Navbar = () => {
               {t["blog"]}
             </Link>
             
-            {/* Single About link for mobile */}
-            <Link 
-              to="/about" 
-              className={`text-white text-base font-medium font-sans ${isActive('/about') ? 'text-purple-300' : ''}`}
-            >
-              {t["about"]}
-            </Link>
+            {/* About submenu for mobile */}
+            <div className="flex flex-col space-y-2">
+              <div className="text-white text-base font-medium font-sans">
+                {t["about"]}
+              </div>
+              <div className="pl-4 flex flex-col space-y-2">
+                <Link 
+                  to="/about"
+                  className={`text-white/80 font-sans ${isActive('/about') && !isActive('/dressage/about') && !isActive('/jumping/about') ? 'text-purple-300' : ''}`}
+                >
+                  AI Equestrian
+                </Link>
+                <Link 
+                  to="/dressage/about"
+                  className={`text-white/80 font-sans ${isActive('/dressage/about') ? 'text-purple-300' : ''}`}
+                >
+                  AI Dressage
+                </Link>
+                <Link 
+                  to="/jumping/about"
+                  className={`text-white/80 font-sans ${isActive('/jumping/about') ? 'text-blue-300' : ''}`}
+                >
+                  AI Jump
+                </Link>
+              </div>
+            </div>
             
             {user && (
               <>

@@ -18,6 +18,8 @@ import DressageHowItWorks from "./pages/DressageHowItWorks";
 import JumpingHowItWorks from "./pages/JumpingHowItWorks";
 import Pricing from "./pages/Pricing";
 import About from "./pages/About";
+import DressageAbout from "./pages/DressageAbout";
+import JumpingAbout from "./pages/JumpingAbout";
 import SignIn from "./pages/SignIn";
 import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard";
@@ -69,6 +71,8 @@ const App = () => (
                 <Route path="/jumping/how-it-works" element={<JumpingHowItWorks />} />
                 <Route path="/pricing" element={<Pricing />} />
                 <Route path="/about" element={<About />} />
+                <Route path="/dressage/about" element={<DressageAbout />} />
+                <Route path="/jumping/about" element={<JumpingAbout />} />
                 <Route path="/sign-in" element={<SignIn />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/dashboard" element={<Dashboard />} />
@@ -80,10 +84,6 @@ const App = () => (
                 <Route path="/profile-setup" element={<ProfileQuestionnaire />} />
                 <Route path="/jump-profile-setup" element={<JumpProfileSetup />} />
                 <Route path="/analysis" element={<Analysis />} />
-                
-                {/* Redirect discipline-specific about pages to main about page */}
-                <Route path="/dressage/about" element={<Navigate to="/about" replace />} />
-                <Route path="/jumping/about" element={<Navigate to="/about" replace />} />
                 
                 {/* Admin Routes */}
                 <Route path="/admin" element={<Admin />}>

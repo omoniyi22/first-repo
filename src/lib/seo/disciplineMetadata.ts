@@ -1,38 +1,40 @@
 
 import { SEOProps } from './types';
-import { DEFAULT_OG_IMAGE } from './constants';
+import { DEFAULT_TITLE, DEFAULT_DESCRIPTION, DEFAULT_OG_IMAGE } from './constants';
 
 /**
- * Generates SEO metadata for discipline-specific pages
+ * Utility for generating discipline-specific metadata
  */
-export const generateDisciplineMetadata = (
-  discipline: 'Dressage' | 'Jumping',
-  customProps: Partial<SEOProps> = {}
-): SEOProps => {
-  // Base metadata
-  const baseMetadata: SEOProps = {
-    ogImage: DEFAULT_OG_IMAGE,
-    discipline,
-    ogType: 'website',
-    keywords: [],
-  };
-
-  // Discipline specific metadata
-  if (discipline === 'Dressage') {
-    return {
-      ...baseMetadata,
-      title: 'AI Dressage Trainer | Advanced Analysis & Personalized Training',
-      description: 'Transform your dressage performance with AI-powered analysis of test sheets, videos, and personalized training recommendations.',
-      keywords: ['dressage AI', 'dressage test analysis', 'dressage score improvement', 'dressage training technology', 'AI dressage trainer'],
-      ...customProps
-    };
-  } else {
-    return {
-      ...baseMetadata,
-      title: 'AI Jumping Trainer | Advanced Analysis & Personalized Training',
-      description: 'Elevate your jumping performance with AI-powered video analysis, course insights, and personalized training recommendations.',
-      keywords: ['jumping AI', 'show jumping analysis', 'course analysis', 'jumping technique AI', 'equestrian jumping technology'],
-      ...customProps
-    };
+export const generateDisciplineMetadata = (discipline: 'Dressage' | 'Jumping', customProps: Partial<SEOProps> = {}): SEOProps => {
+  switch(discipline) {
+    case 'Dressage':
+      return {
+        title: 'AI Dressage | Advanced Dressage Training Analysis',
+        description: 'Elevate your dressage performance with AI-powered movement analysis, personalized feedback, and training recommendations.',
+        canonicalUrl: '/dressage',
+        ogImage: '/lovable-uploads/42930ec1-2f55-429f-aaa5-4aac1791a729.png',
+        ogType: 'website',
+        keywords: ['dressage AI', 'dressage training', 'dressage analysis', 'dressage improvement', 'AI equestrian', 'dressage technology'],
+        discipline: 'Dressage',
+        ...customProps
+      };
+    case 'Jumping':
+      return {
+        title: 'AI Jump | Advanced Jumping Training Analysis',
+        description: 'Perfect your jumping technique with AI-powered analysis of approach, takeoff, and landing. Get personalized feedback to improve your results.',
+        canonicalUrl: '/jumping',
+        ogImage: '/lovable-uploads/09bde514-1caf-42e9-9093-d5bd869dda06.png',
+        ogType: 'website',
+        keywords: ['jumping AI', 'show jumping analysis', 'equestrian jumping', 'jumping technique', 'AI equestrian', 'jumping technology'],
+        discipline: 'Jumping',
+        ...customProps
+      };
+    default:
+      return {
+        title: DEFAULT_TITLE,
+        description: DEFAULT_DESCRIPTION,
+        ogImage: DEFAULT_OG_IMAGE,
+        ...customProps
+      };
   }
 };

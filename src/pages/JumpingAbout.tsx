@@ -47,6 +47,7 @@ const JumpingAbout = () => {
 
   // Get discipline-specific metadata
   const seoMetadata = generateDisciplineMetadata('Jumping', {
+    title: 'About AI Jump | Our Mission and Team',
     canonicalUrl: '/jumping/about'
   });
 
@@ -55,7 +56,7 @@ const JumpingAbout = () => {
       <SEO {...seoMetadata} />
       <Navbar />
       
-      {/* Hero Section with the new jumping horse image */}
+      {/* Hero Section with the jumping horse image */}
       <div className="relative mb-12">
         <div className="w-full h-96 md:h-[500px] overflow-hidden relative">
           <img 
