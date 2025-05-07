@@ -1,22 +1,15 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { BlogPost } from "@/data/blogPosts";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import * as z from "zod";
-import MediaSelector from "../media/MediaSelector";
-import RichTextEditor from "./RichTextEditor";
+import { blogPostFormSchema, BlogFormData } from "./forms/blogFormSchema";
+import BasicInfoFields from "./forms/BasicInfoFields";
+import ContentFields from "./forms/ContentFields";
+import MetadataFields from "./forms/MetadataFields";
+import FeaturedImageField from "./forms/FeaturedImageField";
+import FormActions from "./forms/FormActions";
 
 interface BlogPostFormProps {
   post: BlogPost | null;
@@ -24,22 +17,11 @@ interface BlogPostFormProps {
   onCancel: () => void;
 }
 
-const formSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  excerpt: z.string().min(1, "Excerpt is required"),
-  content: z.string().optional(),
-  author: z.string().min(1, "Author is required"),
-  discipline: z.enum(["Jumping", "Dressage"]),
-  category: z.enum(["Technology", "Analytics", "Training", "Guides", "Competition"]),
-  slug: z.string().min(1, "Slug is required"),
-  image: z.string().min(1, "Image URL is required"),
-});
-
 const BlogPostForm = ({ post, onSave, onCancel }: BlogPostFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<BlogFormData>({
+    resolver: zodResolver(blogPostFormSchema),
     defaultValues: {
       title: "",
       excerpt: "",
@@ -69,7 +51,7 @@ const BlogPostForm = ({ post, onSave, onCancel }: BlogPostFormProps) => {
     }
   }, [post, form]);
 
-  const handleSubmit = async (values: z.infer<typeof formSchema>) => {
+  const handleSubmit = async (values: BlogFormData) => {
     setIsSubmitting(true);
     try {
       console.log("Submitting blog post form with values:", values);
@@ -119,184 +101,15 @@ const BlogPostForm = ({ post, onSave, onCancel }: BlogPostFormProps) => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6 py-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <FormField
-            control={form.control}
-            name="title"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Title</FormLabel>
-                <FormControl>
-                  <Input 
-                    placeholder="Enter blog post title" 
-                    {...field}
-                    onBlur={() => {
-                      field.onBlur();
-                      if (!form.getValues("slug")) {
-                        generateSlug();
-                      }
-                    }}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="slug"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>
-                  Slug
-                  <Button 
-                    type="button" 
-                    variant="link" 
-                    className="h-auto p-0 ml-2" 
-                    onClick={generateSlug}
-                  >
-                    Generate from title
-                  </Button>
-                </FormLabel>
-                <FormControl>
-                  <Input placeholder="Enter URL slug" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <FormField
-          control={form.control}
-          name="excerpt"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Excerpt</FormLabel>
-              <FormControl>
-                <Textarea 
-                  placeholder="Enter a short excerpt" 
-                  className="resize-none h-20" 
-                  {...field} 
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+        <BasicInfoFields form={form} generateSlug={generateSlug} />
+        <ContentFields form={form} />
+        <MetadataFields form={form} />
+        <FeaturedImageField form={form} />
+        <FormActions 
+          onCancel={onCancel} 
+          isSubmitting={isSubmitting} 
+          isEditing={!!post} 
         />
-
-        <FormField
-          control={form.control}
-          name="content"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Content</FormLabel>
-              <FormControl>
-                <RichTextEditor 
-                  value={field.value || ''} 
-                  onChange={field.onChange} 
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <FormField
-            control={form.control}
-            name="author"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Author</FormLabel>
-                <FormControl>
-                  <Input placeholder="Author name" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="discipline"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Discipline</FormLabel>
-                <Select 
-                  onValueChange={field.onChange} 
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select discipline" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="Jumping">Jumping</SelectItem>
-                    <SelectItem value="Dressage">Dressage</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="category"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Category</FormLabel>
-                <Select 
-                  onValueChange={field.onChange} 
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="Technology">Technology</SelectItem>
-                    <SelectItem value="Analytics">Analytics</SelectItem>
-                    <SelectItem value="Training">Training</SelectItem>
-                    <SelectItem value="Guides">Guides</SelectItem>
-                    <SelectItem value="Competition">Competition</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <FormField
-          control={form.control}
-          name="image"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Featured Image</FormLabel>
-              <FormControl>
-                <MediaSelector
-                  value={field.value}
-                  onChange={field.onChange}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <div className="flex justify-end gap-3">
-          <Button type="button" variant="outline" onClick={onCancel}>
-            Cancel
-          </Button>
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Saving..." : post ? "Update Post" : "Create Post"}
-          </Button>
-        </div>
       </form>
     </Form>
   );
