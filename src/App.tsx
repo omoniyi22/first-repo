@@ -81,6 +81,10 @@ const App = () => (
                 <Route path="/jump-profile-setup" element={<JumpProfileSetup />} />
                 <Route path="/analysis" element={<Analysis />} />
                 
+                {/* Redirect old discipline-specific About routes to main About page */}
+                <Route path="/dressage/about" element={<Navigate to="/about" replace />} />
+                <Route path="/jumping/about" element={<Navigate to="/about" replace />} />
+                
                 {/* Admin Routes */}
                 <Route path="/admin" element={<Admin />}>
                   <Route index element={<AdminDashboard />} />
