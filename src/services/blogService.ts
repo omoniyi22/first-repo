@@ -91,7 +91,15 @@ export const fetchAllBlogPosts = async (): Promise<BlogPost[]> => {
   }, {} as Record<string, SupabaseBlogTranslation[]>);
 
   // Map to our BlogPost format
-  return posts.map(post => mapToBlogPost(post, translationsByBlogId[post.id]));
+  return posts.map(post => {
+    // Ensure discipline is properly typed as 'Jumping' or 'Dressage'
+    const typedPost: SupabaseBlogPost = {
+      ...post,
+      discipline: post.discipline as 'Jumping' | 'Dressage',
+      category: post.category as 'Technology' | 'Analytics' | 'Training' | 'Guides' | 'Competition'
+    };
+    return mapToBlogPost(typedPost, translationsByBlogId[post.id]);
+  });
 };
 
 // Fetch a single blog post by slug
@@ -117,7 +125,14 @@ export const fetchBlogPostBySlug = async (slug: string): Promise<BlogPost | null
     // Continue without translations
   }
 
-  return mapToBlogPost(post, translations || []);
+  // Ensure discipline is properly typed as 'Jumping' or 'Dressage'
+  const typedPost: SupabaseBlogPost = {
+    ...post,
+    discipline: post.discipline as 'Jumping' | 'Dressage',
+    category: post.category as 'Technology' | 'Analytics' | 'Training' | 'Guides' | 'Competition'
+  };
+
+  return mapToBlogPost(typedPost, translations || []);
 };
 
 // Create a new blog post

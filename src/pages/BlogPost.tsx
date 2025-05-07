@@ -11,7 +11,7 @@ import { ArrowLeft, Clock, Calendar, Share2 } from 'lucide-react';
 import { SEO } from '@/lib/seo';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { fetchBlogPostBySlug, fetchAllBlogPosts } from '@/services/blogService';
-import { BlogPost } from '@/data/blogPosts';
+import type { BlogPost } from '@/data/blogPosts';
 import { useToast } from '@/hooks/use-toast';
 
 const BlogPost = () => {
