@@ -22,6 +22,9 @@ import {
   Redo,
   Pilcrow
 } from 'lucide-react';
+import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import MediaSelector from '../media/MediaSelector';
+import { MediaItem } from '../media/MediaLibrary';
 
 interface RichTextEditorProps {
   value: string;
@@ -36,6 +39,8 @@ const RichTextEditor = ({
   placeholder = 'Start writing your blog post...',
   className,
 }: RichTextEditorProps) => {
+  const [isImageDialogOpen, setIsImageDialogOpen] = React.useState(false);
+
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -60,6 +65,13 @@ const RichTextEditor = ({
       editor.commands.setContent(value);
     }
   }, [value, editor]);
+
+  const handleImageSelect = (mediaItem: MediaItem) => {
+    if (editor && mediaItem.url) {
+      editor.chain().focus().setImage({ src: mediaItem.url, alt: mediaItem.name || 'Blog image' }).run();
+      setIsImageDialogOpen(false);
+    }
+  };
 
   if (!editor) {
     return null;
@@ -163,20 +175,36 @@ const RichTextEditor = ({
         >
           <LinkIcon className="h-4 w-4" />
         </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => {
-            const url = window.prompt('Image URL:');
-            if (url) {
-              editor.chain().focus().setImage({ src: url }).run();
-            }
-          }}
-          type="button"
-          title="Add Image"
-        >
-          <ImageIcon className="h-4 w-4" />
-        </Button>
+        
+        <Dialog open={isImageDialogOpen} onOpenChange={setIsImageDialogOpen}>
+          <DialogTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              type="button"
+              title="Add Image"
+              className={editor.isActive('image') ? 'bg-gray-200' : ''}
+            >
+              <ImageIcon className="h-4 w-4" />
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-3xl">
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium">Select an Image</h3>
+              <p className="text-sm text-gray-600">Choose an image to insert into your blog post</p>
+              <MediaSelector 
+                value="" 
+                onChange={(url) => {
+                  if (url) {
+                    editor.chain().focus().setImage({ src: url }).run();
+                    setIsImageDialogOpen(false);
+                  }
+                }}
+              />
+            </div>
+          </DialogContent>
+        </Dialog>
+        
         <Button
           variant="ghost"
           size="sm"
