@@ -44,33 +44,38 @@ const Footer = () => {
           <div>
             <h4 className="text-lg font-semibold mb-4">Connect With Us</h4>
             
-            {/* Social Media - now with horizontal layout */}
-            <div className="flex items-center">
-              <a 
-                href="https://instagram.com/aiequestrian" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-gray-300 hover:text-white transition-colors mr-3"
-              >
-                <Instagram className="w-6 h-6" />
-              </a>
-              <a 
-                href="mailto:info@aiequestrian.com" 
-                className="text-gray-300 hover:text-white transition-colors mr-3"
-              >
-                <Mail className="w-6 h-6" />
-              </a>
-              <span className="text-gray-300">
-                info@aiequestrian.com
-              </span>
+            {/* Social Media - with clear horizontal layout */}
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center">
+                <a 
+                  href="https://instagram.com/aiequestrian" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-gray-300 hover:text-white transition-colors flex items-center"
+                >
+                  <Instagram className="w-6 h-6 mr-2" />
+                  <span>@aiequestrian</span>
+                </a>
+              </div>
+              
+              <div className="flex items-center">
+                <a 
+                  href="mailto:info@aiequestrian.com" 
+                  className="text-gray-300 hover:text-white transition-colors flex items-center"
+                >
+                  <Mail className="w-6 h-6 mr-2" />
+                  <span>info@aiequestrian.com</span>
+                </a>
+              </div>
             </div>
+            
             <p className="text-gray-300 mt-4">
               Follow us for updates and insights into AI-powered equestrian training.
             </p>
           </div>
         </div>
 
-        {/* Footer Bottom - Copyright without the purple background */}
+        {/* Footer Bottom - Copyright without any background */}
         <div className="mt-12 text-center text-gray-400 border-t border-gray-700 pt-8">
           &copy; {new Date().getFullYear()} AI Equestrian. All rights reserved.
         </div>

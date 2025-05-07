@@ -89,7 +89,7 @@ const Index = () => {
                   </div>
                 )}
                 <img 
-                  src="/lovable-uploads/ab569763-fb47-4333-878c-3f2418769e53.png" 
+                  src="/lovable-uploads/b729b0be-9b4c-4b4b-bdec-6bd2f849b8f8.png" 
                   alt="Show jumping with AI analysis"
                   className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${secondImageLoaded ? 'opacity-100' : 'opacity-0'}`}
                   onLoad={() => setSecondImageLoaded(true)}

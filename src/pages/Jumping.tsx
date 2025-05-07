@@ -72,7 +72,7 @@ const Jumping = () => {
           )}
           
           <img 
-            src="/lovable-uploads/987a3f3b-1917-439f-a3a9-8fabc609cffa.png" 
+            src="/lovable-uploads/b729b0be-9b4c-4b4b-bdec-6bd2f849b8f8.png" 
             alt="Professional show jumper using AI analytics to improve technique and performance"
             className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
             onLoad={() => setImageLoaded(true)}
@@ -330,7 +330,7 @@ const Jumping = () => {
           </div>
         </section>
 
-        {/* CTA Section - Modified to remove the View Plans button */}
+        {/* CTA Section */}
         <section className="py-16 bg-gradient-to-br from-blue-800 to-purple-900 text-white">
           <div className="container mx-auto px-6 text-center">
             <h2 className="text-3xl font-serif font-medium mb-6 reveal-scroll">Ready to Transform Your Jumping?</h2>
