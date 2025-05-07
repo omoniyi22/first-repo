@@ -16,7 +16,7 @@ const DressageTab = () => (
       </div>
       <div className="md:w-1/2">
         <img 
-          src="/lovable-uploads/dbb9802b-bed7-4888-96a3-73b68198710b.png"
+          src="/lovable-uploads/42930ec1-2f55-429f-aaa5-4aac1791a729.png"
           alt="Dressage training with AI analysis"
           className="rounded-lg w-full object-cover shadow-md h-64"
         />
@@ -75,7 +75,7 @@ const JumpingTab = () => (
       </div>
       <div className="md:w-1/2">
         <img 
-          src="/lovable-uploads/6782ac64-8d3f-4d9e-902e-7cdb1240c449.png"
+          src="/lovable-uploads/09bde514-1caf-42e9-9093-d5bd869dda06.png"
           alt="Show jumping with AI analysis"
           className="rounded-lg w-full object-cover shadow-md h-64"
         />
