@@ -143,38 +143,6 @@ const About = () => {
         
         {/* Team Section - Preserving existing section */}
         <EquestrianTeamSection />
-        
-        {/* Final CTA with gradient background */}
-        <section className="py-12 bg-gradient-to-r from-purple-600 to-blue-600 text-white">
-          <div className="container mx-auto px-6 text-center">
-            <h2 className="text-3xl md:text-4xl font-serif font-semibold mb-4">
-              Ready to Transform Your Riding?
-            </h2>
-            <p className="text-xl text-blue-100 max-w-2xl mx-auto mb-8">
-              Experience data-driven insights that will elevate your equestrian performance. 
-              Start your AI Equestrian journey today.
-            </p>
-            <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <Link to="/sign-in?signup=true">
-                <Button className="bg-white text-purple-700 hover:bg-gray-100 text-lg px-6 py-3">
-                  Get Started
-                </Button>
-              </Link>
-              
-              <Link to="/how-it-works">
-                <Button variant="outline" className="border-2 border-white text-white hover:bg-purple-700/30 text-lg px-6 py-3">
-                  Watch Demo
-                </Button>
-              </Link>
-              
-              <Link to="/pricing">
-                <Button variant="outline" className="border-2 border-white text-white hover:bg-purple-700/30 text-lg px-6 py-3">
-                  See Pricing
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </section>
       </main>
       <Footer />
     </div>
