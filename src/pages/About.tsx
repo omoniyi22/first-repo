@@ -9,6 +9,7 @@ import CoreValues from '@/components/about/CoreValues';
 import KeyStatistics from '@/components/about/KeyStatistics';
 import ProblemsWeSolve from '@/components/about/ProblemsWeSolve';
 import EquestrianTeamSection from '@/components/about/EquestrianTeamSection';
+import DisciplineSpecificTabs from '@/components/about/DisciplineSpecificTabs';
 
 // The following sections are preserved from the existing About page
 import AnimatedSection from '@/components/ui/AnimatedSection';
@@ -77,6 +78,9 @@ const About = () => {
         
         {/* Problems We Solve Section */}
         <ProblemsWeSolve />
+        
+        {/* Discipline-Specific Tabs Section */}
+        <DisciplineSpecificTabs />
         
         {/* Partnerships and Sponsorships Section - Preserved from existing About page */}
         <section className="py-16 bg-gray-50">
