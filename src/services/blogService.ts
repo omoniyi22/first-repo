@@ -105,6 +105,8 @@ export const fetchAllBlogPosts = async (): Promise<BlogPost[]> => {
 
 // Fetch a single blog post by slug
 export const fetchBlogPostBySlug = async (slug: string): Promise<BlogPost | null> => {
+  console.log(`Fetching blog post with slug: ${slug}`);
+  
   const { data: post, error } = await supabase
     .from('blog_posts')
     .select('*')
@@ -115,6 +117,8 @@ export const fetchBlogPostBySlug = async (slug: string): Promise<BlogPost | null
     console.error('Error fetching blog post:', error);
     return null;
   }
+
+  console.log('Fetched blog post data:', post);
 
   const { data: translations, error: translationsError } = await supabase
     .from('blog_translations')

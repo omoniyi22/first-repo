@@ -21,7 +21,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { fetchAllBlogPosts, createBlogPost, updateBlogPost, deleteBlogPost } from "@/services/blogService";
+import { fetchAllBlogPosts, createBlogPost, updateBlogPost, deleteBlogPost, fetchBlogPostBySlug } from "@/services/blogService";
 import { useToast } from "@/hooks/use-toast";
 
 const POSTS_PER_PAGE = 5;
@@ -106,9 +106,28 @@ const BlogManagement = () => {
     setIsFormOpen(true);
   };
 
-  const handleEditPost = (post: BlogPost) => {
-    setEditingPost(post);
-    setIsFormOpen(true);
+  const handleEditPost = async (post: BlogPost) => {
+    try {
+      setIsLoading(true);
+      // When editing, fetch the complete blog post with content
+      if (post.slug) {
+        const fullPost = await fetchBlogPostBySlug(post.slug);
+        if (fullPost) {
+          setEditingPost(fullPost);
+        } else {
+          setEditingPost(post);
+          console.warn("Could not fetch full blog post details, using list data");
+        }
+      } else {
+        setEditingPost(post);
+      }
+    } catch (error) {
+      console.error("Error fetching complete blog post:", error);
+      setEditingPost(post);
+    } finally {
+      setIsLoading(false);
+      setIsFormOpen(true);
+    }
   };
 
   const handleDeletePost = async (postId: number) => {

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -38,26 +38,34 @@ const BlogPostForm = ({ post, onSave, onCancel }: BlogPostFormProps) => {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: post ? {
-      title: post.title,
-      excerpt: post.excerpt,
-      content: post.content || "",
-      author: post.author,
-      discipline: post.discipline,
-      category: post.category,
-      slug: post.slug,
-      image: post.image,
-    } : {
+    defaultValues: {
       title: "",
       excerpt: "",
       content: "",
       author: "",
-      discipline: "Jumping",
-      category: "Technology",
+      discipline: "Jumping" as "Jumping" | "Dressage",
+      category: "Technology" as "Technology" | "Analytics" | "Training" | "Guides" | "Competition",
       slug: "",
       image: "/placeholder.svg",
     },
   });
+
+  // Update the form values when the post prop changes
+  useEffect(() => {
+    if (post) {
+      console.log("Setting form values with post:", post);
+      form.reset({
+        title: post.title,
+        excerpt: post.excerpt,
+        content: post.content || "",
+        author: post.author,
+        discipline: post.discipline,
+        category: post.category,
+        slug: post.slug,
+        image: post.image,
+      });
+    }
+  }, [post, form]);
 
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsSubmitting(true);
@@ -81,7 +89,7 @@ const BlogPostForm = ({ post, onSave, onCancel }: BlogPostFormProps) => {
         authorImage: post?.authorImage || "/placeholder.svg",
         translations: post?.translations || {},
         // Keep the Supabase ID if we're editing
-        ...(post && post['supabaseId'] ? { supabaseId: post['supabaseId'] } : {})
+        ...(post && post.supabaseId ? { supabaseId: post.supabaseId } : {})
       };
 
       onSave(updatedPost);
