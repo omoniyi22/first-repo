@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -122,7 +121,7 @@ const BlogManagement = () => {
       }
       
       // For Supabase, we need the actual UUID, not our numeric ID
-      const supabaseId = postToDelete['supabaseId'] as string;
+      const supabaseId = postToDelete.supabaseId;
       
       if (!supabaseId) {
         throw new Error("Supabase ID not found for this post");
@@ -152,7 +151,7 @@ const BlogManagement = () => {
     try {
       if (editingPost) {
         // Update existing post
-        const supabaseId = editingPost['supabaseId'] as string;
+        const supabaseId = editingPost.supabaseId;
         
         if (!supabaseId) {
           throw new Error("Supabase ID not found for this post");

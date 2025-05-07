@@ -56,7 +56,8 @@ export const mapToBlogPost = (post: SupabaseBlogPost, translations?: SupabaseBlo
     category: post.category,
     image: post.image,
     readingTime: post.reading_time,
-    translations: translationMap || {}
+    translations: translationMap || {},
+    supabaseId: post.id // Store the Supabase UUID for later use
   };
 };
 
@@ -153,9 +154,16 @@ export const createBlogPost = async (post: Omit<SupabaseBlogPost, 'id'>): Promis
 
 // Update an existing blog post
 export const updateBlogPost = async (id: string, post: Partial<SupabaseBlogPost>): Promise<void> => {
+  // Make sure discipline and category are correctly typed
+  const typedPost: Partial<SupabaseBlogPost> = {
+    ...post,
+    discipline: post.discipline as 'Jumping' | 'Dressage',
+    category: post.category as 'Technology' | 'Analytics' | 'Training' | 'Guides' | 'Competition'
+  };
+  
   const { error } = await supabase
     .from('blog_posts')
-    .update(post)
+    .update(typedPost)
     .eq('id', id);
 
   if (error) {
