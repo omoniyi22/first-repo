@@ -1,3 +1,4 @@
+
 import { useEffect } from 'react';
 import { SEO, getPageMetadata } from '@/lib/seo';
 import Navbar from '@/components/layout/Navbar';
@@ -5,9 +6,6 @@ import Footer from '@/components/layout/Footer';
 import HeroSection from '@/components/about/HeroSection';
 import MissionAndVision from '@/components/about/MissionAndVision';
 import CoreValues from '@/components/about/CoreValues';
-import KeyStatistics from '@/components/about/KeyStatistics';
-import ProblemsWeSolve from '@/components/about/ProblemsWeSolve';
-import DisciplineSpecificTabs from '@/components/about/DisciplineSpecificTabs';
 import EquestrianTeamSection from '@/components/about/EquestrianTeamSection';
 
 // The following sections are preserved from the existing About page
@@ -72,18 +70,6 @@ const About = () => {
         {/* Core Values Section */}
         <CoreValues />
         
-        {/* Key Statistics Section */}
-        <KeyStatistics />
-        
-        {/* Problems We Solve Section */}
-        <ProblemsWeSolve />
-        
-        {/* Discipline-Specific Tabs Section - now with gradient background */}
-        <DisciplineSpecificTabs />
-        
-        {/* Team Section - Preserving existing section */}
-        <EquestrianTeamSection />
-        
         {/* Partnerships and Sponsorships Section - Preserved from existing About page */}
         <section className="py-16 bg-gray-50">
           <div className="container mx-auto px-6">
@@ -146,6 +132,9 @@ const About = () => {
             </div>
           </div>
         </section>
+        
+        {/* Team Section - Preserving existing section */}
+        <EquestrianTeamSection />
         
         {/* Final CTA with gradient background */}
         <section className="py-12 bg-gradient-to-r from-purple-600 to-blue-600 text-white">
