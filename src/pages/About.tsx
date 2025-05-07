@@ -82,10 +82,7 @@ const About = () => {
         {/* Problems We Solve Section */}
         <ProblemsWeSolve />
         
-        {/* Gradient Divider */}
-        <div className="h-8 bg-gradient-to-r from-blue-600 to-purple-600 my-4"></div>
-        
-        {/* Discipline-Specific Tabs Section */}
+        {/* Discipline-Specific Tabs Section - now with gradient background */}
         <DisciplineSpecificTabs />
         
         {/* Gradient Divider */}

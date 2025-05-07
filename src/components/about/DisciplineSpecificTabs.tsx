@@ -16,7 +16,7 @@ const DressageTab = () => (
       </div>
       <div className="md:w-1/2">
         <img 
-          src="/lovable-uploads/3b7c24a2-ef67-42cc-9b46-875418451128.png"
+          src="/lovable-uploads/dbb9802b-bed7-4888-96a3-73b68198710b.png"
           alt="Dressage training with AI analysis"
           className="rounded-lg w-full object-cover shadow-md h-64"
         />
@@ -123,7 +123,7 @@ const JumpingTab = () => (
 
 const DisciplineSpecificTabs = () => {
   return (
-    <section className="py-16 bg-white">
+    <section className="py-16 bg-gradient-to-br from-purple-100 to-blue-100">
       <div className="container mx-auto px-6">
         <AnimatedSection animation="fade-in" className="text-center max-w-3xl mx-auto mb-12">
           <h2 className="text-3xl md:text-4xl font-serif font-semibold text-gray-900 mb-4">
