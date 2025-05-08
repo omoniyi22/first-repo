@@ -1,4 +1,3 @@
-
 import { useEffect } from 'react';
 import { SEO, getPageMetadata } from '@/lib/seo';
 import Navbar from '@/components/layout/Navbar';
@@ -73,7 +72,7 @@ const About = () => {
         {/* Core Values Section */}
         <CoreValues />
         
-        {/* Key Statistics Section - Added back */}
+        {/* Key Statistics Section */}
         <KeyStatistics />
         
         {/* Problems We Solve Section */}
@@ -82,7 +81,7 @@ const About = () => {
         {/* Discipline-Specific Tabs Section */}
         <DisciplineSpecificTabs />
         
-        {/* Partnerships and Sponsorships Section - Preserved from existing About page */}
+        {/* Partnerships and Sponsorships Section */}
         <section className="py-16 bg-gray-50">
           <div className="container mx-auto px-6">
             <div className="max-w-4xl mx-auto text-center mb-12 reveal-scroll">
@@ -145,7 +144,7 @@ const About = () => {
           </div>
         </section>
         
-        {/* Team Section - Preserving existing section */}
+        {/* Team Section */}
         <EquestrianTeamSection />
       </main>
       <Footer />
