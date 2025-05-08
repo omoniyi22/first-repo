@@ -48,13 +48,13 @@ const Footer = () => {
             <div className="flex flex-col space-y-4">
               <div className="flex items-center">
                 <a 
-                  href="https://instagram.com/aiequestrian" 
+                  href="https://instagram.com/ai_equestrian" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="text-gray-300 hover:text-white transition-colors flex items-center"
                 >
                   <Instagram className="w-6 h-6 mr-2" />
-                  <span>@aiequestrian</span>
+                  <span>@ai_equestrian</span>
                 </a>
               </div>
               
