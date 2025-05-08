@@ -5,46 +5,52 @@ import { Instagram, Mail } from 'lucide-react';
 
 const Footer = () => {
   return (
-    <footer className="bg-gradient-to-br from-purple-700 to-purple-900 text-white py-12">
+    <footer className="footer-gradient text-white py-12">
       <div className="container mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* First Section - About Us */}
+          {/* Logo Area */}
           <div>
-            <h4 className="text-lg font-semibold mb-4">About AI Equestrian</h4>
-            <p className="text-gray-300">
-              AI Equestrian is dedicated to revolutionizing equestrian training through the power of artificial intelligence.
-            </p>
-            <div className="mt-4">
-              <Link to="/about" className="text-purple-300 hover:underline">Learn More</Link>
+            <div className="mb-4">
+              <Link to="/" className="inline-block">
+                {/* White logo version as specified in style guide */}
+                <h3 className="text-xl font-serif font-semibold text-white">AI Equestrian</h3>
+              </Link>
             </div>
+            <p className="text-gray-300 font-sans text-sm mb-2">
+              Riding Intelligence, Redefined
+            </p>
+            <p className="text-gray-400 font-sans text-xs">
+              &copy; {new Date().getFullYear()} AI Equestrian. All rights reserved.
+            </p>
           </div>
 
-          {/* Second Section - Links (without title) */}
+          {/* Navigation Area */}
           <div>
-            <ul className="text-gray-300">
-              <li className="mb-2">
-                <Link to="/" className="text-gray-300 hover:text-white hover:underline transition-colors">Home</Link>
-              </li>
-              <li className="mb-2">
-                <Link to="/how-it-works" className="text-gray-300 hover:text-white hover:underline transition-colors">How It Works</Link>
-              </li>
-              <li className="mb-2">
-                <Link to="/pricing" className="text-gray-300 hover:text-white hover:underline transition-colors">Pricing</Link>
-              </li>
-              <li className="mb-2">
-                <Link to="/blog" className="text-gray-300 hover:text-white hover:underline transition-colors">Blog</Link>
+            <h4 className="text-base font-sans font-bold text-white mb-4">Quick Links</h4>
+            <ul className="space-y-2">
+              <li>
+                <Link to="/" className="text-gray-300 hover:text-white font-sans text-sm transition-colors">Home</Link>
               </li>
               <li>
-                <Link to="/contact" className="text-gray-300 hover:text-white hover:underline transition-colors">Contact</Link>
+                <Link to="/how-it-works" className="text-gray-300 hover:text-white font-sans text-sm transition-colors">How It Works</Link>
+              </li>
+              <li>
+                <Link to="/pricing" className="text-gray-300 hover:text-white font-sans text-sm transition-colors">Pricing</Link>
+              </li>
+              <li>
+                <Link to="/blog" className="text-gray-300 hover:text-white font-sans text-sm transition-colors">Blog</Link>
+              </li>
+              <li>
+                <Link to="/contact" className="text-gray-300 hover:text-white font-sans text-sm transition-colors">Contact</Link>
               </li>
             </ul>
           </div>
 
-          {/* Third Section - Social Media */}
+          {/* Contact/Social Area */}
           <div>
-            <h4 className="text-lg font-semibold mb-4">Connect With Us</h4>
+            <h4 className="text-base font-sans font-bold text-white mb-4">Connect With Us</h4>
             
-            {/* Social Media - now with vertical layout */}
+            {/* Social Media - vertical layout */}
             <div className="flex flex-col space-y-4">
               <div className="flex items-center">
                 <a 
@@ -54,7 +60,7 @@ const Footer = () => {
                   className="text-gray-300 hover:text-white transition-colors flex items-center"
                 >
                   <Instagram className="w-6 h-6 mr-2" />
-                  <span>@aiequestrian</span>
+                  <span className="font-sans text-sm">@aiequestrian</span>
                 </a>
               </div>
               
@@ -64,20 +70,22 @@ const Footer = () => {
                   className="text-gray-300 hover:text-white transition-colors flex items-center"
                 >
                   <Mail className="w-6 h-6 mr-2" />
-                  <span>info@aiequestrian.com</span>
+                  <span className="font-sans text-sm">info@aiequestrian.com</span>
                 </a>
               </div>
             </div>
             
-            <p className="text-gray-300 mt-4">
+            <p className="text-gray-300 mt-4 font-sans text-sm">
               Follow us for updates and insights into AI-powered equestrian training.
             </p>
           </div>
         </div>
 
-        {/* Footer Bottom - Copyright without any background */}
+        {/* Footer Bottom with border as per style guide */}
         <div className="mt-12 text-center text-gray-400 border-t border-gray-700 pt-8">
-          &copy; {new Date().getFullYear()} AI Equestrian. All rights reserved.
+          <p className="font-sans text-xs">
+            AI Equestrian is dedicated to revolutionizing equestrian training through artificial intelligence.
+          </p>
         </div>
       </div>
     </footer>

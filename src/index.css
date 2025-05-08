@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
+
+@import url('https://fonts.googleapis.com/css2?family=Varela+Round:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -86,7 +87,7 @@
     @apply font-sans;
   }
 
-  /* Make regular text darker */
+  /* Make regular text darker as per style guide */
   p, li {
     @apply text-gray-800;
   }
@@ -103,34 +104,45 @@
     @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-glass rounded-xl;
   }
   
-  .navy-gradient {
-    @apply bg-gradient-to-br from-purple-500 to-purple-800;
+  /* Button gradients from the style guide */
+  .primary-dressage-gradient {
+    @apply bg-gradient-to-br from-dressage-light to-dressage-dark;
   }
   
-  .silver-gradient {
-    @apply bg-gradient-to-br from-purple-50 to-purple-200;
+  .primary-jump-gradient {
+    @apply bg-gradient-to-br from-jump-light to-jump-dark;
   }
   
-  .glass-button {
-    @apply bg-white/20 backdrop-blur-sm border border-white/30 
-           text-purple-900 font-medium px-6 py-3 rounded-lg 
-           shadow-sm transition-all duration-300 
-           hover:bg-white/30 hover:shadow-md active:scale-[0.98];
+  .secondary-gradient {
+    @apply bg-gradient-to-br from-gray-100 to-gray-200;
   }
   
-  .navy-button {
-    @apply bg-purple-800 hover:bg-purple-900 text-white font-medium 
-           px-6 py-3 rounded-lg shadow-sm transition-all duration-300
-           hover:shadow-md active:scale-[0.98];
+  .footer-gradient {
+    @apply bg-gradient-to-b from-[#2c2c2c] to-[#1a1a1a];
   }
   
-  .outline-button {
-    @apply bg-white border-2 border-purple-800 text-purple-800 
-           font-medium px-6 py-[10px] rounded-lg shadow-sm 
-           transition-all duration-300 hover:bg-purple-50 
-           hover:shadow-md active:scale-[0.98];
+  /* Button styles from the style guide */
+  .primary-button {
+    @apply font-sans font-medium uppercase text-white px-6 py-3 rounded-md shadow-md hover:shadow-lg transition-all duration-300 active:scale-[0.98];
   }
   
+  .primary-dressage-button {
+    @apply primary-button primary-dressage-gradient;
+  }
+  
+  .primary-jump-button {
+    @apply primary-button primary-jump-gradient;
+  }
+  
+  .secondary-button {
+    @apply font-sans font-medium text-gray-800 px-6 py-3 rounded-md border border-gray-300 secondary-gradient shadow-sm hover:shadow-md transition-all duration-300 active:scale-[0.98];
+  }
+  
+  .tertiary-button {
+    @apply font-sans font-medium text-dressage bg-transparent px-6 py-3 hover:underline transition-all duration-300;
+  }
+  
+  /* Pre-existing utility classes */
   .reveal-scroll {
     opacity: 0;
     transform: translateY(30px);
@@ -176,11 +188,11 @@
 
   /* Specific styles for disciplines */
   .dressage-theme {
-    @apply from-purple-600 to-purple-800;
+    @apply from-dressage-light to-dressage-dark;
   }
 
   .jumping-theme {
-    @apply from-blue-600 to-blue-800;
+    @apply from-jump-light to-jump-dark;
   }
 
   /* Center buttons properly */

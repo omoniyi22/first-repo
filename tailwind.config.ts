@@ -54,6 +54,17 @@ const config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // Adding discipline-specific colors from style guide
+        dressage: {
+          DEFAULT: "#7b4a97", // AI Dressage Purple
+          light: "#8a55a9",
+          dark: "#6b3987",
+        },
+        jump: {
+          DEFAULT: "#4a6da7", // AI Jump Blue
+          light: "#5a7db7",
+          dark: "#3a5d97",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -61,8 +72,9 @@ const config = {
         sm: "calc(var(--radius) - 4px)",
       },
       fontFamily: {
-        sans: ["var(--font-sans)", ...fontFamily.sans],
-        serif: ["Georgia", "serif"],
+        // Update font families according to style guide
+        sans: ["Varela Round", ...fontFamily.sans],
+        serif: ["Playfair Display", "serif"],
       },
       keyframes: {
         "accordion-down": {

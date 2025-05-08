@@ -16,11 +16,13 @@ const buttonVariants = cva(
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        // Adding custom variants for consistency
-        primary: "bg-purple-600 hover:bg-purple-700 text-white",
-        navy: "bg-navy-700 hover:bg-navy-800 text-white",
-        glass: "bg-white/20 backdrop-blur-sm border border-white/30 text-purple-900 hover:bg-white/30",
-        outlinePurple: "bg-white border-2 border-purple-800 text-purple-800 hover:bg-purple-50",
+        // Updated custom variants based on the style guide
+        dressage: "bg-gradient-to-br from-dressage-light to-dressage-dark text-white shadow-md hover:shadow-lg",
+        jump: "bg-gradient-to-br from-jump-light to-jump-dark text-white shadow-md hover:shadow-lg",
+        secondaryGradient: "bg-gradient-to-br from-gray-100 to-gray-200 text-gray-800 border border-gray-300 shadow-sm hover:shadow-md",
+        tertiary: "bg-transparent hover:underline",
+        outlineDressage: "bg-white border-2 border-dressage text-dressage hover:bg-dressage/5",
+        outlineJump: "bg-white border-2 border-jump text-jump hover:bg-jump/5",
       },
       size: {
         default: "h-10 px-4 py-2",
@@ -42,12 +44,19 @@ const buttonVariants = cva(
         scale: "active:scale-[0.98] transition-transform",
         bounce: "hover:-translate-y-0.5 active:translate-y-0 transition-transform",
       },
+      textCase: {
+        default: "",
+        uppercase: "uppercase",
+        lowercase: "lowercase",
+        capitalize: "capitalize",
+      },
     },
     defaultVariants: {
       variant: "default",
       size: "default",
       weight: "default",
       animation: "scale",
+      textCase: "default",
     },
   }
 )
@@ -59,14 +68,15 @@ export interface ButtonProps
   fullWidth?: boolean
   weight?: "default" | "normal" | "bold"
   animation?: "default" | "scale" | "bounce"
+  textCase?: "default" | "uppercase" | "lowercase" | "capitalize"
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, weight, animation, fullWidth, asChild = false, ...props }, ref) => {
+  ({ className, variant, size, weight, animation, textCase, fullWidth, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : "button"
     return (
       <Comp
-        className={cn(buttonVariants({ variant, size, weight, animation, fullWidth, className }))}
+        className={cn(buttonVariants({ variant, size, weight, animation, textCase, fullWidth, className }))}
         ref={ref}
         {...props}
       />
