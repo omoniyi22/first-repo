@@ -16,7 +16,7 @@ const DressageTab = () => (
       </div>
       <div className="md:w-1/2">
         <img 
-          src="/lovable-uploads/a7ea86ae-24f6-42e6-ae48-013e45371a6b.png"
+          src="/lovable-uploads/42930ec1-2f55-429f-aaa5-4aac1791a729.png"
           alt="Dressage training with AI analysis"
           className="rounded-lg w-full object-cover shadow-md h-64"
         />
@@ -75,7 +75,7 @@ const JumpingTab = () => (
       </div>
       <div className="md:w-1/2">
         <img 
-          src="/lovable-uploads/138720cd-9a7d-4b54-bcfe-ca99ad9213fc.png"
+          src="/lovable-uploads/987a3f3b-1917-439f-a3a9-8fabc609cffa.png"
           alt="Show jumping with AI analysis"
           className="rounded-lg w-full object-cover shadow-md h-64"
         />
@@ -131,8 +131,9 @@ const DisciplineSpecificTabs = () => {
           <h2 className="text-3xl md:text-4xl font-serif font-semibold text-gray-900 mb-4">
             Discipline-Specific Challenges
           </h2>
-          <p className="text-lg text-gray-700">
+          <p className="text-lg text-gray-700 mb-6">
             Our specialized AI systems address the unique needs of different equestrian disciplines.
+            Click below to explore each discipline.
           </p>
         </AnimatedSection>
         
@@ -151,6 +152,11 @@ const DisciplineSpecificTabs = () => {
               <span className="text-xl font-serif font-semibold">AI Jump</span>
             </TabsTrigger>
           </TabsList>
+          
+          <div className="p-4 mb-6 bg-white/50 rounded-md text-center">
+            <p className="text-gray-700">Currently viewing: <strong>{activeTab === "dressage" ? "AI Dressage" : "AI Jump"}</strong> - Click tabs above to switch disciplines</p>
+          </div>
+          
           <TabsContent value="dressage" className="mt-6 focus-visible:outline-none focus-visible:ring-0">
             <DressageTab />
           </TabsContent>

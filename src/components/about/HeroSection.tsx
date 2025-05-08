@@ -11,7 +11,7 @@ const HeroSection = () => {
           src="/lovable-uploads/138720cd-9a7d-4b54-bcfe-ca99ad9213fc.png"
           alt="AI Equestrian - Riding Intelligence, Redefined"
           className="w-full h-full object-cover mix-blend-overlay"
-          style={{ objectPosition: "center" }}
+          style={{ objectPosition: "center 30%" }}
         />
       </div>
       
