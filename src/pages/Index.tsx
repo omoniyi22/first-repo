@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
@@ -66,9 +65,9 @@ const Index = () => {
     <div className="min-h-screen">
       <SEO {...seoMetadata} />
       <Navbar />
-      <main className="pt-24"> {/* Increased padding-top to 24 (pt-24) for more space below navbar */}
+      <main className="pt-0"> {/* Removed padding-top since we'll add it to the hero section */}
         {/* Hero Section */}
-        <section className="relative h-screen flex items-center justify-center overflow-hidden">
+        <section className="relative h-screen flex items-center justify-center overflow-hidden pt-28"> {/* Added pt-28 for navbar space */}
           <div className="absolute inset-0">
             {/* Split hero section with two images for desktop, alternating image for mobile */}
             {isMobile ? (
@@ -138,7 +137,7 @@ const Index = () => {
             )}
           </div>
           
-          <div className="container relative z-10 mx-auto px-6 text-center mt-20 md:mt-16"> {/* Adjusted margins */}
+          <div className="container relative z-10 mx-auto px-6 text-center mt-28 md:mt-20"> {/* Increased margins for more space */}
             <div className="max-w-3xl mx-auto">
               <span className="inline-block px-3 py-1 bg-white/20 text-white rounded-full text-sm font-medium mb-6 backdrop-blur-sm border border-white/30">
                 AI-Powered Equestrian Training

@@ -37,8 +37,8 @@
 
     --radius: 0.75rem;
     
-    /* Add navbar height variable for consistent spacing */
-    --navbar-height: 4rem;
+    /* Updated navbar height variable for consistent spacing */
+    --navbar-height: 7rem;
   }
 
   .dark {
@@ -197,21 +197,21 @@
   
   /* Navbar padding classes - updated for more space */
   .pt-navbar {
-    @apply pt-24; /* Increased padding for fixed navbar */
+    @apply pt-28; /* Increased padding for fixed navbar */
   }
   
   .mt-navbar {
-    @apply mt-24; /* Increased margin for fixed navbar */
+    @apply mt-28; /* Increased margin for fixed navbar */
   }
   
   /* Mobile-specific spacing */
   @media (max-width: 768px) {
     .pt-navbar {
-      @apply pt-20; /* Slightly less on mobile */
+      @apply pt-28; /* Increased padding for mobile as well */
     }
     
     .mt-navbar {
-      @apply mt-20; /* Slightly less on mobile */
+      @apply mt-28; /* Increased margin for mobile as well */
     }
   }
 }
