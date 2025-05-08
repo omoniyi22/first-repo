@@ -88,7 +88,7 @@ const JumpingFaqSection = () => {
   ];
 
   return (
-    <section className="py-24 bg-purple-50">
+    <section className="py-24 bg-blue-50">
       <div className="container mx-auto px-6">
         <AnimatedSection animation="fade-in" className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="text-3xl md:text-4xl font-serif font-semibold text-gray-900 mb-6">
@@ -138,7 +138,7 @@ const JumpingFaqSection = () => {
             <p className="text-gray-700 mb-6">
               If you couldn't find the answer to your question, please don't hesitate to reach out to our support team.
             </p>
-            <Button variant="primary">
+            <Button className="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white">
               Contact Support
             </Button>
           </AnimatedSection>

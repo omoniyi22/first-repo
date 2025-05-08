@@ -87,19 +87,19 @@ const JumpingStepsSection = () => {
                     onClick={() => setActiveStep(step.id)}
                     className={`w-full text-left p-5 rounded-xl flex items-center transition-all duration-300 ${
                       activeStep === step.id 
-                        ? 'bg-purple-700 text-white shadow-md' 
-                        : 'bg-purple-50 text-gray-800 hover:bg-purple-100'
+                        ? 'bg-blue-700 text-white shadow-md' 
+                        : 'bg-blue-50 text-gray-800 hover:bg-blue-100'
                     }`}
                   >
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center mr-4 ${
-                      activeStep === step.id ? 'bg-purple-500' : 'bg-white'
+                      activeStep === step.id ? 'bg-blue-500' : 'bg-white'
                     }`}>
                       {step.icon}
                     </div>
                     <div>
                       <div className="font-medium">{step.title}</div>
                       <div className={`text-sm ${
-                        activeStep === step.id ? 'text-purple-100' : 'text-gray-600'
+                        activeStep === step.id ? 'text-blue-100' : 'text-gray-600'
                       }`}>
                         Step {step.id}
                       </div>
@@ -116,11 +116,11 @@ const JumpingStepsSection = () => {
               animation="fade-in"
               className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm"
             >
-              <div className="aspect-video bg-purple-50 flex items-center justify-center">
-                <div className="w-full h-full bg-purple-100 flex items-center justify-center">
+              <div className="aspect-video bg-blue-50 flex items-center justify-center">
+                <div className="w-full h-full bg-blue-100 flex items-center justify-center">
                   {/* This would be a real image or animation in production */}
                   <div className="text-center p-8">
-                    <div className="w-16 h-16 rounded-full bg-purple-200 mx-auto flex items-center justify-center mb-4">
+                    <div className="w-16 h-16 rounded-full bg-blue-200 mx-auto flex items-center justify-center mb-4">
                       {activeStepData.icon}
                     </div>
                     <h3 className="text-gray-800 font-medium">Step {activeStepData.id}: {activeStepData.title}</h3>
@@ -144,7 +144,7 @@ const JumpingStepsSection = () => {
                 <ul className="space-y-3">
                   {activeStepData.features.map((feature, index) => (
                     <li key={index} className="flex items-start">
-                      <svg className="h-5 w-5 text-purple-600 mr-3 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg className="h-5 w-5 text-blue-600 mr-3 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
                       <span className="text-gray-700">{feature}</span>
@@ -156,7 +156,7 @@ const JumpingStepsSection = () => {
           </div>
         </div>
         
-        <AnimatedSection animation="fade-in" className="bg-purple-50 rounded-2xl p-8 md:p-12">
+        <AnimatedSection animation="fade-in" className="bg-blue-50 rounded-2xl p-8 md:p-12">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             <div>
               <h2 className="text-2xl md:text-3xl font-serif font-semibold text-gray-900 mb-6">
@@ -168,7 +168,7 @@ const JumpingStepsSection = () => {
                 of courses, faults, and jumping technique.
               </p>
               
-              <Button variant="primary" className="flex items-center">
+              <Button className="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white flex items-center">
                 Watch Demo
                 <svg className="ml-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
@@ -178,11 +178,11 @@ const JumpingStepsSection = () => {
             </div>
             
             <div className="relative">
-              <div className="absolute -inset-4 bg-gradient-to-r from-purple-200/20 to-purple-400/20 rounded-xl transform rotate-2 -z-10" />
+              <div className="absolute -inset-4 bg-gradient-to-r from-blue-200/20 to-blue-400/20 rounded-xl transform rotate-2 -z-10" />
               <div className="aspect-video bg-white rounded-xl overflow-hidden shadow-sm flex items-center justify-center">
                 {/* This would be a video thumbnail in production */}
                 <div className="text-center">
-                  <div className="w-16 h-16 rounded-full bg-purple-700 mx-auto flex items-center justify-center mb-4 cursor-pointer hover:bg-purple-800 transition-colors">
+                  <div className="w-16 h-16 rounded-full bg-blue-700 mx-auto flex items-center justify-center mb-4 cursor-pointer hover:bg-blue-800 transition-colors">
                     <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
                     </svg>
