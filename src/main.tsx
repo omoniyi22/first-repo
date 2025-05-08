@@ -17,6 +17,13 @@ varelaLink.href = 'https://fonts.googleapis.com/css2?family=Varela+Round&display
 varelaLink.rel = 'stylesheet';
 document.head.appendChild(varelaLink);
 
+// Add analytics tracking script
+const analyticsScript = document.createElement('script');
+analyticsScript.defer = true;
+analyticsScript.dataset.domain = "equestrianaintelligence.com";
+analyticsScript.src = "https://analytics.appetitecreative.com/js/script.js";
+document.head.appendChild(analyticsScript);
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <App />
