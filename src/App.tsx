@@ -8,6 +8,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { HelmetProvider } from "react-helmet-async";
+import Analytics from "./components/layout/Analytics";
 import TestComponent from "./components/TestComponent";
 import Index from "./pages/Index";
 import Dressage from "./pages/Dressage";
@@ -59,6 +60,7 @@ const App = () => (
           <AuthProvider>
             <LanguageProvider>
               <TooltipProvider>
+                <Analytics /> {/* Added Analytics component here */}
                 <Toaster />
                 <Sonner />
                 <Routes>

@@ -153,9 +153,6 @@ const About = () => {
         <ExperienceSection />
       </main>
       <Footer />
-      
-      {/* Add analytics tracking script */}
-      <script defer data-domain="equestrianaintelligence.com" src="https://analytics.appetitecreative.com/js/script.js"></script>
     </div>
   );
 };

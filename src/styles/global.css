@@ -1,0 +1,67 @@
+
+/* Global styles for AI Equestrian */
+
+/* Button gradients for dressage (purple) */
+.btn-dressage {
+  background: linear-gradient(135deg, #8a55a9, #6b3987);
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.btn-dressage:hover {
+  background: linear-gradient(135deg, #7d4a9c, #5e3279);
+}
+
+/* Button gradients for jumping (blue) */
+.btn-jumping {
+  background: linear-gradient(135deg, #5a7db7, #3a5d97);
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.btn-jumping:hover {
+  background: linear-gradient(135deg, #4f70a8, #304f85);
+}
+
+/* Combined gradient for general buttons */
+.btn-equestrian {
+  background: linear-gradient(135deg, #7b4a97, #4a6da7);
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.btn-equestrian:hover {
+  background: linear-gradient(135deg, #6c4088, #3e5d91);
+}
+
+/* Animation for reveal-scroll */
+.reveal-scroll {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.reveal-scroll.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Playfair Display', serif;
+}
+
+body {
+  font-family: 'Varela Round', sans-serif;
+}
+
+/* Footer gradient */
+.footer-gradient {
+  background: linear-gradient(180deg, #7545b0, #5f32a0);
+}
+
+/* Make sure images inside content don't overflow */
+img {
+  max-width: 100%;
+  height: auto;
+}
