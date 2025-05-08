@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 type Language = 'en' | 'es';
@@ -131,6 +130,46 @@ const defaultTranslations = {
     "rider-satisfaction": "Rider Satisfaction",
     "tests-analyzed": "Tests Analyzed",
     "see-how": "See How It Works",
+    
+    // Dressage How It Works page
+    "ai-dressage-how-it-works": "How AI Dressage Trainer Works",
+    "ai-dressage-how-it-works-description": "Our innovative platform uses advanced AI to transform how you approach dressage training",
+    "ai-dressage-step-1-title": "Upload Score Sheets",
+    "ai-dressage-step-1-description": "Take a photo or upload your dressage test score sheets through our intuitive interface.",
+    "ai-dressage-step-2-title": "AI Processing",
+    "ai-dressage-step-2-description": "Our advanced AI analyzes your scores, identifying patterns and areas for improvement.",
+    "ai-dressage-step-3-title": "Personalized Recommendations",
+    "ai-dressage-step-3-description": "Get tailored training exercises designed to address your specific improvement areas.",
+    "get-started-dressage": "Get Started with AI Dressage",
+    
+    // Dressage FAQ
+    "dressage-faq-title": "Frequently Asked Questions About AI Dressage",
+    "dressage-faq-question-1": "How does AI enhance dressage training?",
+    "dressage-faq-answer-1": "Our AI technology analyzes your movements, positions, and techniques in real-time, providing immediate feedback that would normally require a coach's eye. This allows for more efficient training sessions and faster improvement.",
+    "dressage-faq-question-2": "Can AI Dressage replace my trainer?",
+    "dressage-faq-answer-2": "Absolutely not. AI Dressage is designed to complement your training routine and support your work with your coach. It provides data-driven insights between lessons to help you practice more effectively.",
+    "dressage-faq-question-3": "What equipment do I need to use AI Dressage?",
+    "dressage-faq-answer-3": "You'll need a smartphone or tablet with a camera for video recording, and our mobile app. For the best experience, we recommend a mounting device for your arena or a helper to record your sessions.",
+    
+    // Jumping How It Works page
+    "ai-jumping-how-it-works": "How AI Jumping Trainer Works",
+    "ai-jumping-how-it-works-description": "Discover how our AI technology analyzes your jumping performance and provides targeted recommendations",
+    "ai-jumping-step-1-title": "Upload Jump Videos",
+    "ai-jumping-step-1-description": "Upload videos of your jumping rounds or training sessions for comprehensive analysis.",
+    "ai-jumping-step-2-title": "AI Analysis",
+    "ai-jumping-step-2-description": "Our AI examines your approach, takeoff, and landing to identify areas for technical improvement.",
+    "ai-jumping-step-3-title": "Performance Insights",
+    "ai-jumping-step-3-description": "Receive detailed insights and specific exercises to improve your jumping technique.",
+    "get-started-ai-jumping": "Get Started with AI Jumping",
+    
+    // Jumping FAQ
+    "jumping-faq-title": "Frequently Asked Questions About AI Jumping",
+    "jumping-faq-question-1": "How does the AI analyze jumping technique?",
+    "jumping-faq-answer-1": "Our AI uses computer vision to analyze the horse and rider's position, timing, and trajectory throughout the jump. It measures angles, speed, and body position to identify technical improvements.",
+    "jumping-faq-question-2": "Can AI Jumping help with course planning?",
+    "jumping-faq-answer-2": "Yes, after analyzing your rounds, the AI can identify patterns in your riding and provide suggestions for more effective approaches to different types of jumps and course combinations.",
+    "jumping-faq-question-3": "What video quality is required for accurate analysis?",
+    "jumping-faq-answer-3": "For best results, we recommend stable footage shot from the side of the jump at a distance that captures the approach and landing. However, our AI can still provide valuable insights from most reasonably clear videos.",
     
     // Footer
     "transform-equestrian": "Transform your equestrian training with AI-powered analysis and personalized recommendations.",
@@ -265,6 +304,46 @@ const defaultTranslations = {
     "rider-satisfaction": "Satisfacción del Jinete",
     "tests-analyzed": "Pruebas Analizadas",
     "see-how": "Ver Cómo Funciona",
+    
+    // Dressage How It Works page
+    "ai-dressage-how-it-works": "Cómo Funciona el Entrenador de Doma con IA",
+    "ai-dressage-how-it-works-description": "Nuestra plataforma innovadora utiliza IA avanzada para transformar tu enfoque de entrenamiento de doma",
+    "ai-dressage-step-1-title": "Subir Hojas de Puntuación",
+    "ai-dressage-step-1-description": "Toma una foto o sube tus hojas de puntuación de prueba de doma a través de nuestra interfaz intuitiva.",
+    "ai-dressage-step-2-title": "Procesamiento de IA",
+    "ai-dressage-step-2-description": "Nuestra IA avanzada analiza tus puntuaciones, identificando patrones y áreas de mejora.",
+    "ai-dressage-step-3-title": "Recomendaciones Personalizadas",
+    "ai-dressage-step-3-description": "Obtén ejercicios de entrenamiento personalizados diseñados para abordar tus áreas específicas de mejora.",
+    "get-started-dressage": "Comenzar con IA Doma",
+    
+    // Dressage FAQ
+    "dressage-faq-title": "Preguntas Frecuentes sobre IA Doma",
+    "dressage-faq-question-1": "¿Cómo mejora la IA el entrenamiento de doma?",
+    "dressage-faq-answer-1": "Nuestra tecnología de IA analiza tus movimientos, posiciones y técnicas en tiempo real, proporcionando retroalimentación inmediata que normalmente requeriría el ojo de un entrenador. Esto permite sesiones de entrenamiento más eficientes y una mejora más rápida.",
+    "dressage-faq-question-2": "¿Puede IA Doma reemplazar a mi entrenador?",
+    "dressage-faq-answer-2": "Absolutamente no. IA Doma está diseñado para complementar tu rutina de entrenamiento y apoyar tu trabajo con tu entrenador. Proporciona información basada en datos entre las lecciones para ayudarte a practicar de manera más efectiva.",
+    "dressage-faq-question-3": "¿Qué equipo necesito para usar IA Doma?",
+    "dressage-faq-answer-3": "Necesitarás un smartphone o tablet con cámara para grabar video, y nuestra aplicación móvil. Para la mejor experiencia, recomendamos un dispositivo de montaje para tu arena o un ayudante para grabar tus sesiones.",
+    
+    // Jumping How It Works page
+    "ai-jumping-how-it-works": "Cómo Funciona el Entrenador de Salto con IA",
+    "ai-jumping-how-it-works-description": "Descubre cómo nuestra tecnología de IA analiza tu rendimiento en saltos y proporciona recomendaciones específicas",
+    "ai-jumping-step-1-title": "Subir Videos de Salto",
+    "ai-jumping-step-1-description": "Sube videos de tus rondas de salto o sesiones de entrenamiento para un análisis completo.",
+    "ai-jumping-step-2-title": "Análisis de IA",
+    "ai-jumping-step-2-description": "Nuestra IA examina tu aproximación, despegue y aterrizaje para identificar áreas de mejora técnica.",
+    "ai-jumping-step-3-title": "Información de Rendimiento",
+    "ai-jumping-step-3-description": "Recibe información detallada y ejercicios específicos para mejorar tu técnica de salto.",
+    "get-started-ai-jumping": "Comenzar con IA Salto",
+    
+    // Jumping FAQ
+    "jumping-faq-title": "Preguntas Frecuentes sobre IA Salto",
+    "jumping-faq-question-1": "¿Cómo analiza la IA la técnica de salto?",
+    "jumping-faq-answer-1": "Nuestra IA utiliza visión por computadora para analizar la posición, el tiempo y la trayectoria del caballo y jinete durante todo el salto. Mide ángulos, velocidad y posición corporal para identificar mejoras técnicas.",
+    "jumping-faq-question-2": "¿Puede IA Salto ayudar con la planificación del recorrido?",
+    "jumping-faq-answer-2": "Sí, después de analizar tus rondas, la IA puede identificar patrones en tu forma de montar y proporcionar sugerencias para enfoques más efectivos a diferentes tipos de saltos y combinaciones de recorrido.",
+    "jumping-faq-question-3": "¿Qué calidad de video se requiere para un análisis preciso?",
+    "jumping-faq-answer-3": "Para obtener los mejores resultados, recomendamos imágenes estables tomadas desde el lateral del salto a una distancia que capture el acercamiento y el aterrizaje. Sin embargo, nuestra IA aún puede proporcionar información valiosa a partir de videos razonablemente claros.",
     
     // Footer
     "transform-equestrian": "Transforma tu entrenamiento ecuestre con análisis impulsado por IA y recomendaciones personalizadas.",

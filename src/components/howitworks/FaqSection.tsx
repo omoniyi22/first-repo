@@ -28,11 +28,11 @@ const FaqSection = () => {
     <section className="py-16 bg-white">
       <div className="container mx-auto px-6">
         <h2 className="text-3xl font-serif font-semibold text-center text-purple-900 mb-8 reveal-scroll">
-          {t["dressage-faq-title"] || "Frequently Asked Questions"}
+          {t["dressage-faq-title"] || "Frequently Asked Questions About AI Dressage"}
         </h2>
         <div className="max-w-3xl mx-auto">
           {faqData.map((item, index) => (
-            <div key={index} className="mb-6 reveal-scroll">
+            <div key={index} className="mb-6 reveal-scroll" style={{ animationDelay: `${index * 100}ms` }}>
               <h3 className="text-xl font-serif font-medium text-purple-800 mb-2">{item.question}</h3>
               <p className="text-gray-700 font-sans">{item.answer}</p>
             </div>
@@ -40,7 +40,7 @@ const FaqSection = () => {
         </div>
         <div className="text-center reveal-scroll">
           <Button
-            className="mt-6 bg-gradient-to-r from-[#8a55a9] to-[#6b3987] hover:from-[#7a4599] hover:to-[#5b2977] text-white"
+            className="mt-6 btn-dressage"
             onClick={() => navigate('/pricing')}
           >
             {t["get-started-dressage"] || "Get Started with AI Dressage"}

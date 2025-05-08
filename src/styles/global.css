@@ -1,37 +1,54 @@
 
 /* Global styles for AI Equestrian */
 
+/* CSS Variables for discipline-specific colors */
+:root {
+  --dressage-light: #8a55a9;
+  --dressage-dark: #6b3987;
+  --dressage-main: #7b4a97;
+  
+  --jump-light: #5a7db7;
+  --jump-dark: #3a5d97;
+  --jump-main: #4a6da7;
+}
+
 /* Button gradients for dressage (purple) */
 .btn-dressage {
-  background: linear-gradient(135deg, #8a55a9, #6b3987);
+  background: linear-gradient(135deg, var(--dressage-light), var(--dressage-dark));
   color: white;
   transition: all 0.3s ease;
 }
 
 .btn-dressage:hover {
   background: linear-gradient(135deg, #7d4a9c, #5e3279);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* Button gradients for jumping (blue) */
 .btn-jumping {
-  background: linear-gradient(135deg, #5a7db7, #3a5d97);
+  background: linear-gradient(135deg, var(--jump-light), var(--jump-dark));
   color: white;
   transition: all 0.3s ease;
 }
 
 .btn-jumping:hover {
   background: linear-gradient(135deg, #4f70a8, #304f85);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* Combined gradient for general buttons */
 .btn-equestrian {
-  background: linear-gradient(135deg, #7b4a97, #4a6da7);
+  background: linear-gradient(135deg, var(--dressage-main), var(--jump-main));
   color: white;
   transition: all 0.3s ease;
 }
 
 .btn-equestrian:hover {
   background: linear-gradient(135deg, #6c4088, #3e5d91);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* Animation for reveal-scroll */
@@ -64,4 +81,30 @@ body {
 img {
   max-width: 100%;
   height: auto;
+}
+
+/* Discipline-specific background colors */
+.bg-dressage-light {
+  background-color: var(--dressage-light);
+}
+
+.bg-dressage-dark {
+  background-color: var(--dressage-dark);
+}
+
+.bg-jump-light {
+  background-color: var(--jump-light);
+}
+
+.bg-jump-dark {
+  background-color: var(--jump-dark);
+}
+
+/* Text colors */
+.text-dressage {
+  color: var(--dressage-main);
+}
+
+.text-jump {
+  color: var(--jump-main);
 }
