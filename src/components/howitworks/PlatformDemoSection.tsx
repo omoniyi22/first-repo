@@ -15,6 +15,7 @@ const PlatformDemoSection: React.FC<PlatformDemoSectionProps> = ({ discipline })
   const t = translations[language];
 
   const buttonClass = discipline === 'dressage' ? 'btn-dressage' : 'btn-jumping';
+  const bgClass = discipline === 'dressage' ? 'bg-gray-100' : 'bg-blue-50';
   
   const title = discipline === 'jumping' 
     ? (t["jumping-demo-title"] || "See the Platform in Action")
@@ -25,7 +26,7 @@ const PlatformDemoSection: React.FC<PlatformDemoSectionProps> = ({ discipline })
     : (t["dressage-demo-description"] || "Watch our demo to see how AI Dressage Trainer can transform your training approach with powerful analysis of tests, movements, and dressage technique.");
 
   return (
-    <section className="py-16 bg-gray-100">
+    <section className={`py-16 ${bgClass}`}>
       <div className="container mx-auto px-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Left column */}

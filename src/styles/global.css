@@ -92,12 +92,20 @@ img {
   background-color: var(--dressage-dark);
 }
 
+.bg-dressage {
+  background-color: var(--dressage-main);
+}
+
 .bg-jump-light {
   background-color: var(--jump-light);
 }
 
 .bg-jump-dark {
   background-color: var(--jump-dark);
+}
+
+.bg-jump {
+  background-color: var(--jump-main);
 }
 
 /* Text colors */
@@ -107,6 +115,15 @@ img {
 
 .text-jump {
   color: var(--jump-main);
+}
+
+/* Background colors for sections */
+.bg-dressage-section {
+  background-color: #f5f0ff;
+}
+
+.bg-jump-section {
+  background-color: #f0f5ff;
 }
 
 /* About page section styling */
@@ -231,3 +248,4 @@ img {
 .play-button:hover {
   opacity: 0.9;
 }
+
