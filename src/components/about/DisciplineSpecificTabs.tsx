@@ -30,7 +30,7 @@ const DisciplineFeatureCard = ({
 const DressageTab = () => (
   <div className="space-y-8">
     {/* Hero section with image and text side by side */}
-    <div className="grid md:grid-cols-2 gap-8 items-center">
+    <div className="grid md:grid-cols-2 gap-8 items-center max-w-4xl mx-auto">
       <div className="order-2 md:order-1">
         <div className="bg-purple-50 p-6 rounded-lg border border-purple-100">
           <h3 className="text-2xl font-serif font-semibold text-purple-900 mb-4">
@@ -99,8 +99,8 @@ const DressageTab = () => (
         </Carousel>
       </div>
       
-      {/* Desktop Grid */}
-      <div className="hidden md:grid md:grid-cols-3 gap-4">
+      {/* Desktop Grid - centered with max-width */}
+      <div className="hidden md:grid md:grid-cols-3 gap-4 max-w-5xl mx-auto">
         <DisciplineFeatureCard
           title="Inconsistent Test Scores"
           description="Dressage riders often experience frustrating score fluctuations without understanding why. AI Dressage analyzes your test sheets to identify patterns and specific movements affecting your overall performance."
@@ -139,7 +139,7 @@ const DressageTab = () => (
 const JumpingTab = () => (
   <div className="space-y-8">
     {/* Hero section with image and text side by side */}
-    <div className="grid md:grid-cols-2 gap-8 items-center">
+    <div className="grid md:grid-cols-2 gap-8 items-center max-w-4xl mx-auto">
       <div className="order-2 md:order-1">
         <div className="bg-blue-50 p-6 rounded-lg border border-blue-100">
           <h3 className="text-2xl font-serif font-semibold text-blue-900 mb-4">
@@ -208,8 +208,8 @@ const JumpingTab = () => (
         </Carousel>
       </div>
       
-      {/* Desktop Grid */}
-      <div className="hidden md:grid md:grid-cols-3 gap-4">
+      {/* Desktop Grid - centered with max-width */}
+      <div className="hidden md:grid md:grid-cols-3 gap-4 max-w-5xl mx-auto">
         <DisciplineFeatureCard
           title="Approach and Distance Inconsistency"
           description="Finding the right distance to jumps consistently is a common struggle. AI Jump analyzes your approaches to identify patterns and help you develop more reliable distance control."
@@ -276,10 +276,6 @@ const DisciplineSpecificTabs = () => {
               <span className="text-xl font-serif">AI Jump</span>
             </TabsTrigger>
           </TabsList>
-          
-          <div className="p-4 mb-6 bg-white rounded-md shadow-sm text-center border border-gray-100">
-            <p className="text-gray-700">Currently viewing: <span className={`font-bold ${activeTab === "dressage" ? "text-purple-800" : "text-blue-800"}`}>{activeTab === "dressage" ? "AI Dressage" : "AI Jump"}</span></p>
-          </div>
           
           <TabsContent value="dressage" className="mt-6 focus-visible:outline-none focus-visible:ring-0">
             <DressageTab />

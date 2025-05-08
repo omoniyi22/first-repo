@@ -26,7 +26,7 @@ const HeroSection = () => {
           </p>
           <Link to="/sign-in?signup=true">
             <Button 
-              className="primary-dressage-button"
+              className="bg-gradient-to-r from-purple-600 to-blue-500 text-white hover:from-purple-700 hover:to-blue-600"
               size="lg"
             >
               Try AI Equestrian

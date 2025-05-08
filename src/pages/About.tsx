@@ -10,6 +10,7 @@ import KeyStatistics from '@/components/about/KeyStatistics';
 import ProblemsWeSolve from '@/components/about/ProblemsWeSolve';
 import EquestrianTeamSection from '@/components/about/EquestrianTeamSection';
 import DisciplineSpecificTabs from '@/components/about/DisciplineSpecificTabs';
+import ExperienceSection from '@/components/about/ExperienceSection';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -137,7 +138,7 @@ const About = () => {
                 We're always looking to collaborate with organizations and brands that share our vision for the future of equestrian training.
               </p>
               <Button 
-                className="primary-dressage-button"
+                className="bg-gradient-to-r from-purple-600 to-blue-500 text-white hover:from-purple-700 hover:to-blue-600"
               >
                 Contact for Partnership Opportunities
               </Button>
@@ -147,6 +148,9 @@ const About = () => {
         
         {/* Team Section */}
         <EquestrianTeamSection />
+        
+        {/* Experience Section */}
+        <ExperienceSection />
       </main>
       <Footer />
       
