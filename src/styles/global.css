@@ -108,3 +108,55 @@ img {
 .text-jump {
   color: var(--jump-main);
 }
+
+/* About page section styling */
+.about-section {
+  padding: 4rem 0;
+}
+
+.about-card {
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.about-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Accordion styling for FAQ sections */
+.accordion-section .accordion-title {
+  font-family: 'Playfair Display', serif;
+}
+
+/* Animation delays for staggered reveals */
+.reveal-delay-1 {
+  animation-delay: 100ms;
+}
+
+.reveal-delay-2 {
+  animation-delay: 200ms;
+}
+
+.reveal-delay-3 {
+  animation-delay: 300ms;
+}
+
+.reveal-delay-4 {
+  animation-delay: 400ms;
+}
+
+.reveal-delay-5 {
+  animation-delay: 500ms;
+}
+
+/* Fix for missing modules in about section */
+.mission-section,
+.team-section,
+.values-section,
+.statistics-section,
+.experience-section {
+  opacity: 1 !important;
+  transform: none !important;
+}
