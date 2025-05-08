@@ -26,10 +26,8 @@ const HeroSection = () => {
           </p>
           <Link to="/sign-in?signup=true">
             <Button 
-              variant="dressage"
-              size="xl" 
-              textCase="uppercase"
-              className="primary-dressage-gradient"
+              className="primary-dressage-button"
+              size="lg"
             >
               Try AI Equestrian
             </Button>

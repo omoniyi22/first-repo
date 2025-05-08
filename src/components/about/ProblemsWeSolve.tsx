@@ -33,10 +33,7 @@ const ProblemsWeSolve = () => {
               
               <Link to="/how-it-works">
                 <Button 
-                  variant="dressage" 
-                  size="lg"
-                  textCase="default"
-                  className="primary-dressage-gradient inline-flex items-center"
+                  className="primary-dressage-button"
                 >
                   Learn how our technology works <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>

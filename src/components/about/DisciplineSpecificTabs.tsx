@@ -5,8 +5,8 @@ import AnimatedSection from "@/components/ui/AnimatedSection";
 
 const DressageTab = () => (
   <div className="space-y-6">
-    <div className="md:flex gap-8 items-center mb-8">
-      <div className="md:w-1/2 mb-6 md:mb-0">
+    <div className="flex flex-col items-center mb-8">
+      <div className="mb-6 text-center max-w-2xl">
         <h3 className="text-2xl font-serif font-semibold text-purple-900 mb-4">
           Elevating Your Dressage Journey
         </h3>
@@ -14,7 +14,7 @@ const DressageTab = () => (
           Dressage demands precision, harmony, and consistent improvement. AI Dressage tackles the specific challenges faced by dressage riders.
         </p>
       </div>
-      <div className="md:w-1/2">
+      <div className="w-full max-w-3xl">
         <img 
           src="/lovable-uploads/42930ec1-2f55-429f-aaa5-4aac1791a729.png"
           alt="Dressage training with AI analysis"
@@ -64,8 +64,8 @@ const DressageTab = () => (
 
 const JumpingTab = () => (
   <div className="space-y-6">
-    <div className="md:flex gap-8 items-center mb-8">
-      <div className="md:w-1/2 mb-6 md:mb-0">
+    <div className="flex flex-col items-center mb-8">
+      <div className="mb-6 text-center max-w-2xl">
         <h3 className="text-2xl font-serif font-semibold text-blue-900 mb-4">
           Clearing Obstacles to Success
         </h3>
@@ -73,9 +73,9 @@ const JumpingTab = () => (
           Show jumping requires split-second decisions and technical accuracy. AI Jump addresses the unique challenges jumpers face.
         </p>
       </div>
-      <div className="md:w-1/2">
+      <div className="w-full max-w-3xl">
         <img 
-          src="/lovable-uploads/987a3f3b-1917-439f-a3a9-8fabc609cffa.png"
+          src="/lovable-uploads/dbb9802b-bed7-4888-96a3-73b68198710b.png" 
           alt="Show jumping with AI analysis"
           className="rounded-lg w-full object-cover shadow-md h-64"
         />

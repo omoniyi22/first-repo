@@ -137,8 +137,7 @@ const About = () => {
                 We're always looking to collaborate with organizations and brands that share our vision for the future of equestrian training.
               </p>
               <Button 
-                variant="dressage" 
-                className="bg-gradient-to-r from-[#8a55a9] to-[#6b3987] hover:from-[#7a4599] hover:to-[#5b2977] text-white uppercase"
+                className="primary-dressage-button"
               >
                 Contact for Partnership Opportunities
               </Button>
