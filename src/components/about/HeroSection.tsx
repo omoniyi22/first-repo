@@ -4,14 +4,14 @@ import { Link } from "react-router-dom";
 
 const HeroSection = () => {
   return (
-    <section className="relative h-[400px] md:h-[500px] overflow-hidden">
+    <section className="relative h-[500px] md:h-[600px] overflow-hidden">
       {/* Background image with overlay */}
       <div className="absolute inset-0 bg-gradient-to-r from-purple-900/70 to-blue-900/70">
         <img 
-          src="/lovable-uploads/dbb9802b-bed7-4888-96a3-73b68198710b.png"
+          src="/lovable-uploads/138720cd-9a7d-4b54-bcfe-ca99ad9213fc.png"
           alt="AI Equestrian - Riding Intelligence, Redefined"
           className="w-full h-full object-cover mix-blend-overlay"
-          style={{ objectPosition: "center 40%" }} // Adjust to show more of the rider
+          style={{ objectPosition: "center" }}
         />
       </div>
       

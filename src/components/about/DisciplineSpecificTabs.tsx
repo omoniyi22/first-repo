@@ -16,7 +16,7 @@ const DressageTab = () => (
       </div>
       <div className="md:w-1/2">
         <img 
-          src="/lovable-uploads/42930ec1-2f55-429f-aaa5-4aac1791a729.png"
+          src="/lovable-uploads/a7ea86ae-24f6-42e6-ae48-013e45371a6b.png"
           alt="Dressage training with AI analysis"
           className="rounded-lg w-full object-cover shadow-md h-64"
         />
@@ -75,7 +75,7 @@ const JumpingTab = () => (
       </div>
       <div className="md:w-1/2">
         <img 
-          src="/lovable-uploads/09bde514-1caf-42e9-9093-d5bd869dda06.png"
+          src="/lovable-uploads/138720cd-9a7d-4b54-bcfe-ca99ad9213fc.png"
           alt="Show jumping with AI analysis"
           className="rounded-lg w-full object-cover shadow-md h-64"
         />
@@ -122,6 +122,8 @@ const JumpingTab = () => (
 );
 
 const DisciplineSpecificTabs = () => {
+  const [activeTab, setActiveTab] = useState("dressage");
+  
   return (
     <section className="py-16 bg-gradient-to-br from-purple-100 to-blue-100">
       <div className="container mx-auto px-6">
@@ -134,25 +136,25 @@ const DisciplineSpecificTabs = () => {
           </p>
         </AnimatedSection>
         
-        <Tabs defaultValue="dressage" className="w-full max-w-6xl mx-auto">
+        <Tabs defaultValue="dressage" value={activeTab} onValueChange={setActiveTab} className="w-full max-w-6xl mx-auto">
           <TabsList className="grid w-full grid-cols-2 mb-8">
             <TabsTrigger 
               value="dressage"
-              className="data-[state=active]:bg-purple-100 data-[state=active]:text-purple-900 py-3"
+              className="data-[state=active]:bg-purple-100 data-[state=active]:text-purple-900 py-3 rounded-tl-md rounded-tr-md"
             >
               <span className="text-xl font-serif font-semibold">AI Dressage</span>
             </TabsTrigger>
             <TabsTrigger 
               value="jumping"
-              className="data-[state=active]:bg-blue-100 data-[state=active]:text-blue-900 py-3"
+              className="data-[state=active]:bg-blue-100 data-[state=active]:text-blue-900 py-3 rounded-tl-md rounded-tr-md"
             >
               <span className="text-xl font-serif font-semibold">AI Jump</span>
             </TabsTrigger>
           </TabsList>
-          <TabsContent value="dressage" className="mt-6">
+          <TabsContent value="dressage" className="mt-6 focus-visible:outline-none focus-visible:ring-0">
             <DressageTab />
           </TabsContent>
-          <TabsContent value="jumping" className="mt-6">
+          <TabsContent value="jumping" className="mt-6 focus-visible:outline-none focus-visible:ring-0">
             <JumpingTab />
           </TabsContent>
         </Tabs>
