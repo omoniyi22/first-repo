@@ -179,3 +179,55 @@ img {
 .reveal-delay-5 {
   animation-delay: 500ms;
 }
+
+/* Detailed steps card styling */
+.step-card {
+  display: flex;
+  background-color: white;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.step-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.step-icon {
+  width: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.step-content {
+  padding: 1.25rem;
+  flex: 1;
+}
+
+/* Platform demo section styling */
+.demo-video-placeholder {
+  background-color: #f1f5f9;
+  border-radius: 0.5rem;
+  aspect-ratio: 16/9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.play-button {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+}
+
+.play-button:hover {
+  opacity: 0.9;
+}

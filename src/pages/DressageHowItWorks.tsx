@@ -7,6 +7,8 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import StepsSection from '@/components/howitworks/StepsSection';
 import FaqSection from '@/components/howitworks/FaqSection';
+import DetailedStepsSection from '@/components/howitworks/DetailedStepsSection';
+import PlatformDemoSection from '@/components/howitworks/PlatformDemoSection';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -105,7 +107,9 @@ const DressageHowItWorks = () => {
       </div>
       
       <main className="pt-2">
+        <DetailedStepsSection discipline="dressage" />
         <StepsSection />
+        <PlatformDemoSection discipline="dressage" />
         <FaqSection />
       </main>
       <Footer />

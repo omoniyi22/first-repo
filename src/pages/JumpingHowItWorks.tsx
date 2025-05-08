@@ -6,6 +6,8 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import JumpingStepsSection from '@/components/howitworks/JumpingStepsSection';
 import JumpingFaqSection from '@/components/howitworks/JumpingFaqSection';
+import DetailedStepsSection from '@/components/howitworks/DetailedStepsSection';
+import PlatformDemoSection from '@/components/howitworks/PlatformDemoSection';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -106,7 +108,9 @@ const JumpingHowItWorks = () => {
       </div>
       
       <main>
+        <DetailedStepsSection discipline="jumping" />
         <JumpingStepsSection />
+        <PlatformDemoSection discipline="jumping" />
         <JumpingFaqSection />
       </main>
       <Footer />
