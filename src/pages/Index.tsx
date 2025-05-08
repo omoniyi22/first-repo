@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
@@ -56,7 +57,7 @@ const Index = () => {
     <div className="min-h-screen">
       <SEO {...seoMetadata} />
       <Navbar />
-      <main className="pt-0">
+      <main className="pt-16"> {/* Added pt-16 to provide space for fixed navbar */}
         {/* Hero Section */}
         <section className="relative h-screen flex items-center justify-center overflow-hidden">
           <div className="absolute inset-0">
@@ -100,7 +101,7 @@ const Index = () => {
             </div>
           </div>
           
-          <div className="container relative z-10 mx-auto px-6 text-center">
+          <div className="container relative z-10 mx-auto px-6 text-center mt-16"> {/* Added mt-16 for additional spacing */}
             <div className="max-w-3xl mx-auto">
               <span className="inline-block px-3 py-1 bg-white/20 text-white rounded-full text-sm font-medium mb-6 backdrop-blur-sm border border-white/30">
                 AI-Powered Equestrian Training

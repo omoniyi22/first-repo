@@ -191,6 +191,15 @@
   .navbar-container {
     @apply z-50;
   }
+  
+  /* Navbar padding classes */
+  .pt-navbar {
+    @apply pt-16; /* Standard padding for fixed navbar */
+  }
+  
+  .mt-navbar {
+    @apply mt-16; /* Standard margin for fixed navbar */
+  }
 }
 
 /* Scroll-triggered animation utility */

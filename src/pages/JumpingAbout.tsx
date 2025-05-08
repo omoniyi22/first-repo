@@ -57,7 +57,7 @@ const JumpingAbout = () => {
       <Navbar />
       
       {/* Hero Section with the jumping horse image */}
-      <div className="relative mb-12">
+      <div className="relative mb-12 pt-16"> {/* Added pt-16 for navbar space */}
         <div className="w-full h-96 md:h-[500px] overflow-hidden relative">
           <img 
             src="/lovable-uploads/56f99687-5778-4490-9dbf-61126204c9b3.png" 

@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 
 const HeroSection = () => {
   return (
-    <section className="relative h-[500px] md:h-[600px] overflow-hidden">
+    <section className="relative h-[500px] md:h-[600px] overflow-hidden pt-16"> {/* Added pt-16 for navbar space */}
       {/* Background image with overlay */}
       <div className="absolute inset-0 bg-gradient-to-r from-purple-900/70 to-blue-900/70">
         <img 
