@@ -5,7 +5,7 @@ import { Instagram, Mail } from 'lucide-react';
 
 const Footer = () => {
   return (
-    <footer className="bg-gradient-to-b from-purple-900 to-purple-950 text-white py-12">
+    <footer className="bg-gradient-to-b from-[#2c2c2c] to-[#1a1a1a] text-white py-12">
       <div className="container mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Logo Area */}
