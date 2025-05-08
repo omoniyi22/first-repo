@@ -136,7 +136,10 @@ const About = () => {
               <p className="text-gray-700 mb-6 max-w-2xl mx-auto">
                 We're always looking to collaborate with organizations and brands that share our vision for the future of equestrian training.
               </p>
-              <Button className="bg-gradient-to-r from-[#8a55a9] to-[#6b3987] hover:from-[#7a4599] hover:to-[#5b2977] text-white">
+              <Button 
+                variant="dressage" 
+                className="bg-gradient-to-r from-[#8a55a9] to-[#6b3987] hover:from-[#7a4599] hover:to-[#5b2977] text-white uppercase"
+              >
                 Contact for Partnership Opportunities
               </Button>
             </div>

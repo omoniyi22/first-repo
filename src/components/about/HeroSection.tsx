@@ -18,14 +18,19 @@ const HeroSection = () => {
       {/* Content */}
       <div className="container mx-auto px-6 h-full relative z-10">
         <div className="flex flex-col items-center justify-center h-full text-center">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-semibold text-white mb-6">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-semibold text-white mb-6 text-shadow">
             Riding Intelligence, Redefined
           </h1>
           <p className="text-lg md:text-xl text-white/90 max-w-2xl mb-8">
             AI Equestrian combines cutting-edge technology with equestrian expertise to transform how riders train, compete, and improve.
           </p>
           <Link to="/sign-in?signup=true">
-            <Button size="lg" className="bg-gradient-to-r from-[#8a55a9] to-[#6b3987] hover:from-[#7a4599] hover:to-[#5b2977] text-white px-8 py-6 rounded-md text-lg uppercase">
+            <Button 
+              variant="dressage"
+              size="xl" 
+              textCase="uppercase"
+              className="primary-dressage-gradient"
+            >
               Try AI Equestrian
             </Button>
           </Link>
