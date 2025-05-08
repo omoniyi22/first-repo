@@ -7,7 +7,7 @@ const HeroSection = () => {
   const isMobile = useIsMobile();
   
   return (
-    <section className="relative h-[500px] md:h-[600px] overflow-hidden pt-28"> {/* Increased padding-top to pt-28 for more space */}
+    <section className="relative h-[550px] md:h-[600px] overflow-hidden pt-32"> {/* Increased padding-top and height */}
       {/* Background image with overlay */}
       <div className="absolute inset-0 bg-gradient-to-r from-purple-900/70 to-blue-900/70">
         <img 
@@ -20,7 +20,7 @@ const HeroSection = () => {
       {/* Content */}
       <div className="container mx-auto px-6 h-full relative z-10">
         <div className="flex flex-col items-center justify-center h-full text-center">
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-serif font-semibold text-white mb-6 mt-16 md:mt-4"> {/* Increased top margin for better spacing */}
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-serif font-semibold text-white mb-6 md:mt-0"> {/* Removed top margin */}
             Riding Intelligence, Redefined
           </h1>
           <p className="text-lg md:text-xl text-white/90 max-w-2xl mb-8">

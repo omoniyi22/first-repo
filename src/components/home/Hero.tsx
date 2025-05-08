@@ -17,7 +17,7 @@ const Hero = () => {
   }, []);
 
   return (
-    <section className="relative min-h-[80vh] flex items-center justify-center overflow-hidden pt-28"> {/* Increased pt-28 for more navbar space */}
+    <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden pt-32"> {/* Increased height and padding-top */}
       {/* Full-width background image */}
       {!imageLoaded && (
         <div className="absolute inset-0 bg-purple-100/50">
@@ -36,7 +36,7 @@ const Hero = () => {
       {/* Overlay gradient */}
       <div className="absolute inset-0 bg-gradient-to-r from-purple-900/70 to-purple-900/40"></div>
       
-      <div className="container relative z-10 mx-auto px-6 text-center mt-16"> {/* Adjusted mt-16 for better spacing */}
+      <div className="container relative z-10 mx-auto px-6 text-center"> {/* Removed mt-16 for better spacing */}
         <div className={`max-w-2xl mx-auto transition-all duration-1000 transform ${loaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
           <AnimatedSection animation="fade-in" delay="delay-100">
             <div className="inline-block px-6 py-3 mb-6 bg-gradient-to-r from-purple-600 to-blue-500 rounded-xl backdrop-blur-sm">
@@ -49,7 +49,7 @@ const Hero = () => {
           </AnimatedSection>
           
           <AnimatedSection animation="fade-in" delay="delay-200">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-semibold leading-tight text-white mb-6 text-shadow mt-10 md:mt-0"> {/* Increased margin top for mobile */}
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-semibold leading-tight text-white mb-6 text-shadow mt-6 md:mt-0"> {/* Reduced top margin */}
               {language === 'en'
                 ? "Transform Your Dressage Training with AI"
                 : "Transforma Tu Entrenamiento de Doma con IA"}

@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
@@ -11,6 +12,7 @@ import { SEO } from '@/lib/seo/SEO';
 import { getPageMetadata } from '@/lib/seo/pageMetadata';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAlternateImage } from '@/hooks/use-alternate-image';
+import Testimonials from '@/components/home/Testimonials';
 
 const Index = () => {
   // Initialize scroll reveal for animations
@@ -67,7 +69,7 @@ const Index = () => {
       <Navbar />
       <main className="pt-0"> {/* Removed padding-top since we'll add it to the hero section */}
         {/* Hero Section */}
-        <section className="relative h-screen flex items-center justify-center overflow-hidden pt-28"> {/* Added pt-28 for navbar space */}
+        <section className="relative min-h-[100vh] flex items-center justify-center overflow-hidden pt-32"> {/* Increased height and padding-top */}
           <div className="absolute inset-0">
             {/* Split hero section with two images for desktop, alternating image for mobile */}
             {isMobile ? (
@@ -137,13 +139,13 @@ const Index = () => {
             )}
           </div>
           
-          <div className="container relative z-10 mx-auto px-6 text-center mt-28 md:mt-20"> {/* Increased margins for more space */}
+          <div className="container relative z-10 mx-auto px-6 text-center mt-20 md:mt-0"> {/* Adjusted top margin */}
             <div className="max-w-3xl mx-auto">
               <span className="inline-block px-3 py-1 bg-white/20 text-white rounded-full text-sm font-medium mb-6 backdrop-blur-sm border border-white/30">
                 AI-Powered Equestrian Training
               </span>
               
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-serif font-semibold leading-tight text-white mb-8 text-shadow mt-10 md:mt-0"> {/* Increased mobile margin top */}
+              <h1 className="text-5xl md:text-6xl lg:text-7xl font-serif font-semibold leading-tight text-white mb-8 text-shadow mt-6 md:mt-0"> {/* Reduced top margin */}
                 AI Equestrian
               </h1>
               
@@ -195,6 +197,9 @@ const Index = () => {
             </div>
           </div>
         </section>
+        
+        {/* Testimonials Section - Adding it back */}
+        <Testimonials />
         
         {/* Benefits Section */}
         <section className="py-20 bg-white">
