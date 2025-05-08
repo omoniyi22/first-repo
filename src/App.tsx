@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from "@/components/ui/toaster";
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { AuthProvider } from '@/contexts/AuthContext';
-import { Analytics } from './components/layout/Analytics';
+import Analytics from './components/layout/Analytics';
 
 // Lazy-loaded pages
 const Index = lazy(() => import('./pages/Index'));
