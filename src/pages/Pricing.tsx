@@ -10,37 +10,8 @@ const Pricing = () => {
   // Get SEO metadata for pricing page
   const seoMetadata = getPageMetadata('pricing');
   
-  // Initialize scroll reveal for animations
+  // Scroll to top on page load
   useEffect(() => {
-    const initScrollReveal = () => {
-      const revealItems = document.querySelectorAll('.reveal-scroll');
-      
-      const revealCallback = (entries: IntersectionObserverEntry[]) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('revealed');
-          }
-        });
-      };
-      
-      const observer = new IntersectionObserver(revealCallback, {
-        threshold: 0.1,
-      });
-      
-      revealItems.forEach((item) => {
-        observer.observe(item);
-      });
-      
-      return () => {
-        revealItems.forEach((item) => {
-          observer.unobserve(item);
-        });
-      };
-    };
-    
-    initScrollReveal();
-    
-    // Scroll to top on page load
     window.scrollTo(0, 0);
   }, []);
 
