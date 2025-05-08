@@ -1,26 +1,12 @@
 
-import { useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 
 const Analytics = () => {
-  useEffect(() => {
-    // Create and append analytics script
-    const script = document.createElement('script');
-    script.src = 'https://analytics.appetitecreative.com/js/script.js';
-    script.defer = true;
-    script.setAttribute('data-domain', 'equestrianaintelligence.com');
-    
-    // Add script to head
-    document.head.appendChild(script);
-    
-    // Cleanup on unmount
-    return () => {
-      if (document.head.contains(script)) {
-        document.head.removeChild(script);
-      }
-    };
-  }, []);
-  
-  return null; // This component doesn't render anything visible
+  return (
+    <Helmet>
+      <script defer data-domain="equestrianaintelligence.com" src="https://analytics.appetitecreative.com/js/script.js"></script>
+    </Helmet>
+  );
 };
 
 export default Analytics;

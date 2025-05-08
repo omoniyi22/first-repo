@@ -215,12 +215,12 @@ const PricingTiers = () => {
   return (
     <section className="py-24 bg-white">
       <div className="container mx-auto px-6">
-        <AnimatedSection animation="fade-in" className="text-center max-w-3xl mx-auto mb-12">
-          <h1 className="text-4xl md:text-5xl font-serif font-semibold text-navy-900 mb-6">
-            {t["simple-pricing"]}
+        <AnimatedSection animation="fade-in" className="text-center max-w-4xl mx-auto mb-12">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-semibold text-[#3D3160] mb-6">
+            Simple, Transparent Pricing
           </h1>
-          <p className="text-lg text-gray-700">
-            {t["try-free"]}
+          <p className="text-lg text-gray-700 mb-12">
+            Try for free with one test, then choose the plan that best fits your training needs.
           </p>
         </AnimatedSection>
         
