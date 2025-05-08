@@ -11,7 +11,6 @@ import ProblemsWeSolve from '@/components/about/ProblemsWeSolve';
 import EquestrianTeamSection from '@/components/about/EquestrianTeamSection';
 import DisciplineSpecificTabs from '@/components/about/DisciplineSpecificTabs';
 
-import AnimatedSection from '@/components/ui/AnimatedSection';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Link } from 'react-router-dom';
@@ -62,7 +61,7 @@ const About = () => {
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       <SEO {...seoMetadata} />
       <Navbar />
-      <main className="pt-20">
+      <main>
         {/* Hero Section */}
         <HeroSection />
         
@@ -137,7 +136,7 @@ const About = () => {
               <p className="text-gray-700 mb-6 max-w-2xl mx-auto">
                 We're always looking to collaborate with organizations and brands that share our vision for the future of equestrian training.
               </p>
-              <Button variant="dressage" className="text-white">
+              <Button className="bg-gradient-to-r from-[#8a55a9] to-[#6b3987] hover:from-[#7a4599] hover:to-[#5b2977] text-white">
                 Contact for Partnership Opportunities
               </Button>
             </div>

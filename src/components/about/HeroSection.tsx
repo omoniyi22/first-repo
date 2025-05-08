@@ -10,7 +10,7 @@ const HeroSection = () => {
         <img 
           src="/lovable-uploads/dbb9802b-bed7-4888-96a3-73b68198710b.png"
           alt="AI Equestrian - Riding Intelligence, Redefined"
-          className="w-full h-full object-cover object-center mix-blend-overlay"
+          className="w-full h-full object-cover mix-blend-overlay"
           style={{ objectPosition: "center 40%" }} // Adjust to show more of the rider
         />
       </div>
