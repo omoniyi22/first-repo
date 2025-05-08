@@ -1,3 +1,4 @@
+
 import { useEffect } from 'react';
 import { SEO, getPageMetadata } from '@/lib/seo';
 import Navbar from '@/components/layout/Navbar';
@@ -10,7 +11,6 @@ import ProblemsWeSolve from '@/components/about/ProblemsWeSolve';
 import EquestrianTeamSection from '@/components/about/EquestrianTeamSection';
 import DisciplineSpecificTabs from '@/components/about/DisciplineSpecificTabs';
 
-// The following sections are preserved from the existing About page
 import AnimatedSection from '@/components/ui/AnimatedSection';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -137,7 +137,7 @@ const About = () => {
               <p className="text-gray-700 mb-6 max-w-2xl mx-auto">
                 We're always looking to collaborate with organizations and brands that share our vision for the future of equestrian training.
               </p>
-              <Button className="bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 text-white">
+              <Button variant="dressage" className="text-white">
                 Contact for Partnership Opportunities
               </Button>
             </div>
