@@ -6,8 +6,6 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import JumpingStepsSection from '@/components/howitworks/JumpingStepsSection';
 import JumpingFaqSection from '@/components/howitworks/JumpingFaqSection';
-import DetailedStepsSection from '@/components/howitworks/DetailedStepsSection';
-import PlatformDemoSection from '@/components/howitworks/PlatformDemoSection';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -55,11 +53,11 @@ const JumpingHowItWorks = () => {
   // Get discipline-specific metadata
   const seoMetadata = generateDisciplineMetadata('Jumping', {
     canonicalUrl: '/jumping/how-it-works',
-    ogImage: '/lovable-uploads/063b51df-06fb-45d8-8de9-334ff09a49ff.png'
+    ogImage: '/lovable-uploads/photo-1469474968028-56623f02e42e.jpeg'
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-100 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-purple-100 to-white">
       <SEO {...seoMetadata} />
       <Navbar />
       
@@ -89,11 +87,11 @@ const JumpingHowItWorks = () => {
       <div className="relative mb-12">
         <div className="w-full h-80 md:h-96 overflow-hidden relative">
           <img 
-            src="/lovable-uploads/063b51df-06fb-45d8-8de9-334ff09a49ff.png" 
-            alt="Show jumping competitor clearing a fence"
+            src="/lovable-uploads/photo-1469474968028-56623f02e42e.jpeg" 
+            alt="Landscape view of mountains with sunlight"
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-900/60 to-transparent"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-900/60 to-transparent"></div>
           <div className="absolute inset-0 flex items-center">
             <div className="container mx-auto px-6">
               <h1 className="text-4xl md:text-5xl font-serif font-bold text-white max-w-2xl drop-shadow-md">
@@ -108,9 +106,7 @@ const JumpingHowItWorks = () => {
       </div>
       
       <main>
-        <DetailedStepsSection discipline="jumping" />
         <JumpingStepsSection />
-        <PlatformDemoSection discipline="jumping" />
         <JumpingFaqSection />
       </main>
       <Footer />

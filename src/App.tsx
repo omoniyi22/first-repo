@@ -8,7 +8,6 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { HelmetProvider } from "react-helmet-async";
-import Analytics from "./components/layout/Analytics";
 import TestComponent from "./components/TestComponent";
 import Index from "./pages/Index";
 import Dressage from "./pages/Dressage";
@@ -31,7 +30,6 @@ import BlogPost from "./pages/BlogPost";
 import ProfileQuestionnaire from "./pages/ProfileQuestionnaire";
 import JumpProfileSetup from "./pages/JumpProfileSetup";
 import Analysis from "./pages/Analysis";
-import RecommendationsPage from "./pages/RecommendationsPage";
 
 // Admin Routes
 import Admin from "./pages/Admin";
@@ -60,7 +58,6 @@ const App = () => (
           <AuthProvider>
             <LanguageProvider>
               <TooltipProvider>
-                <Analytics />
                 <Toaster />
                 <Sonner />
                 <Routes>
@@ -85,7 +82,6 @@ const App = () => (
                   <Route path="/profile-setup" element={<ProfileQuestionnaire />} />
                   <Route path="/jump-profile-setup" element={<JumpProfileSetup />} />
                   <Route path="/analysis" element={<Analysis />} />
-                  <Route path="/recommendations/:discipline/:id" element={<RecommendationsPage />} />
                   
                   {/* Redirect old discipline-specific About routes to main About page */}
                   <Route path="/dressage/about" element={<Navigate to="/about" replace />} />

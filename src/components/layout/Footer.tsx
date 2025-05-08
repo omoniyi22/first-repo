@@ -5,84 +5,79 @@ import { Instagram, Mail } from 'lucide-react';
 
 const Footer = () => {
   return (
-    <footer className="bg-gradient-to-b from-[#7545b0] to-[#5f32a0] text-white py-12">
+    <footer className="bg-gradient-to-br from-purple-700 to-purple-900 text-white py-12">
       <div className="container mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* About AI Equestrian */}
+          {/* First Section - About Us */}
           <div>
-            <h4 className="text-xl font-serif font-semibold text-white mb-4">About AI Equestrian</h4>
-            <p className="text-white font-sans text-sm mb-4">
-              We combine artificial intelligence with equestrian expertise to transform training across disciplines.
+            <h4 className="text-lg font-semibold mb-4">About AI Equestrian</h4>
+            <p className="text-gray-300">
+              AI Equestrian is dedicated to revolutionizing equestrian training through the power of artificial intelligence.
             </p>
-            <Link to="/about">
-              <button className="text-white border border-white hover:bg-white/10 transition-colors px-4 py-2 rounded text-sm">
-                Learn More
-              </button>
-            </Link>
+            <div className="mt-4">
+              <Link to="/about" className="text-purple-300 hover:underline">Learn More</Link>
+            </div>
           </div>
 
-          {/* Navigation Area */}
+          {/* Second Section - Links (without title) */}
           <div>
-            <h4 className="text-xl font-serif font-semibold text-white mb-4">Navigation</h4>
-            <ul className="space-y-2">
-              <li>
-                <Link to="/" className="text-white hover:text-white/80 font-sans text-sm transition-colors">Home</Link>
+            <ul className="text-gray-300">
+              <li className="mb-2">
+                <Link to="/" className="text-gray-300 hover:text-white hover:underline transition-colors">Home</Link>
+              </li>
+              <li className="mb-2">
+                <Link to="/how-it-works" className="text-gray-300 hover:text-white hover:underline transition-colors">How It Works</Link>
+              </li>
+              <li className="mb-2">
+                <Link to="/pricing" className="text-gray-300 hover:text-white hover:underline transition-colors">Pricing</Link>
+              </li>
+              <li className="mb-2">
+                <Link to="/blog" className="text-gray-300 hover:text-white hover:underline transition-colors">Blog</Link>
               </li>
               <li>
-                <Link to="/how-it-works" className="text-white hover:text-white/80 font-sans text-sm transition-colors">How It Works</Link>
-              </li>
-              <li>
-                <Link to="/pricing" className="text-white hover:text-white/80 font-sans text-sm transition-colors">Pricing</Link>
-              </li>
-              <li>
-                <Link to="/blog" className="text-white hover:text-white/80 font-sans text-sm transition-colors">Blog</Link>
-              </li>
-              <li>
-                <Link to="/contact" className="text-white hover:text-white/80 font-sans text-sm transition-colors">Contact</Link>
+                <Link to="/contact" className="text-gray-300 hover:text-white hover:underline transition-colors">Contact</Link>
               </li>
             </ul>
           </div>
 
-          {/* Connect With Us */}
+          {/* Third Section - Social Media */}
           <div>
-            <h4 className="text-xl font-serif font-semibold text-white mb-4">Connect With Us</h4>
+            <h4 className="text-lg font-semibold mb-4">Connect With Us</h4>
             
-            {/* Social Media */}
+            {/* Social Media - now with vertical layout */}
             <div className="flex flex-col space-y-4">
               <div className="flex items-center">
                 <a 
                   href="https://instagram.com/aiequestrian" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-white hover:text-white/80 transition-colors flex items-center"
+                  className="text-gray-300 hover:text-white transition-colors flex items-center"
                 >
                   <Instagram className="w-6 h-6 mr-2" />
-                  <span className="font-sans text-sm">@aiequestrian</span>
+                  <span>@aiequestrian</span>
                 </a>
               </div>
               
               <div className="flex items-center">
                 <a 
                   href="mailto:info@aiequestrian.com" 
-                  className="text-white hover:text-white/80 transition-colors flex items-center"
+                  className="text-gray-300 hover:text-white transition-colors flex items-center"
                 >
                   <Mail className="w-6 h-6 mr-2" />
-                  <span className="font-sans text-sm">info@aiequestrian.com</span>
+                  <span>info@aiequestrian.com</span>
                 </a>
               </div>
             </div>
             
-            <p className="text-white mt-4 font-sans text-sm">
+            <p className="text-gray-300 mt-4">
               Follow us for updates and insights into AI-powered equestrian training.
             </p>
           </div>
         </div>
 
-        {/* Footer Bottom */}
-        <div className="mt-12 text-center border-t border-white/20 pt-8">
-          <p className="font-sans text-sm text-white">
-            &copy; 2025 AI Equestrian. All rights reserved.
-          </p>
+        {/* Footer Bottom - Copyright without any background */}
+        <div className="mt-12 text-center text-gray-400 border-t border-gray-700 pt-8">
+          &copy; {new Date().getFullYear()} AI Equestrian. All rights reserved.
         </div>
       </div>
     </footer>

@@ -1,91 +1,147 @@
 
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { Button } from '@/components/ui/button';
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
+import AnimatedSection from '../ui/AnimatedSection';
+import { Button } from '@/components/ui/button';
+
+interface FaqItemProps {
+  question: string;
+  answer: string;
+  isOpen: boolean;
+  toggleOpen: () => void;
+}
+
+const FaqItem = ({ question, answer, isOpen, toggleOpen }: FaqItemProps) => {
+  return (
+    <div className="border-b border-gray-200 last:border-b-0">
+      <button
+        className="flex justify-between items-center w-full py-5 text-left"
+        onClick={toggleOpen}
+        aria-expanded={isOpen}
+      >
+        <h3 className="font-medium text-lg text-gray-900">{question}</h3>
+        <ChevronDown className={`w-5 h-5 text-gray-600 transition-transform duration-300 ${isOpen ? 'transform rotate-180' : ''}`} />
+      </button>
+      <div
+        className={`overflow-hidden transition-all duration-300 ${
+          isOpen ? 'max-h-96 opacity-100 pb-5' : 'max-h-0 opacity-0'
+        }`}
+      >
+        <p className="text-gray-700">{answer}</p>
+      </div>
+    </div>
+  );
+};
 
 const JumpingFaqSection = () => {
-  const navigate = useNavigate();
-  const { language, translations } = useLanguage();
-  const t = translations[language];
-
-  const faqData = [
+  const [openFaqId, setOpenFaqId] = useState<number | null>(0);
+  
+  const toggleFaq = (id: number) => {
+    if (openFaqId === id) {
+      setOpenFaqId(null);
+    } else {
+      setOpenFaqId(id);
+    }
+  };
+  
+  const faqs = [
     {
-      question: t["jumping-faq-question-1"] || "How accurate is the AI analysis of jumping technique?",
-      answer: t["jumping-faq-answer-1"] || "Our AI system has been trained on thousands of jumping rounds analyzed by professional trainers and Olympic-level riders. It achieves over 92% accuracy in technique assessment compared to human experts.",
+      id: 1,
+      question: "How does the system analyze course maps?",
+      answer: "Our AI system uses computer vision to analyze course maps, identifying jump types, distances, and patterns. It processes everything from simple training exercises to complex international course designs, allowing riders to prepare effectively for competitions."
     },
     {
-      question: t["jumping-faq-question-2"] || "What video formats are supported for jumping analysis?",
-      answer: t["jumping-faq-answer-2"] || "We support all common video formats including MP4, MOV, AVI, and most smartphone recordings. For best results, the video should capture the approach, takeoff, and landing phases of each jump clearly.",
+      id: 2,
+      question: "What video formats are supported for jump analysis?",
+      answer: "We support all major video formats including MP4, MOV, AVI, and WMV. Videos can be recorded on smartphones, action cameras, or professional equipment. For best results, we recommend stable footage with the entire jump sequence visible."
     },
     {
-      question: t["jumping-faq-question-3"] || "How do I upload my jumping videos?",
-      answer: t["jumping-faq-answer-3"] || "Simply log into your account, navigate to the 'Upload' section, and either upload your video file or connect your account to automatically import videos from your phone gallery or cloud storage.",
+      id: 3,
+      question: "How do I upload my course maps and videos?",
+      answer: "Simply log into your account, navigate to the 'Upload' section, and drag-and-drop your files or use our file selector. You can also use our mobile app to directly record and upload videos from competitions or training sessions."
     },
     {
-      question: t["jumping-faq-question-4"] || "Can AI Jump Trainer detect common faults?",
-      answer: t["jumping-faq-answer-4"] || "Absolutely. Our system is trained to identify common jumping faults such as rushed approaches, improper release, incorrect distances, and balance issues during takeoff and landing phases.",
+      id: 4,
+      question: "Can I track multiple horses in my account?",
+      answer: "Yes, our Premium and Professional plans allow you to create and track multiple horse profiles. This lets you manage and analyze the performance of different horses across various competitions."
     },
     {
-      question: t["jumping-faq-question-5"] || "How are the jumping recommendations generated?",
-      answer: t["jumping-faq-answer-5"] || "Our AI analyzes your technique across multiple jumps and courses, identifies patterns in your approach, position, and timing, and generates specific exercises designed to address your particular areas for improvement.",
+      id: 5,
+      question: "How are jump technique recommendations generated?",
+      answer: "Our AI analyzes your jumping technique against a database of thousands of professional rounds. It identifies patterns in approach, takeoff, bascule, landing, and recovery, then generates specific exercises to improve your technique based on your current level and goals."
     },
     {
-      question: t["jumping-faq-question-6"] || "Is my video data secure and private?",
-      answer: t["jumping-faq-answer-6"] || "We use enterprise-level encryption to protect all your data. Your videos are never shared with third parties without your explicit permission, and you have complete control over who can access your analysis results.",
+      id: 6,
+      question: "Is my data secure and private?",
+      answer: "Absolutely. We employ bank-level encryption for all data storage and transfers. Your videos and analysis are only accessible to you and anyone you explicitly share them with. We never share your data with third parties without your permission."
     },
     {
-      question: t["jumping-faq-question-7"] || "Can I share my analysis with my trainer?",
-      answer: t["jumping-faq-answer-7"] || "Yes, you can easily share your analysis results with your trainer through a secure link or by adding them as a coach to your account. They'll receive a detailed breakdown of your performance with visual annotations.",
+      id: 7,
+      question: "Can I share my results with my trainer?",
+      answer: "Yes! You can easily share specific analyses or your entire progress dashboard with your trainer through a secure link. They'll be able to view your results and even add comments and recommendations directly in the platform."
     },
     {
-      question: t["jumping-faq-question-8"] || "How often should I upload new videos?",
-      answer: t["jumping-faq-answer-8"] || "For best results, we recommend uploading training sessions 1-2 times per week. This frequency allows you to implement feedback in your training and track improvements consistently.",
+      id: 8,
+      question: "How does the system identify jumping faults and patterns?",
+      answer: "Our AI uses advanced motion analysis to track both horse and rider through each jump. It identifies specific technical issues like rushing, wrong distances, uneven weight distribution, or incorrect release timing, helping you address the root causes of faults."
     }
   ];
 
   return (
-    <section className="py-16 bg-gray-50">
+    <section className="py-24 bg-purple-50">
       <div className="container mx-auto px-6">
-        <h2 className="text-4xl font-serif font-semibold text-center text-gray-900 mb-4 reveal-scroll">
-          {t["jumping-faq-title"] || "Frequently Asked Questions"}
-        </h2>
-        <p className="text-center text-gray-700 max-w-2xl mx-auto mb-12">
-          {t["jumping-faq-subtitle"] || "Have questions about AI Jump Trainer? Find answers to the most common questions below."}
-        </p>
-        <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-sm p-6">
-          <Accordion type="single" collapsible className="w-full">
-            {faqData.map((item, index) => (
-              <AccordionItem 
-                key={index} 
-                value={`item-${index}`} 
-                className="reveal-scroll border-b border-gray-200 last:border-0"
-                style={{ animationDelay: `${index * 100}ms` }}
+        <AnimatedSection animation="fade-in" className="text-center max-w-3xl mx-auto mb-16">
+          <h2 className="text-3xl md:text-4xl font-serif font-semibold text-gray-900 mb-6">
+            Frequently Asked Questions
+          </h2>
+          <p className="text-lg text-gray-700">
+            Have questions about AI Jumping Trainer? Find answers to the most common questions below.
+          </p>
+        </AnimatedSection>
+        
+        <div className="max-w-3xl mx-auto">
+          <AnimatedSection animation="fade-in" className="space-y-4">
+            {faqs.map((faq) => (
+              <div 
+                key={faq.id}
+                className={`bg-white border border-gray-200 rounded-xl overflow-hidden transition-all duration-300 ${
+                  openFaqId === faq.id ? 'shadow-md' : 'shadow-sm'
+                }`}
               >
-                <AccordionTrigger className="text-left text-lg font-serif font-medium text-gray-800 py-5 px-1 hover:no-underline">
-                  {item.question}
-                </AccordionTrigger>
-                <AccordionContent className="text-gray-700 font-sans pb-4 px-1">
-                  {item.answer}
-                </AccordionContent>
-              </AccordionItem>
+                <button
+                  onClick={() => toggleFaq(faq.id)}
+                  className="w-full text-left px-6 py-4 flex justify-between items-center focus:outline-none"
+                >
+                  <span className="font-medium text-gray-900">{faq.question}</span>
+                  <ChevronDown
+                    className={`w-5 h-5 text-gray-700 transition-transform duration-300 ${
+                      openFaqId === faq.id ? 'transform rotate-180' : ''
+                    }`}
+                  />
+                </button>
+                
+                <div 
+                  className={`overflow-hidden transition-all duration-300 ${
+                    openFaqId === faq.id ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                  }`}
+                >
+                  <div className="px-6 pb-4 pt-0 text-gray-700">
+                    {faq.answer}
+                  </div>
+                </div>
+              </div>
             ))}
-          </Accordion>
-        </div>
-        <div className="text-center reveal-scroll mt-10">
-          <Button
-            className="mt-6 btn-jumping"
-            onClick={() => navigate('/pricing')}
-          >
-            {t["get-started-ai-jumping"] || "Get Started with AI Jumping"}
-          </Button>
+          </AnimatedSection>
+          
+          <AnimatedSection animation="fade-in" className="mt-12 text-center">
+            <h3 className="text-xl font-medium mb-4 text-gray-900">Still have questions?</h3>
+            <p className="text-gray-700 mb-6">
+              If you couldn't find the answer to your question, please don't hesitate to reach out to our support team.
+            </p>
+            <Button variant="primary">
+              Contact Support
+            </Button>
+          </AnimatedSection>
         </div>
       </div>
     </section>

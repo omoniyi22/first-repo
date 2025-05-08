@@ -7,8 +7,6 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import StepsSection from '@/components/howitworks/StepsSection';
 import FaqSection from '@/components/howitworks/FaqSection';
-import DetailedStepsSection from '@/components/howitworks/DetailedStepsSection';
-import PlatformDemoSection from '@/components/howitworks/PlatformDemoSection';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -83,33 +81,8 @@ const DressageHowItWorks = () => {
           </BreadcrumbList>
         </Breadcrumb>
       </div>
-      
-      {/* Hero Section */}
-      <div className="relative mb-12">
-        <div className="w-full h-80 md:h-96 overflow-hidden relative">
-          <img 
-            src="/lovable-uploads/d87e62d5-6066-4be7-b944-1e5640abf84d.png"
-            alt="Dressage horse and rider performing a test"
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-900/60 to-transparent"></div>
-          <div className="absolute inset-0 flex items-center">
-            <div className="container mx-auto px-6">
-              <h1 className="text-4xl md:text-5xl font-serif font-bold text-white max-w-2xl drop-shadow-md">
-                How AI Dressage Analysis Works
-              </h1>
-              <p className="text-xl text-white/90 max-w-xl mt-4 drop-shadow-md">
-                Understand the process behind our AI-powered equestrian dressage analysis
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-      
       <main className="pt-2">
-        <DetailedStepsSection discipline="dressage" />
         <StepsSection />
-        <PlatformDemoSection discipline="dressage" />
         <FaqSection />
       </main>
       <Footer />

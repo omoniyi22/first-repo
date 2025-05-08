@@ -3,7 +3,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import AnimatedSection from "@/components/ui/AnimatedSection";
 import { ArrowRight, BarChart3, FileText, Eye, LightbulbIcon, Users } from "lucide-react";
 import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 
 const ProblemsWeSolve = () => {
   return (
@@ -31,12 +30,8 @@ const ProblemsWeSolve = () => {
                 At AI Equestrian, we're addressing the fundamental challenges that prevent riders from reaching their full potential.
               </p>
               
-              <Link to="/how-it-works">
-                <Button 
-                  className="primary-dressage-button"
-                >
-                  Learn how our technology works <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
+              <Link to="/how-it-works" className="inline-flex items-center py-3 px-6 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-lg transition-colors duration-300 font-medium self-start mt-4">
+                Learn how our technology works <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </AnimatedSection>
             

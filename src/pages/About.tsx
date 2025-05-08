@@ -10,8 +10,9 @@ import KeyStatistics from '@/components/about/KeyStatistics';
 import ProblemsWeSolve from '@/components/about/ProblemsWeSolve';
 import EquestrianTeamSection from '@/components/about/EquestrianTeamSection';
 import DisciplineSpecificTabs from '@/components/about/DisciplineSpecificTabs';
-import ExperienceSection from '@/components/about/ExperienceSection';
 
+// The following sections are preserved from the existing About page
+import AnimatedSection from '@/components/ui/AnimatedSection';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Link } from 'react-router-dom';
@@ -62,7 +63,7 @@ const About = () => {
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       <SEO {...seoMetadata} />
       <Navbar />
-      <main>
+      <main className="pt-20">
         {/* Hero Section */}
         <HeroSection />
         
@@ -72,7 +73,7 @@ const About = () => {
         {/* Core Values Section */}
         <CoreValues />
         
-        {/* Key Statistics Section */}
+        {/* Key Statistics Section - Added back */}
         <KeyStatistics />
         
         {/* Problems We Solve Section */}
@@ -81,7 +82,7 @@ const About = () => {
         {/* Discipline-Specific Tabs Section */}
         <DisciplineSpecificTabs />
         
-        {/* Partnerships and Sponsorships Section */}
+        {/* Partnerships and Sponsorships Section - Preserved from existing About page */}
         <section className="py-16 bg-gray-50">
           <div className="container mx-auto px-6">
             <div className="max-w-4xl mx-auto text-center mb-12 reveal-scroll">
@@ -137,20 +138,15 @@ const About = () => {
               <p className="text-gray-700 mb-6 max-w-2xl mx-auto">
                 We're always looking to collaborate with organizations and brands that share our vision for the future of equestrian training.
               </p>
-              <Button 
-                className="bg-gradient-to-r from-purple-600 to-blue-500 text-white hover:from-purple-700 hover:to-blue-600"
-              >
+              <Button className="bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 text-white">
                 Contact for Partnership Opportunities
               </Button>
             </div>
           </div>
         </section>
         
-        {/* Team Section */}
+        {/* Team Section - Preserving existing section */}
         <EquestrianTeamSection />
-        
-        {/* Experience Section */}
-        <ExperienceSection />
       </main>
       <Footer />
     </div>

@@ -6,12 +6,10 @@ import { useEffect } from 'react';
 import { Toaster } from '@/components/ui/toaster';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { SEO, getPageMetadata } from '@/lib/seo';
 
 const SignIn = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const seoMetadata = getPageMetadata('sign-in', { noIndex: true });
   
   // Redirect to dashboard if already signed in
   useEffect(() => {
@@ -27,7 +25,6 @@ const SignIn = () => {
 
   return (
     <div className="min-h-screen">
-      <SEO {...seoMetadata} />
       <div className="fixed top-6 left-6 z-10">
         <Link to="/" className="flex items-center text-navy-700 hover:text-navy-900 transition-colors">
           <ArrowLeft className="h-5 w-5 mr-2" />
