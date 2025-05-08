@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { FilePenLine, BarChart3, BookOpen, Lightbulb } from 'lucide-react';
 import AnimatedSection from '../ui/AnimatedSection';
@@ -168,12 +167,12 @@ const StepsSection = () => {
                 and personalized recommendations.
               </p>
               
-              <Button variant="primary" className="flex items-center">
-                Watch Demo
-                <svg className="ml-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+              <Button
+                variant="dressage"
+                className="mt-8"
+                onClick={() => navigate('/pricing')}
+              >
+                Get Started with AI Dressage
               </Button>
             </div>
             

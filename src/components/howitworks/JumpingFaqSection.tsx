@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import AnimatedSection from '../ui/AnimatedSection';
@@ -138,8 +137,8 @@ const JumpingFaqSection = () => {
             <p className="text-gray-700 mb-6">
               If you couldn't find the answer to your question, please don't hesitate to reach out to our support team.
             </p>
-            <Button variant="primary">
-              Contact Support
+            <Button variant="jump" className="mt-6" onClick={() => navigate('/pricing')}>
+              Get Started with AI Jumping
             </Button>
           </AnimatedSection>
         </div>
