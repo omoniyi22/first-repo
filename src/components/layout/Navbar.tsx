@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -24,6 +25,7 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -34,6 +36,7 @@ const Navbar = () => {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
   const { language, translations } = useLanguage();
+  const isMobile = useIsMobile();
   const t = translations[language];
   
   useEffect(() => {
@@ -144,9 +147,12 @@ const Navbar = () => {
                 alt="AI Equestrian Logo" 
                 className="h-10 w-10 mr-2"
               />
-              <h1 className={`font-serif text-xl font-semibold ${getBrandColorClass()}`}>
-                {getBrandName()}
-              </h1>
+              {/* Hide brand name on mobile to prevent overlap */}
+              {!isMobile && (
+                <h1 className={`font-serif text-xl font-semibold ${getBrandColorClass()}`}>
+                  {getBrandName()}
+                </h1>
+              )}
             </Link>
           </div>
           
