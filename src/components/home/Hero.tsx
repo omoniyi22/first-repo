@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -17,7 +16,7 @@ const Hero = () => {
   }, []);
 
   return (
-    <section className="relative min-h-[80vh] flex items-center justify-center overflow-hidden pt-16"> {/* Added pt-16 for navbar space */}
+    <section className="relative min-h-[80vh] flex items-center justify-center overflow-hidden pt-20"> {/* Increased pt-20 for navbar space */}
       {/* Full-width background image */}
       {!imageLoaded && (
         <div className="absolute inset-0 bg-purple-100/50">
@@ -36,7 +35,7 @@ const Hero = () => {
       {/* Overlay gradient */}
       <div className="absolute inset-0 bg-gradient-to-r from-purple-900/70 to-purple-900/40"></div>
       
-      <div className="container relative z-10 mx-auto px-6 text-center mt-10"> {/* Added mt-10 for better spacing */}
+      <div className="container relative z-10 mx-auto px-6 text-center mt-6"> {/* Adjusted mt-6 for better spacing */}
         <div className={`max-w-2xl mx-auto transition-all duration-1000 transform ${loaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
           <AnimatedSection animation="fade-in" delay="delay-100">
             <div className="inline-block px-6 py-3 mb-6 bg-gradient-to-r from-purple-600 to-blue-500 rounded-xl backdrop-blur-sm">
