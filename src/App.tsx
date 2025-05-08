@@ -60,7 +60,7 @@ const App = () => (
           <AuthProvider>
             <LanguageProvider>
               <TooltipProvider>
-                <Analytics /> {/* Added Analytics component here */}
+                <Analytics />
                 <Toaster />
                 <Sonner />
                 <Routes>

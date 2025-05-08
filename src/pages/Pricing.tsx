@@ -7,6 +7,9 @@ import { useEffect } from 'react';
 import { SEO, getPageMetadata } from '@/lib/seo';
 
 const Pricing = () => {
+  // Get SEO metadata for pricing page
+  const seoMetadata = getPageMetadata('pricing');
+  
   // Initialize scroll reveal for animations
   useEffect(() => {
     const initScrollReveal = () => {
@@ -40,9 +43,6 @@ const Pricing = () => {
     // Scroll to top on page load
     window.scrollTo(0, 0);
   }, []);
-
-  // Get SEO metadata for pricing page
-  const seoMetadata = getPageMetadata('pricing');
 
   return (
     <div className="min-h-screen bg-white">

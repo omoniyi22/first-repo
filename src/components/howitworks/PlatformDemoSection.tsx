@@ -15,7 +15,7 @@ const PlatformDemoSection: React.FC<PlatformDemoSectionProps> = ({ discipline })
   const t = translations[language];
 
   const buttonClass = discipline === 'dressage' ? 'btn-dressage' : 'btn-jumping';
-  const bgClass = discipline === 'dressage' ? 'bg-gray-100' : 'bg-blue-50';
+  const bgClass = discipline === 'dressage' ? 'bg-dressage-section' : 'bg-jump-section';
   
   const title = discipline === 'jumping' 
     ? (t["jumping-demo-title"] || "See the Platform in Action")
