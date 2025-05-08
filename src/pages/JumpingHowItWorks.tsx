@@ -57,7 +57,7 @@ const JumpingHowItWorks = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-100 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-blue-100 to-white">
       <SEO {...seoMetadata} />
       <Navbar />
       
@@ -91,7 +91,7 @@ const JumpingHowItWorks = () => {
             alt="Landscape view of mountains with sunlight"
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-900/60 to-transparent"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-900/60 to-transparent"></div>
           <div className="absolute inset-0 flex items-center">
             <div className="container mx-auto px-6">
               <h1 className="text-4xl md:text-5xl font-serif font-bold text-white max-w-2xl drop-shadow-md">

@@ -60,8 +60,8 @@ const JumpingAbout = () => {
       <div className="relative mb-12">
         <div className="w-full h-96 md:h-[500px] overflow-hidden relative">
           <img 
-            src="/lovable-uploads/dbb9802b-bed7-4888-96a3-73b68198710b.png" 
-            alt="Horse and rider jumping with AI analysis overlay"
+            src="/lovable-uploads/56f99687-5778-4490-9dbf-61126204c9b3.png" 
+            alt="Horse and rider jumping over competition obstacle"
             className="w-full h-full object-cover object-center"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-blue-900/70 to-blue-800/40"></div>
