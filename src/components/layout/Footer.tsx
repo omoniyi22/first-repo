@@ -85,6 +85,7 @@ const Footer = () => {
         <div className="mt-12 text-center border-t border-gray-700 pt-8">
           <p className="font-sans text-xs text-white">
             AI Equestrian is dedicated to revolutionizing equestrian training through artificial intelligence.
+            &copy; 2025 AI Equestrian. All rights reserved.
           </p>
         </div>
       </div>
