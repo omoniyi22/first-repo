@@ -5,7 +5,7 @@ import { Instagram, Mail } from 'lucide-react';
 
 const Footer = () => {
   return (
-    <footer className="bg-purple-950 text-white py-12">
+    <footer className="bg-gradient-to-b from-purple-900 to-purple-950 text-white py-12">
       <div className="container mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Logo Area */}
@@ -20,7 +20,7 @@ const Footer = () => {
               Riding Intelligence, Redefined
             </p>
             <p className="text-gray-400 font-sans text-xs">
-              &copy; {new Date().getFullYear()} AI Equestrian. All rights reserved.
+              &copy; 2025 AI Equestrian. All rights reserved.
             </p>
           </div>
 
@@ -82,8 +82,8 @@ const Footer = () => {
         </div>
 
         {/* Footer Bottom with border as per style guide */}
-        <div className="mt-12 text-center text-gray-400 border-t border-gray-700 pt-8">
-          <p className="font-sans text-xs">
+        <div className="mt-12 text-center border-t border-gray-700 pt-8">
+          <p className="font-sans text-xs text-white">
             AI Equestrian is dedicated to revolutionizing equestrian training through artificial intelligence.
           </p>
         </div>
