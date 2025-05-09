@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState } from 'react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -33,9 +34,12 @@ const Navbar = ({ transparent = false }: NavbarProps) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { language, translations } = useLanguage();
   const t = translations[language];
-  const { isAuthenticated, user } = useAuth();
+  const { user, session } = useAuth();
   const navigate = useNavigate();
   const isAtTop = useScroll(0);
+  
+  // Check if user is authenticated based on session
+  const isAuthenticated = !!session;
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -87,15 +91,15 @@ const Navbar = ({ transparent = false }: NavbarProps) => {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="h-8 w-8 p-0">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={user?.image || ""} alt={user?.name || "Avatar"} />
-                      <AvatarFallback>{user?.name?.charAt(0).toUpperCase() || "A"}</AvatarFallback>
+                      <AvatarImage src={user?.user_metadata?.avatar_url || ""} alt={user?.user_metadata?.full_name || "Avatar"} />
+                      <AvatarFallback>{user?.user_metadata?.full_name?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || "A"}</AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56" align="end" forceMount>
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">{user?.name}</p>
+                      <p className="text-sm font-medium leading-none">{user?.user_metadata?.full_name || user?.email?.split('@')[0]}</p>
                       <p className="text-xs leading-none text-muted-foreground">
                         {user?.email}
                       </p>
