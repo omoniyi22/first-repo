@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { fetchBlogPostBySlug } from '@/services/blogService';
+import { fetchBlogPostBySlug, fetchAllBlogPosts } from '@/services/blogService';
 import { BlogPost } from '@/data/blogPosts';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
@@ -14,6 +14,7 @@ import BlogPostCard from '@/components/blog/BlogPostCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { marked } from 'marked';
+import { getImagePath, handleImageError } from '@/utils/imageUtils';
 
 const BlogPostPage = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -85,7 +86,7 @@ const BlogPostPage = () => {
     ? getPageMetadata('blogPost', {
         title: post.title,
         description: post.excerpt,
-        ogImage: post.image, // This was fixed from 'image' to 'ogImage'
+        ogImage: post.image,
       })
     : getPageMetadata('blogPost');
 
@@ -95,28 +96,6 @@ const BlogPostPage = () => {
       return post.translations.es[field];
     }
     return fallback;
-  };
-
-  // Handle image path
-  const getImagePath = (imagePath: string) => {
-    if (!imagePath) return '/placeholder.svg';
-    
-    // Check if the image path is a URL (starts with http or https)
-    if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
-      return imagePath;
-    }
-    
-    // Check if the path already has /lovable-uploads/
-    if (imagePath.includes('/lovable-uploads/')) {
-      return imagePath;
-    }
-    
-    // Otherwise, add the /lovable-uploads/ prefix 
-    if (imagePath.startsWith('/')) {
-      return `/lovable-uploads${imagePath}`;
-    }
-    
-    return `/lovable-uploads/${imagePath}`;
   };
 
   // Render markdown content
@@ -219,11 +198,7 @@ const BlogPostPage = () => {
                 src={getImagePath(post.image)} 
                 alt={getLocalizedContent('title', post.title)}
                 className="w-full h-auto rounded-lg shadow-md"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.src = "/placeholder.svg";
-                  target.onerror = null;
-                }}
+                onError={(e) => handleImageError(e)}
               />
             </div>
             
@@ -239,11 +214,7 @@ const BlogPostPage = () => {
                   src={getImagePath(post.authorImage || '/placeholder.svg')} 
                   alt={post.author}
                   className="w-16 h-16 rounded-full object-cover"
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.src = "/placeholder.svg";
-                    target.onerror = null;
-                  }}
+                  onError={(e) => handleImageError(e)}
                 />
               </div>
               <div>
@@ -272,17 +243,6 @@ const BlogPostPage = () => {
       <Footer />
     </div>
   );
-};
-
-// Helper function to fetch all blog posts (used for related posts)
-const fetchAllBlogPosts = async () => {
-  try {
-    const { fetchAllBlogPosts } = await import('@/services/blogService');
-    return await fetchAllBlogPosts();
-  } catch (error) {
-    console.error('Error importing fetchAllBlogPosts:', error);
-    return [];
-  }
 };
 
 export default BlogPostPage;

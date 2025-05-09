@@ -1,8 +1,10 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { BlogPost } from '@/data/blogPosts';
 import { Clock, ArrowRight } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { getImagePath, handleImageError } from '@/utils/imageUtils';
 
 interface BlogPostCardProps {
   post: BlogPost;
@@ -27,26 +29,6 @@ const BlogPostCard = ({ post, hideAuthor = false }: BlogPostCardProps) => {
   const localizedExcerpt = getLocalizedContent('excerpt', post.excerpt);
   const localizedCategory = getLocalizedContent('category', post.category);
   
-  // Handle image path
-  const getImagePath = (imagePath: string) => {
-    // Check if the image path is a URL (starts with http or https)
-    if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
-      return imagePath;
-    }
-    
-    // Check if the path already has /lovable-uploads/
-    if (imagePath.includes('/lovable-uploads/')) {
-      return imagePath;
-    }
-    
-    // Otherwise, add the /lovable-uploads/ prefix 
-    if (imagePath.startsWith('/')) {
-      return `/lovable-uploads${imagePath}`;
-    }
-    
-    return `/lovable-uploads/${imagePath}`;
-  };
-  
   return (
     <article className={`bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow h-full flex flex-col relative`}>
       {/* Discipline color bar */}
@@ -61,12 +43,7 @@ const BlogPostCard = ({ post, hideAuthor = false }: BlogPostCardProps) => {
           src={getImagePath(post.image)} 
           alt={localizedTitle}
           className="w-full h-48 object-cover"
-          onError={(e) => {
-            const target = e.target as HTMLImageElement;
-            console.log(`Failed to load image: ${target.src}`);
-            target.src = "/placeholder.svg"; // Fallback image
-            target.onerror = null; // Prevent infinite error loop
-          }}
+          onError={(e) => handleImageError(e)}
         />
       </Link>
       
