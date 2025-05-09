@@ -20,6 +20,9 @@ export const fetchBlogPosts = async (): Promise<BlogPost[]> => {
   }
 };
 
+// Alias for fetchBlogPosts to fix imports while maintaining backward compatibility
+export const fetchAllBlogPosts = fetchBlogPosts;
+
 export const fetchBlogPostBySlug = async (slug: string): Promise<BlogPost | null> => {
   try {
     const { data, error } = await supabase
@@ -52,7 +55,8 @@ export const createBlogPost = async (post: Partial<BlogPost>) => {
         category: post.category || 'General',
         discipline: post.discipline || 'Dressage',
         date: post.date || new Date().toISOString().split('T')[0],
-        reading_time: post.readingTime || '5 min read'
+        reading_time: post.readingTime || '5 min read',
+        author_image: post.authorImage || '/placeholder.svg'
       }])
       .select()
       .single();
@@ -79,7 +83,8 @@ export const updateBlogPost = async (id: string, post: Partial<BlogPost>) => {
       category: post.category,
       discipline: post.discipline,
       date: post.date,
-      reading_time: post.readingTime
+      reading_time: post.readingTime,
+      author_image: post.authorImage
     };
     
     // Filter out undefined values
@@ -193,7 +198,8 @@ const transformDatabasePostToBlogPost = (dbPost: any): BlogPost => {
     date: dbPost.date,
     readingTime: dbPost.reading_time,
     translations: Object.keys(translations).length > 0 ? translations : undefined,
-    created_at: dbPost.created_at,
-    updated_at: dbPost.updated_at
+    supabaseId: dbPost.id,
+    createdAt: dbPost.created_at,
+    updatedAt: dbPost.updated_at
   };
 };

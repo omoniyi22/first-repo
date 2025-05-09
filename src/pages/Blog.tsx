@@ -13,7 +13,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { SEO, getPageMetadata } from '@/lib/seo';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { fetchAllBlogPosts } from '@/services/blogService';
+import { fetchBlogPosts } from '@/services/blogService';
 
 const Blog = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -49,7 +49,7 @@ const Blog = () => {
     const loadBlogPosts = async () => {
       try {
         setIsLoading(true);
-        const posts = await fetchAllBlogPosts();
+        const posts = await fetchBlogPosts();
         console.log('Blog posts loaded:', posts);
         
         // Check if the posts have content

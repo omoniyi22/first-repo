@@ -42,6 +42,10 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import MediaSelector from '@/components/admin/media/MediaSelector';
 
+interface MediaSelectorProps {
+  onSelect: (url: string) => void;
+}
+
 interface EventDialogProps {
   open: boolean;
   onOpenChange: (refreshNeeded: boolean) => void;
@@ -123,8 +127,14 @@ const EventDialog = ({ open, onOpenChange, event }: EventDialogProps) => {
         });
       } else {
         await createEvent({
-          ...values,
+          title: values.title,
+          description: values.description,
           eventDate: values.eventDate.toISOString(),
+          location: values.location,
+          eventType: values.eventType,
+          discipline: values.discipline,
+          imageUrl: values.imageUrl,
+          isFeatured: values.isFeatured
         });
         toast({
           title: 'Event created',

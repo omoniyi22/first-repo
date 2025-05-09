@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -22,7 +21,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { fetchAllBlogPosts, createBlogPost, updateBlogPost, deleteBlogPost, fetchBlogPostBySlug } from "@/services/blogService";
+import { fetchBlogPosts, createBlogPost, updateBlogPost, deleteBlogPost, fetchBlogPostBySlug } from "@/services/blogService";
 import { useToast } from "@/hooks/use-toast";
 
 const POSTS_PER_PAGE = 10;
@@ -49,7 +48,7 @@ const BlogManagement = () => {
   const loadBlogPosts = async () => {
     try {
       setIsLoading(true);
-      const fetchedPosts = await fetchAllBlogPosts();
+      const fetchedPosts = await fetchBlogPosts();
       setPosts(fetchedPosts);
       setFilteredPosts(fetchedPosts);
     } catch (error) {
@@ -186,11 +185,12 @@ const BlogManagement = () => {
           title: post.title,
           slug: post.slug,
           excerpt: post.excerpt,
-          content: content, // This will be null or a string
+          content: content, 
           author: post.author,
           discipline: post.discipline,
           category: post.category,
-          image: post.image
+          image: post.image,
+          authorImage: post.authorImage
         });
         
         // Update the post in our local state
@@ -216,14 +216,14 @@ const BlogManagement = () => {
           title: post.title,
           slug: post.slug,
           excerpt: post.excerpt,
-          content: content, // This will be null or a string
+          content: content,
           author: post.author,
-          author_image: post.authorImage || '/placeholder.svg',
+          authorImage: post.authorImage || '/placeholder.svg',
           date: formattedDate,
           discipline: post.discipline,
           category: post.category,
           image: post.image,
-          reading_time: post.readingTime || '5 min read'
+          readingTime: post.readingTime || '5 min read'
         });
         
         if (newPostId) {

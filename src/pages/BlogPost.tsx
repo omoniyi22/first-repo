@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { fetchBlogPostBySlug, fetchAllBlogPosts } from '@/services/blogService';
+import { fetchBlogPostBySlug, fetchBlogPosts } from '@/services/blogService';
 import { BlogPost } from '@/data/blogPosts';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
@@ -64,7 +63,7 @@ const BlogPostPage = () => {
 
     const fetchRelatedPosts = async () => {
       try {
-        const allPosts = await fetchAllBlogPosts();
+        const allPosts = await fetchBlogPosts();
         
         // Filter out current post and get posts with same discipline or category
         const related = allPosts
