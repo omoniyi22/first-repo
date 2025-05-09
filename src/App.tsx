@@ -21,6 +21,7 @@ const HowItWorks = lazy(() => import('./pages/HowItWorks'));
 const Pricing = lazy(() => import('./pages/Pricing'));
 const Blog = lazy(() => import('./pages/Blog'));
 const BlogPost = lazy(() => import('./pages/BlogPost'));
+const Events = lazy(() => import('./pages/Events')); // Add new Events page
 const Admin = lazy(() => import('./pages/Admin'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const AdminUsers = lazy(() => import('./pages/AdminUsers'));
@@ -28,7 +29,7 @@ const AdminBlog = lazy(() => import('./pages/AdminBlog'));
 const AdminMedia = lazy(() => import('./pages/AdminMedia'));
 const AdminContent = lazy(() => import('./pages/AdminContent'));
 const AdminSettings = lazy(() => import('./pages/AdminSettings'));
-const AdminEvents = lazy(() => import('./pages/AdminEvents')); // Add new page
+const AdminEvents = lazy(() => import('./pages/AdminEvents'));
 const SignIn = lazy(() => import('./pages/SignIn'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Profile = lazy(() => import('./pages/Profile'));
@@ -55,6 +56,7 @@ function App() {
               <Route path="/pricing" element={<Pricing />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogPost />} />
+              <Route path="/events" element={<Events />} /> {/* Add events route */}
               <Route path="/sign-in" element={<SignIn />} />
               
               {/* Dressage routes */}
