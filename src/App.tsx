@@ -20,6 +20,7 @@ const JumpingHowItWorks = lazy(() => import('./pages/JumpingHowItWorks'));
 const HowItWorks = lazy(() => import('./pages/HowItWorks'));
 const Pricing = lazy(() => import('./pages/Pricing'));
 const Blog = lazy(() => import('./pages/Blog'));
+const BlogPost = lazy(() => import('./pages/BlogPost')); // Import BlogPost page
 const Admin = lazy(() => import('./pages/Admin'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const AdminUsers = lazy(() => import('./pages/AdminUsers'));
@@ -44,7 +45,7 @@ function App() {
       <AuthProvider>
         <LanguageProvider>
           <Suspense fallback={<Loading />}>
-            <Analytics /> {/* Add analytics component */}
+            <Analytics />
             <Routes>
               {/* Public routes */}
               <Route path="/" element={<Index />} />
@@ -52,6 +53,7 @@ function App() {
               <Route path="/how-it-works" element={<HowItWorks />} />
               <Route path="/pricing" element={<Pricing />} />
               <Route path="/blog" element={<Blog />} />
+              <Route path="/blog/:slug" element={<BlogPost />} /> {/* Add BlogPost route */}
               <Route path="/sign-in" element={<SignIn />} />
               
               {/* Dressage routes */}
