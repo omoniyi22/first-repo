@@ -7,12 +7,13 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { Skeleton } from '@/components/ui/skeleton';
 import BlogPostCard from '@/components/blog/BlogPostCard';
-import { blogPosts } from '@/data/blogPosts';
 import { SEO } from '@/lib/seo/SEO';
 import { getPageMetadata } from '@/lib/seo/pageMetadata';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAlternateImage } from '@/hooks/use-alternate-image';
 import Testimonials from '@/components/home/Testimonials';
+import { BlogPost } from '@/data/blogPosts';
+import { fetchBlogPosts } from '@/services/blogService';
 
 const Index = () => {
   // Initialize scroll reveal for animations
@@ -50,15 +51,36 @@ const Index = () => {
   const [jumpingImageLoaded, setJumpingImageLoaded] = useState(false);
   const [dressageImageLoaded, setDressageImageLoaded] = useState(false);
   
+  // State for blog posts
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  
   // Alternate between jumping and dressage images on mobile
   const mobileImageSrc = useAlternateImage(
     "/lovable-uploads/dbb9802b-bed7-4888-96a3-73b68198710b.png", // Jumping image
     "/lovable-uploads/7c32e2d9-4fce-4ed5-abba-0fb12abe96eb.png"  // Dressage image
   );
   
+  // Fetch blog posts from the database
+  useEffect(() => {
+    const loadBlogPosts = async () => {
+      try {
+        setIsLoading(true);
+        const posts = await fetchBlogPosts();
+        setBlogPosts(posts);
+      } catch (error) {
+        console.error('Failed to load blog posts:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadBlogPosts();
+  }, []);
+  
   // Get featured blog posts - one from each discipline
-  const featuredJumpingPost = blogPosts.find(post => post.discipline === 'Jumping' && post.id === 1);
-  const featuredDressagePost = blogPosts.find(post => post.discipline === 'Dressage' && post.id === 7);
+  const featuredJumpingPost = blogPosts.find(post => post.discipline === 'Jumping');
+  const featuredDressagePost = blogPosts.find(post => post.discipline === 'Dressage');
 
   // SEO metadata for homepage
   const seoMetadata = getPageMetadata('home');
@@ -254,17 +276,48 @@ const Index = () => {
             </div>
             
             <div className="grid md:grid-cols-2 gap-8 mb-10">
-              {/* Display one featured post from each discipline */}
-              {featuredJumpingPost && (
-                <div className="reveal-scroll opacity-0 translate-y-8 transition-all duration-700 ease-out">
-                  <BlogPostCard post={featuredJumpingPost} hideAuthor={true} />
-                </div>
-              )}
-              
-              {featuredDressagePost && (
-                <div className="reveal-scroll opacity-0 translate-y-8 transition-all duration-700 ease-out" style={{ transitionDelay: '100ms' }}>
-                  <BlogPostCard post={featuredDressagePost} hideAuthor={true} />
-                </div>
+              {isLoading ? (
+                // Loading skeletons
+                <>
+                  <div className="bg-white rounded-xl overflow-hidden shadow-lg">
+                    <Skeleton className="h-48 w-full" />
+                    <div className="p-6">
+                      <Skeleton className="h-6 w-2/3 mb-4" />
+                      <Skeleton className="h-4 w-full mb-2" />
+                      <Skeleton className="h-4 w-5/6" />
+                    </div>
+                  </div>
+                  <div className="bg-white rounded-xl overflow-hidden shadow-lg">
+                    <Skeleton className="h-48 w-full" />
+                    <div className="p-6">
+                      <Skeleton className="h-6 w-2/3 mb-4" />
+                      <Skeleton className="h-4 w-full mb-2" />
+                      <Skeleton className="h-4 w-5/6" />
+                    </div>
+                  </div>
+                </>
+              ) : (
+                // Display one featured post from each discipline
+                <>
+                  {featuredJumpingPost && (
+                    <div className="reveal-scroll opacity-0 translate-y-8 transition-all duration-700 ease-out">
+                      <BlogPostCard post={featuredJumpingPost} hideAuthor={true} />
+                    </div>
+                  )}
+                  
+                  {featuredDressagePost && (
+                    <div className="reveal-scroll opacity-0 translate-y-8 transition-all duration-700 ease-out" style={{ transitionDelay: '100ms' }}>
+                      <BlogPostCard post={featuredDressagePost} hideAuthor={true} />
+                    </div>
+                  )}
+                  
+                  {/* Fallback if no posts are found */}
+                  {!featuredJumpingPost && !featuredDressagePost && (
+                    <div className="col-span-2 text-center py-10">
+                      <p className="text-gray-500">No blog posts found. Check back soon for updates!</p>
+                    </div>
+                  )}
+                </>
               )}
             </div>
             
