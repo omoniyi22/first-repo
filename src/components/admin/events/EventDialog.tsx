@@ -42,8 +42,11 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import MediaSelector from '@/components/admin/media/MediaSelector';
 
+// Update the interface to match what MediaSelector expects
 interface MediaSelectorProps {
-  onSelect: (url: string) => void;
+  value: string;
+  onChange: (url: string) => void;
+  onImageSelect?: (mediaItem: any) => void;
 }
 
 interface EventDialogProps {
@@ -394,7 +397,11 @@ const EventDialog = ({ open, onOpenChange, event }: EventDialogProps) => {
             <DialogHeader>
               <DialogTitle>Select Image</DialogTitle>
             </DialogHeader>
-            <MediaSelector onSelect={handleSelectedMedia} />
+            {/* Update MediaSelector props to match the interface */}
+            <MediaSelector 
+              value={form.getValues('imageUrl') || ''} 
+              onChange={handleSelectedMedia}
+            />
           </DialogContent>
         </Dialog>
       )}

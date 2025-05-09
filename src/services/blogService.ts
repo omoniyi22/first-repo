@@ -184,6 +184,7 @@ const transformDatabasePostToBlogPost = (dbPost: any): BlogPost => {
     });
   }
   
+  // Use proper field names matching the BlogPost type
   return {
     id: dbPost.id,
     slug: dbPost.slug,
@@ -199,7 +200,6 @@ const transformDatabasePostToBlogPost = (dbPost: any): BlogPost => {
     readingTime: dbPost.reading_time,
     translations: Object.keys(translations).length > 0 ? translations : undefined,
     supabaseId: dbPost.id,
-    createdAt: dbPost.created_at,
-    updatedAt: dbPost.updated_at
+    // Don't map created_at/updated_at to createdAt/updatedAt since they don't exist in BlogPost type
   };
 };
