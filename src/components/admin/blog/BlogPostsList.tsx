@@ -1,4 +1,3 @@
-
 import { BlogPost } from "@/data/blogPosts";
 import { Edit, Trash2, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -41,23 +40,25 @@ const BlogPostsList = ({ posts, onEdit, onDelete }: BlogPostsListProps) => {
   };
 
   const getDisciplineColor = (discipline: string) => {
-    return discipline === 'Jumping' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800';
+    return discipline === "Jumping"
+      ? "bg-blue-100 text-blue-800"
+      : "bg-purple-100 text-purple-800";
   };
 
   const getCategoryColor = (category: string) => {
     switch (category) {
-      case 'Technology':
-        return 'bg-emerald-100 text-emerald-800';
-      case 'Analytics':
-        return 'bg-amber-100 text-amber-800';
-      case 'Training':
-        return 'bg-red-100 text-red-800';
-      case 'Guides':
-        return 'bg-sky-100 text-sky-800';
-      case 'Competition':
-        return 'bg-indigo-100 text-indigo-800';
+      case "Technology":
+        return "bg-emerald-100 text-emerald-800";
+      case "Analytics":
+        return "bg-amber-100 text-amber-800";
+      case "Training":
+        return "bg-red-100 text-red-800";
+      case "Guides":
+        return "bg-sky-100 text-sky-800";
+      case "Competition":
+        return "bg-indigo-100 text-indigo-800";
       default:
-        return 'bg-gray-100 text-gray-800';
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -79,12 +80,15 @@ const BlogPostsList = ({ posts, onEdit, onDelete }: BlogPostsListProps) => {
           <TableBody>
             {posts.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8 text-gray-500">
+                <TableCell
+                  colSpan={7}
+                  className="text-center py-8 text-gray-500"
+                >
                   No blog posts found
                 </TableCell>
               </TableRow>
             ) : (
-              posts.map((post) => (
+              posts.map((post, index) => (
                 <TableRow key={post.id}>
                   <TableCell>{post.id}</TableCell>
                   <TableCell>
@@ -96,21 +100,23 @@ const BlogPostsList = ({ posts, onEdit, onDelete }: BlogPostsListProps) => {
                   <TableCell>{post.author}</TableCell>
                   <TableCell>{post.date}</TableCell>
                   <TableCell className="hidden md:table-cell">
-                    <Badge variant="outline" className={getDisciplineColor(post.discipline)}>
+                    <Badge
+                      variant="outline"
+                      className={getDisciplineColor(post.discipline)}
+                    >
                       {post.discipline}
                     </Badge>
                   </TableCell>
                   <TableCell className="hidden md:table-cell">
-                    <Badge variant="outline" className={getCategoryColor(post.category)}>
+                    <Badge
+                      variant="outline"
+                      className={getCategoryColor(post.category)}
+                    >
                       {post.category}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right space-x-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      asChild
-                    >
+                    <Button variant="ghost" size="icon" asChild>
                       <Link to={`/blog/${post.slug}`} target="_blank">
                         <Eye className="h-4 w-4" />
                         <span className="sr-only">View</span>
@@ -140,19 +146,26 @@ const BlogPostsList = ({ posts, onEdit, onDelete }: BlogPostsListProps) => {
         </Table>
       </div>
 
-      <AlertDialog open={!!postToDelete} onOpenChange={(open) => !open && setPostToDelete(null)}>
+      <AlertDialog
+        open={!!postToDelete}
+        onOpenChange={(open) => !open && setPostToDelete(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the blog post
+              This action cannot be undone. This will permanently delete the
+              blog post
               <br />
               <span className="font-medium">{postToDelete?.title}</span>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="bg-red-600 hover:bg-red-700"
+            >
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>

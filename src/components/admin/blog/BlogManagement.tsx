@@ -25,7 +25,7 @@ import {
 import { fetchAllBlogPosts, createBlogPost, updateBlogPost, deleteBlogPost, fetchBlogPostBySlug } from "@/services/blogService";
 import { useToast } from "@/hooks/use-toast";
 
-const POSTS_PER_PAGE = 5;
+const POSTS_PER_PAGE = 10;
 
 const BlogManagement = () => {
   const [posts, setPosts] = useState<BlogPost[]>([]);
