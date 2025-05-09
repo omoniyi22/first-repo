@@ -2,249 +2,198 @@
 import { supabase } from '@/integrations/supabase/client';
 import { BlogPost } from '@/data/blogPosts';
 
-export interface SupabaseBlogPost {
-  id: string;
-  title: string;
-  slug: string;
-  excerpt: string;
-  content: string | null;
-  author: string;
-  author_image: string | null;
-  date: string;
-  discipline: 'Jumping' | 'Dressage';
-  category: 'Technology' | 'Analytics' | 'Training' | 'Guides' | 'Competition';
-  image: string;
-  reading_time: string;
-}
-
-export interface SupabaseBlogTranslation {
-  id: string;
-  blog_id: string;
-  language: string;
-  title: string | null;
-  excerpt: string | null;
-  content: string | null;
-  category: string | null;
-}
-
-// Convert Supabase blog post to our BlogPost format
-export const mapToBlogPost = (post: SupabaseBlogPost, translations?: SupabaseBlogTranslation[]): BlogPost => {
-  console.log('Mapping blog post to BlogPost format:', post);
-  
-  const translationMap = translations?.reduce((acc, translation) => {
-    const { language, title, excerpt, content, category } = translation;
-    if (!acc[language]) {
-      acc[language] = {};
-    }
+// Core blog fetch functionality
+export const fetchBlogPosts = async (): Promise<BlogPost[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .select('*, blog_translations(*)')
+      .order('created_at', { ascending: false });
     
-    if (title) acc[language].title = title;
-    if (excerpt) acc[language].excerpt = excerpt;
-    if (content) acc[language].content = content;
-    if (category) acc[language].category = category;
+    if (error) throw error;
     
-    return acc;
-  }, {} as BlogPost['translations']);
-  
-  // Ensure content is properly handled even if it's null
-  const blogContent = post.content || '';
-  console.log(`Blog post "${post.title}" content status:`, post.content === null ? 'NULL' : 'Content length: ' + post.content?.length);
-
-  return {
-    id: parseInt(post.id.replace(/-/g, '').substring(0, 8), 16) % 1000, // Generate a stable numeric ID
-    slug: post.slug,
-    title: post.title,
-    excerpt: post.excerpt,
-    content: blogContent, // Ensure we don't pass null but empty string
-    author: post.author,
-    authorImage: post.author_image || '/placeholder.svg',
-    date: post.date,
-    discipline: post.discipline,
-    category: post.category,
-    image: post.image,
-    readingTime: post.reading_time,
-    translations: translationMap || {},
-    supabaseId: post.id // Store the Supabase UUID for later use
-  };
-};
-
-// Fetch all blog posts
-export const fetchAllBlogPosts = async (): Promise<BlogPost[]> => {
-  console.log('Fetching all blog posts');
-  
-  const { data: posts, error } = await supabase
-    .from('blog_posts')
-    .select('*')
-    .order('date', { ascending: false });
-
-  if (error) {
+    // Transform Supabase data into BlogPost format
+    return data.map(transformDatabasePostToBlogPost);
+  } catch (error) {
     console.error('Error fetching blog posts:', error);
-    throw new Error('Failed to fetch blog posts');
+    return [];
   }
-
-  console.log('Fetched blog posts from database:', posts);
-
-  const { data: translations, error: translationsError } = await supabase
-    .from('blog_translations')
-    .select('*');
-
-  if (translationsError) {
-    console.error('Error fetching translations:', translationsError);
-    // Continue without translations
-  }
-
-  // Group translations by blog_id
-  const translationsByBlogId = (translations || []).reduce((acc, translation) => {
-    if (!acc[translation.blog_id]) {
-      acc[translation.blog_id] = [];
-    }
-    acc[translation.blog_id].push(translation);
-    return acc;
-  }, {} as Record<string, SupabaseBlogTranslation[]>);
-
-  // Map to our BlogPost format
-  return posts.map(post => {
-    // Ensure discipline is properly typed as 'Jumping' or 'Dressage'
-    const typedPost: SupabaseBlogPost = {
-      ...post,
-      discipline: post.discipline as 'Jumping' | 'Dressage',
-      category: post.category as 'Technology' | 'Analytics' | 'Training' | 'Guides' | 'Competition'
-    };
-    return mapToBlogPost(typedPost, translationsByBlogId[post.id]);
-  });
 };
 
-// Fetch a single blog post by slug
 export const fetchBlogPostBySlug = async (slug: string): Promise<BlogPost | null> => {
-  console.log(`Fetching blog post with slug: ${slug}`);
-  
-  const { data: post, error } = await supabase
-    .from('blog_posts')
-    .select('*')
-    .eq('slug', slug)
-    .single();
-
-  if (error) {
-    console.error('Error fetching blog post:', error);
+  try {
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .select('*, blog_translations(*)')
+      .eq('slug', slug)
+      .single();
+    
+    if (error) throw error;
+    
+    return transformDatabasePostToBlogPost(data);
+  } catch (error) {
+    console.error(`Error fetching blog post with slug "${slug}":`, error);
     return null;
   }
-
-  console.log('Fetched blog post data:', post);
-  console.log('Content:', post.content === null ? 'NULL' : 'Content length: ' + post.content?.length);
-
-  const { data: translations, error: translationsError } = await supabase
-    .from('blog_translations')
-    .select('*')
-    .eq('blog_id', post.id);
-
-  if (translationsError) {
-    console.error('Error fetching translations:', translationsError);
-    // Continue without translations
-  }
-
-  // Ensure discipline is properly typed as 'Jumping' or 'Dressage'
-  const typedPost: SupabaseBlogPost = {
-    ...post,
-    discipline: post.discipline as 'Jumping' | 'Dressage',
-    category: post.category as 'Technology' | 'Analytics' | 'Training' | 'Guides' | 'Competition'
-  };
-
-  return mapToBlogPost(typedPost, translations || []);
 };
 
-// Create a new blog post
-export const createBlogPost = async (post: Omit<SupabaseBlogPost, 'id'>): Promise<string | null> => {
-  console.log('Creating new blog post:', post);
-  
-  // If content is null or undefined, set it to an empty string
-  const finalPost = {
-    ...post,
-    content: post.content || ''  // Ensure content is never null
-  };
-
-  const { data, error } = await supabase
-    .from('blog_posts')
-    .insert([finalPost])
-    .select('id')
-    .single();
-
-  if (error) {
+// Blog post CRUD operations
+export const createBlogPost = async (post: Partial<BlogPost>) => {
+  try {
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .insert([{
+        title: post.title || 'Untitled Post',
+        slug: post.slug || generateSlug(post.title || 'Untitled Post'),
+        excerpt: post.excerpt || '',
+        content: post.content || '',
+        image: post.image || '/placeholder.svg',
+        author: post.author || 'AI Equestrian Team',
+        category: post.category || 'General',
+        discipline: post.discipline || 'Dressage',
+        date: post.date || new Date().toISOString().split('T')[0],
+        reading_time: post.readingTime || '5 min read'
+      }])
+      .select()
+      .single();
+    
+    if (error) throw error;
+    
+    return transformDatabasePostToBlogPost(data);
+  } catch (error) {
     console.error('Error creating blog post:', error);
-    throw new Error('Failed to create blog post');
-  }
-
-  return data?.id || null;
-};
-
-// Update an existing blog post
-export const updateBlogPost = async (id: string, post: Partial<SupabaseBlogPost>): Promise<void> => {
-  console.log('Updating blog post:', id, post);
-  
-  // If content is explicitly set to null, provide an empty string instead
-  const finalPost: Partial<SupabaseBlogPost> = {
-    ...post
-  };
-  
-  if (post.content === null) {
-    finalPost.content = '';
-  }
-  
-  // Make sure discipline and category are correctly typed
-  if (finalPost.discipline) {
-    finalPost.discipline = finalPost.discipline as 'Jumping' | 'Dressage';
-  }
-  
-  if (finalPost.category) {
-    finalPost.category = finalPost.category as 'Technology' | 'Analytics' | 'Training' | 'Guides' | 'Competition';
-  }
-  
-  const { error } = await supabase
-    .from('blog_posts')
-    .update(finalPost)
-    .eq('id', id);
-
-  if (error) {
-    console.error('Error updating blog post:', error);
-    throw new Error('Failed to update blog post');
+    throw error;
   }
 };
 
-// Delete a blog post
-export const deleteBlogPost = async (id: string): Promise<void> => {
-  console.log('Deleting blog post:', id);
-  
-  const { error } = await supabase
-    .from('blog_posts')
-    .delete()
-    .eq('id', id);
-
-  if (error) {
-    console.error('Error deleting blog post:', error);
-    throw new Error('Failed to delete blog post');
-  }
-};
-
-// Create or update translations for a blog post
-export const upsertBlogTranslation = async (
-  blogId: string, 
-  language: string, 
-  translationData: Partial<SupabaseBlogTranslation>
-): Promise<void> => {
-  console.log('Upserting blog translation:', blogId, language, translationData);
-  
-  const { error } = await supabase
-    .from('blog_translations')
-    .upsert([
-      {
-        blog_id: blogId,
-        language,
-        ...translationData
-      }
-    ], { 
-      onConflict: 'blog_id,language'
+export const updateBlogPost = async (id: string, post: Partial<BlogPost>) => {
+  try {
+    // Convert BlogPost format to database schema
+    const dbPost: any = {
+      title: post.title,
+      slug: post.slug || generateSlug(post.title || ''),
+      excerpt: post.excerpt,
+      content: post.content,
+      image: post.image,
+      author: post.author,
+      category: post.category,
+      discipline: post.discipline,
+      date: post.date,
+      reading_time: post.readingTime
+    };
+    
+    // Filter out undefined values
+    Object.keys(dbPost).forEach(key => {
+      if (dbPost[key] === undefined) delete dbPost[key];
     });
-
-  if (error) {
-    console.error('Error updating translation:', error);
-    throw new Error('Failed to update translation');
+    
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .update(dbPost)
+      .eq('id', id)
+      .select()
+      .single();
+    
+    if (error) throw error;
+    
+    return transformDatabasePostToBlogPost(data);
+  } catch (error) {
+    console.error(`Error updating blog post with id "${id}":`, error);
+    throw error;
   }
+};
+
+export const deleteBlogPost = async (id: string) => {
+  try {
+    const { error } = await supabase
+      .from('blog_posts')
+      .delete()
+      .eq('id', id);
+    
+    if (error) throw error;
+    
+    return true;
+  } catch (error) {
+    console.error(`Error deleting blog post with id "${id}":`, error);
+    throw error;
+  }
+};
+
+// Blog post translation operations
+export const updateBlogTranslation = async (blogId: string, language: string, translation: any) => {
+  try {
+    const { data: existingTranslation } = await supabase
+      .from('blog_translations')
+      .select()
+      .eq('blog_id', blogId)
+      .eq('language', language)
+      .maybeSingle();
+    
+    if (existingTranslation) {
+      const { error } = await supabase
+        .from('blog_translations')
+        .update(translation)
+        .eq('id', existingTranslation.id);
+      
+      if (error) throw error;
+    } else {
+      const { error } = await supabase
+        .from('blog_translations')
+        .insert([{
+          blog_id: blogId,
+          language,
+          ...translation
+        }]);
+      
+      if (error) throw error;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error(`Error updating translation for blog post "${blogId}":`, error);
+    throw error;
+  }
+};
+
+// Utility functions
+const generateSlug = (title: string): string => {
+  return title
+    .toLowerCase()
+    .replace(/[^\w\s]/gi, '')
+    .replace(/\s+/g, '-');
+};
+
+const transformDatabasePostToBlogPost = (dbPost: any): BlogPost => {
+  if (!dbPost) return null as any;
+  
+  const translations: any = {};
+  
+  if (dbPost.blog_translations && dbPost.blog_translations.length > 0) {
+    dbPost.blog_translations.forEach((translation: any) => {
+      translations[translation.language] = {
+        title: translation.title,
+        excerpt: translation.excerpt,
+        content: translation.content,
+        category: translation.category
+      };
+    });
+  }
+  
+  return {
+    id: dbPost.id,
+    slug: dbPost.slug,
+    title: dbPost.title,
+    excerpt: dbPost.excerpt,
+    content: dbPost.content,
+    image: dbPost.image,
+    author: dbPost.author,
+    authorImage: dbPost.author_image,
+    category: dbPost.category,
+    discipline: dbPost.discipline,
+    date: dbPost.date,
+    readingTime: dbPost.reading_time,
+    translations: Object.keys(translations).length > 0 ? translations : undefined,
+    created_at: dbPost.created_at,
+    updated_at: dbPost.updated_at
+  };
 };
