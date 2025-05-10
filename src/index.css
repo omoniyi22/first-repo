@@ -1,4 +1,3 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Varela+Round:wght@400&display=swap');
 
 @tailwind base;
@@ -99,7 +98,7 @@
 @layer components {
   /* Improved mobile container class */
   .container {
-    @apply w-full px-4 sm:px-6 mx-auto;
+    @apply w-full mx-auto;
     max-width: 100%;
   }
 
@@ -210,23 +209,23 @@
     @apply z-50;
   }
   
-  /* Navbar padding classes - updated for more space */
+  /* Navbar padding classes - updated for better mobile spacing */
   .pt-navbar {
-    @apply pt-32; /* Increased padding for fixed navbar */
+    @apply pt-24 md:pt-32;
   }
   
   .mt-navbar {
-    @apply mt-32; /* Increased margin for fixed navbar */
+    @apply mt-24 md:mt-32;
   }
   
   /* Mobile-specific spacing and layout improvements */
   @media (max-width: 768px) {
     .pt-navbar {
-      @apply pt-32; /* Increased padding for mobile as well */
+      @apply pt-24;
     }
     
     .mt-navbar {
-      @apply mt-32; /* Increased margin for mobile as well */
+      @apply mt-24;
     }
     
     /* Mobile text alignment fix */
@@ -234,17 +233,13 @@
       @apply text-center;
     }
     
-    /* Mobile padding fixes */
-    .mobile-px-4 {
-      @apply px-4;
+    /* Mobile button alignment fixes */
+    .btn-container {
+      @apply flex flex-col w-full;
     }
     
-    /* Mobile container fix */
-    .container {
-      width: 100% !important;
-      max-width: 100% !important;
-      margin-left: auto !important;
-      margin-right: auto !important;
+    .btn-mobile {
+      @apply w-full mb-3;
     }
   }
 

@@ -17,7 +17,7 @@ const Hero = () => {
   }, []);
 
   return (
-    <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden pt-32"> {/* Increased height and padding-top */}
+    <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden pt-24 md:pt-32">
       {/* Full-width background image */}
       {!imageLoaded && (
         <div className="absolute inset-0 bg-purple-100/50">
@@ -36,7 +36,7 @@ const Hero = () => {
       {/* Overlay gradient */}
       <div className="absolute inset-0 bg-gradient-to-r from-purple-900/70 to-purple-900/40"></div>
       
-      <div className="container relative z-10 mx-auto px-6 text-center"> {/* Removed mt-16 for better spacing */}
+      <div className="container relative z-10 mx-auto px-4 sm:px-6 text-center">
         <div className={`max-w-2xl mx-auto transition-all duration-1000 transform ${loaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
           <AnimatedSection animation="fade-in" delay="delay-100">
             <div className="inline-block px-6 py-3 mb-6 bg-gradient-to-r from-purple-600 to-blue-500 rounded-xl backdrop-blur-sm">
@@ -49,7 +49,7 @@ const Hero = () => {
           </AnimatedSection>
           
           <AnimatedSection animation="fade-in" delay="delay-200">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-semibold leading-tight text-white mb-6 text-shadow mt-6 md:mt-0"> {/* Reduced top margin */}
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-serif font-semibold leading-tight text-white mb-4 text-shadow">
               {language === 'en'
                 ? "Transform Your Dressage Training with AI"
                 : "Transforma Tu Entrenamiento de Doma con IA"}
@@ -57,7 +57,7 @@ const Hero = () => {
           </AnimatedSection>
           
           <AnimatedSection animation="fade-in" delay="delay-300">
-            <p className="text-lg text-white/90 mb-8 max-w-lg mx-auto text-shadow-sm">
+            <p className="text-base sm:text-lg text-white/90 mb-6 max-w-lg mx-auto text-shadow-sm">
               {language === 'en'
                 ? "Upload your score sheets, get AI-powered analysis, and receive personalized training recommendations to improve your performance."
                 : "Sube tus hojas de puntuación, obtén análisis impulsado por IA y recibe recomendaciones de entrenamiento personalizadas para mejorar tu rendimiento."}
@@ -66,14 +66,14 @@ const Hero = () => {
           
           <AnimatedSection animation="fade-in" delay="delay-400">
             <div className="flex flex-col sm:flex-row gap-4 mb-8 justify-center">
-              <Link to="/sign-in?signup=true">
-                <Button className="navy-button flex items-center gap-2 text-base group">
+              <Link to="/sign-in?signup=true" className="w-full sm:w-auto">
+                <Button className="navy-button w-full sm:w-auto flex items-center gap-2 text-base group">
                   {language === 'en' ? "Get Started" : "Comenzar"}
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Button>
               </Link>
-              <Link to="/how-it-works">
-                <Button variant="outline" className="outline-button text-base">
+              <Link to="/how-it-works" className="w-full sm:w-auto">
+                <Button variant="outline" className="outline-button w-full sm:w-auto text-base">
                   {language === 'en' ? "How It Works" : "Cómo Funciona"}
                 </Button>
               </Link>

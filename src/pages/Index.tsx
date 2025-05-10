@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
@@ -91,7 +90,7 @@ const Index = () => {
       <Navbar />
       <main className="pt-0">
         {/* Hero Section */}
-        <section className="relative min-h-[100vh] flex items-center justify-center overflow-hidden pt-32">
+        <section className="relative min-h-[100vh] flex items-center justify-center overflow-hidden pt-24 md:pt-32">
           <div className="absolute inset-0">
             {/* Split hero section with two images for desktop, alternating image for mobile */}
             {isMobile ? (
@@ -161,27 +160,27 @@ const Index = () => {
             )}
           </div>
           
-          <div className="container relative z-10 mx-auto px-6 text-center mt-20 md:mt-0">
+          <div className="container relative z-10 mx-auto px-4 sm:px-6 text-center mt-10 md:mt-0">
             <div className="max-w-3xl mx-auto">
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-serif font-semibold leading-tight text-white mb-4 text-shadow mt-6 md:mt-0">
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-serif font-semibold leading-tight text-white mb-4 text-shadow">
                 AI Equestrian
               </h1>
               
-              <p className="text-xl text-white/90 mb-4 max-w-2xl mx-auto text-shadow-sm">
+              <p className="text-lg md:text-xl text-white/90 mb-4 max-w-2xl mx-auto text-shadow-sm">
                 Advanced AI solutions for equestrian training, analysis, and performance improvement
               </p>
               
-              <p className="text-lg font-medium text-purple-200 mb-10">
+              <p className="text-lg font-medium text-purple-200 mb-8">
                 Riding Intelligence, Redefined
               </p>
               
-              <div className="grid md:grid-cols-2 gap-8 max-w-2xl mx-auto">
-                <div className="bg-white/10 backdrop-blur-md rounded-xl p-8 border border-white/20 hover:bg-white/20 transition-all transform hover:-translate-y-1 group">
-                  <h2 className="text-2xl font-serif font-medium text-white mb-4">AI Dressage Trainer</h2>
-                  <p className="text-white/80 mb-6">
+              <div className="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto mb-8">
+                <div className="bg-white/10 backdrop-blur-md rounded-xl p-5 sm:p-8 border border-white/20 hover:bg-white/20 transition-all transform hover:-translate-y-1 group">
+                  <h2 className="text-xl sm:text-2xl font-serif font-medium text-white mb-3 sm:mb-4">AI Dressage Trainer</h2>
+                  <p className="text-white/80 mb-4 sm:mb-6 text-sm sm:text-base">
                     Upload your dressage score sheets, get AI-powered analysis, and receive personalized training recommendations.
                   </p>
-                  <Link to="/dressage">
+                  <Link to="/dressage" className="block">
                     <Button className="navy-button w-full group flex items-center justify-center gap-2 text-base">
                       Explore Dressage
                       <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -189,12 +188,12 @@ const Index = () => {
                   </Link>
                 </div>
                 
-                <div className="bg-white/10 backdrop-blur-md rounded-xl p-8 border border-white/20 hover:bg-white/20 transition-all transform hover:-translate-y-1 group">
-                  <h2 className="text-2xl font-serif font-medium text-white mb-4">AI Jumping Trainer</h2>
-                  <p className="text-white/80 mb-6">
+                <div className="bg-white/10 backdrop-blur-md rounded-xl p-5 sm:p-8 border border-white/20 hover:bg-white/20 transition-all transform hover:-translate-y-1 group">
+                  <h2 className="text-xl sm:text-2xl font-serif font-medium text-white mb-3 sm:mb-4">AI Jumping Trainer</h2>
+                  <p className="text-white/80 mb-4 sm:mb-6 text-sm sm:text-base">
                     Analyze your jumping performance, get insights on technique, and improve your show jumping results.
                   </p>
-                  <Link to="/jumping">
+                  <Link to="/jumping" className="block">
                     <Button className="navy-button w-full group flex items-center justify-center gap-2 text-base">
                       Explore Jumping
                       <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -203,15 +202,15 @@ const Index = () => {
                 </div>
               </div>
               
-              <div className="mt-16 flex flex-col sm:flex-row gap-4 justify-center">
-                <Link to="/sign-in?signup=true">
-                  <Button className="navy-button group flex items-center gap-2 text-base">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link to="/sign-in?signup=true" className="w-full sm:w-auto">
+                  <Button className="navy-button w-full sm:w-auto group flex items-center justify-center gap-2 text-base">
                     Get Started
                     <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                   </Button>
                 </Link>
-                <Link to="/how-it-works">
-                  <Button variant="outline" className="outline-button text-base">
+                <Link to="/how-it-works" className="w-full sm:w-auto">
+                  <Button variant="outline" className="outline-button w-full sm:w-auto text-base">
                     How It Works
                   </Button>
                 </Link>
@@ -220,7 +219,7 @@ const Index = () => {
           </div>
         </section>
         
-        {/* Testimonials Section - Adding it back */}
+        {/* Testimonials Section */}
         <Testimonials />
         
         {/* Benefits Section */}
