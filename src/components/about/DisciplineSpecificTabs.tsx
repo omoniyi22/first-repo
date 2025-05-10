@@ -136,46 +136,50 @@ const DisciplineSpecificTabs = () => {
           <p className="text-lg text-gray-700 mb-6">
             Our specialized AI systems address the unique needs of different equestrian disciplines.
           </p>
-          <p className="text-sm text-gray-600 font-medium">Select a discipline below to see specific challenges</p>
+          <p className="text-sm text-gray-600 font-medium mb-4">Click a discipline below to view challenges</p>
         </AnimatedSection>
         
-        <Tabs 
-          defaultValue="dressage" 
-          className="w-full max-w-6xl mx-auto"
-          value={activeTab}
-          onValueChange={setActiveTab}
-        >
-          <div className="bg-white rounded-lg shadow-md overflow-hidden mb-8">
-            <TabsList className="grid w-full grid-cols-2 border-b border-gray-200">
-              <TabsTrigger 
-                value="dressage"
-                className={`px-8 py-6 flex items-center justify-center transition-all duration-300 text-xl ${
-                  activeTab === "dressage" 
-                    ? "bg-purple-100 text-purple-900 border-b-4 border-purple-700 font-bold" 
-                    : "hover:bg-purple-50 text-gray-700 hover:text-purple-800"
+        {/* Completely redesigned tabs section */}
+        <div className="max-w-6xl mx-auto mb-12">
+          <div className="flex justify-center">
+            <div className="inline-flex bg-white rounded-xl shadow-lg p-2 border border-gray-200">
+              <button
+                onClick={() => setActiveTab("dressage")}
+                className={`relative px-8 py-4 rounded-lg transition-all duration-300 font-serif text-2xl ${
+                  activeTab === "dressage"
+                    ? "bg-purple-100 text-purple-900 font-semibold"
+                    : "text-gray-700 hover:bg-gray-100"
                 }`}
               >
-                <span className="text-2xl font-serif">AI Dressage</span>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="jumping"
-                className={`px-8 py-6 flex items-center justify-center transition-all duration-300 text-xl ${
-                  activeTab === "jumping" 
-                    ? "bg-blue-100 text-blue-900 border-b-4 border-blue-700 font-bold" 
-                    : "hover:bg-blue-50 text-gray-700 hover:text-blue-800"
+                AI Dressage
+                {activeTab === "dressage" && (
+                  <span className="absolute bottom-0 left-0 w-full h-1 bg-purple-700 rounded-b-lg"></span>
+                )}
+              </button>
+              <button
+                onClick={() => setActiveTab("jumping")}
+                className={`relative px-8 py-4 rounded-lg transition-all duration-300 font-serif text-2xl ${
+                  activeTab === "jumping"
+                    ? "bg-blue-100 text-blue-900 font-semibold"
+                    : "text-gray-700 hover:bg-gray-100"
                 }`}
               >
-                <span className="text-2xl font-serif">AI Jump</span>
-              </TabsTrigger>
-            </TabsList>
+                AI Jump
+                {activeTab === "jumping" && (
+                  <span className="absolute bottom-0 left-0 w-full h-1 bg-blue-700 rounded-b-lg"></span>
+                )}
+              </button>
+            </div>
           </div>
-          <TabsContent value="dressage" className="mt-6">
+        </div>
+        
+        <div className="mt-6">
+          {activeTab === "dressage" ? (
             <DressageTab />
-          </TabsContent>
-          <TabsContent value="jumping" className="mt-6">
+          ) : (
             <JumpingTab />
-          </TabsContent>
-        </Tabs>
+          )}
+        </div>
       </div>
     </section>
   );
