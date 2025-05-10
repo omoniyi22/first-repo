@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Check } from "lucide-react";
 import PricingToggle from "./PricingToggle";
@@ -345,16 +344,17 @@ const PricingTiers = () => {
                   </Badge>
                 )}
 
-                <div className="mb-10">
+                <div className="mb-5">
                   <h2 className="text-2xl font-serif font-semibold text-navy-900 mb-4">
                     {plan.name}
                   </h2>
 
-                  <p className="text-gray-700 mb-10 text-sm h-12">
+                  <p className="text-gray-700 mb-5 text-sm h-12">
                     {plan.tagline[language]}
                   </p>
 
-                  <div className="flex items-baseline mb-5">
+                  {/* Aligned pricing section with fixed height */}
+                  <div className="flex items-baseline mb-2 h-10">
                     <span className="text-4xl font-bold text-navy-900">
                       £{isAnnual ? plan.annualPrice : plan.monthlyPrice}
                     </span>
@@ -364,7 +364,7 @@ const PricingTiers = () => {
                   </div>
 
                   {isAnnual && (
-                    <p className="text-sm text-gray-600 mb-10">
+                    <p className="text-sm text-gray-600 mb-6 h-5">
                       {t["billed-annually"]} (£
                       {(isAnnual ? plan.annualPrice : plan.monthlyPrice) * 12}/
                       {t["year"]})
@@ -372,47 +372,44 @@ const PricingTiers = () => {
                   )}
                 </div>
 
-                {/* Fixed button position with flex-grow to push features to top */}
-                <div className="mt-auto mb-10">
+                {/* Features section pushed lower for alignment */}
+                <div className="flex-grow">
+                  <div className="space-y-5">
+                    <h3 className="font-medium text-navy-900 border-b border-silver-200 pb-3">
+                      {t["features-include"]}
+                    </h3>
+
+                    <ul className="space-y-4">
+                      {plan.features.map((feature, i) => (
+                        <li
+                          key={i}
+                          className={`flex items-start ${
+                            !feature.included ? "opacity-60" : ""
+                          }`}
+                        >
+                          <Check
+                            className={`h-5 w-5 mr-3 mt-0.5 flex-shrink-0 ${
+                              feature.included
+                                ? "text-purple-600"
+                                : "text-silver-400"
+                            }`}
+                          />
+                          <span className="text-sm text-gray-700">
+                            {feature.text[language]}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+
+                {/* Fixed button position at the bottom */}
+                <div className="mt-10">
                   <Button
-                    className={`w-full py-6 rounded-lg text-base h-auto ${
-                      plan.highlighted
-                        ? "bg-purple-700 hover:bg-purple-800 text-white font-semibold"
-                        : plan.id === "basic"
-                        ? "bg-purple-600 hover:bg-purple-700 text-white font-medium"
-                        : "bg-purple-50 hover:bg-purple-100 text-purple-800 font-medium border border-purple-200"
-                    }`}
+                    className="w-full py-6 rounded-lg text-base h-auto bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-medium transition-all duration-300"
                   >
                     {plan.buttonText[language]}
                   </Button>
-                </div>
-
-                <div className="space-y-5">
-                  <h3 className="font-medium text-navy-900 border-b border-silver-200 pb-3">
-                    {t["features-include"]}
-                  </h3>
-
-                  <ul className="space-y-4">
-                    {plan.features.map((feature, i) => (
-                      <li
-                        key={i}
-                        className={`flex items-start ${
-                          !feature.included ? "opacity-60" : ""
-                        }`}
-                      >
-                        <Check
-                          className={`h-5 w-5 mr-3 mt-0.5 flex-shrink-0 ${
-                            feature.included
-                              ? "text-purple-600"
-                              : "text-silver-400"
-                          }`}
-                        />
-                        <span className="text-sm text-gray-700">
-                          {feature.text[language]}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
                 </div>
               </div>
             </AnimatedSection>
