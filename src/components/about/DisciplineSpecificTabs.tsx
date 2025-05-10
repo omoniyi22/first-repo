@@ -2,6 +2,8 @@
 import { useState } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import AnimatedSection from "@/components/ui/AnimatedSection";
+import { Toggle } from "@/components/ui/toggle";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 const DressageTab = () => (
   <div className="space-y-6">
@@ -16,7 +18,7 @@ const DressageTab = () => (
       </div>
       <div className="md:w-1/2">
         <img 
-          src="/lovable-uploads/f21e0183-a564-4222-87bb-f424b3ed4c87.png"
+          src="/lovable-uploads/1554e993-7051-4fbe-b10a-5d09556c7582.png"
           alt="Dressage rider performing in an arena"
           className="rounded-lg w-full object-cover shadow-md h-64"
         />
@@ -122,6 +124,8 @@ const JumpingTab = () => (
 );
 
 const DisciplineSpecificTabs = () => {
+  const [activeTab, setActiveTab] = useState("dressage");
+  
   return (
     <section className="py-16 bg-gradient-to-br from-purple-100 to-blue-100">
       <div className="container mx-auto px-6">
@@ -129,24 +133,38 @@ const DisciplineSpecificTabs = () => {
           <h2 className="text-3xl md:text-4xl font-serif font-semibold text-gray-900 mb-4">
             Discipline-Specific Challenges
           </h2>
-          <p className="text-lg text-gray-700">
+          <p className="text-lg text-gray-700 mb-6">
             Our specialized AI systems address the unique needs of different equestrian disciplines.
           </p>
+          <p className="text-sm text-gray-600">Click to toggle between disciplines</p>
         </AnimatedSection>
         
-        <Tabs defaultValue="dressage" className="w-full max-w-6xl mx-auto">
-          <TabsList className="grid w-full grid-cols-2 mb-8">
+        <Tabs 
+          defaultValue="dressage" 
+          className="w-full max-w-6xl mx-auto"
+          value={activeTab}
+          onValueChange={setActiveTab}
+        >
+          <TabsList className="grid w-full grid-cols-2 mb-8 shadow-md rounded-lg overflow-hidden">
             <TabsTrigger 
               value="dressage"
-              className="data-[state=active]:bg-purple-100 data-[state=active]:text-purple-900 py-3"
+              className={`py-6 flex items-center justify-center transition-all duration-300 ${
+                activeTab === "dressage" 
+                  ? "bg-purple-100 text-purple-900 border-b-4 border-purple-500" 
+                  : "hover:bg-purple-50 text-gray-700"
+              }`}
             >
-              <span className="text-xl font-serif font-semibold">AI Dressage</span>
+              <span className="text-xl font-serif font-semibold text-center">AI Dressage</span>
             </TabsTrigger>
             <TabsTrigger 
               value="jumping"
-              className="data-[state=active]:bg-blue-100 data-[state=active]:text-blue-900 py-3"
+              className={`py-6 flex items-center justify-center transition-all duration-300 ${
+                activeTab === "jumping" 
+                  ? "bg-blue-100 text-blue-900 border-b-4 border-blue-500" 
+                  : "hover:bg-blue-50 text-gray-700"
+              }`}
             >
-              <span className="text-xl font-serif font-semibold">AI Jump</span>
+              <span className="text-xl font-serif font-semibold text-center">AI Jump</span>
             </TabsTrigger>
           </TabsList>
           <TabsContent value="dressage" className="mt-6">
