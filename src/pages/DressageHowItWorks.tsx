@@ -85,11 +85,11 @@ const DressageHowItWorks = () => {
       
       {/* Hero Section */}
       <div className="relative mb-12">
-        <div className="w-full h-[88px] md:h-[106px] overflow-hidden relative">
+        <div className="w-full h-80 md:h-96 overflow-hidden relative">
           <img 
             src="/lovable-uploads/e0fb5a87-4649-49c3-9b33-e7b1c410998b.png" 
             alt="Dressage rider performing in an arena with white fencing"
-            className="w-full h-full object-cover object-bottom scale-110"
+            className="w-full h-full object-cover object-bottom"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-purple-900/70 to-transparent"></div>
           <div className="absolute inset-0 flex items-center">
