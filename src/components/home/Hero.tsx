@@ -65,7 +65,7 @@ const Hero = () => {
           </AnimatedSection>
           
           <AnimatedSection animation="fade-in" delay="delay-400">
-            <div className="flex flex-col sm:flex-row gap-4 mb-8 justify-center">
+            <div className="flex flex-col sm:flex-row gap-4 mb-10 justify-center">
               <Link to="/sign-in?signup=true" className="w-full sm:w-auto">
                 <Button className="navy-button w-full sm:w-auto flex items-center gap-2 text-base group">
                   {language === 'en' ? "Get Started" : "Comenzar"}
@@ -81,7 +81,7 @@ const Hero = () => {
           </AnimatedSection>
           
           <AnimatedSection animation="fade-in" delay="delay-500">
-            <div className="flex items-center justify-center mb-12 sm:mb-16 md:mb-20">
+            <div className="flex items-center justify-center mb-16 sm:mb-20 md:mb-24">
               <div className="flex -space-x-2">
                 {[1, 2, 3, 4].map((i) => (
                   <div key={i} className="w-10 h-10 rounded-full border-2 border-white overflow-hidden">

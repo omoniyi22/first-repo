@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
@@ -202,7 +203,7 @@ const Index = () => {
                 </div>
               </div>
               
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center mb-14 sm:mb-16 md:mb-20">
                 <Link to="/sign-in?signup=true" className="w-full sm:w-auto">
                   <Button className="navy-button w-full sm:w-auto group flex items-center justify-center gap-2 text-base">
                     Get Started

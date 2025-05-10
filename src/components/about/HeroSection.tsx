@@ -26,7 +26,7 @@ const HeroSection = () => {
           <p className="text-base sm:text-lg md:text-xl text-white/90 max-w-2xl mb-6 md:mb-8">
             AI Equestrian combines cutting-edge technology with equestrian expertise to transform how riders train, compete, and improve.
           </p>
-          <Link to="/sign-in?signup=true" className="w-full sm:w-auto max-w-xs mb-10 md:mb-16">
+          <Link to="/sign-in?signup=true" className="w-full sm:w-auto max-w-xs mb-14 md:mb-20">
             <Button size="lg" className="bg-gradient-to-r w-full from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-6 md:px-8 py-4 md:py-6 rounded-md text-lg">
               Try AI Equestrian
             </Button>
