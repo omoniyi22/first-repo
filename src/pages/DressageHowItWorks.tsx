@@ -60,6 +60,7 @@ const DressageHowItWorks = () => {
     <div className="min-h-screen bg-gradient-to-b from-purple-100 to-white">
       <SEO {...seoMetadata} />
       <Navbar />
+      
       <div className="container mx-auto px-6 pt-24 pb-4">
         <Breadcrumb>
           <BreadcrumbList>
@@ -81,6 +82,29 @@ const DressageHowItWorks = () => {
           </BreadcrumbList>
         </Breadcrumb>
       </div>
+      
+      {/* Hero Section */}
+      <div className="relative mb-12">
+        <div className="w-full h-80 md:h-96 overflow-hidden relative">
+          <img 
+            src="/lovable-uploads/42930ec1-2f55-429f-aaa5-4aac1791a729.png" 
+            alt="Dressage rider performing in an arena"
+            className="w-full h-full object-cover object-center"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-900/70 to-transparent"></div>
+          <div className="absolute inset-0 flex items-center">
+            <div className="container mx-auto px-6">
+              <h1 className="text-4xl md:text-5xl font-serif font-bold text-white max-w-2xl drop-shadow-lg text-shadow-lg">
+                How AI Dressage Analysis Works
+              </h1>
+              <p className="text-xl text-white/90 max-w-xl mt-4 drop-shadow-lg text-shadow-md">
+                Understand the process behind our AI-powered equestrian dressage analysis
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
       <main className="pt-2">
         <StepsSection />
         <FaqSection />
