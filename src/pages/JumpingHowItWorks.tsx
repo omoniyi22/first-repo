@@ -91,13 +91,13 @@ const JumpingHowItWorks = () => {
             alt="Horse and rider jumping over competition obstacle"
             className="w-full h-full object-cover object-center"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-900/60 to-transparent"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-900/70 to-transparent"></div>
           <div className="absolute inset-0 flex items-center">
             <div className="container mx-auto px-6">
-              <h1 className="text-4xl md:text-5xl font-serif font-bold text-white max-w-2xl drop-shadow-md">
+              <h1 className="text-4xl md:text-5xl font-serif font-bold text-white max-w-2xl drop-shadow-lg text-shadow-lg">
                 How AI Jumping Analysis Works
               </h1>
-              <p className="text-xl text-white/90 max-w-xl mt-4 drop-shadow-md">
+              <p className="text-xl text-white/90 max-w-xl mt-4 drop-shadow-lg text-shadow-md">
                 Understand the process behind our AI-powered equestrian jumping analysis
               </p>
             </div>
