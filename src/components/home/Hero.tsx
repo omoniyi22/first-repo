@@ -81,7 +81,7 @@ const Hero = () => {
           </AnimatedSection>
           
           <AnimatedSection animation="fade-in" delay="delay-500">
-            <div className="flex items-center justify-center">
+            <div className="flex items-center justify-center mb-12 sm:mb-16 md:mb-20">
               <div className="flex -space-x-2">
                 {[1, 2, 3, 4].map((i) => (
                   <div key={i} className="w-10 h-10 rounded-full border-2 border-white overflow-hidden">
