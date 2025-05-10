@@ -16,8 +16,8 @@ const DressageTab = () => (
       </div>
       <div className="md:w-1/2">
         <img 
-          src="/lovable-uploads/42930ec1-2f55-429f-aaa5-4aac1791a729.png"
-          alt="Dressage training with AI analysis"
+          src="/lovable-uploads/f21e0183-a564-4222-87bb-f424b3ed4c87.png"
+          alt="Dressage rider performing in an arena"
           className="rounded-lg w-full object-cover shadow-md h-64"
         />
       </div>
