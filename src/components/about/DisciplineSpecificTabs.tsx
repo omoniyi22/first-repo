@@ -18,7 +18,7 @@ const DressageTab = () => (
       </div>
       <div className="md:w-1/2">
         <img 
-          src="/lovable-uploads/1554e993-7051-4fbe-b10a-5d09556c7582.png"
+          src="/lovable-uploads/f21e0183-a564-4222-87bb-f424b3ed4c87.png"
           alt="Dressage rider performing in an arena"
           className="rounded-lg w-full object-cover shadow-md h-64"
         />
@@ -136,7 +136,7 @@ const DisciplineSpecificTabs = () => {
           <p className="text-lg text-gray-700 mb-6">
             Our specialized AI systems address the unique needs of different equestrian disciplines.
           </p>
-          <p className="text-sm text-gray-600">Click to toggle between disciplines</p>
+          <p className="text-sm text-gray-600 font-medium">Click tabs below to toggle between disciplines</p>
         </AnimatedSection>
         
         <Tabs 
@@ -148,20 +148,20 @@ const DisciplineSpecificTabs = () => {
           <TabsList className="grid w-full grid-cols-2 mb-8 shadow-md rounded-lg overflow-hidden">
             <TabsTrigger 
               value="dressage"
-              className={`py-6 flex items-center justify-center transition-all duration-300 ${
+              className={`px-6 py-8 flex items-center justify-center transition-all duration-300 ${
                 activeTab === "dressage" 
-                  ? "bg-purple-100 text-purple-900 border-b-4 border-purple-500" 
-                  : "hover:bg-purple-50 text-gray-700"
+                  ? "bg-purple-100 text-purple-900 border-b-4 border-purple-500 font-bold" 
+                  : "hover:bg-purple-50 text-gray-700 hover:text-purple-800"
               }`}
             >
               <span className="text-xl font-serif font-semibold text-center">AI Dressage</span>
             </TabsTrigger>
             <TabsTrigger 
               value="jumping"
-              className={`py-6 flex items-center justify-center transition-all duration-300 ${
+              className={`px-6 py-8 flex items-center justify-center transition-all duration-300 ${
                 activeTab === "jumping" 
-                  ? "bg-blue-100 text-blue-900 border-b-4 border-blue-500" 
-                  : "hover:bg-blue-50 text-gray-700"
+                  ? "bg-blue-100 text-blue-900 border-b-4 border-blue-500 font-bold" 
+                  : "hover:bg-blue-50 text-gray-700 hover:text-blue-800"
               }`}
             >
               <span className="text-xl font-serif font-semibold text-center">AI Jump</span>
