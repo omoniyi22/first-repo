@@ -9,6 +9,8 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   signOut: () => Promise<void>;
+  signInWithEmail: (email: string, password: string) => Promise<{error: any | null}>;
+  signUpWithEmail: (email: string, password: string) => Promise<{error: any | null}>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -29,6 +31,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         if (event === 'SIGNED_OUT') {
           console.log("User signed out successfully");
+        } else if (event === 'SIGNED_IN') {
+          console.log("User signed in successfully");
         }
       }
     );
@@ -42,6 +46,70 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     return () => subscription.unsubscribe();
   }, []);
+
+  const signInWithEmail = async (email: string, password: string) => {
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      
+      if (error) {
+        console.error("Error signing in with email:", error);
+        toast({
+          title: "Sign in failed",
+          description: error.message || "There was an error signing in. Please try again.",
+          variant: "destructive"
+        });
+      }
+      
+      return { error };
+    } catch (error) {
+      console.error("Unexpected error during sign in:", error);
+      toast({
+        title: "Sign in failed",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive"
+      });
+      return { error };
+    }
+  };
+
+  const signUpWithEmail = async (email: string, password: string) => {
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: window.location.origin + '/sign-in'
+        }
+      });
+      
+      if (error) {
+        console.error("Error signing up with email:", error);
+        toast({
+          title: "Sign up failed",
+          description: error.message || "There was an error creating your account. Please try again.",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Account created",
+          description: "Please check your email to verify your account.",
+        });
+      }
+      
+      return { error };
+    } catch (error) {
+      console.error("Unexpected error during sign up:", error);
+      toast({
+        title: "Sign up failed",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive"
+      });
+      return { error };
+    }
+  };
 
   const signOut = async () => {
     try {
@@ -79,7 +147,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     session,
     user,
     loading,
-    signOut
+    signOut,
+    signInWithEmail,
+    signUpWithEmail
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

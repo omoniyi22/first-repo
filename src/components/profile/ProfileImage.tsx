@@ -39,13 +39,24 @@ const ProfileImage: React.FC<ProfileImageProps> = ({ profilePic, setProfilePic }
       try {
         setIsUploadingImage(true);
         
+        // Check if profile-images bucket exists, if not, create it
+        const { data: buckets } = await supabase.storage.listBuckets();
+        const bucketExists = buckets?.some(bucket => bucket.name === 'profile-images');
+        
+        if (!bucketExists) {
+          await supabase.storage.createBucket('profile-images', {
+            public: true,
+            fileSizeLimit: 5242880 // 5MB
+          });
+        }
+        
         // Create a unique file name
         const fileExt = file.name.split('.').pop();
         const fileName = `${user.id}-${uuidv4()}.${fileExt}`;
-        const filePath = `profile-images/${fileName}`;
+        const filePath = `${fileName}`;
         
         // Upload file to Supabase Storage
-        const { error: uploadError, data } = await supabase.storage
+        const { error: uploadError } = await supabase.storage
           .from('profile-images')
           .upload(filePath, file);
           

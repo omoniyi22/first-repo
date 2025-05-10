@@ -21,7 +21,7 @@ const HowItWorks = lazy(() => import('./pages/HowItWorks'));
 const Pricing = lazy(() => import('./pages/Pricing'));
 const Blog = lazy(() => import('./pages/Blog'));
 const BlogPost = lazy(() => import('./pages/BlogPost'));
-const Events = lazy(() => import('./pages/Events')); // Add new Events page
+const Events = lazy(() => import('./pages/Events'));
 const Admin = lazy(() => import('./pages/Admin'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const AdminUsers = lazy(() => import('./pages/AdminUsers'));
@@ -33,6 +33,8 @@ const AdminEvents = lazy(() => import('./pages/AdminEvents'));
 const SignIn = lazy(() => import('./pages/SignIn'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Profile = lazy(() => import('./pages/Profile'));
+const TermsOfService = lazy(() => import('./pages/TermsOfService'));
+const Privacy = lazy(() => import('./pages/Privacy'));
 
 // Skeleton loading component
 const Loading = () => (
@@ -56,8 +58,10 @@ function App() {
               <Route path="/pricing" element={<Pricing />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogPost />} />
-              <Route path="/events" element={<Events />} /> {/* Add events route */}
+              <Route path="/events" element={<Events />} />
               <Route path="/sign-in" element={<SignIn />} />
+              <Route path="/terms" element={<TermsOfService />} />
+              <Route path="/privacy" element={<Privacy />} />
               
               {/* Dressage routes */}
               <Route path="/dressage" element={<Dressage />} />
@@ -71,7 +75,7 @@ function App() {
               
               {/* Authentication required routes */}
               <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/profile-setup" element={<Profile />} />
+              <Route path="/profile" element={<Profile />} />
               
               {/* Admin routes */}
               <Route path="/admin" element={<Admin />}>
@@ -81,7 +85,7 @@ function App() {
                 <Route path="media" element={<AdminMedia />} />
                 <Route path="content" element={<AdminContent />} />
                 <Route path="settings" element={<AdminSettings />} />
-                <Route path="events" element={<AdminEvents />} /> {/* Add events route */}
+                <Route path="events" element={<AdminEvents />} />
               </Route>
               
               {/* 404 route */}
