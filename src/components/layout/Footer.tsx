@@ -77,8 +77,8 @@ const Footer = () => {
 
         {/* Footer Bottom - Copyright without any background */}
         <div className="mt-12 text-center text-gray-400 border-t border-gray-700 pt-8">
-          {/* Tagline added above copyright */}
-          <p className="text-white font-medium mb-2 italic">Riding Intelligence, Redefined</p>
+          {/* Tagline added above copyright - removed italic styling */}
+          <p className="text-white font-medium mb-2">Riding Intelligence, Redefined</p>
           &copy; {new Date().getFullYear()} AI Equestrian. All rights reserved.
         </div>
       </div>
