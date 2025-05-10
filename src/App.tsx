@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Index from './pages/Index';
@@ -8,12 +9,11 @@ import Pricing from './pages/Pricing';
 import EquestrianAbout from './pages/EquestrianAbout';
 import Blog from './pages/Blog';
 import BlogPost from './pages/BlogPost';
-import Terms from './pages/Terms';
+import TermsOfService from './pages/TermsOfService';
 import Privacy from './pages/Privacy';
 import SignIn from './pages/SignIn';
-import SignUp from './pages/SignUp';
 import Dashboard from './pages/Dashboard';
-import ProfileSetup from './pages/ProfileSetup';
+import Profile from './pages/Profile';
 import JumpProfileSetup from './pages/JumpProfileSetup';
 import Analysis from './pages/Analysis';
 import NotFound from './pages/NotFound';
@@ -33,13 +33,12 @@ const App = () => {
           <Route path="/about" element={<EquestrianAbout />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
-          <Route path="/terms" element={<Terms />} />
+          <Route path="/terms" element={<TermsOfService />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/sign-in" element={<SignIn />} />
-          <Route path="/sign-up" element={<SignUp />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/profile" element={<ProfileSetup />} />
-          <Route path="/profile-setup" element={<ProfileSetup />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/profile-setup" element={<Profile />} />
           <Route path="/jump-profile-setup" element={<JumpProfileSetup />} />
           <Route path="/analysis" element={<Analysis />} />
           <Route path="*" element={<NotFound />} />
