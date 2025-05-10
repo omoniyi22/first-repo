@@ -75,8 +75,8 @@ const JumpingTab = () => (
       </div>
       <div className="md:w-1/2">
         <img 
-          src="/lovable-uploads/09bde514-1caf-42e9-9093-d5bd869dda06.png"
-          alt="Show jumping with AI analysis"
+          src="/lovable-uploads/f4342e41-2c55-47a0-84c0-9fbe7a192de5.png"
+          alt="Show jumping competition with horse and rider"
           className="rounded-lg w-full object-cover shadow-md h-64"
         />
       </div>
