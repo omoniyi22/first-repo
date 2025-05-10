@@ -87,8 +87,8 @@ const DressageHowItWorks = () => {
       <div className="relative mb-12">
         <div className="w-full h-80 md:h-96 overflow-hidden relative">
           <img 
-            src="/lovable-uploads/42930ec1-2f55-429f-aaa5-4aac1791a729.png" 
-            alt="Dressage rider performing in an arena"
+            src="/lovable-uploads/e0fb5a87-4649-49c3-9b33-e7b1c410998b.png" 
+            alt="Dressage rider performing in an arena with white fencing"
             className="w-full h-full object-cover object-center"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-purple-900/70 to-transparent"></div>
