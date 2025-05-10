@@ -48,7 +48,7 @@ const Pricing = () => {
     <div className="min-h-screen bg-white">
       <SEO {...seoMetadata} />
       <Navbar />
-      <main className="pt-20">
+      <main className="pt-navbar">
         <PricingTiers />
         <PricingFaq />
       </main>

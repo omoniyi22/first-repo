@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Check } from "lucide-react";
 import PricingToggle from "./PricingToggle";
@@ -371,19 +372,22 @@ const PricingTiers = () => {
                   )}
                 </div>
 
-                <Button
-                  className={`w-full py-6 rounded-lg text-base mb-10 h-auto ${
-                    plan.highlighted
-                      ? "bg-purple-700 hover:bg-purple-800 text-white font-semibold"
-                      : plan.id === "basic"
-                      ? "bg-purple-600 hover:bg-purple-700 text-white font-medium"
-                      : "bg-purple-50 hover:bg-purple-100 text-purple-800 font-medium border border-purple-200"
-                  }`}
-                >
-                  {plan.buttonText[language]}
-                </Button>
+                {/* Fixed button position with flex-grow to push features to top */}
+                <div className="mt-auto mb-10">
+                  <Button
+                    className={`w-full py-6 rounded-lg text-base h-auto ${
+                      plan.highlighted
+                        ? "bg-purple-700 hover:bg-purple-800 text-white font-semibold"
+                        : plan.id === "basic"
+                        ? "bg-purple-600 hover:bg-purple-700 text-white font-medium"
+                        : "bg-purple-50 hover:bg-purple-100 text-purple-800 font-medium border border-purple-200"
+                    }`}
+                  >
+                    {plan.buttonText[language]}
+                  </Button>
+                </div>
 
-                <div className="space-y-5 mt-auto">
+                <div className="space-y-5">
                   <h3 className="font-medium text-navy-900 border-b border-silver-200 pb-3">
                     {t["features-include"]}
                   </h3>
