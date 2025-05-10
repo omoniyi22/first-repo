@@ -136,7 +136,7 @@ const DisciplineSpecificTabs = () => {
           <p className="text-lg text-gray-700 mb-6">
             Our specialized AI systems address the unique needs of different equestrian disciplines.
           </p>
-          <p className="text-sm text-gray-600 font-medium">Click tabs below to toggle between disciplines</p>
+          <p className="text-sm text-gray-600 font-medium">Select a discipline below to see specific challenges</p>
         </AnimatedSection>
         
         <Tabs 
@@ -145,28 +145,30 @@ const DisciplineSpecificTabs = () => {
           value={activeTab}
           onValueChange={setActiveTab}
         >
-          <TabsList className="grid w-full grid-cols-2 mb-8 shadow-md rounded-lg overflow-hidden">
-            <TabsTrigger 
-              value="dressage"
-              className={`px-6 py-8 flex items-center justify-center transition-all duration-300 ${
-                activeTab === "dressage" 
-                  ? "bg-purple-100 text-purple-900 border-b-4 border-purple-500 font-bold" 
-                  : "hover:bg-purple-50 text-gray-700 hover:text-purple-800"
-              }`}
-            >
-              <span className="text-xl font-serif font-semibold text-center">AI Dressage</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="jumping"
-              className={`px-6 py-8 flex items-center justify-center transition-all duration-300 ${
-                activeTab === "jumping" 
-                  ? "bg-blue-100 text-blue-900 border-b-4 border-blue-500 font-bold" 
-                  : "hover:bg-blue-50 text-gray-700 hover:text-blue-800"
-              }`}
-            >
-              <span className="text-xl font-serif font-semibold text-center">AI Jump</span>
-            </TabsTrigger>
-          </TabsList>
+          <div className="bg-white rounded-lg shadow-md overflow-hidden mb-8">
+            <TabsList className="grid w-full grid-cols-2 border-b border-gray-200">
+              <TabsTrigger 
+                value="dressage"
+                className={`px-8 py-6 flex items-center justify-center transition-all duration-300 text-xl ${
+                  activeTab === "dressage" 
+                    ? "bg-purple-100 text-purple-900 border-b-4 border-purple-700 font-bold" 
+                    : "hover:bg-purple-50 text-gray-700 hover:text-purple-800"
+                }`}
+              >
+                <span className="text-2xl font-serif">AI Dressage</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="jumping"
+                className={`px-8 py-6 flex items-center justify-center transition-all duration-300 text-xl ${
+                  activeTab === "jumping" 
+                    ? "bg-blue-100 text-blue-900 border-b-4 border-blue-700 font-bold" 
+                    : "hover:bg-blue-50 text-gray-700 hover:text-blue-800"
+                }`}
+              >
+                <span className="text-2xl font-serif">AI Jump</span>
+              </TabsTrigger>
+            </TabsList>
+          </div>
           <TabsContent value="dressage" className="mt-6">
             <DressageTab />
           </TabsContent>
