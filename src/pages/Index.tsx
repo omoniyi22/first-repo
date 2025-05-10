@@ -89,9 +89,9 @@ const Index = () => {
     <div className="min-h-screen">
       <SEO {...seoMetadata} />
       <Navbar />
-      <main className="pt-0"> {/* Removed padding-top since we'll add it to the hero section */}
+      <main className="pt-0">
         {/* Hero Section */}
-        <section className="relative min-h-[100vh] flex items-center justify-center overflow-hidden pt-32"> {/* Increased height and padding-top */}
+        <section className="relative min-h-[100vh] flex items-center justify-center overflow-hidden pt-32">
           <div className="absolute inset-0">
             {/* Split hero section with two images for desktop, alternating image for mobile */}
             {isMobile ? (
@@ -161,18 +161,18 @@ const Index = () => {
             )}
           </div>
           
-          <div className="container relative z-10 mx-auto px-6 text-center mt-20 md:mt-0"> {/* Adjusted top margin */}
+          <div className="container relative z-10 mx-auto px-6 text-center mt-20 md:mt-0">
             <div className="max-w-3xl mx-auto">
-              <span className="inline-block px-3 py-1 bg-white/20 text-white rounded-full text-sm font-medium mb-6 backdrop-blur-sm border border-white/30">
-                AI-Powered Equestrian Training
-              </span>
-              
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-serif font-semibold leading-tight text-white mb-8 text-shadow mt-6 md:mt-0"> {/* Reduced top margin */}
+              <h1 className="text-5xl md:text-6xl lg:text-7xl font-serif font-semibold leading-tight text-white mb-4 text-shadow mt-6 md:mt-0">
                 AI Equestrian
               </h1>
               
-              <p className="text-xl text-white/90 mb-10 max-w-2xl mx-auto text-shadow-sm">
+              <p className="text-xl text-white/90 mb-4 max-w-2xl mx-auto text-shadow-sm">
                 Advanced AI solutions for equestrian training, analysis, and performance improvement
+              </p>
+              
+              <p className="text-lg font-medium text-purple-200 mb-10">
+                Riding Intelligence, Redefined
               </p>
               
               <div className="grid md:grid-cols-2 gap-8 max-w-2xl mx-auto">
