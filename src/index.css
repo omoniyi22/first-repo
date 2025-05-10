@@ -78,7 +78,7 @@
   }
   
   body {
-    @apply bg-background text-foreground min-h-screen;
+    @apply bg-background text-foreground min-h-screen w-full overflow-x-hidden;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
   
@@ -97,6 +97,21 @@
 }
 
 @layer components {
+  /* Improved mobile container class */
+  .container {
+    @apply w-full px-4 sm:px-6 mx-auto;
+    max-width: 100%;
+  }
+
+  /* Mobile-specific container settings */
+  @media (max-width: 640px) {
+    .container {
+      padding-left: 1rem;
+      padding-right: 1rem;
+      width: 100%;
+    }
+  }
+
   .glass-card {
     @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-glass rounded-xl;
   }
@@ -204,7 +219,7 @@
     @apply mt-32; /* Increased margin for fixed navbar */
   }
   
-  /* Mobile-specific spacing */
+  /* Mobile-specific spacing and layout improvements */
   @media (max-width: 768px) {
     .pt-navbar {
       @apply pt-32; /* Increased padding for mobile as well */
@@ -213,6 +228,30 @@
     .mt-navbar {
       @apply mt-32; /* Increased margin for mobile as well */
     }
+    
+    /* Mobile text alignment fix */
+    .text-center-mobile {
+      @apply text-center;
+    }
+    
+    /* Mobile padding fixes */
+    .mobile-px-4 {
+      @apply px-4;
+    }
+    
+    /* Mobile container fix */
+    .container {
+      width: 100% !important;
+      max-width: 100% !important;
+      margin-left: auto !important;
+      margin-right: auto !important;
+    }
+  }
+
+  /* Content max-width constraints */
+  .content-container {
+    @apply w-full mx-auto;
+    max-width: 1280px;
   }
 }
 
@@ -242,4 +281,20 @@
   .delay-800 {
     animation-delay: 800ms;
   }
+  
+  /* New mobile-specific utilities */
+  .mobile-center {
+    @apply mx-auto;
+    max-width: calc(100% - 2rem);
+  }
+  
+  .no-horizontal-scroll {
+    @apply overflow-x-hidden;
+  }
+}
+
+/* Mobile viewport fix to prevent horizontal overflow */
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
 }
