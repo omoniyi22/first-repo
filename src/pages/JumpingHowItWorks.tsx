@@ -89,7 +89,7 @@ const JumpingHowItWorks = () => {
           <img 
             src="/lovable-uploads/6f7781f9-7971-457e-8fa3-7494ec0725f1.png" 
             alt="Horse and rider jumping over competition obstacle with AI analytics overlay"
-            className="w-full h-full object-cover object-bottom"
+            className="w-full h-full object-cover object-center"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-blue-900/70 to-transparent"></div>
           <div className="absolute inset-0 flex items-center">
