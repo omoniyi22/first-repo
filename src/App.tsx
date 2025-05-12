@@ -1,6 +1,5 @@
-
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { Analytics } from "@/components/layout/Analytics";
+import Analytics from "@/components/layout/Analytics";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "next-themes";
