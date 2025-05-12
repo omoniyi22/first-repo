@@ -60,6 +60,8 @@ serve(async (req) => {
         stripe_customer_id: null,
         subscribed: false,
         subscription_tier: null,
+        plan_id: null,
+        plan_name: null,
         subscription_end: null,
         updated_at: new Date().toISOString(),
       }, { onConflict: 'email' });
@@ -73,10 +75,12 @@ serve(async (req) => {
     const customerId = customers.data[0].id;
     logStep("Found Stripe customer", { customerId });
 
+    // Get subscriptions without deeply nested expansions that cause the error
     const subscriptions = await stripe.subscriptions.list({
       customer: customerId,
       status: "active",
-      expand: ['data.items.data.price.product'],
+      // Limit expand levels to avoid the error
+      expand: ['data.items.data.price'],
     });
     
     const hasActiveSub = subscriptions.data.length > 0;
@@ -90,8 +94,8 @@ serve(async (req) => {
       subscriptionId = subscription.id;
       subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
       
-      // Get the price ID and plan details
-      if (subscription.metadata.plan_id) {
+      // Get the plan ID from subscription metadata (safer approach)
+      if (subscription.metadata && subscription.metadata.plan_id) {
         planId = subscription.metadata.plan_id;
         
         // Get plan details from database
@@ -103,6 +107,15 @@ serve(async (req) => {
           
         if (plan) {
           planName = plan.name;
+        }
+      } else {
+        // Fallback: retrieve product info separately to avoid nesting issues
+        const priceId = subscription.items.data[0].price.id;
+        const price = await stripe.prices.retrieve(priceId, { expand: ['product'] });
+        
+        if (price.product && typeof price.product !== 'string') {
+          // Use product name as plan name
+          planName = price.product.name;
         }
       }
       
