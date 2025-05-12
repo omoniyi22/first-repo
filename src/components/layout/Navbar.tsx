@@ -253,7 +253,7 @@ const Navbar = () => {
                 {t["blog"]}
               </Link>
 
-              <Link
+              {/* <Link
                 to="/events"
                 className={`text-white font-sans text-sm ${
                   isActive("/events")
@@ -262,7 +262,7 @@ const Navbar = () => {
                 }`}
               >
                 {t["event"]}
-              </Link>
+              </Link> */}
 
               {/* About link - now a single link, not a dropdown */}
               <Link
@@ -448,14 +448,14 @@ const Navbar = () => {
               {t["blog"]}
             </Link>
 
-            <Link
+            {/* <Link
               to="/events"
               className={`text-white text-base font-medium font-sans ${
                 isActive("/events") ? "text-purple-300" : ""
               }`}
             >
               {t["event"]}
-            </Link>
+            </Link> */}
 
             {/* About link - now a single link, not a submenu */}
             <Link
