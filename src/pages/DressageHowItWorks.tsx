@@ -89,7 +89,7 @@ const DressageHowItWorks = () => {
           <img 
             src="/lovable-uploads/5e82da92-7197-4290-8ed3-3848fcd50fb3.png" 
             alt="Dressage rider performing with AI analytics visualization overlay"
-            className="w-full h-full object-cover object-center"
+            className="w-full h-full object-cover object-bottom"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-purple-900/70 to-transparent"></div>
           <div className="absolute inset-0 flex items-center">
