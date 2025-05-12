@@ -72,7 +72,7 @@ const Jumping = () => {
           )}
           
           <img 
-            src="/lovable-uploads/dbb9802b-bed7-4888-96a3-73b68198710b.png" 
+            src="/lovable-uploads/152249e4-a8c2-4c03-90c1-6e6f6306298f.png" 
             alt="Professional show jumper using AI analytics to improve technique and performance"
             className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
             onLoad={() => setImageLoaded(true)}
