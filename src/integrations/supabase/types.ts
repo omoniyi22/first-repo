@@ -256,6 +256,86 @@ export type Database = {
         }
         Relationships: []
       }
+      pricing_features: {
+        Row: {
+          created_at: string
+          display_order: number
+          id: string
+          included: boolean
+          plan_id: string
+          text_en: string
+          text_es: string
+        }
+        Insert: {
+          created_at?: string
+          display_order: number
+          id?: string
+          included?: boolean
+          plan_id: string
+          text_en: string
+          text_es: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          included?: boolean
+          plan_id?: string
+          text_en?: string
+          text_es?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pricing_features_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "pricing_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pricing_plans: {
+        Row: {
+          annual_price: number
+          button_text_en: string
+          button_text_es: string
+          created_at: string
+          id: string
+          is_highlighted: boolean | null
+          monthly_price: number
+          name: string
+          tagline_en: string
+          tagline_es: string
+          updated_at: string
+        }
+        Insert: {
+          annual_price: number
+          button_text_en?: string
+          button_text_es?: string
+          created_at?: string
+          id?: string
+          is_highlighted?: boolean | null
+          monthly_price: number
+          name: string
+          tagline_en: string
+          tagline_es: string
+          updated_at?: string
+        }
+        Update: {
+          annual_price?: number
+          button_text_en?: string
+          button_text_es?: string
+          created_at?: string
+          id?: string
+          is_highlighted?: boolean | null
+          monthly_price?: number
+          name?: string
+          tagline_en?: string
+          tagline_es?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           coach_name: string | null

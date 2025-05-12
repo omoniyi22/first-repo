@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { Check } from "lucide-react";
 import PricingToggle from "./PricingToggle";
 import AnimatedSection from "../ui/AnimatedSection";
@@ -8,303 +9,97 @@ import { Button } from "@/components/ui/button";
 import EmailSignupForm from "./EmailSignupForm";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Badge } from "@/components/ui/badge";
+import { supabase } from "@/integrations/supabase/client";
 
-interface Plan {
+interface PricingPlan {
   id: string;
   name: string;
-  tagline: {
-    en: string;
-    es: string;
-  };
-  monthlyPrice: number;
-  annualPrice: number;
-  features: {
-    text: {
-      en: string;
-      es: string;
-    };
-    included: boolean;
-  }[];
-  highlighted?: boolean;
-  buttonText: {
-    en: string;
-    es: string;
-  };
+  monthly_price: number;
+  annual_price: number;
+  tagline_en: string;
+  tagline_es: string;
+  is_highlighted: boolean;
+  button_text_en: string;
+  button_text_es: string;
+  features: PricingFeature[];
+}
+
+interface PricingFeature {
+  id: string;
+  plan_id: string;
+  text_en: string;
+  text_es: string;
+  included: boolean;
+  display_order: number;
 }
 
 const PricingTiers = () => {
   const [isAnnual, setIsAnnual] = useState(true);
+  const [plans, setPlans] = useState<PricingPlan[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const { language, translations } = useLanguage();
   const t = translations[language];
 
-  const plans: Plan[] = [
-    {
-      id: "basic",
-      name: language === "en" ? "Basic" : "Básico",
-      tagline: {
-        en: "Try before you commit with one free test included",
-        es: "Prueba antes de comprometerte con una prueba gratuita incluida",
-      },
-      monthlyPrice: 9.99,
-      annualPrice: 7.99,
-      features: [
-        {
-          text: {
-            en: "First score sheet analysis FREE",
-            es: "Primer análisis de hoja de puntuación GRATIS",
-          },
-          included: true,
-        },
-        {
-          text: {
-            en: "1 additional score sheet upload per month",
-            es: "1 carga adicional de hoja de puntuación al mes",
-          },
-          included: true,
-        },
-        {
-          text: {
-            en: "Basic performance analysis",
-            es: "Análisis básico de rendimiento",
-          },
-          included: true,
-        },
-        {
-          text: {
-            en: "Core exercise recommendations",
-            es: "Recomendaciones de ejercicios básicos",
-          },
-          included: true,
-        },
-        {
-          text: {
-            en: "Single horse profile",
-            es: "Perfil de un solo caballo",
-          },
-          included: true,
-        },
-        {
-          text: {
-            en: "Email support",
-            es: "Soporte por correo electrónico",
-          },
-          included: true,
-        },
-        {
-          text: {
-            en: "Advanced analytics dashboard",
-            es: "Panel de análisis avanzado",
-          },
-          included: false,
-        },
-        {
-          text: {
-            en: "Training progress tracking",
-            es: "Seguimiento del progreso del entrenamiento",
-          },
-          included: false,
-        },
-        {
-          text: {
-            en: "Custom training programs",
-            es: "Programas de entrenamiento personalizados",
-          },
-          included: false,
-        },
-        {
-          text: {
-            en: "Trainer collaboration tools",
-            es: "Herramientas de colaboración para entrenadores",
-          },
-          included: false,
-        },
-      ],
-      buttonText: {
-        en: "Get Started",
-        es: "Comenzar",
-      },
-    },
-    {
-      id: "premium",
-      name: language === "en" ? "Premium" : "Premium",
-      tagline: {
-        en: "Ideal for dedicated riders seeking comprehensive training support",
-        es: "Ideal para jinetes dedicados que buscan apoyo de entrenamiento integral",
-      },
-      monthlyPrice: 19.99,
-      annualPrice: 15.99,
-      highlighted: true,
-      features: [
-        {
-          text: {
-            en: "First score sheet analysis FREE",
-            es: "Primer análisis de hoja de puntuación GRATIS",
-          },
-          included: true,
-        },
-        {
-          text: {
-            en: "3 additional score sheet uploads per month",
-            es: "3 cargas adicionales de hoja de puntuación al mes",
-          },
-          included: true,
-        },
-        {
-          text: {
-            en: "Detailed performance analysis",
-            es: "Análisis detallado de rendimiento",
-          },
-          included: true,
-        },
-        {
-          text: {
-            en: "Full exercise library access",
-            es: "Acceso completo a la biblioteca de ejercicios",
-          },
-          included: true,
-        },
-        {
-          text: {
-            en: "Up to 3 horse profiles",
-            es: "Hasta 3 perfiles de caballos",
-          },
-          included: true,
-        },
-        {
-          text: {
-            en: "Priority email support",
-            es: "Soporte prioritario por correo electrónico",
-          },
-          included: true,
-        },
-        {
-          text: {
-            en: "Advanced analytics dashboard",
-            es: "Panel de análisis avanzado",
-          },
-          included: true,
-        },
-        {
-          text: {
-            en: "Training progress tracking",
-            es: "Seguimiento del progreso del entrenamiento",
-          },
-          included: true,
-        },
-        {
-          text: {
-            en: "Custom training programs",
-            es: "Programas de entrenamiento personalizados",
-          },
-          included: true,
-        },
-        {
-          text: {
-            en: "Trainer collaboration tools",
-            es: "Herramientas de colaboración para entrenadores",
-          },
-          included: false,
-        },
-      ],
-      buttonText: {
-        en: "Get Started",
-        es: "Comenzar",
-      },
-    },
-    {
-      id: "professional",
-      name: language === "en" ? "Professional" : "Profesional",
-      tagline: {
-        en: "Designed for trainers and professional riders managing multiple horses",
-        es: "Diseñado para entrenadores y jinetes profesionales que gestionan múltiples caballos",
-      },
-      monthlyPrice: 39.99,
-      annualPrice: 31.99,
-      features: [
-        {
-          text: {
-            en: "First score sheet analysis FREE",
-            es: "Primer análisis de hoja de puntuación GRATIS",
-          },
-          included: true,
-        },
-        {
-          text: {
-            en: "Unlimited score sheet uploads",
-            es: "Cargas ilimitadas de hojas de puntuación",
-          },
-          included: true,
-        },
-        {
-          text: {
-            en: "Comprehensive analysis suite",
-            es: "Suite de análisis integral",
-          },
-          included: true,
-        },
-        {
-          text: {
-            en: "Full exercise library access",
-            es: "Acceso completo a la biblioteca de ejercicios",
-          },
-          included: true,
-        },
-        {
-          text: {
-            en: "Unlimited horse profiles",
-            es: "Perfiles de caballos ilimitados",
-          },
-          included: true,
-        },
-        {
-          text: {
-            en: "Priority phone support",
-            es: "Soporte telefónico prioritario",
-          },
-          included: true,
-        },
-        {
-          text: {
-            en: "Advanced analytics dashboard",
-            es: "Panel de análisis avanzado",
-          },
-          included: true,
-        },
-        {
-          text: {
-            en: "Training progress tracking",
-            es: "Seguimiento del progreso del entrenamiento",
-          },
-          included: true,
-        },
-        {
-          text: {
-            en: "Custom training programs",
-            es: "Programas de entrenamiento personalizados",
-          },
-          included: true,
-        },
-        {
-          text: {
-            en: "Trainer collaboration tools",
-            es: "Herramientas de colaboración para entrenadores",
-          },
-          included: true,
-        },
-        {
-          text: {
-            en: "API access for integrations",
-            es: "Acceso a API para integraciones",
-          },
-          included: true,
-        },
-      ],
-      buttonText: {
-        en: "Get Started",
-        es: "Comenzar",
-      },
-    },
-  ];
+  useEffect(() => {
+    const fetchPricingData = async () => {
+      try {
+        setIsLoading(true);
+        
+        // Fetch pricing plans
+        const { data: plansData, error: plansError } = await supabase
+          .from('pricing_plans')
+          .select('*')
+          .order('created_at');
+        
+        if (plansError) {
+          console.error('Error fetching pricing plans:', plansError);
+          return;
+        }
+        
+        // Fetch plan features
+        const { data: featuresData, error: featuresError } = await supabase
+          .from('pricing_features')
+          .select('*')
+          .order('display_order');
+        
+        if (featuresError) {
+          console.error('Error fetching features:', featuresError);
+          return;
+        }
+        
+        // Organize data
+        const formattedPlans: PricingPlan[] = plansData.map(plan => ({
+          ...plan,
+          features: featuresData.filter(feature => feature.plan_id === plan.id)
+                              .sort((a, b) => a.display_order - b.display_order)
+        }));
+        
+        setPlans(formattedPlans);
+      } catch (error) {
+        console.error('Error loading pricing data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPricingData();
+  }, []);
+
+  const handleToggle = (annual: boolean) => {
+    setIsAnnual(annual);
+  };
+
+  if (isLoading) {
+    return (
+      <section className="py-24 bg-white">
+        <div className="container mx-auto px-6">
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-700"></div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-24 bg-white">
@@ -319,7 +114,7 @@ const PricingTiers = () => {
           <p className="text-lg text-gray-700">{t["try-free"]}</p>
         </AnimatedSection>
 
-        <PricingToggle onChange={setIsAnnual} />
+        <PricingToggle onChange={handleToggle} />
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {plans.map((plan, index) => (
@@ -328,17 +123,17 @@ const PricingTiers = () => {
               animation="fade-in"
               delay={`delay-${(index + 1) * 100}` as any}
               className={`relative ${
-                plan.highlighted ? "md:-mt-4 md:mb-4" : ""
+                plan.is_highlighted ? "md:-mt-4 md:mb-4" : ""
               }`}
             >
               <div
                 className={`h-full rounded-xl p-8 flex flex-col relative z-10 ${
-                  plan.highlighted
+                  plan.is_highlighted
                     ? "border-2 border-purple-600 shadow-xl bg-white"
                     : "border border-silver-200 bg-white shadow-md"
                 }`}
               >
-                {plan.highlighted && (
+                {plan.is_highlighted && (
                   <Badge className="absolute top-0 left-0 right-0 -translate-y-1/2 mx-auto w-max bg-purple-700 hover:bg-purple-800 px-3 py-1 rounded-full text-white font-semibold shadow-md pricing-badge">
                     {t["most-popular"]}
                   </Badge>
@@ -350,13 +145,13 @@ const PricingTiers = () => {
                   </h2>
 
                   <p className="text-gray-700 mb-5 text-sm h-12">
-                    {plan.tagline[language]}
+                    {language === "en" ? plan.tagline_en : plan.tagline_es}
                   </p>
 
                   {/* Aligned pricing section with fixed height */}
                   <div className="flex items-baseline mb-2 h-10">
                     <span className="text-4xl font-bold text-navy-900">
-                      £{isAnnual ? plan.annualPrice : plan.monthlyPrice}
+                      £{isAnnual ? plan.annual_price : plan.monthly_price}
                     </span>
                     <span className="text-gray-600 ml-2 text-base">
                       /{language === "en" ? "month" : "mes"}
@@ -366,7 +161,7 @@ const PricingTiers = () => {
                   {isAnnual && (
                     <p className="text-sm text-gray-600 mb-6 h-5">
                       {t["billed-annually"]} (£
-                      {(isAnnual ? plan.annualPrice : plan.monthlyPrice) * 12}/
+                      {(isAnnual ? plan.annual_price : plan.monthly_price) * 12}/
                       {t["year"]})
                     </p>
                   )}
@@ -380,9 +175,9 @@ const PricingTiers = () => {
                     </h3>
 
                     <ul className="space-y-4">
-                      {plan.features.map((feature, i) => (
+                      {plan.features.map((feature) => (
                         <li
-                          key={i}
+                          key={feature.id}
                           className={`flex items-start ${
                             !feature.included ? "opacity-60" : ""
                           }`}
@@ -395,7 +190,7 @@ const PricingTiers = () => {
                             }`}
                           />
                           <span className="text-sm text-gray-700">
-                            {feature.text[language]}
+                            {language === "en" ? feature.text_en : feature.text_es}
                           </span>
                         </li>
                       ))}
@@ -408,7 +203,7 @@ const PricingTiers = () => {
                   <Button
                     className="w-full py-6 rounded-lg text-base h-auto bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-medium transition-all duration-300"
                   >
-                    {plan.buttonText[language]}
+                    {language === "en" ? plan.button_text_en : plan.button_text_es}
                   </Button>
                 </div>
               </div>

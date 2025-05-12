@@ -20,31 +20,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Check, Trash2, Edit, Plus, Save } from 'lucide-react';
-
-interface PricingPlan {
-  id: string;
-  name: string;
-  monthly_price: number;
-  annual_price: number;
-  tagline_en: string;
-  tagline_es: string;
-  is_highlighted: boolean;
-  created_at: string;
-  updated_at: string;
-}
-
-interface Feature {
-  id: string;
-  plan_id: string;
-  text_en: string;
-  text_es: string;
-  included: boolean;
-  order: number;
-}
+import { PricingPlan, Feature } from './types';
 
 const PricingSettings = () => {
   const [plans, setPlans] = useState<PricingPlan[]>([]);
@@ -77,12 +56,12 @@ const PricingSettings = () => {
       const { data: featuresData, error: featuresError } = await supabase
         .from('pricing_features')
         .select('*')
-        .order('order');
+        .order('display_order');
       
       if (featuresError) throw featuresError;
       
-      setPlans(plansData || []);
-      setFeatures(featuresData || []);
+      setPlans(plansData as PricingPlan[] || []);
+      setFeatures(featuresData as Feature[] || []);
       
       if (plansData && plansData.length > 0) {
         setActiveTab(plansData[0].id);
@@ -170,17 +149,17 @@ const PricingSettings = () => {
     if (!editingPlan || !newFeatureText.en || !newFeatureText.es) return;
     
     try {
-      // Calculate new order number (max order + 1)
+      // Calculate new display_order number (max order + 1)
       const maxOrder = editingFeatures.length > 0
-        ? Math.max(...editingFeatures.map(f => f.order))
+        ? Math.max(...editingFeatures.map(f => f.display_order))
         : 0;
       
-      const newFeature: Omit<Feature, 'id'> = {
+      const newFeature = {
         plan_id: editingPlan.id,
         text_en: newFeatureText.en,
         text_es: newFeatureText.es,
         included: true,
-        order: maxOrder + 1
+        display_order: maxOrder + 1
       };
       
       const { data, error } = await supabase
@@ -191,7 +170,7 @@ const PricingSettings = () => {
       if (error) throw error;
       
       if (data && data[0]) {
-        setEditingFeatures([...editingFeatures, data[0]]);
+        setEditingFeatures([...editingFeatures, data[0] as Feature]);
         setNewFeatureText({ en: '', es: '' });
       }
       
