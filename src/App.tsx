@@ -1,101 +1,118 @@
 
-import { lazy, Suspense } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { Analytics } from "@/components/layout/Analytics";
 import { Toaster } from "@/components/ui/toaster";
-import { LanguageProvider } from '@/contexts/LanguageContext';
-import { AuthProvider } from '@/contexts/AuthContext';
-import Analytics from './components/layout/Analytics';
+import { Toaster as SonnerToaster } from "@/components/ui/sonner";
+import { ThemeProvider } from "next-themes";
 
-// Lazy-loaded pages
-const Index = lazy(() => import('./pages/Index'));
-const NotFound = lazy(() => import('./pages/NotFound'));
-const About = lazy(() => import('./pages/About'));
-const EquestrianAbout = lazy(() => import('./pages/EquestrianAbout'));
-const Dressage = lazy(() => import('./pages/Dressage'));
-const DressageAbout = lazy(() => import('./pages/DressageAbout'));
-const DressageHowItWorks = lazy(() => import('./pages/DressageHowItWorks'));
-const Jumping = lazy(() => import('./pages/Jumping'));
-const JumpingAbout = lazy(() => import('./pages/JumpingAbout'));
-const JumpingHowItWorks = lazy(() => import('./pages/JumpingHowItWorks'));
-const HowItWorks = lazy(() => import('./pages/HowItWorks'));
-const Pricing = lazy(() => import('./pages/Pricing'));
-const Blog = lazy(() => import('./pages/Blog'));
-const BlogPost = lazy(() => import('./pages/BlogPost'));
-const Events = lazy(() => import('./pages/Events'));
-const Admin = lazy(() => import('./pages/Admin'));
-const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
-const AdminUsers = lazy(() => import('./pages/AdminUsers'));
-const AdminBlog = lazy(() => import('./pages/AdminBlog'));
-const AdminMedia = lazy(() => import('./pages/AdminMedia'));
-const AdminContent = lazy(() => import('./pages/AdminContent'));
-const AdminSettings = lazy(() => import('./pages/AdminSettings'));
-const AdminEvents = lazy(() => import('./pages/AdminEvents'));
-const SignIn = lazy(() => import('./pages/SignIn'));
-const Dashboard = lazy(() => import('./pages/Dashboard'));
-const Profile = lazy(() => import('./pages/Profile'));
-const TermsOfService = lazy(() => import('./pages/TermsOfService'));
-const Privacy = lazy(() => import('./pages/Privacy'));
+// Pages
+import Index from "@/pages/Index";
+import About from "@/pages/About";
+import NotFound from "@/pages/NotFound";
+import SignIn from "@/pages/SignIn";
+import SignUp from "@/pages/SignUp";
+import ResetPassword from "@/pages/ResetPassword";
+import Dashboard from "@/pages/Dashboard";
+import Profile from "@/pages/Profile";
+import Analysis from "@/pages/Analysis";
+import Blog from "@/pages/Blog";
+import BlogPost from "@/pages/BlogPost";
+import Pricing from "@/pages/Pricing";
+import Events from "@/pages/Events";
+import TermsOfService from "@/pages/TermsOfService";
+import Privacy from "@/pages/Privacy";
+import ProfileQuestionnaire from "@/pages/ProfileQuestionnaire";
+import JumpProfileSetup from "@/pages/JumpProfileSetup";
+import Dressage from "@/pages/Dressage";
+import Jumping from "@/pages/Jumping";
+import HowItWorks from "@/pages/HowItWorks";
+import DressageHowItWorks from "@/pages/DressageHowItWorks";
+import JumpingHowItWorks from "@/pages/JumpingHowItWorks";
+import EquestrianAbout from "@/pages/EquestrianAbout";
+import DressageAbout from "@/pages/DressageAbout";
+import JumpingAbout from "@/pages/JumpingAbout";
 
-// Skeleton loading component
-const Loading = () => (
-  <div className="flex items-center justify-center min-h-screen">
-    <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-900"></div>
-  </div>
-);
+// Admin pages
+import Admin from "@/pages/Admin";
+import AdminDashboard from "@/pages/AdminDashboard";
+import AdminBlog from "@/pages/AdminBlog";
+import AdminEvents from "@/pages/AdminEvents";
+import AdminUsers from "@/pages/AdminUsers";
+import AdminContent from "@/pages/AdminContent";
+import AdminMedia from "@/pages/AdminMedia";
+import AdminSettings from "@/pages/AdminSettings";
+
+// Contexts
+import { AuthProvider } from "@/contexts/AuthContext";
+import { LanguageProvider } from "@/contexts/LanguageContext";
+import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
+
+// In a real app, this should be loaded from your backend
+import { HelmetProvider } from "react-helmet-async";
 
 function App() {
   return (
-    <Router>
-      <AuthProvider>
+    <HelmetProvider>
+      <ThemeProvider attribute="class" defaultTheme="light">
         <LanguageProvider>
-          <Suspense fallback={<Loading />}>
-            <Analytics />
-            <Routes>
-              {/* Public routes */}
-              <Route path="/" element={<Index />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/how-it-works" element={<HowItWorks />} />
-              <Route path="/pricing" element={<Pricing />} />
-              <Route path="/blog" element={<Blog />} />
-              <Route path="/blog/:slug" element={<BlogPost />} />
-              <Route path="/events" element={<Events />} />
-              <Route path="/sign-in" element={<SignIn />} />
-              <Route path="/terms" element={<TermsOfService />} />
-              <Route path="/privacy" element={<Privacy />} />
-              
-              {/* Dressage routes */}
-              <Route path="/dressage" element={<Dressage />} />
-              <Route path="/dressage/about" element={<DressageAbout />} />
-              <Route path="/dressage/how-it-works" element={<DressageHowItWorks />} />
-              
-              {/* Jumping routes */}
-              <Route path="/jumping" element={<Jumping />} />
-              <Route path="/jumping/about" element={<JumpingAbout />} />
-              <Route path="/jumping/how-it-works" element={<JumpingHowItWorks />} />
-              
-              {/* Authentication required routes */}
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/profile" element={<Profile />} />
-              
-              {/* Admin routes */}
-              <Route path="/admin" element={<Admin />}>
-                <Route index element={<AdminDashboard />} />
-                <Route path="users" element={<AdminUsers />} />
-                <Route path="blog" element={<AdminBlog />} />
-                <Route path="media" element={<AdminMedia />} />
-                <Route path="content" element={<AdminContent />} />
-                <Route path="settings" element={<AdminSettings />} />
-                <Route path="events" element={<AdminEvents />} />
-              </Route>
-              
-              {/* 404 route */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-            <Toaster />
-          </Suspense>
+          <AuthProvider>
+            <SubscriptionProvider>
+              <Router>
+                <Analytics />
+                <Routes>
+                  {/* Public routes */}
+                  <Route path="/" element={<Index />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/sign-in" element={<SignIn />} />
+                  <Route path="/sign-up" element={<SignUp />} />
+                  <Route path="/reset-password" element={<ResetPassword />} />
+                  <Route path="/blog" element={<Blog />} />
+                  <Route path="/blog/:slug" element={<BlogPost />} />
+                  <Route path="/pricing" element={<Pricing />} />
+                  <Route path="/events" element={<Events />} />
+                  <Route path="/terms" element={<TermsOfService />} />
+                  <Route path="/privacy" element={<Privacy />} />
+                  <Route path="/how-it-works" element={<HowItWorks />} />
+
+                  {/* Discipline-specific routes */}
+                  <Route path="/dressage" element={<Dressage />} />
+                  <Route path="/jumping" element={<Jumping />} />
+                  <Route path="/dressage/how-it-works" element={<DressageHowItWorks />} />
+                  <Route path="/jumping/how-it-works" element={<JumpingHowItWorks />} />
+                  <Route path="/equestrian/about" element={<EquestrianAbout />} />
+                  <Route path="/dressage/about" element={<DressageAbout />} />
+                  <Route path="/jumping/about" element={<JumpingAbout />} />
+
+                  {/* Protected user routes */}
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/profile" element={<Profile />} />
+                  <Route path="/profile-questionnaire" element={<ProfileQuestionnaire />} />
+                  <Route path="/jump-profile-setup" element={<JumpProfileSetup />} />
+                  <Route path="/analysis" element={<Analysis />} />
+
+                  {/* Admin routes */}
+                  <Route path="/admin" element={<Admin />}>
+                    <Route index element={<Navigate to="/admin/dashboard" replace />} />
+                    <Route path="dashboard" element={<AdminDashboard />} />
+                    <Route path="blog" element={<AdminBlog />} />
+                    <Route path="events" element={<AdminEvents />} />
+                    <Route path="users" element={<AdminUsers />} />
+                    <Route path="content" element={<AdminContent />} />
+                    <Route path="media" element={<AdminMedia />} />
+                    <Route path="settings" element={<AdminSettings />} />
+                  </Route>
+
+                  {/* 404 page */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+                <Toaster />
+                <SonnerToaster />
+              </Router>
+            </SubscriptionProvider>
+          </AuthProvider>
         </LanguageProvider>
-      </AuthProvider>
-    </Router>
+      </ThemeProvider>
+    </HelmetProvider>
   );
 }
 
