@@ -38,18 +38,26 @@ const UpcomingEvents = () => {
           throw error;
         }
         
-        // Transform the data to match the Event type
-        const transformedEvents = data.map(event => ({
-          id: event.id,
-          title: event.title,
-          eventDate: event.event_date,
-          location: event.location || '',
-          eventType: event.event_type,
-          discipline: event.discipline,
-          description: event.description,
-          isFeatured: event.is_featured,
-          imageUrl: event.image_url,
-        }));
+        // Transform the data to match the Event type and validate discipline
+        const transformedEvents: Event[] = data.map(event => {
+          // Ensure discipline is one of the allowed values
+          let validDiscipline: 'Jumping' | 'Dressage' | 'Both' = 'Both';
+          if (event.discipline === 'Jumping' || event.discipline === 'Dressage') {
+            validDiscipline = event.discipline as 'Jumping' | 'Dressage';
+          }
+          
+          return {
+            id: event.id,
+            title: event.title,
+            eventDate: event.event_date,
+            location: event.location || '',
+            eventType: event.event_type,
+            discipline: validDiscipline,
+            description: event.description || '',
+            isFeatured: event.is_featured || false,
+            imageUrl: event.image_url || '',
+          };
+        });
         
         setEvents(transformedEvents);
       } catch (error) {
