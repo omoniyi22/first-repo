@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { useEffect } from 'react';
-import { ArrowLeft } from 'lucide-react';
 import { SEO, generateDisciplineMetadata } from '@/lib/seo';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
@@ -53,7 +52,8 @@ const DressageHowItWorks = () => {
 
   // Get discipline-specific metadata
   const seoMetadata = generateDisciplineMetadata('Dressage', {
-    canonicalUrl: '/dressage/how-it-works'
+    canonicalUrl: '/dressage/how-it-works',
+    ogImage: '/lovable-uploads/5e82da92-7197-4290-8ed3-3848fcd50fb3.png'
   });
 
   return (
@@ -87,9 +87,9 @@ const DressageHowItWorks = () => {
       <div className="relative mb-12">
         <div className="w-full h-80 md:h-96 overflow-hidden relative">
           <img 
-            src="/lovable-uploads/e0fb5a87-4649-49c3-9b33-e7b1c410998b.png" 
-            alt="Dressage rider performing in an arena with white fencing"
-            className="w-full h-full object-cover object-bottom"
+            src="/lovable-uploads/5e82da92-7197-4290-8ed3-3848fcd50fb3.png" 
+            alt="Dressage rider performing with AI analytics visualization overlay"
+            className="w-full h-full object-cover object-center"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-purple-900/70 to-transparent"></div>
           <div className="absolute inset-0 flex items-center">
