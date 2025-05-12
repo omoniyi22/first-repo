@@ -26,7 +26,7 @@ const Hero = () => {
       )}
       
       <img 
-        src="/lovable-uploads/e065ac00-21fc-4384-98a5-6a7ea2667a38.png" 
+        src="/lovable-uploads/7c32e2d9-4fce-4ed5-abba-0fb12abe96eb.png" 
         alt={language === 'en' ? "Dressage rider performing" : "Jinete de doma realizando ejercicio"}
         className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
         onLoad={() => setImageLoaded(true)}
