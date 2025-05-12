@@ -87,10 +87,9 @@ const DressageHowItWorks = () => {
       <div className="relative mb-12">
         <div className="w-full h-80 md:h-96 overflow-hidden relative">
           <img 
-            src="/lovable-uploads/5c4466d5-b948-45bc-9dd7-198c427a1e89.png" 
-            alt="Dressage rider performing in a sand arena with wooden fencing"
-            className="w-full h-full object-cover"
-            style={{ objectPosition: "center 30%" }}
+            src="/lovable-uploads/e0fb5a87-4649-49c3-9b33-e7b1c410998b.png" 
+            alt="Dressage rider performing in an arena with white fencing"
+            className="w-full h-full object-cover object-bottom"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-purple-900/70 to-transparent"></div>
           <div className="absolute inset-0 flex items-center">

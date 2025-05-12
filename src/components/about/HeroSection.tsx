@@ -11,7 +11,7 @@ const HeroSection = () => {
       {/* Background image with overlay */}
       <div className="absolute inset-0 bg-gradient-to-r from-purple-900/70 to-blue-900/70">
         <img 
-          src="/lovable-uploads/5c4466d5-b948-45bc-9dd7-198c427a1e89.png"
+          src="/lovable-uploads/dbb9802b-bed7-4888-96a3-73b68198710b.png"
           alt="AI Equestrian - Riding Intelligence, Redefined"
           className="w-full h-full object-cover mix-blend-overlay"
         />
