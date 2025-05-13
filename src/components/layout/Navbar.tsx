@@ -35,6 +35,7 @@ import {
 } from "@/components/ui/navigation-menu";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
+import NavProfileLinks from "./NavProfileLinks";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
