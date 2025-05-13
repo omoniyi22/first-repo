@@ -1,4 +1,9 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import Analytics from "@/components/layout/Analytics";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
@@ -76,22 +81,41 @@ function App() {
                   {/* Discipline-specific routes */}
                   <Route path="/dressage" element={<Dressage />} />
                   <Route path="/jumping" element={<Jumping />} />
-                  <Route path="/dressage/how-it-works" element={<DressageHowItWorks />} />
-                  <Route path="/jumping/how-it-works" element={<JumpingHowItWorks />} />
-                  <Route path="/equestrian/about" element={<EquestrianAbout />} />
+                  <Route
+                    path="/dressage/how-it-works"
+                    element={<DressageHowItWorks />}
+                  />
+                  <Route
+                    path="/jumping/how-it-works"
+                    element={<JumpingHowItWorks />}
+                  />
+                  <Route
+                    path="/equestrian/about"
+                    element={<EquestrianAbout />}
+                  />
                   <Route path="/dressage/about" element={<DressageAbout />} />
                   <Route path="/jumping/about" element={<JumpingAbout />} />
 
                   {/* Protected user routes */}
                   <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/profile" element={<Profile />} />
-                  <Route path="/profile-questionnaire" element={<ProfileQuestionnaire />} />
-                  <Route path="/jump-profile-setup" element={<JumpProfileSetup />} />
+                  <Route path="/profile-setup" element={<Profile />} />
+
+                  <Route
+                    path="/profile-questionnaire"
+                    element={<ProfileQuestionnaire />}
+                  />
+                  <Route
+                    path="/jump-profile-setup"
+                    element={<JumpProfileSetup />}
+                  />
                   <Route path="/analysis" element={<Analysis />} />
 
                   {/* Admin routes */}
                   <Route path="/admin" element={<Admin />}>
-                    <Route index element={<Navigate to="/admin/dashboard" replace />} />
+                    <Route
+                      index
+                      element={<Navigate to="/admin/dashboard" replace />}
+                    />
                     <Route path="dashboard" element={<AdminDashboard />} />
                     <Route path="blog" element={<AdminBlog />} />
                     <Route path="events" element={<AdminEvents />} />

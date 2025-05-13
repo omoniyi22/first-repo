@@ -1,200 +1,175 @@
-
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Edit, Calendar } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { Loader2 } from 'lucide-react';
 import ProfileImage from './ProfileImage';
 import ProfileForm from './ProfileForm';
+import ProfileActions from './ProfileActions';
+
+// Define a type for our profile data
+interface ProfileData {
+  id: string;
+  rider_category: string | null;
+  stable_affiliation: string | null;
+  coach_name: string | null;
+  region: string | null;
+  profile_picture_url: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+}
 
 const ProfileHeader = () => {
-  const [editingProfile, setEditingProfile] = useState(false);
-  const [profileData, setProfileData] = useState<any>(null);
-  const [profilePic, setProfilePic] = useState<string | null>(null);
   const { user } = useAuth();
   const { toast } = useToast();
-  const { language } = useLanguage();
+  const [profilePic, setProfilePic] = useState<string | null>(null);
+  const [riderCategory, setRiderCategory] = useState('Adult Amateur');
+  const [stableAffiliation, setStableAffiliation] = useState('');
+  const [coachName, setCoachName] = useState('');
+  const [region, setRegion] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   
-  // Fetch profile data
+  const displayName = user?.user_metadata?.full_name || 
+                      user?.email?.split('@')[0] || 
+                      'Rider';
+  
+  // Fetch profile data on component mount
   useEffect(() => {
     const fetchProfileData = async () => {
       if (!user) return;
       
       try {
-        // Fetch profile from Supabase
+        setIsLoading(true);
+        
+        // Get actual profile data from Supabase
         const { data: profile, error } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', user.id)
           .single();
-          
-        if (error && error.code !== 'PGRST116') {
-          // PGRST116 is "no rows returned" error
-          console.error('Error fetching profile:', error);
-          return;
+        
+        if (error) {
+          // Check if this is a "no rows returned" error
+          if (error.code !== 'PGRST116') {
+            console.error('Error fetching profile data:', error);
+            toast({
+              title: "Failed to load profile",
+              description: "There was an error loading your profile data.",
+              variant: "destructive"
+            });
+          } else {
+            // For new users, the trigger should create a profile entry, but just in case
+            console.log('No existing profile found, using default values');
+          }
         }
         
         if (profile) {
-          setProfileData(profile);
+          // Set state with data from Supabase
+          setRiderCategory(profile.rider_category || 'Adult Amateur');
+          setStableAffiliation(profile.stable_affiliation || '');
+          setCoachName(profile.coach_name || '');
+          setRegion(profile.region || '');
           setProfilePic(profile.profile_picture_url);
-        } else {
-          // Create a new profile if one doesn't exist
-          const { error: insertError } = await supabase
-            .from('profiles')
-            .insert({ id: user.id });
-            
-          if (insertError) {
-            console.error('Error creating profile:', insertError);
-          }
         }
       } catch (error) {
-        console.error('Unexpected error:', error);
+        console.error('Error in profile data fetch:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
     
     fetchProfileData();
-  }, [user]);
+  }, [user, toast]);
   
-  // Helper function to get display name
-  const getDisplayName = () => {
-    if (profileData?.rider_category) {
-      return profileData.rider_category;
+  const saveProfile = async () => {
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to save your profile.",
+        variant: "destructive"
+      });
+      return;
     }
-    return user?.email?.split('@')[0] || 'Rider';
-  };
-  
-  const handleSaveProfile = async (formData: any) => {
-    if (!user) return;
-
+    
+    setIsSaving(true);
+    
     try {
-      // Update profile_picture_url if profilePic has changed
-      const dataToUpdate = {
-        ...formData,
+      // Prepare profile data
+      const profileData: ProfileData = {
+        id: user.id,
+        rider_category: riderCategory,
+        stable_affiliation: stableAffiliation,
+        coach_name: coachName,
+        region: region,
         profile_picture_url: profilePic,
-        id: user.id
+        updated_at: new Date().toISOString()
       };
       
+      // Save to Supabase
       const { error } = await supabase
         .from('profiles')
-        .upsert(dataToUpdate);
+        .upsert(profileData, { 
+          onConflict: 'id',
+          ignoreDuplicates: false
+        });
       
       if (error) {
         throw error;
       }
       
-      setProfileData({ ...profileData, ...dataToUpdate });
-      setEditingProfile(false);
-      
       toast({
-        title: language === 'en' ? "Profile updated" : "Perfil actualizado",
-        description: language === 'en' ? "Your profile has been updated successfully" : "Tu perfil se ha actualizado con éxito"
+        title: "Profile updated",
+        description: "Your profile information has been saved."
       });
+      
+      console.log('Profile data saved successfully:', profileData);
     } catch (error: any) {
-      console.error('Error updating profile:', error);
       toast({
-        title: language === 'en' ? "Error" : "Error",
-        description: error.message || (language === 'en' ? "There was a problem updating your profile" : "Hubo un problema al actualizar tu perfil"),
+        title: "Save failed",
+        description: error.message || "Failed to save profile. Please try again.",
         variant: "destructive"
       });
+      console.error('Error saving profile:', error);
+    } finally {
+      setIsSaving(false);
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 flex justify-center items-center min-h-[200px]">
+        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+      </div>
+    );
+  }
+
   return (
-    <Card className="border-0 overflow-hidden">
-      <CardContent className="p-6">
-        {!editingProfile ? (
-          <div className="flex flex-col md:flex-row gap-6">
-            <div className="flex flex-col items-center">
-              <ProfileImage profilePic={profilePic} setProfilePic={setProfilePic} />
-              
-              <h3 className="mt-4 text-xl font-medium text-gray-900">
-                {getDisplayName()}
-              </h3>
-              
-              {profileData?.region && (
-                <p className="text-sm text-gray-600 mt-1">
-                  {profileData.region}
-                </p>
-              )}
-              
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="mt-4"
-                onClick={() => setEditingProfile(true)}
-              >
-                <Edit className="h-4 w-4 mr-2" />
-                {language === 'en' ? 'Edit Profile' : 'Editar Perfil'}
-              </Button>
-            </div>
-            
-            <div className="flex-1 space-y-4">
-              <div className="flex flex-col md:flex-row justify-between gap-4">
-                <div className="space-y-1">
-                  <h2 className="text-2xl font-serif font-semibold text-gray-900">
-                    {language === 'en' ? 'Rider Profile' : 'Perfil del Jinete'}
-                  </h2>
-                  <p className="text-sm text-gray-600">
-                    {language === 'en' ? 'Manage your equestrian information and preferences' : 'Administra tu información ecuestre y preferencias'}
-                  </p>
-                </div>
-                
-                <Tabs defaultValue="dressage" className="w-[200px]">
-                  <TabsList>
-                    <TabsTrigger value="dressage" className="text-purple-600">
-                      {language === 'en' ? 'Dressage' : 'Doma'}
-                    </TabsTrigger>
-                    <TabsTrigger value="jumping" className="text-blue-600">
-                      {language === 'en' ? 'Jumping' : 'Salto'}
-                    </TabsTrigger>
-                  </TabsList>
-                </Tabs>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {profileData?.stable_affiliation && (
-                  <div>
-                    <h4 className="text-sm font-medium text-gray-500">
-                      {language === 'en' ? 'Stable / Affiliation' : 'Establo / Afiliación'}
-                    </h4>
-                    <p className="text-base">{profileData.stable_affiliation}</p>
-                  </div>
-                )}
-                
-                {profileData?.coach_name && (
-                  <div>
-                    <h4 className="text-sm font-medium text-gray-500">
-                      {language === 'en' ? 'Coach / Trainer' : 'Entrenador'}
-                    </h4>
-                    <p className="text-base">{profileData.coach_name}</p>
-                  </div>
-                )}
-                
-                <div>
-                  <h4 className="text-sm font-medium text-gray-500">
-                    {language === 'en' ? 'Member Since' : 'Miembro Desde'}
-                  </h4>
-                  <p className="text-base flex items-center gap-1">
-                    <Calendar className="h-4 w-4 text-gray-400" />
-                    {user?.created_at ? new Date(user.created_at).toLocaleDateString() : '--'}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <ProfileForm 
-            initialData={profileData || {}}
-            onSave={handleSaveProfile}
-            onCancel={() => setEditingProfile(false)}
-          />
-        )}
-      </CardContent>
-    </Card>
+    <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+      <div className="flex flex-col md:flex-row gap-6">
+        {/* Profile Picture */}
+        <ProfileImage 
+          profilePic={profilePic} 
+          setProfilePic={setProfilePic} 
+        />
+        
+        {/* Profile Form */}
+        <ProfileForm
+          displayName={displayName}
+          riderCategory={riderCategory}
+          setRiderCategory={setRiderCategory}
+          stableAffiliation={stableAffiliation}
+          setStableAffiliation={setStableAffiliation}
+          coachName={coachName}
+          setCoachName={setCoachName}
+          region={region}
+          setRegion={setRegion}
+        />
+      </div>
+      
+      {/* Action Buttons */}
+      <ProfileActions isSaving={isSaving} onSave={saveProfile} />
+    </div>
   );
 };
 
