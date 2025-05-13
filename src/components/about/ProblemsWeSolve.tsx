@@ -6,13 +6,13 @@ import { Link } from "react-router-dom";
 
 const ProblemsWeSolve = () => {
   return (
-    <section className="py-16 bg-gradient-to-b from-gray-50 to-white">
+    <section className="py-16 bg-gradient-to-b from-purple-50 to-blue-50">
       <div className="container mx-auto px-6">
         <AnimatedSection animation="fade-in" className="max-w-3xl mx-auto mb-12 text-center">
-          <h2 className="text-3xl md:text-4xl font-serif font-semibold text-gray-900 mb-4">
+          <h2 className="text-3xl md:text-4xl font-serif font-semibold text-purple-900 mb-4">
             Problems We Solve
           </h2>
-          <p className="text-lg text-gray-700">
+          <p className="text-lg text-blue-700">
             We leverage AI technology to address the unique challenges faced by riders across disciplines.
           </p>
         </AnimatedSection>
@@ -21,11 +21,11 @@ const ProblemsWeSolve = () => {
           <div className="grid md:grid-cols-2 gap-12">
             {/* Left Column - Introduction */}
             <AnimatedSection animation="fade-in" className="flex flex-col justify-center">
-              <h3 className="text-2xl font-serif font-medium text-gray-900 mb-4">
+              <h3 className="text-2xl font-serif font-medium text-purple-900 mb-4">
                 Transforming Equestrian Performance Through Intelligence
               </h3>
               
-              <p className="text-gray-700 mb-6">
+              <p className="text-blue-700 mb-6">
                 Equestrian sports blend artistry with technical precision, demanding constant refinement from both horse and rider. 
                 At AI Equestrian, we're addressing the fundamental challenges that prevent riders from reaching their full potential.
               </p>
@@ -45,8 +45,8 @@ const ProblemsWeSolve = () => {
                       <Users className="w-5 h-5 text-purple-700" />
                     </div>
                     <div>
-                      <h4 className="font-medium text-gray-900 mb-1">Limited Feedback Between Lessons</h4>
-                      <p className="text-gray-600 text-sm">
+                      <h4 className="font-medium text-blue-900 mb-1">Limited Feedback Between Lessons</h4>
+                      <p className="text-purple-600 text-sm">
                         Most riders receive guidance only during infrequent lessons. AI Equestrian provides continuous analysis between coaching sessions.
                       </p>
                     </div>
@@ -62,8 +62,8 @@ const ProblemsWeSolve = () => {
                       <BarChart3 className="w-5 h-5 text-blue-700" />
                     </div>
                     <div>
-                      <h4 className="font-medium text-gray-900 mb-1">Difficulty Tracking Progress</h4>
-                      <p className="text-gray-600 text-sm">
+                      <h4 className="font-medium text-purple-900 mb-1">Difficulty Tracking Progress</h4>
+                      <p className="text-blue-600 text-sm">
                         Traditional methods make it challenging to measure improvement objectively. Our platform delivers quantifiable metrics and visual progress tracking.
                       </p>
                     </div>
@@ -72,15 +72,15 @@ const ProblemsWeSolve = () => {
               </Card>
               
               {/* Challenge 3 */}
-              <Card className="bg-white shadow-sm border-l-4 border-l-indigo-500 hover:shadow-md transition-shadow duration-300">
+              <Card className="bg-white shadow-sm border-l-4 border-l-purple-500 hover:shadow-md transition-shadow duration-300">
                 <CardContent className="p-5">
                   <div className="flex items-start gap-4">
-                    <div className="bg-indigo-100 p-3 rounded-full shrink-0">
-                      <FileText className="w-5 h-5 text-indigo-700" />
+                    <div className="bg-purple-100 p-3 rounded-full shrink-0">
+                      <FileText className="w-5 h-5 text-purple-700" />
                     </div>
                     <div>
-                      <h4 className="font-medium text-gray-900 mb-1">Inconsistent Performance Analysis</h4>
-                      <p className="text-gray-600 text-sm">
+                      <h4 className="font-medium text-blue-900 mb-1">Inconsistent Performance Analysis</h4>
+                      <p className="text-purple-600 text-sm">
                         Relying on memory or scattered notes leads to fragmented insights. We transform test sheets and videos into comprehensive, organized analysis.
                       </p>
                     </div>
@@ -89,15 +89,15 @@ const ProblemsWeSolve = () => {
               </Card>
               
               {/* Challenge 4 */}
-              <Card className="bg-white shadow-sm border-l-4 border-l-cyan-500 hover:shadow-md transition-shadow duration-300">
+              <Card className="bg-white shadow-sm border-l-4 border-l-blue-500 hover:shadow-md transition-shadow duration-300">
                 <CardContent className="p-5">
                   <div className="flex items-start gap-4">
-                    <div className="bg-cyan-100 p-3 rounded-full shrink-0">
-                      <Eye className="w-5 h-5 text-cyan-700" />
+                    <div className="bg-blue-100 p-3 rounded-full shrink-0">
+                      <Eye className="w-5 h-5 text-blue-700" />
                     </div>
                     <div>
-                      <h4 className="font-medium text-gray-900 mb-1">Missing the Unseen Details</h4>
-                      <p className="text-gray-600 text-sm">
+                      <h4 className="font-medium text-purple-900 mb-1">Missing the Unseen Details</h4>
+                      <p className="text-blue-600 text-sm">
                         The human eye can miss subtle elements that impact performance. Our technology captures movement nuances that might otherwise go unnoticed.
                       </p>
                     </div>
@@ -106,15 +106,15 @@ const ProblemsWeSolve = () => {
               </Card>
               
               {/* Challenge 5 */}
-              <Card className="bg-white shadow-sm border-l-4 border-l-teal-500 hover:shadow-md transition-shadow duration-300">
+              <Card className="bg-white shadow-sm border-l-4 border-l-purple-500 hover:shadow-md transition-shadow duration-300">
                 <CardContent className="p-5">
                   <div className="flex items-start gap-4">
-                    <div className="bg-teal-100 p-3 rounded-full shrink-0">
-                      <LightbulbIcon className="w-5 h-5 text-teal-700" />
+                    <div className="bg-purple-100 p-3 rounded-full shrink-0">
+                      <LightbulbIcon className="w-5 h-5 text-purple-700" />
                     </div>
                     <div>
-                      <h4 className="font-medium text-gray-900 mb-1">Training Program Uncertainty</h4>
-                      <p className="text-gray-600 text-sm">
+                      <h4 className="font-medium text-blue-900 mb-1">Training Program Uncertainty</h4>
+                      <p className="text-purple-600 text-sm">
                         Many riders struggle to develop structured training plans. Our recommendation system creates targeted exercises based on your actual performance data.
                       </p>
                     </div>

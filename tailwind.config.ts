@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -110,6 +111,9 @@ export default {
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)'
 			},
+			boxShadow: {
+				'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.07)',
+			},
 			keyframes: {
 				'accordion-down': {
 					from: { height: '0' },
@@ -148,9 +152,6 @@ export default {
 				'fade-in-left': 'fade-in-left 0.7s ease-out forwards',
 				'slide-in-bottom': 'slide-in-bottom 0.7s ease-out forwards',
 				'scale-in': 'scale-in 0.5s ease-out forwards',
-			},
-			boxShadow: {
-				'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.07)',
 			},
 			backdropBlur: {
 				'glass': '10px',
