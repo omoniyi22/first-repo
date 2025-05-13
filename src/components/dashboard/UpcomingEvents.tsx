@@ -97,7 +97,7 @@ const UpcomingEvents = () => {
   return (
     <div className="mt-4 sm:mt-0">
       <div className="flex justify-between items-center mb-3 sm:mb-4">
-        <h2 className="text-lg sm:text-xl font-serif font-semibold text-purple-900">
+        <h2 className="text-lg sm:text-xl font-serif font-semibold text-gray-900">
           {language === 'en' ? 'Upcoming Events' : 'Próximos Eventos'}
         </h2>
       </div>
@@ -117,13 +117,13 @@ const UpcomingEvents = () => {
                   <CalendarIcon className="h-4 w-4 sm:h-5 sm:w-5" />
                 </div>
                 <div>
-                  <p className="font-medium text-sm sm:text-base text-purple-900">
+                  <p className="font-medium text-sm sm:text-base text-gray-900">
                     {event.title}
                   </p>
-                  <p className="text-xs sm:text-sm text-purple-700">
+                  <p className="text-xs sm:text-sm text-gray-600">
                     {formatEventDate(event.eventDate)}
                   </p>
-                  <p className="text-xs sm:text-sm text-purple-600 mt-1">
+                  <p className="text-xs sm:text-sm text-gray-500 mt-1">
                     {event.location}
                   </p>
                 </div>
@@ -132,8 +132,8 @@ const UpcomingEvents = () => {
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-6">
-            <CalendarIcon className="h-10 w-10 text-purple-300 mb-2" />
-            <p className="text-purple-700">
+            <CalendarIcon className="h-10 w-10 text-gray-300 mb-2" />
+            <p className="text-gray-600">
               {language === 'en' ? 'No upcoming events' : 'No hay eventos próximos'}
             </p>
           </div>

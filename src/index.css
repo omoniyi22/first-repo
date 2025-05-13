@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Varela+Round:wght@400&display=swap');
 
 @tailwind base;
@@ -112,7 +113,8 @@
   }
 
   .glass-card {
-    @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-glass rounded-xl;
+    @apply bg-white/80 backdrop-blur-md border border-white/20 rounded-xl;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
   }
   
   .navy-gradient {
@@ -250,8 +252,12 @@
   }
 }
 
-/* Scroll-triggered animation utility */
+/* Explicitly define shadow-glass in utilities to fix the PostCSS error */
 @layer utilities {
+  .shadow-glass {
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+  }
+  
   .delay-100 {
     animation-delay: 100ms;
   }

@@ -77,7 +77,7 @@ const Dashboard = () => {
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white">
       <SEO {...seoMetadata} />
       <Navbar />
-      <main className="container mx-auto px-4 pt-20 sm:pt-24 pb-12 sm:pb-16">
+      <main className="container mx-auto px-4 pt-20 sm:pt-24 pb-12 sm:pb-16 text-gray-800">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0 mb-6 sm:mb-8">
           <DashboardHeader />
           <div className="flex flex-col sm:flex-row gap-3">

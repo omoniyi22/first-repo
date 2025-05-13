@@ -34,7 +34,7 @@ const RecentVideos = () => {
   return (
     <div className="mt-6 sm:mt-8 lg:mt-0">
       <div className="flex justify-between items-center mb-3 sm:mb-4">
-        <h2 className="text-lg sm:text-xl font-serif font-semibold text-purple-900">
+        <h2 className="text-lg sm:text-xl font-serif font-semibold text-gray-900">
           {language === 'en' ? 'Recent Tests' : 'Pruebas Recientes'}
         </h2>
         <Button variant="link" className="text-purple-700 text-sm sm:text-base p-0 h-auto">
@@ -56,18 +56,18 @@ const RecentVideos = () => {
               </div>
             </div>
             <div className="p-3 sm:p-4 flex-1">
-              <h3 className="font-medium text-sm sm:text-base text-purple-900">
+              <h3 className="font-medium text-sm sm:text-base text-gray-900">
                 {video.title}
               </h3>
-              <p className="text-xs sm:text-sm text-purple-700 mt-1">
+              <p className="text-xs sm:text-sm text-gray-600 mt-1">
                 {language === 'en' ? 'Analyzed on ' : 'Analizado el '} 
                 {new Date(video.date).toLocaleDateString(language === 'en' ? 'en-US' : 'es-ES')}
               </p>
               <div className="mt-3 sm:mt-4 flex flex-wrap gap-2">
-                <Button variant="outline" size="sm" className="text-xs sm:text-sm text-purple-700 border-purple-200 hover:bg-purple-50 hover:text-purple-700  h-8">
+                <Button variant="outline" size="sm" className="text-xs sm:text-sm text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-800 h-8">
                   {language === 'en' ? 'View Analysis' : 'Ver Análisis'}
                 </Button>
-                <Button variant="outline" size="sm" className="text-xs sm:text-sm text-purple-700 border-purple-200 hover:bg-purple-50 hover:text-purple-700  h-8">
+                <Button variant="outline" size="sm" className="text-xs sm:text-sm text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-800 h-8">
                   {language === 'en' ? 'Recommendations' : 'Recomendaciones'}
                 </Button>
               </div>
