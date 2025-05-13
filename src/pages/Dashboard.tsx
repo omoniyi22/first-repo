@@ -90,8 +90,8 @@ const Dashboard = () => {
             </Button>
             <Button 
               variant="outline" 
-              className="text-purple-700 border-purple-200 hover:bg-purple-50 text-sm sm:text-base"
-              onClick={() => navigate('/profile')}
+              className="text-purple-700 border-purple-200 hover:bg-purple-50 hover:text-purple-700 text-sm sm:text-base"
+              onClick={() => navigate('/profile-setup')}
             >
               <User className="mr-2 h-4 w-4" />
               {language === 'en' ? 'View Profile' : 'Ver Perfil'}
@@ -100,7 +100,7 @@ const Dashboard = () => {
             {isAdmin && (
               <Button 
                 variant="outline" 
-                className="text-blue-700 border-blue-200 hover:bg-blue-50 text-sm sm:text-base"
+                className="text-blue-700 border-blue-200 hover:bg-blue-50 hover:text-blue-700 text-sm sm:text-base"
                 onClick={() => navigate('/admin')}
               >
                 <Settings className="mr-2 h-4 w-4" />

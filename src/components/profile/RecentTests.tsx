@@ -70,10 +70,10 @@ const RecentTests = () => {
                 Analyzed on {new Date(test.date).toLocaleDateString()}
               </p>
               <div className="mt-4 flex space-x-2">
-                <Button variant="outline" size="sm" className="text-blue-700 border-blue-200 hover:bg-blue-50">
+                <Button variant="outline" size="sm" className="text-blue-700 border-blue-200 hover:bg-blue-50 hover:text-blue-700">
                   View Analysis
                 </Button>
-                <Button variant="outline" size="sm" className="text-blue-700 border-blue-200 hover:bg-blue-50">
+                <Button variant="outline" size="sm" className="text-blue-700 border-blue-200 hover:bg-blue-50 hover:text-blue-700">
                   Recommendations
                 </Button>
               </div>

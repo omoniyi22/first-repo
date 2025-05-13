@@ -64,10 +64,10 @@ const RecentVideos = () => {
                 {new Date(video.date).toLocaleDateString(language === 'en' ? 'en-US' : 'es-ES')}
               </p>
               <div className="mt-3 sm:mt-4 flex flex-wrap gap-2">
-                <Button variant="outline" size="sm" className="text-xs sm:text-sm text-purple-700 border-purple-200 hover:bg-purple-50 h-8">
+                <Button variant="outline" size="sm" className="text-xs sm:text-sm text-purple-700 border-purple-200 hover:bg-purple-50 hover:text-purple-700  h-8">
                   {language === 'en' ? 'View Analysis' : 'Ver Análisis'}
                 </Button>
-                <Button variant="outline" size="sm" className="text-xs sm:text-sm text-purple-700 border-purple-200 hover:bg-purple-50 h-8">
+                <Button variant="outline" size="sm" className="text-xs sm:text-sm text-purple-700 border-purple-200 hover:bg-purple-50 hover:text-purple-700  h-8">
                   {language === 'en' ? 'Recommendations' : 'Recomendaciones'}
                 </Button>
               </div>

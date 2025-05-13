@@ -68,7 +68,7 @@ const Profile = () => {
             </Button>
             <Button 
               variant="outline" 
-              className="text-purple-700 border-purple-200 hover:bg-purple-50 text-sm sm:text-base"
+              className="text-purple-700 border-purple-200 hover:bg-purple-50 hover:text-purple-700 text-sm sm:text-base"
               onClick={() => navigate('/dashboard')}
             >
               <LayoutDashboard className="mr-2 h-4 w-4" />
