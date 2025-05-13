@@ -7,7 +7,7 @@ const HeroSection = () => {
   const isMobile = useIsMobile();
   
   return (
-    <section className="relative h-[550px] md:h-[600px] overflow-hidden pt-24 md:pt-32">
+    <section className="relative h-[550px] md:h-[600px] overflow-hidden">
       {/* Background image with overlay */}
       <div className="absolute inset-0 bg-gradient-to-r from-purple-900/70 to-blue-900/70">
         <img 
