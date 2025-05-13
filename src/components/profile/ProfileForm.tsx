@@ -1,49 +1,36 @@
 
-import { useState } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { regions } from '@/lib/formOptions';
-import ProfileActions from './ProfileActions';
 
 interface ProfileFormProps {
-  initialData: {
-    rider_category?: string;
-    stable_affiliation?: string;
-    coach_name?: string;
-    region?: string;
-  };
-  onSave: (formData: any) => Promise<void>;
-  onCancel: () => void;
+  displayName: string;
+  riderCategory: string;
+  setRiderCategory: (value: string) => void;
+  stableAffiliation: string;
+  setStableAffiliation: (value: string) => void;
+  coachName: string;
+  setCoachName: (value: string) => void;
+  region: string;
+  setRegion: (value: string) => void;
 }
 
 const ProfileForm: React.FC<ProfileFormProps> = ({
-  initialData,
-  onSave,
-  onCancel
+  displayName,
+  riderCategory,
+  setRiderCategory,
+  stableAffiliation,
+  setStableAffiliation,
+  coachName,
+  setCoachName,
+  region,
+  setRegion
 }) => {
-  const [isSaving, setIsSaving] = useState(false);
-  const [riderCategory, setRiderCategory] = useState(initialData?.rider_category || '');
-  const [stableAffiliation, setStableAffiliation] = useState(initialData?.stable_affiliation || '');
-  const [coachName, setCoachName] = useState(initialData?.coach_name || '');
-  const [region, setRegion] = useState(initialData?.region || '');
-
-  const handleSave = async () => {
-    setIsSaving(true);
-    try {
-      await onSave({
-        rider_category: riderCategory,
-        stable_affiliation: stableAffiliation,
-        coach_name: coachName,
-        region: region
-      });
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
   return (
-    <div className="flex flex-col space-y-6">
-      <h2 className="text-2xl font-serif font-semibold text-gray-900">Edit Profile</h2>
+    <div className="flex-1">
+      <h1 className="text-3xl font-serif font-semibold text-gray-900 mb-4">
+        Welcome, {displayName}
+      </h1>
       
       {/* Form Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -107,17 +94,6 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
             </SelectContent>
           </Select>
         </div>
-      </div>
-
-      <div className="flex justify-between mt-4">
-        <button 
-          type="button" 
-          onClick={onCancel}
-          className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800"
-        >
-          Cancel
-        </button>
-        <ProfileActions isSaving={isSaving} onSave={handleSave} />
       </div>
     </div>
   );
