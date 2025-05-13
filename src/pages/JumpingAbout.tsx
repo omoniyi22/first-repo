@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
@@ -59,7 +60,7 @@ const JumpingAbout = () => {
       <div className="relative mb-12 pt-16"> {/* Added pt-16 for navbar space */}
         <div className="w-full h-96 md:h-[500px] overflow-hidden relative">
           <img 
-            src="/lovable-uploads/1554e993-7051-4fbe-b10a-5d09556c7582.png" 
+            src="/lovable-uploads/195a9a37-011f-474c-b686-8527f0e6e1e3.png" 
             alt="Horse and rider jumping over competition obstacle"
             className="w-full h-full object-cover object-center"
           />
