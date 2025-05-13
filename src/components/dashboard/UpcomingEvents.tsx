@@ -1,13 +1,17 @@
 
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarIcon, MapPin, Clock } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from '@/components/ui/use-toast';
 import { format } from 'date-fns';
 import { Event } from '@/services/eventService';
+import { AspectRatio } from '@/components/ui/aspect-ratio';
+import { Button } from '@/components/ui/button';
+import { getImagePath } from '@/utils/imageUtils';
+import { cn } from '@/lib/utils';
 
 const UpcomingEvents = () => {
   const [events, setEvents] = useState<Event[]>([]);
@@ -80,7 +84,13 @@ const UpcomingEvents = () => {
   // Format date based on language
   const formatEventDate = (dateStr: string) => {
     const date = new Date(dateStr);
-    return date.toLocaleDateString(language === 'en' ? 'en-US' : 'es-ES');
+    return format(date, 'EEE, MMM d, yyyy');
+  };
+  
+  // Format time based on language
+  const formatEventTime = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return format(date, 'h:mm a');
   };
   
   // Get event type style
@@ -94,6 +104,17 @@ const UpcomingEvents = () => {
     }
   };
 
+  // Get default image based on discipline
+  const getDefaultImage = (discipline: string) => {
+    if (discipline === 'Dressage') {
+      return '/lovable-uploads/7c32e2d9-4fce-4ed5-abba-0fb12abe96eb.png';
+    } else if (discipline === 'Jumping') {
+      return '/lovable-uploads/dbb9802b-bed7-4888-96a3-73b68198710b.png';
+    } else {
+      return '/lovable-uploads/4c938b42-7713-4f2d-947a-1e70c3caca32.png';
+    }
+  };
+
   return (
     <div className="mt-4 sm:mt-0">
       <div className="flex justify-between items-center mb-3 sm:mb-4">
@@ -102,30 +123,71 @@ const UpcomingEvents = () => {
         </h2>
       </div>
       
-      <Card className="border border-purple-100 p-3 sm:p-4">
+      <Card className="border border-purple-100">
         {isLoading ? (
           <div className="flex justify-center items-center h-32">
             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-700"></div>
           </div>
         ) : events.length > 0 ? (
-          <div className="space-y-3 sm:space-y-4">
+          <div>
             {events.map((event) => (
-              <div key={event.id} className="flex items-start pb-3 sm:pb-4 border-b border-purple-100 last:border-none last:pb-0">
-                <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center mr-2 sm:mr-3 ${
-                  getEventTypeStyle(event.eventType, event.discipline)
-                }`}>
-                  <CalendarIcon className="h-4 w-4 sm:h-5 sm:w-5" />
-                </div>
-                <div>
-                  <p className="font-medium text-sm sm:text-base text-gray-900">
-                    {event.title}
-                  </p>
-                  <p className="text-xs sm:text-sm text-gray-600">
-                    {formatEventDate(event.eventDate)}
-                  </p>
-                  <p className="text-xs sm:text-sm text-gray-500 mt-1">
-                    {event.location}
-                  </p>
+              <div key={event.id} className="border-b last:border-b-0 border-purple-100">
+                <div className="p-4">
+                  {event.imageUrl || getDefaultImage(event.discipline) ? (
+                    <div className="mb-3">
+                      <AspectRatio ratio={16/9} className="overflow-hidden rounded-md">
+                        <img 
+                          src={event.imageUrl ? getImagePath(event.imageUrl) : getDefaultImage(event.discipline)} 
+                          alt={event.title}
+                          className="w-full h-full object-cover"
+                        />
+                      </AspectRatio>
+                    </div>
+                  ) : null}
+                  
+                  <div>
+                    <h3 className="font-medium text-base sm:text-lg text-gray-900 mb-1">
+                      {event.title}
+                    </h3>
+                    
+                    <div className="flex flex-wrap gap-1 mb-2">
+                      <span className={cn("text-xs px-2 py-0.5 rounded-full", getEventTypeStyle(event.eventType, event.discipline))}>
+                        {event.eventType}
+                      </span>
+                      
+                      <span className={cn("text-xs px-2 py-0.5 rounded-full", 
+                        event.discipline === 'Dressage' ? 'bg-purple-100 text-purple-700' : 
+                        event.discipline === 'Jumping' ? 'bg-blue-100 text-blue-700' : 
+                        'bg-gray-100 text-gray-700')}>
+                        {event.discipline}
+                      </span>
+                    </div>
+                    
+                    <div className="space-y-2 text-gray-700">
+                      <div className="flex items-center text-sm">
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        <span>{formatEventDate(event.eventDate)}</span>
+                      </div>
+                      
+                      <div className="flex items-center text-sm">
+                        <Clock className="mr-2 h-4 w-4" />
+                        <span>{formatEventTime(event.eventDate)}</span>
+                      </div>
+                      
+                      {event.location && (
+                        <div className="flex items-center text-sm">
+                          <MapPin className="mr-2 h-4 w-4" />
+                          <span>{event.location}</span>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {event.description && (
+                      <div className="mt-2 text-sm text-gray-600 line-clamp-2">
+                        {event.description}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}
