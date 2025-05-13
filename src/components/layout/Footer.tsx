@@ -5,13 +5,13 @@ import { Instagram, Mail } from 'lucide-react';
 
 const Footer = () => {
   return (
-    <footer className="bg-gradient-to-b from-[#6b3987] to-[#5f32a0] text-white py-12">
+    <footer className="bg-gradient-to-br from-purple-700 to-purple-900 text-white py-12">
       <div className="container mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* First Section - About Us */}
           <div>
-            <h4 className="font-serif text-xl font-medium mb-4">About AI Equestrian</h4>
-            <p className="text-gray-300 max-w-md">
+            <h4 className="text-lg font-semibold mb-4">About AI Equestrian</h4>
+            <p className="text-gray-300">
               AI Equestrian is dedicated to revolutionizing equestrian training through the power of artificial intelligence.
             </p>
             <div className="mt-4">
@@ -20,7 +20,7 @@ const Footer = () => {
           </div>
 
           {/* Second Section - Links (without title) */}
-          <div className="flex justify-center">
+          <div>
             <ul className="text-gray-300">
               <li className="mb-2">
                 <Link to="/" className="text-gray-300 hover:text-white hover:underline transition-colors">Home</Link>
@@ -41,10 +41,10 @@ const Footer = () => {
           </div>
 
           {/* Third Section - Social Media */}
-          <div className="flex flex-col items-end">
-            <h4 className="font-serif text-xl font-medium mb-4">Connect With Us</h4>
+          <div>
+            <h4 className="text-lg font-semibold mb-4">Connect With Us</h4>
             
-            {/* Social Media - vertical layout and right-aligned */}
+            {/* Social Media - now with vertical layout */}
             <div className="flex flex-col space-y-4">
               <div className="flex items-center">
                 <a 
@@ -69,16 +69,16 @@ const Footer = () => {
               </div>
             </div>
             
-            <p className="text-gray-300 mt-4 max-w-md">
+            <p className="text-gray-300 mt-4">
               Follow us for updates and insights into AI-powered equestrian training.
             </p>
           </div>
         </div>
 
         {/* Footer Bottom - Copyright without any background */}
-        <div className="mt-12 text-center border-t border-gray-700 pt-8">
-          {/* Tagline added above copyright */}
-          <p className="text-white font-serif text-lg mb-2">Riding Intelligence, Redefined</p>
+        <div className="mt-12 text-center text-gray-400 border-t border-gray-700 pt-8">
+          {/* Tagline added above copyright - removed italic styling */}
+          <p className="text-white font-medium mb-2">Riding Intelligence, Redefined</p>
           &copy; {new Date().getFullYear()} AI Equestrian. All rights reserved.
         </div>
       </div>

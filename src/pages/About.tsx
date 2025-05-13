@@ -63,7 +63,7 @@ const About = () => {
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       <SEO {...seoMetadata} />
       <Navbar />
-      <main>
+      <main className="pt-20">
         {/* Hero Section */}
         <HeroSection />
         

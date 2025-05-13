@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
@@ -57,7 +56,7 @@ const JumpingAbout = () => {
       <Navbar />
       
       {/* Hero Section with the jumping horse image */}
-      <div className="relative mb-12"> {/* Removed pt-16 to eliminate gap */}
+      <div className="relative mb-12 pt-16"> {/* Added pt-16 for navbar space */}
         <div className="w-full h-96 md:h-[500px] overflow-hidden relative">
           <img 
             src="/lovable-uploads/1554e993-7051-4fbe-b10a-5d09556c7582.png" 

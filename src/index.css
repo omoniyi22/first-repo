@@ -1,4 +1,3 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Varela+Round:wght@400&display=swap');
 
 @tailwind base;
@@ -124,8 +123,6 @@
     @apply bg-gradient-to-br from-purple-50 to-purple-200;
   }
   
-  /* ... keep existing code (glass-button, navy-button, etc.) */
-  
   .glass-button {
     @apply bg-white/20 backdrop-blur-sm border border-white/30 
            text-purple-900 font-medium px-6 py-3 rounded-lg 
@@ -189,8 +186,6 @@
     @apply w-full;
   }
 
-  /* ... keep existing code (discipline-specific styles, etc.) */
-  
   /* Specific styles for disciplines */
   .dressage-theme {
     @apply from-purple-600 to-purple-800;
@@ -290,11 +285,6 @@
   
   .no-horizontal-scroll {
     @apply overflow-x-hidden;
-  }
-  
-  /* Define shadow-glass utility */
-  .shadow-glass {
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
   }
 }
 
