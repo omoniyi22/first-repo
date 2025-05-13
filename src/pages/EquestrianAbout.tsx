@@ -55,7 +55,7 @@ const EquestrianAbout = () => {
     <div className="min-h-screen bg-gradient-to-b from-gray-100 to-white">
       <SEO {...seoMetadata} />
       <Navbar />
-      <main className="pt-20">
+      <main>
         <EquestrianMissionSection />
         <ProblemsWeSolve />
         <EquestrianTeamSection />
