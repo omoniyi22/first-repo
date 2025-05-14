@@ -29,10 +29,10 @@ const SubscriptionContext = createContext<SubscriptionContextType>({
 export const useSubscription = () => useContext(SubscriptionContext);
 
 export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { session } = useAuth();
+  const { session, user } = useAuth();
   const { toast } = useToast();
   const [isSubscribed, setIsSubscribed] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [planId, setPlanId] = useState<string | null>(null);
   const [planName, setPlanName] = useState<string | null>(null);
   const [subscriptionEnd, setSubscriptionEnd] = useState<string | null>(null);
@@ -110,7 +110,16 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   // Check subscription when authentication state changes
   useEffect(() => {
-    refreshSubscription();
+    if (session) {
+      refreshSubscription();
+    } else {
+      // Reset subscription state when user logs out
+      setIsSubscribed(false);
+      setPlanId(null);
+      setPlanName(null);
+      setSubscriptionEnd(null);
+      setIsLoading(false);
+    }
   }, [session]);
 
   // Set up a periodic refresh

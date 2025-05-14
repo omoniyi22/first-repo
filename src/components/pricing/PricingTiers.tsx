@@ -45,7 +45,7 @@ const PricingTiers = () => {
   const [showLoginDialog, setShowLoginDialog] = useState(false);
   
   const { language, translations } = useLanguage();
-  const { session } = useAuth();
+  const { session, user } = useAuth();
   const { isSubscribed, planId, isLoading: subscriptionLoading, checkoutPlan, openCustomerPortal } = useSubscription();
   const { toast } = useToast();
   const t = translations[language];
@@ -126,7 +126,7 @@ const PricingTiers = () => {
   };
 
   const handlePlanSelect = async (plan: PricingPlan) => {
-    if (!session) {
+    if (!user) {
       setShowLoginDialog(true);
       return;
     }
@@ -156,6 +156,32 @@ const PricingTiers = () => {
         <div className="container mx-auto px-6">
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-700"></div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Display message if no plans are available
+  if (plans.length === 0) {
+    return (
+      <section className="py-24 bg-white">
+        <div className="container mx-auto px-6">
+          <div className="text-center py-16">
+            <h2 className="text-3xl font-serif font-semibold text-navy-900 mb-6">
+              {language === "en" ? "No pricing plans available" : "No hay planes de precios disponibles"}
+            </h2>
+            <p className="text-gray-700 mb-8">
+              {language === "en" 
+                ? "Sorry, pricing plans are currently being updated. Please check back later." 
+                : "Lo sentimos, los planes de precios están siendo actualizados. Por favor, vuelve más tarde."}
+            </p>
+            <Button 
+              onClick={() => window.location.href = "/"}
+              className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white"
+            >
+              {language === "en" ? "Return to Home" : "Volver al Inicio"}
+            </Button>
           </div>
         </div>
       </section>
