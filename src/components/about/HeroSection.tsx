@@ -9,7 +9,7 @@ const HeroSection = () => {
   return (
     <section className="relative h-[550px] md:h-[600px] overflow-hidden pt-24 md:pt-32">
       {/* Background image with overlay */}
-      <div className="absolute inset-0 bg-gradient-to-r from-purple-900/70 to-blue-900/70">
+      <div className="absolute inset-0 bg-gradient-to-r from-[#000000d8] to-[#0a1f57]">
         <img 
           src="/lovable-uploads/dbb9802b-bed7-4888-96a3-73b68198710b.png"
           alt="AI Equestrian - Riding Intelligence, Redefined"
