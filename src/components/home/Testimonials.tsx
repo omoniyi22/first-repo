@@ -103,7 +103,7 @@ const Testimonials = () => {
                 <ChevronLeft className="h-5 w-5" />
               </button>
               
-              <div className="flex gap-2">
+              <div className="flex gap-2 items-center">
                 {testimonials.map((_, index) => (
                   <button
                     key={index}
