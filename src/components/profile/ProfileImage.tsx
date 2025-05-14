@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Upload, User, Loader2 } from 'lucide-react';
@@ -39,24 +38,38 @@ const ProfileImage: React.FC<ProfileImageProps> = ({ profilePic, setProfilePic }
       try {
         setIsUploadingImage(true);
         
-        // Create a unique file name
+        // Create a unique file name with a structure that matches the RLS policy
         const fileExt = file.name.split('.').pop();
-        const fileName = `${user.id}-${uuidv4()}.${fileExt}`;
+        const fileName = `${uuidv4()}.${fileExt}`;
+        
+        // This path structure matches our RLS policy: profile-images/[filename]
         const filePath = `profile-images/${fileName}`;
+        
+        // Log upload attempt for debugging
+        console.log('Attempting upload to bucket:', 'profile-images', 'path:', filePath);
         
         // Upload file to Supabase Storage
         const { error: uploadError, data } = await supabase.storage
           .from('profile-images')
-          .upload(filePath, file);
+          .upload(filePath, file, {
+            cacheControl: '3600',
+            upsert: true  // Allow overwriting existing files
+          });
           
         if (uploadError) {
+          console.error('Upload error details:', uploadError);
           throw uploadError;
         }
+        
+        // Log successful upload
+        console.log('Upload successful:', data);
         
         // Get public URL
         const { data: { publicUrl } } = supabase.storage
           .from('profile-images')
           .getPublicUrl(filePath);
+        
+        console.log('Public URL:', publicUrl);
         
         // Update profile with new image URL
         setProfilePic(publicUrl);
