@@ -118,12 +118,12 @@ const PerformanceOverview = () => {
         {/* Score Trend Chart */}
         <Card className="p-4 border border-gray-100">
           <h3 className="text-lg font-medium text-gray-900 mb-2">Score Trend</h3>
-          <div className="h-64">
+          <div className="h-64 w-full">
             <ChartContainer config={chartConfig}>
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart
                   data={scoreTrendData}
-                  margin={{ top: 20, right: 30, left: 0, bottom: 0 }}
+                  margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
                 >
                   <defs>
                     <linearGradient id="scoreGradient" x1="0" y1="0" x2="0" y2="1">
@@ -131,13 +131,25 @@ const PerformanceOverview = () => {
                       <stop offset="95%" stopColor="#4a6da7" stopOpacity={0.1}/>
                     </linearGradient>
                   </defs>
-                  <XAxis dataKey="month" />
-                  <YAxis domain={[60, 70]} />
+                  <XAxis 
+                    dataKey="month" 
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fontSize: 12 }}
+                  />
+                  <YAxis 
+                    domain={[60, 70]}
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fontSize: 12 }}
+                    width={30}
+                  />
                   <ChartTooltip content={<ChartTooltipContent />} />
                   <Area 
                     type="monotone" 
                     dataKey="score" 
                     stroke="#4a6da7" 
+                    strokeWidth={2}
                     fillOpacity={1} 
                     fill="url(#scoreGradient)" 
                   />
@@ -150,12 +162,19 @@ const PerformanceOverview = () => {
         {/* Movement Radar Chart */}
         <Card className="p-4 border border-gray-100">
           <h3 className="text-lg font-medium text-gray-900 mb-2">Movement Scores</h3>
-          <div className="h-64">
+          <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <RadarChart outerRadius="80%" data={movementData}>
-                <PolarGrid />
-                <PolarAngleAxis dataKey="movement" />
-                <PolarRadiusAxis domain={[0, 10]} />
+              <RadarChart outerRadius="75%" data={movementData}>
+                <PolarGrid gridType="polygon" />
+                <PolarAngleAxis 
+                  dataKey="movement" 
+                  tick={{ fontSize: 12 }}
+                />
+                <PolarRadiusAxis 
+                  domain={[0, 10]} 
+                  axisLine={false}
+                  tick={{ fontSize: 10 }}
+                />
                 <Radar 
                   name="Scores" 
                   dataKey="score" 
@@ -163,7 +182,7 @@ const PerformanceOverview = () => {
                   fill="#4a6da7" 
                   fillOpacity={0.5} 
                 />
-                <Legend />
+                <Legend wrapperStyle={{ fontSize: '12px', marginTop: '10px' }} />
                 <Tooltip />
               </RadarChart>
             </ResponsiveContainer>

@@ -18,17 +18,27 @@ const UsageChart = () => {
         <LineChart
           data={data}
           margin={{
-            top: 5,
-            right: 30,
-            left: 20,
+            top: 10,
+            right: 10,
+            left: 5,
             bottom: 5,
           }}
         >
           <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-          <XAxis dataKey="name" />
-          <YAxis />
+          <XAxis 
+            dataKey="name" 
+            axisLine={false}
+            tickLine={false}
+            tick={{ fontSize: 12 }}
+          />
+          <YAxis 
+            axisLine={false}
+            tickLine={false}
+            tick={{ fontSize: 12 }}
+            width={30}
+          />
           <Tooltip />
-          <Legend />
+          <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
           <Line 
             type="monotone" 
             dataKey="dressage" 
