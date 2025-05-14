@@ -103,7 +103,7 @@ export default {
 				},
 			},
 			fontFamily: {
-				sans: ['Inter var', 'Inter', 'sans-serif'],
+				sans: ['Varela Round', 'sans-serif'],
 				serif: ['Playfair Display', 'serif'],
 			},
 			borderRadius: {
