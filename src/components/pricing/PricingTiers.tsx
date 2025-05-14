@@ -51,47 +51,6 @@ const PricingTiers = () => {
   const t = translations[language];
 
   useEffect(() => {
-    const fetchPricingData = async () => {
-      try {
-        setIsLoading(true);
-        
-        // Fetch pricing plans
-        const { data: plansData, error: plansError } = await supabase
-          .from('pricing_plans')
-          .select('*')
-          .order('created_at');
-        
-        if (plansError) {
-          console.error('Error fetching pricing plans:', plansError);
-          return;
-        }
-        
-        // Fetch plan features
-        const { data: featuresData, error: featuresError } = await supabase
-          .from('pricing_features')
-          .select('*')
-          .order('display_order');
-        
-        if (featuresError) {
-          console.error('Error fetching features:', featuresError);
-          return;
-        }
-        
-        // Organize data
-        const formattedPlans: PricingPlan[] = plansData.map(plan => ({
-          ...plan,
-          features: featuresData.filter(feature => feature.plan_id === plan.id)
-                              .sort((a, b) => a.display_order - b.display_order)
-        }));
-        
-        setPlans(formattedPlans);
-      } catch (error) {
-        console.error('Error loading pricing data:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchPricingData();
     
     // Check URL parameters for Stripe return status
@@ -120,6 +79,47 @@ const PricingTiers = () => {
       window.history.replaceState({}, document.title, window.location.pathname);
     }
   }, []);
+
+  const fetchPricingData = async () => {
+    try {
+      setIsLoading(true);
+      
+      // Fetch pricing plans
+      const { data: plansData, error: plansError } = await supabase
+        .from('pricing_plans')
+        .select('*')
+        .order('created_at');
+      
+      if (plansError) {
+        console.error('Error fetching pricing plans:', plansError);
+        return;
+      }
+      
+      // Fetch plan features
+      const { data: featuresData, error: featuresError } = await supabase
+        .from('pricing_features')
+        .select('*')
+        .order('display_order');
+      
+      if (featuresError) {
+        console.error('Error fetching features:', featuresError);
+        return;
+      }
+      
+      // Organize data
+      const formattedPlans: PricingPlan[] = plansData.map(plan => ({
+        ...plan,
+        features: featuresData.filter(feature => feature.plan_id === plan.id)
+                          .sort((a, b) => a.display_order - b.display_order)
+      }));
+      
+      setPlans(formattedPlans);
+    } catch (error) {
+      console.error('Error loading pricing data:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleToggle = (annual: boolean) => {
     setIsAnnual(annual);
@@ -150,7 +150,10 @@ const PricingTiers = () => {
     }
   };
 
-  if (isLoading || subscriptionLoading) {
+  // Combined loading state to handle both initial plans loading and subscription status
+  const showLoadingState = isLoading || (user && subscriptionLoading);
+
+  if (showLoadingState) {
     return (
       <section className="py-24 bg-white">
         <div className="container mx-auto px-6">
@@ -205,7 +208,7 @@ const PricingTiers = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {plans.map((plan, index) => {
-            const isCurrentPlan = isSubscribed && planId === plan.id;
+            const isCurrentPlan = user && isSubscribed && planId === plan.id;
             
             return (
               <AnimatedSection
