@@ -1,3 +1,4 @@
+
 import * as React from "react"
 
 import type {
@@ -177,4 +178,4 @@ function useToast() {
 }
 
 export { useToast, toast }
-export type { Toast, ToasterToast }
+export type { Toast, ToasterToast, ToastActionElement, ToastProps }
