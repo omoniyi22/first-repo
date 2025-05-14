@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { SubscriptionInterest } from "@/models/subscriptionInterest";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const EmailSignupForm = () => {
@@ -31,14 +30,12 @@ const EmailSignupForm = () => {
     try {
       setIsSubmitting(true);
       
-      const newInterest: Partial<SubscriptionInterest> = {
-        email,
-        source: "pricing_page"
-      };
-      
       const { error } = await supabase
-        .from('subscription_interest')
-        .insert(newInterest);
+        .from('newsletter_subscribers')
+        .insert({
+          email,
+          source: "pricing_page"
+        });
       
       if (error) throw error;
       
