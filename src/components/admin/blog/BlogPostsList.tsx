@@ -98,7 +98,13 @@ const BlogPostsList = ({ posts, onEdit, onDelete }: BlogPostsListProps) => {
                     </div>
                   </TableCell>
                   <TableCell>{post.author}</TableCell>
-                  <TableCell>{post.date}</TableCell>
+                  <TableCell>
+                    {new Date(post.date).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                    })}
+                  </TableCell>
                   <TableCell className="hidden md:table-cell">
                     <Badge
                       variant="outline"
