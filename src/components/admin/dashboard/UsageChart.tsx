@@ -13,14 +13,14 @@ const UsageChart = () => {
   ];
 
   return (
-    <div className="h-[300px] w-full">
-      <ResponsiveContainer width="100%" height="100%">
+    <div className="h-[300px] w-full" style={{ maxWidth: '100%', overflowX: 'hidden' }}>
+      <ResponsiveContainer width="99%" height="100%">
         <LineChart
           data={data}
           margin={{
-            top: 10,
-            right: 10,
-            left: 5,
+            top: 8,
+            right: 5,
+            left: 0,
             bottom: 5,
           }}
         >
@@ -29,16 +29,16 @@ const UsageChart = () => {
             dataKey="name" 
             axisLine={false}
             tickLine={false}
-            tick={{ fontSize: 12 }}
+            tick={{ fontSize: 11 }}
           />
           <YAxis 
             axisLine={false}
             tickLine={false}
-            tick={{ fontSize: 12 }}
-            width={30}
+            tick={{ fontSize: 11 }}
+            width={25}
           />
           <Tooltip />
-          <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
+          <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '5px' }} />
           <Line 
             type="monotone" 
             dataKey="dressage" 
