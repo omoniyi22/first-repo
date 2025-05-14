@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
-import { CalendarIcon, MapPin, Clock } from 'lucide-react';
+import { CalendarIcon, MapPin, Clock, Plus } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { supabase } from '@/integrations/supabase/client';
@@ -12,10 +12,13 @@ import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { Button } from '@/components/ui/button';
 import { getImagePath } from '@/utils/imageUtils';
 import { cn } from '@/lib/utils';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import EventForm from '@/components/profile/EventForm';
 
 const UpcomingEvents = () => {
   const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [showAddEventForm, setShowAddEventForm] = useState(false);
   const { language } = useLanguage();
   const isMobile = useIsMobile();
   const { toast } = useToast();
@@ -79,7 +82,7 @@ const UpcomingEvents = () => {
     };
     
     fetchEvents();
-  }, [toast, language]);
+  }, [toast, language, showAddEventForm]);
 
   // Format date based on language
   const formatEventDate = (dateStr: string) => {
@@ -121,6 +124,10 @@ const UpcomingEvents = () => {
         <h2 className="text-lg sm:text-xl font-serif font-semibold text-gray-900">
           {language === 'en' ? 'Upcoming Events' : 'Próximos Eventos'}
         </h2>
+        <Button size="sm" variant="outline" onClick={() => setShowAddEventForm(true)}>
+          <Plus className="mr-1 h-4 w-4" />
+          {language === 'en' ? 'Add' : 'Añadir'}
+        </Button>
       </div>
       
       <Card className="border border-purple-100">
@@ -201,6 +208,18 @@ const UpcomingEvents = () => {
           </div>
         )}
       </Card>
+      
+      {/* Add Event Dialog */}
+      <Dialog open={showAddEventForm} onOpenChange={setShowAddEventForm}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-serif">
+              {language === 'en' ? 'Add New Event' : 'Añadir Nuevo Evento'}
+            </DialogTitle>
+          </DialogHeader>
+          <EventForm onComplete={() => setShowAddEventForm(false)} />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
