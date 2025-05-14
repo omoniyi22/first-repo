@@ -1,60 +1,64 @@
-
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Navbar from '@/components/layout/Navbar';
-import Footer from '@/components/layout/Footer';
-import DashboardHeader from '@/components/dashboard/DashboardHeader';
-import DashboardStats from '@/components/dashboard/DashboardStats';
-import RecentVideos from '@/components/dashboard/RecentVideos';
-import UpcomingEvents from '@/components/dashboard/UpcomingEvents';
-import { useAuth } from '@/contexts/AuthContext';
-import { Button } from '@/components/ui/button';
-import { User, Upload, Settings } from 'lucide-react';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { SEO, getPageMetadata } from '@/lib/seo';
-import { supabase } from '@/integrations/supabase/client';
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
+import DashboardHeader from "@/components/dashboard/DashboardHeader";
+import DashboardStats from "@/components/dashboard/DashboardStats";
+import RecentVideos from "@/components/dashboard/RecentVideos";
+import UpcomingEvents from "@/components/dashboard/UpcomingEvents";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import { User, Upload, Settings } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { SEO, getPageMetadata } from "@/lib/seo";
+import { supabase } from "@/integrations/supabase/client";
+import PerformanceOverview from "@/components/profile/PerformanceOverview";
+import Horses from "@/components/profile/Horses";
+import RecentTests from "@/components/profile/RecentTests";
+import Goals from "@/components/profile/Goals";
+import TrainingFocus from "@/components/profile/TrainingFocus";
 
 const Dashboard = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const { language } = useLanguage();
   const [isAdmin, setIsAdmin] = useState(false);
-  
+
   // Get dashboard SEO metadata
-  const seoMetadata = getPageMetadata('dashboard', {
+  const seoMetadata = getPageMetadata("dashboard", {
     // Add noindex tag since this is a private page
-    noIndex: true
+    noIndex: true,
   });
-  
+
   // Check if user is an admin
   useEffect(() => {
     const checkAdminStatus = async () => {
       if (!user) return;
-      
+
       try {
         // Call the Supabase function to check if the user is an admin
-        const { data, error } = await supabase.rpc('is_admin', {
-          user_uuid: user.id
+        const { data, error } = await supabase.rpc("is_admin", {
+          user_uuid: user.id,
         });
-        
+
         if (error) {
           console.error("Failed to check admin status:", error);
           return;
         }
-        
+
         setIsAdmin(!!data);
       } catch (error) {
         console.error("Error checking admin status:", error);
       }
     };
-    
+
     checkAdminStatus();
   }, [user]);
-  
+
   // If not logged in and not loading, redirect to sign in
   useEffect(() => {
     if (!loading && !user) {
-      navigate('/sign-in');
+      navigate("/sign-in");
     }
   }, [user, loading, navigate]);
 
@@ -81,27 +85,27 @@ const Dashboard = () => {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0 mb-6 sm:mb-8">
           <DashboardHeader />
           <div className="flex flex-col sm:flex-row gap-3">
-            <Button 
+            <Button
               className="text-white bg-purple-600 hover:bg-purple-700 text-sm sm:text-base"
-              onClick={() => navigate('/analysis')}
+              onClick={() => navigate("/analysis")}
             >
               <Upload className="mr-2 h-4 w-4" />
-              {language === 'en' ? 'Upload Test' : 'Subir Prueba'}
+              {language === "en" ? "Upload Test" : "Subir Prueba"}
             </Button>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="text-purple-700 border-purple-200 hover:bg-purple-50 hover:text-purple-700 text-sm sm:text-base"
-              onClick={() => navigate('/profile-setup')}
+              onClick={() => navigate("/profile-setup")}
             >
               <User className="mr-2 h-4 w-4" />
-              {language === 'en' ? 'View Profile' : 'Ver Perfil'}
+              {language === "en" ? "View Profile" : "Ver Perfil"}
             </Button>
-            
+
             {isAdmin && (
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="text-blue-700 border-blue-200 hover:bg-blue-50 hover:text-blue-700 text-sm sm:text-base"
-                onClick={() => navigate('/admin')}
+                onClick={() => navigate("/admin")}
               >
                 <Settings className="mr-2 h-4 w-4" />
                 Admin Panel
@@ -109,13 +113,33 @@ const Dashboard = () => {
             )}
           </div>
         </div>
-        <DashboardStats />
-        <div className="mt-8 sm:mt-12 grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
-          <div className="lg:col-span-2">
-            <RecentVideos />
+        
+        {/* Performance Overview */}
+        <div className="mt-6 sm:mt-8">
+          <PerformanceOverview />
+        </div>
+
+        {/* Main content layout - two columns for desktop, single column for mobile */}
+        <div className="mt-4 grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+          {/* Main column - 2/3 width on desktop */}
+          <div className="lg:col-span-2 space-y-6 sm:space-y-8">
+            {/* Horses Section */}
+            <Horses />
+
+            {/* Recent Tests Section */}
+            <RecentTests />
           </div>
-          <div>
+
+          {/* Side column - 1/3 width on desktop */}
+          <div className="space-y-6 sm:space-y-8">
+            {/* Upcoming Events Section */}
             <UpcomingEvents />
+
+            {/* Goals Section */}
+            <Goals />
+
+            {/* Training Focus Section */}
+            <TrainingFocus />
           </div>
         </div>
       </main>
