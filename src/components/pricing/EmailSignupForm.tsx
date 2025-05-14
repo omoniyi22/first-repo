@@ -1,13 +1,13 @@
 
-import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
+import { Mail } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { supabase } from '@/integrations/supabase/client';
 
 const EmailSignupForm = () => {
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const { language, translations } = useLanguage();
@@ -15,48 +15,38 @@ const EmailSignupForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!email || !email.includes("@")) {
-      toast({
-        title: language === "en" ? "Invalid email" : "Correo inválido",
-        description: language === "en" 
-          ? "Please enter a valid email address" 
-          : "Por favor, introduce un correo electrónico válido",
-        variant: "destructive",
-      });
-      return;
-    }
+    setIsSubmitting(true);
     
     try {
-      setIsSubmitting(true);
+      // Log the subscription attempt
+      console.log('Pricing interest for:', email);
       
-      const { error } = await supabase
-        .from('newsletter_subscribers')
-        .insert({
+      // Call the Supabase edge function to send confirmation email and store in database
+      const { data, error } = await supabase.functions.invoke('send-newsletter-confirmation', {
+        body: { 
           email,
-          source: "pricing_page"
-        });
-      
-      if (error) throw error;
-      
-      // Reset form
-      setEmail("");
-      
-      // Show success message
-      toast({
-        title: language === "en" ? "Thank you!" : "¡Gracias!",
-        description: language === "en" 
-          ? "We'll notify you when we have more pricing options available." 
-          : "Te notificaremos cuando tengamos más opciones de precios disponibles.",
+          source: 'pricing_page' 
+        }
       });
       
-    } catch (error) {
-      console.error("Error submitting subscription interest:", error);
+      if (error) {
+        throw new Error(error.message);
+      }
+      
+      console.log('Pricing page subscription successful for:', email);
+      console.log('Email sending response:', data);
+      
       toast({
-        title: language === "en" ? "Something went wrong" : "Algo salió mal",
-        description: language === "en" 
-          ? "We couldn't save your email. Please try again later." 
-          : "No pudimos guardar tu correo. Por favor, inténtalo más tarde.",
+        title: language === 'en' ? "Thanks for your interest!" : "¡Gracias por tu interés!",
+        description: language === 'en' ? "We'll notify you when new pricing plans are available." : "Te notificaremos cuando los nuevos planes de precios estén disponibles.",
+      });
+      
+      setEmail('');
+    } catch (error) {
+      console.error('Error:', error);
+      toast({
+        title: language === 'en' ? "Oops!" : "¡Ups!",
+        description: language === 'en' ? "There was a problem processing your request. Please try again." : "Hubo un problema al procesar tu solicitud. Por favor, inténtalo de nuevo.",
         variant: "destructive",
       });
     } finally {
@@ -65,29 +55,27 @@ const EmailSignupForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mt-6 flex flex-col md:flex-row gap-3">
-      <Input
-        type="email"
-        placeholder={language === "en" ? "Your email address" : "Tu correo electrónico"}
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        className="flex-grow"
-        required
-      />
-      <Button 
-        type="submit" 
-        className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white"
-        disabled={isSubmitting}
-      >
-        {isSubmitting ? (
-          <div className="flex items-center gap-2">
-            <div className="animate-spin h-4 w-4 border-2 border-t-transparent border-white rounded-full"></div>
-            <span>{language === "en" ? "Submitting..." : "Enviando..."}</span>
-          </div>
-        ) : (
-          language === "en" ? "Notify me" : "Notificarme"
-        )}
-      </Button>
+    <form onSubmit={handleSubmit} className="max-w-md mx-auto">
+      <div className="flex gap-2">
+        <div className="relative flex-1">
+          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-purple-400" />
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder={t["email-placeholder"]}
+            required
+            className="w-full pl-10 pr-4 py-2 border border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+          />
+        </div>
+        <Button 
+          type="submit" 
+          disabled={isSubmitting}
+          className="bg-purple-600 hover:bg-purple-700"
+        >
+          {isSubmitting ? t["sending"] : t["notify-me"]}
+        </Button>
+      </div>
     </form>
   );
 };

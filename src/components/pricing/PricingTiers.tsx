@@ -45,12 +45,53 @@ const PricingTiers = () => {
   const [showLoginDialog, setShowLoginDialog] = useState(false);
   
   const { language, translations } = useLanguage();
-  const { session, user } = useAuth();
+  const { session } = useAuth();
   const { isSubscribed, planId, isLoading: subscriptionLoading, checkoutPlan, openCustomerPortal } = useSubscription();
   const { toast } = useToast();
   const t = translations[language];
 
   useEffect(() => {
+    const fetchPricingData = async () => {
+      try {
+        setIsLoading(true);
+        
+        // Fetch pricing plans
+        const { data: plansData, error: plansError } = await supabase
+          .from('pricing_plans')
+          .select('*')
+          .order('created_at');
+        
+        if (plansError) {
+          console.error('Error fetching pricing plans:', plansError);
+          return;
+        }
+        
+        // Fetch plan features
+        const { data: featuresData, error: featuresError } = await supabase
+          .from('pricing_features')
+          .select('*')
+          .order('display_order');
+        
+        if (featuresError) {
+          console.error('Error fetching features:', featuresError);
+          return;
+        }
+        
+        // Organize data
+        const formattedPlans: PricingPlan[] = plansData.map(plan => ({
+          ...plan,
+          features: featuresData.filter(feature => feature.plan_id === plan.id)
+                              .sort((a, b) => a.display_order - b.display_order)
+        }));
+        
+        setPlans(formattedPlans);
+      } catch (error) {
+        console.error('Error loading pricing data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     fetchPricingData();
     
     // Check URL parameters for Stripe return status
@@ -80,53 +121,12 @@ const PricingTiers = () => {
     }
   }, []);
 
-  const fetchPricingData = async () => {
-    try {
-      setIsLoading(true);
-      
-      // Fetch pricing plans
-      const { data: plansData, error: plansError } = await supabase
-        .from('pricing_plans')
-        .select('*')
-        .order('created_at');
-      
-      if (plansError) {
-        console.error('Error fetching pricing plans:', plansError);
-        return;
-      }
-      
-      // Fetch plan features
-      const { data: featuresData, error: featuresError } = await supabase
-        .from('pricing_features')
-        .select('*')
-        .order('display_order');
-      
-      if (featuresError) {
-        console.error('Error fetching features:', featuresError);
-        return;
-      }
-      
-      // Organize data
-      const formattedPlans: PricingPlan[] = plansData.map(plan => ({
-        ...plan,
-        features: featuresData.filter(feature => feature.plan_id === plan.id)
-                          .sort((a, b) => a.display_order - b.display_order)
-      }));
-      
-      setPlans(formattedPlans);
-    } catch (error) {
-      console.error('Error loading pricing data:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const handleToggle = (annual: boolean) => {
     setIsAnnual(annual);
   };
 
   const handlePlanSelect = async (plan: PricingPlan) => {
-    if (!user) {
+    if (!session) {
       setShowLoginDialog(true);
       return;
     }
@@ -150,41 +150,12 @@ const PricingTiers = () => {
     }
   };
 
-  // Combined loading state to handle both initial plans loading and subscription status
-  const showLoadingState = isLoading || (user && subscriptionLoading);
-
-  if (showLoadingState) {
+  if (isLoading || subscriptionLoading) {
     return (
       <section className="py-24 bg-white">
         <div className="container mx-auto px-6">
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-700"></div>
-          </div>
-        </div>
-      </section>
-    );
-  }
-
-  // Display message if no plans are available
-  if (plans.length === 0) {
-    return (
-      <section className="py-24 bg-white">
-        <div className="container mx-auto px-6">
-          <div className="text-center py-16">
-            <h2 className="text-3xl font-serif font-semibold text-navy-900 mb-6">
-              {language === "en" ? "No pricing plans available" : "No hay planes de precios disponibles"}
-            </h2>
-            <p className="text-gray-700 mb-8">
-              {language === "en" 
-                ? "Sorry, pricing plans are currently being updated. Please check back later." 
-                : "Lo sentimos, los planes de precios están siendo actualizados. Por favor, vuelve más tarde."}
-            </p>
-            <Button 
-              onClick={() => window.location.href = "/"}
-              className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white"
-            >
-              {language === "en" ? "Return to Home" : "Volver al Inicio"}
-            </Button>
           </div>
         </div>
       </section>
@@ -208,7 +179,7 @@ const PricingTiers = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {plans.map((plan, index) => {
-            const isCurrentPlan = user && isSubscribed && planId === plan.id;
+            const isCurrentPlan = isSubscribed && planId === plan.id;
             
             return (
               <AnimatedSection
