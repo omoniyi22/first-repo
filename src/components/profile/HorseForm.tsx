@@ -1,17 +1,26 @@
-
-import { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/hooks/use-toast';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { horseBreeds, dressageLevels, jumpingLevels } from '@/lib/formOptions';
-import { britishDressageLevels, feiDressageLevels, dressageTypes } from '@/lib/dressageOptions';
-import { Label } from '@/components/ui/label';
-import { Loader2 } from 'lucide-react';
-import { AspectRatio } from '@/components/ui/aspect-ratio';
-import MediaSelector from '@/components/admin/media/MediaSelector';
+import { useState, useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { horseBreeds, dressageLevels, jumpingLevels } from "@/lib/formOptions";
+import {
+  britishDressageLevels,
+  feiDressageLevels,
+  dressageTypes,
+} from "@/lib/dressageOptions";
+import { Label } from "@/components/ui/label";
+import { Loader2 } from "lucide-react";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
+import MediaSelector from "@/components/admin/media/MediaSelector";
 
 interface HorseFormProps {
   onComplete: () => void;
@@ -35,33 +44,45 @@ interface HorseFormProps {
 
 const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
   const { user } = useAuth();
-  const [horseName, setHorseName] = useState(editingHorse?.name || '');
-  const [breed, setBreed] = useState(editingHorse?.breed || '');
-  const [age, setAge] = useState(editingHorse?.age?.toString() || '');
-  const [sex, setSex] = useState(editingHorse?.sex || '');
-  const [level, setLevel] = useState(editingHorse?.competition_level || '');
-  const [jumpingLevel, setJumpingLevel] = useState(editingHorse?.jumping_level || '');
-  const [dressageType, setDressageType] = useState(editingHorse?.dressage_type || '');
-  const [dressageLevel, setDressageLevel] = useState(editingHorse?.dressage_level || '');
-  const [yearsOwned, setYearsOwned] = useState(editingHorse?.years_owned?.toString() || '');
-  const [strengths, setStrengths] = useState(editingHorse?.strengths || '');
-  const [weaknesses, setWeaknesses] = useState(editingHorse?.weaknesses || '');
-  const [specialNotes, setSpecialNotes] = useState(editingHorse?.special_notes || '');
-  const [photoUrl, setPhotoUrl] = useState<string | null>(editingHorse?.photo_url || null);
+  const [horseName, setHorseName] = useState(editingHorse?.name || "");
+  const [breed, setBreed] = useState(editingHorse?.breed || "");
+  const [age, setAge] = useState(editingHorse?.age?.toString() || "");
+  const [sex, setSex] = useState(editingHorse?.sex || "");
+  const [level, setLevel] = useState(editingHorse?.competition_level || "");
+  const [jumpingLevel, setJumpingLevel] = useState(
+    editingHorse?.jumping_level || ""
+  );
+  const [dressageType, setDressageType] = useState(
+    editingHorse?.dressage_type || ""
+  );
+  const [dressageLevel, setDressageLevel] = useState(
+    editingHorse?.dressage_level || ""
+  );
+  const [yearsOwned, setYearsOwned] = useState(
+    editingHorse?.years_owned?.toString() || ""
+  );
+  const [strengths, setStrengths] = useState(editingHorse?.strengths || "");
+  const [weaknesses, setWeaknesses] = useState(editingHorse?.weaknesses || "");
+  const [specialNotes, setSpecialNotes] = useState(
+    editingHorse?.special_notes || ""
+  );
+  const [photoUrl, setPhotoUrl] = useState<string | null>(
+    editingHorse?.photo_url || null
+  );
   const [isSaving, setIsSaving] = useState(false);
 
   const isEditing = !!editingHorse;
-  
+
   // Reset dressage level when dressage type changes
   useEffect(() => {
-    setDressageLevel('');
+    setDressageLevel("");
   }, [dressageType]);
 
   // Get the appropriate dressage levels based on the selected type
   const getDressageLevels = () => {
-    if (dressageType === 'British Dressage') {
+    if (dressageType === "British Dressage") {
       return britishDressageLevels;
-    } else if (dressageType === 'FEI Dressage') {
+    } else if (dressageType === "FEI Dressage") {
       return feiDressageLevels;
     }
     return [];
@@ -69,25 +90,25 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!user) {
       toast({
         title: "Authentication required",
         description: "You must be signed in to save a horse profile",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
 
     try {
       setIsSaving(true);
-      
+
       // Prepare horse data
       const horseData = {
         user_id: user.id,
         name: horseName,
         breed,
-        age: parseInt(age || '0'),
+        age: parseInt(age || "0"),
         sex,
         competition_level: level,
         jumping_level: jumpingLevel,
@@ -103,38 +124,37 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
       if (isEditing && editingHorse) {
         // Update existing horse
         const { error } = await supabase
-          .from('horses')
+          .from("horses")
           .update(horseData)
-          .eq('id', editingHorse.id)
-          .eq('user_id', user.id); // Ensure user only updates their own horses
+          .eq("id", editingHorse.id)
+          .eq("user_id", user.id); // Ensure user only updates their own horses
 
         if (error) throw error;
-        
+
         toast({
           title: "Horse updated",
-          description: "Your horse's profile has been updated successfully."
+          description: "Your horse's profile has been updated successfully.",
         });
       } else {
         // Create new horse
-        const { error } = await supabase
-          .from('horses')
-          .insert([horseData]);
-        
+        const { error } = await supabase.from("horses").insert([horseData]);
+
         if (error) throw error;
 
         toast({
           title: "Horse added",
-          description: "Your new horse has been added successfully."
+          description: "Your new horse has been added successfully.",
         });
       }
-      
+
       onComplete();
     } catch (error: any) {
-      console.error('Error saving horse data:', error);
+      console.error("Error saving horse data:", error);
       toast({
         title: "Save failed",
-        description: error.message || "Failed to save horse data. Please try again.",
-        variant: "destructive"
+        description:
+          error.message || "Failed to save horse data. Please try again.",
+        variant: "destructive",
       });
     } finally {
       setIsSaving(false);
@@ -158,7 +178,7 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
           required
         />
       </div>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="horse-breed">Breed*</Label>
@@ -168,12 +188,14 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
             </SelectTrigger>
             <SelectContent>
               {horseBreeds.map((breed) => (
-                <SelectItem key={breed} value={breed}>{breed}</SelectItem>
+                <SelectItem key={breed} value={breed}>
+                  {breed}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
-        
+
         <div className="space-y-2">
           <Label htmlFor="horse-age">Age*</Label>
           <Input
@@ -187,7 +209,7 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
             required
           />
         </div>
-        
+
         <div className="space-y-2">
           <Label htmlFor="horse-sex">Sex*</Label>
           <Select value={sex} onValueChange={setSex} required>
@@ -201,7 +223,7 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
             </SelectContent>
           </Select>
         </div>
-        
+
         <div className="space-y-2">
           <Label htmlFor="competition-level">Competition Level</Label>
           <Select value={level} onValueChange={setLevel}>
@@ -210,7 +232,9 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
             </SelectTrigger>
             <SelectContent>
               {dressageLevels.map((level) => (
-                <SelectItem key={level} value={level}>{level}</SelectItem>
+                <SelectItem key={level} value={level}>
+                  {level}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -224,7 +248,9 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
             </SelectTrigger>
             <SelectContent>
               {jumpingLevels.map((level) => (
-                <SelectItem key={level} value={level}>{level}</SelectItem>
+                <SelectItem key={level} value={level}>
+                  {level}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -238,27 +264,33 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
             </SelectTrigger>
             <SelectContent>
               {dressageTypes.map((type) => (
-                <SelectItem key={type} value={type}>{type}</SelectItem>
+                <SelectItem key={type} value={type}>
+                  {type}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
 
-        {dressageType && (
-          <div className="space-y-2">
-            <Label htmlFor="dressage-level">Dressage Level</Label>
-            <Select value={dressageLevel} onValueChange={setDressageLevel}>
-              <SelectTrigger id="dressage-level">
-                <SelectValue placeholder="Select dressage level" />
-              </SelectTrigger>
-              <SelectContent>
-                {getDressageLevels().map((level) => (
-                  <SelectItem key={level} value={level}>{level}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        )}
+        <div className="space-y-2">
+          <Label htmlFor="dressage-level">Dressage Level</Label>
+          <Select
+            disabled={!dressageType}
+            value={dressageLevel}
+            onValueChange={setDressageLevel}
+          >
+            <SelectTrigger id="dressage-level">
+              <SelectValue placeholder="Select dressage level" />
+            </SelectTrigger>
+            <SelectContent>
+              {getDressageLevels().map((level) => (
+                <SelectItem key={level} value={level}>
+                  {level}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
         <div className="space-y-2">
           <Label htmlFor="years-owned">Years Owned/Ridden</Label>
@@ -273,25 +305,25 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
           />
         </div>
       </div>
-      
+
       <div className="space-y-2">
         <Label htmlFor="horse-photo">Horse Photo</Label>
         {photoUrl && (
           <div className="mb-4 w-full max-w-[300px]">
-            <AspectRatio ratio={4/3} className="bg-muted rounded-md overflow-hidden">
-              <img 
-                src={photoUrl} 
-                alt={horseName || "Horse"} 
+            <AspectRatio
+              ratio={4 / 3}
+              className="bg-muted rounded-md overflow-hidden"
+            >
+              <img
+                src={photoUrl}
+                alt={horseName || "Horse"}
                 className="w-full h-full object-cover"
               />
             </AspectRatio>
           </div>
         )}
-        
-        <MediaSelector
-          value={photoUrl || ''}
-          onChange={handleImageSelect}
-        />
+
+        <MediaSelector value={photoUrl || ""} onChange={handleImageSelect} />
       </div>
 
       <div className="space-y-2">
@@ -323,21 +355,25 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
           placeholder="Any special notes or care instructions? (Optional)"
         />
       </div>
-      
+
       <div className="flex justify-end gap-4 pt-2">
-        <Button type="button" variant="outline" onClick={onComplete}>Cancel</Button>
-        <Button 
-          type="submit" 
+        <Button type="button" variant="outline" onClick={onComplete}>
+          Cancel
+        </Button>
+        <Button
+          type="submit"
           disabled={isSaving}
           className="bg-purple-700 hover:bg-purple-800"
         >
           {isSaving ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> 
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               Saving...
             </>
+          ) : isEditing ? (
+            "Update Horse"
           ) : (
-            isEditing ? "Update Horse" : "Save Horse"
+            "Save Horse"
           )}
         </Button>
       </div>
