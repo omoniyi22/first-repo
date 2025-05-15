@@ -44,6 +44,17 @@ const EventForm = ({ onComplete }: EventFormProps) => {
       });
       return;
     }
+
+    if (!user) {
+      toast({
+        title: language === 'en' ? 'Authentication required' : 'Autenticación requerida',
+        description: language === 'en' 
+          ? 'Please sign in to create events' 
+          : 'Por favor inicie sesión para crear eventos',
+        variant: 'destructive'
+      });
+      return;
+    }
     
     setIsSubmitting(true);
     
@@ -55,7 +66,7 @@ const EventForm = ({ onComplete }: EventFormProps) => {
         location,
         description,
         discipline,
-        userId: user?.id
+        userId: user.id
       });
       
       toast({

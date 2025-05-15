@@ -32,6 +32,7 @@ const UpcomingEvents = () => {
         const userId = user?.id;
         if (!userId) {
           setEvents([]);
+          setIsLoading(false);
           return;
         }
         
@@ -58,6 +59,9 @@ const UpcomingEvents = () => {
     
     if (user) {
       fetchUserEvents();
+    } else {
+      setEvents([]);
+      setIsLoading(false);
     }
   }, [toast, showAddEventForm, user]);
 
@@ -184,6 +188,7 @@ const UpcomingEvents = () => {
           <div className="flex flex-col items-center justify-center py-6">
             <CalendarIcon className="h-10 w-10 text-gray-300 mb-2" />
             <p className="text-gray-600">No upcoming events</p>
+            {!user && <p className="text-sm text-gray-500 mt-1">Sign in to create events</p>}
           </div>
         )}
       </Card>

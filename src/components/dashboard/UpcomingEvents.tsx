@@ -36,6 +36,7 @@ const UpcomingEvents = () => {
         const userId = user?.id;
         if (!userId) {
           setEvents([]);
+          setIsLoading(false);
           return;
         }
         
@@ -64,6 +65,9 @@ const UpcomingEvents = () => {
     
     if (user) {
       fetchUserEvents();
+    } else {
+      setEvents([]);
+      setIsLoading(false);
     }
   }, [toast, language, showAddEventForm, user]);
 
@@ -188,6 +192,11 @@ const UpcomingEvents = () => {
             <p className="text-gray-600">
               {language === 'en' ? 'No upcoming events' : 'No hay eventos próximos'}
             </p>
+            {!user && (
+              <p className="text-sm text-gray-500 mt-1">
+                {language === 'en' ? 'Sign in to create events' : 'Inicie sesión para crear eventos'}
+              </p>
+            )}
           </div>
         )}
       </Card>

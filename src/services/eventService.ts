@@ -61,7 +61,9 @@ export const createEvent = async (event: Omit<Event, 'id' | 'createdAt' | 'updat
     // Get current user
     const { data: { user } } = await supabase.auth.getUser();
     
-    if (!user) throw new Error('User not authenticated');
+    if (!user && !event.userId) {
+      throw new Error('User not authenticated');
+    }
     
     const { data, error } = await supabase
       .from('events')
@@ -74,7 +76,7 @@ export const createEvent = async (event: Omit<Event, 'id' | 'createdAt' | 'updat
         discipline: event.discipline,
         image_url: event.imageUrl || null,
         is_featured: event.isFeatured || false,
-        user_id: event.userId || user.id // Use provided userId or fallback to current user
+        user_id: event.userId || user?.id
       }])
       .select()
       .single();

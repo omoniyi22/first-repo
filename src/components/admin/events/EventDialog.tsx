@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -41,6 +40,7 @@ import {
 } from '@/components/ui/popover';
 import { Checkbox } from '@/components/ui/checkbox';
 import MediaSelector from '@/components/admin/media/MediaSelector';
+import { useAuth } from '@/contexts/AuthContext';
 
 // Update the interface to match what MediaSelector expects
 interface MediaSelectorProps {
@@ -74,6 +74,7 @@ const EventDialog = ({ open, onOpenChange, event }: EventDialogProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showMediaSelector, setShowMediaSelector] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const form = useForm<EventFormValues>({
     resolver: zodResolver(eventSchema),
@@ -116,6 +117,15 @@ const EventDialog = ({ open, onOpenChange, event }: EventDialogProps) => {
   }, [event, form]);
 
   const onSubmit = async (values: EventFormValues) => {
+    if (!user) {
+      toast({
+        title: 'Authentication required',
+        description: 'You must be signed in to manage events',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -137,7 +147,8 @@ const EventDialog = ({ open, onOpenChange, event }: EventDialogProps) => {
           eventType: values.eventType,
           discipline: values.discipline,
           imageUrl: values.imageUrl,
-          isFeatured: values.isFeatured
+          isFeatured: values.isFeatured,
+          userId: user.id
         });
         toast({
           title: 'Event created',
