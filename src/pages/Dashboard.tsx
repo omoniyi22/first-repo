@@ -119,6 +119,14 @@ const Dashboard = () => {
           <PerformanceOverview />
         </div>
 
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+          {/* Goals Section */}
+          <Goals />
+
+          {/* Training Focus Section */}
+          <TrainingFocus />
+        </div>
+
         {/* Main content layout - two columns for desktop, single column for mobile */}
         <div className="mt-4 grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
           {/* Main column - 2/3 width on desktop */}
@@ -131,12 +139,6 @@ const Dashboard = () => {
           <div className="space-y-6 sm:space-y-8">
             {/* Upcoming Events Section */}
             <UpcomingEvents />
-
-            {/* Goals Section */}
-            <Goals />
-
-            {/* Training Focus Section */}
-            <TrainingFocus />
           </div>
         </div>
       </main>
