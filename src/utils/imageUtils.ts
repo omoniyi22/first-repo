@@ -1,35 +1,25 @@
-
 /**
- * Utility function to get the correct image path regardless of source
- * Handles:
- * - Full URLs (http/https)
- * - Supabase storage URLs
- * - Local paths with or without /lovable-uploads/ prefix
- * 
- * @param imagePath The original image path
- * @param fallbackImage Optional fallback image path if the original fails
- * @returns The processed image path
+ * Handles image paths to ensure proper display of images from various sources
+ * @param url The image URL or path
+ * @returns A properly formatted image path
  */
-export const getImagePath = (imagePath: string, fallbackImage: string = '/placeholder.svg'): string => {
-  if (!imagePath) return fallbackImage;
-  
-  // Check if the image path is a full URL
-  if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
-    return imagePath;
+export const getImagePath = (url: string | undefined): string => {
+  if (!url) {
+    return '/placeholder.svg';
   }
   
-  // Check if the path already has /lovable-uploads/ prefix
-  if (imagePath.includes('/lovable-uploads/')) {
-    return imagePath;
+  // If it's already a full URL, return as is
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
   }
   
-  // Add the /lovable-uploads/ prefix to local paths
-  if (imagePath.startsWith('/')) {
-    return `/lovable-uploads${imagePath}`;
+  // If it's a relative URL starting with /
+  if (url.startsWith('/')) {
+    return url;
   }
   
-  // For any other case, assume it needs the prefix
-  return `/lovable-uploads/${imagePath}`;
+  // Otherwise, assume it's a path relative to public
+  return `/${url}`;
 };
 
 /**

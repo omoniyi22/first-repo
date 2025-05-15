@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
-import { CalendarIcon, MapPin, Clock, Plus } from 'lucide-react';
+import { CalendarIcon, MapPin, Clock, Plus, Edit2 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useToast } from '@/components/ui/use-toast';
@@ -18,7 +18,8 @@ import { useAuth } from '@/contexts/AuthContext';
 const UpcomingEvents = () => {
   const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [showAddEventForm, setShowAddEventForm] = useState(false);
+  const [showEventForm, setShowEventForm] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const { language } = useLanguage();
   const isMobile = useIsMobile();
   const { toast } = useToast();
@@ -69,7 +70,7 @@ const UpcomingEvents = () => {
       setEvents([]);
       setIsLoading(false);
     }
-  }, [toast, language, showAddEventForm, user]);
+  }, [toast, language, showEventForm, user]);
 
   // Format date based on language
   const formatEventDate = (dateStr: string) => {
@@ -105,13 +106,28 @@ const UpcomingEvents = () => {
     }
   };
 
+  const handleAddEvent = () => {
+    setSelectedEvent(null);
+    setShowEventForm(true);
+  };
+  
+  const handleEditEvent = (event: Event) => {
+    setSelectedEvent(event);
+    setShowEventForm(true);
+  };
+  
+  const handleCloseForm = () => {
+    setSelectedEvent(null);
+    setShowEventForm(false);
+  };
+
   return (
     <div className="mt-4 sm:mt-0">
       <div className="flex justify-between items-center mb-3 sm:mb-4">
         <h2 className="text-lg sm:text-xl font-serif font-semibold text-gray-900">
           {language === 'en' ? 'Upcoming Events' : 'Próximos Eventos'}
         </h2>
-        <Button size="sm" variant="outline" onClick={() => setShowAddEventForm(true)}>
+        <Button size="sm" variant="outline" onClick={handleAddEvent}>
           <Plus className="mr-1 h-4 w-4" />
           {language === 'en' ? 'Add' : 'Añadir'}
         </Button>
@@ -131,57 +147,72 @@ const UpcomingEvents = () => {
                     <div className="mb-3">
                       <AspectRatio ratio={16/9} className="overflow-hidden rounded-md">
                         <img 
-                          src={event.imageUrl ? getImagePath(event.imageUrl) : getDefaultImage(event.discipline)} 
+                          src={event.imageUrl || getDefaultImage(event.discipline)} 
                           alt={event.title}
                           className="w-full h-full object-cover"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src = getDefaultImage(event.discipline);
+                          }}
                         />
                       </AspectRatio>
                     </div>
                   ) : null}
                   
-                  <div>
+                  <div className="flex justify-between">
                     <h3 className="font-medium text-base sm:text-lg text-gray-900 mb-1">
                       {event.title}
                     </h3>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-8 w-8 p-0 text-gray-500 hover:text-gray-900"
+                      onClick={() => handleEditEvent(event)}
+                    >
+                      <Edit2 className="h-4 w-4" />
+                      <span className="sr-only">
+                        {language === 'en' ? 'Edit event' : 'Editar evento'}
+                      </span>
+                    </Button>
+                  </div>
+                  
+                  <div className="flex flex-wrap gap-1 mb-2">
+                    <span className={cn("text-xs px-2 py-0.5 rounded-full", getEventTypeStyle(event.eventType, event.discipline))}>
+                      {event.eventType}
+                    </span>
                     
-                    <div className="flex flex-wrap gap-1 mb-2">
-                      <span className={cn("text-xs px-2 py-0.5 rounded-full", getEventTypeStyle(event.eventType, event.discipline))}>
-                        {event.eventType}
-                      </span>
-                      
-                      <span className={cn("text-xs px-2 py-0.5 rounded-full", 
-                        event.discipline === 'Dressage' ? 'bg-purple-100 text-purple-700' : 
-                        event.discipline === 'Jumping' ? 'bg-blue-100 text-blue-700' : 
-                        'bg-gray-100 text-gray-700')}>
-                        {event.discipline}
-                      </span>
+                    <span className={cn("text-xs px-2 py-0.5 rounded-full", 
+                      event.discipline === 'Dressage' ? 'bg-purple-100 text-purple-700' : 
+                      event.discipline === 'Jumping' ? 'bg-blue-100 text-blue-700' : 
+                      'bg-gray-100 text-gray-700')}>
+                      {event.discipline}
+                    </span>
+                  </div>
+                  
+                  <div className="space-y-2 text-gray-700">
+                    <div className="flex items-center text-sm">
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      <span>{formatEventDate(event.eventDate)}</span>
                     </div>
                     
-                    <div className="space-y-2 text-gray-700">
-                      <div className="flex items-center text-sm">
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        <span>{formatEventDate(event.eventDate)}</span>
-                      </div>
-                      
-                      <div className="flex items-center text-sm">
-                        <Clock className="mr-2 h-4 w-4" />
-                        <span>{formatEventTime(event.eventDate)}</span>
-                      </div>
-                      
-                      {event.location && (
-                        <div className="flex items-center text-sm">
-                          <MapPin className="mr-2 h-4 w-4" />
-                          <span>{event.location}</span>
-                        </div>
-                      )}
+                    <div className="flex items-center text-sm">
+                      <Clock className="mr-2 h-4 w-4" />
+                      <span>{formatEventTime(event.eventDate)}</span>
                     </div>
                     
-                    {event.description && (
-                      <div className="mt-2 text-sm text-gray-600 line-clamp-2">
-                        {event.description}
+                    {event.location && (
+                      <div className="flex items-center text-sm">
+                        <MapPin className="mr-2 h-4 w-4" />
+                        <span>{event.location}</span>
                       </div>
                     )}
                   </div>
+                  
+                  {event.description && (
+                    <div className="mt-2 text-sm text-gray-600 line-clamp-2">
+                      {event.description}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -201,15 +232,21 @@ const UpcomingEvents = () => {
         )}
       </Card>
       
-      {/* Add Event Dialog */}
-      <Dialog open={showAddEventForm} onOpenChange={setShowAddEventForm}>
+      {/* Event Form Dialog */}
+      <Dialog open={showEventForm} onOpenChange={setShowEventForm}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="text-xl font-serif">
-              {language === 'en' ? 'Add New Event' : 'Añadir Nuevo Evento'}
+              {selectedEvent 
+                ? (language === 'en' ? 'Edit Event' : 'Editar Evento')
+                : (language === 'en' ? 'Add New Event' : 'Añadir Nuevo Evento')
+              }
             </DialogTitle>
           </DialogHeader>
-          <EventForm onComplete={() => setShowAddEventForm(false)} />
+          <EventForm 
+            onComplete={handleCloseForm} 
+            event={selectedEvent}
+          />
         </DialogContent>
       </Dialog>
     </div>
