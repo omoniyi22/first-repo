@@ -1,5 +1,5 @@
 
-import { ArrowUp } from 'lucide-react';
+import { ArrowUp, TrendingUp, User, Award, FileText, Star } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { 
   ChartContainer,
@@ -42,19 +42,21 @@ const PerformanceOverview = () => {
     { movement: 'Rider Position', score: 7.3, fullMark: 10 },
   ];
 
-  // Example statistics data
+  // Example statistics data with icons
   const stats = [
     {
       title: 'Average Score',
       value: '64.8%',
       change: '+2.4%',
       positive: true,
+      icon: <TrendingUp className="h-6 w-6 text-purple-600" />,
     },
     {
       title: 'Tests Analyzed',
       value: '12',
       change: '+3',
       positive: true,
+      icon: <FileText className="h-6 w-6 text-blue-600" />,
     },
     {
       title: 'Strongest Movement',
@@ -62,6 +64,7 @@ const PerformanceOverview = () => {
       subValue: 'Extended',
       change: '',
       positive: true,
+      icon: <Award className="h-6 w-6 text-green-600" />,
     },
     {
       title: 'Focus Area',
@@ -69,6 +72,7 @@ const PerformanceOverview = () => {
       subValue: 'Transitions',
       change: '',
       positive: false,
+      icon: <Star className="h-6 w-6 text-amber-600" />,
     },
   ];
 
@@ -87,10 +91,13 @@ const PerformanceOverview = () => {
         {stats.map((stat, index) => (
           <Card key={index} className="p-6 border border-gray-100 hover:border-blue-300 transition-all duration-200">
             <CardContent className="p-0">
-              <h3 className="text-sm font-medium text-gray-600">
-                {stat.title}
-              </h3>
-              <div className="mt-2 flex justify-between items-end">
+              <div className="flex justify-between items-start">
+                <h3 className="text-sm font-medium text-gray-600">
+                  {stat.title}
+                </h3>
+                {stat.icon}
+              </div>
+              <div className="mt-4 flex justify-between items-end">
                 <div>
                   <p className="text-3xl font-semibold text-gray-900">
                     {stat.value}

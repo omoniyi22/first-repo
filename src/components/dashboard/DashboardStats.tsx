@@ -1,5 +1,5 @@
 
-import { ArrowUp } from 'lucide-react';
+import { ArrowUp, TrendingUp, FileText, Award, Star } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -13,12 +13,14 @@ const DashboardStats = () => {
       value: '64.8%',
       change: '+2.4%',
       positive: true,
+      icon: <TrendingUp className="h-5 w-5 text-purple-600" />,
     },
     {
       title: language === 'en' ? 'Tests Analyzed' : 'Pruebas Analizadas',
       value: '12',
       change: '+3',
       positive: true,
+      icon: <FileText className="h-5 w-5 text-blue-600" />,
     },
     {
       title: language === 'en' ? 'Strongest Movement' : 'Movimiento Más Fuerte',
@@ -26,6 +28,7 @@ const DashboardStats = () => {
       subValue: language === 'en' ? 'Extended' : 'Extendido',
       change: '',
       positive: true,
+      icon: <Award className="h-5 w-5 text-green-600" />,
     },
     {
       title: language === 'en' ? 'Focus Area' : 'Área de Enfoque',
@@ -33,6 +36,7 @@ const DashboardStats = () => {
       subValue: language === 'en' ? 'Transitions' : 'Transiciones',
       change: '',
       positive: false,
+      icon: <Star className="h-5 w-5 text-amber-600" />,
     },
   ];
 
@@ -44,10 +48,13 @@ const DashboardStats = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {stats.map((stat, index) => (
           <Card key={index} className="p-4 sm:p-6 border border-purple-100 hover:border-purple-300 transition-all duration-200">
-            <h3 className="text-xs sm:text-sm font-medium text-gray-600">
-              {stat.title}
-            </h3>
-            <div className="mt-2 flex justify-between items-end">
+            <div className="flex justify-between items-start">
+              <h3 className="text-xs sm:text-sm font-medium text-gray-600">
+                {stat.title}
+              </h3>
+              {stat.icon}
+            </div>
+            <div className="mt-3 flex justify-between items-end">
               <div>
                 <p className="text-xl sm:text-3xl font-semibold text-gray-900">
                   {stat.value}
