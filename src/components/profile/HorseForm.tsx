@@ -225,7 +225,7 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
                 <SelectValue placeholder="Select level" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Not applicable</SelectItem>
+                <SelectItem value="not_applicable">Not applicable</SelectItem>
                 {/* Original dressage levels for backward compatibility */}
                 {horseBreeds.map((level) => (
                   <SelectItem key={level} value={level}>{level}</SelectItem>
@@ -241,7 +241,7 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
                 <SelectValue placeholder="Select jumping level" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Not applicable</SelectItem>
+                <SelectItem value="not_applicable">Not applicable</SelectItem>
                 {jumpingLevels.map((level) => (
                   <SelectItem key={level} value={level}>{level}</SelectItem>
                 ))}
@@ -267,14 +267,14 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
               <Label htmlFor="fei" className="cursor-pointer">FEI Dressage</Label>
             </div>
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="" id="no-dressage" />
+              <RadioGroupItem value="not_applicable" id="no-dressage" />
               <Label htmlFor="no-dressage" className="cursor-pointer">Not Applicable</Label>
             </div>
           </RadioGroup>
         </div>
         
         {/* Conditional Dressage Level Selection */}
-        {dressageType && (
+        {dressageType && dressageType !== "not_applicable" && (
           <div className="space-y-2 mb-4">
             <Label htmlFor="dressage-level">
               {dressageType === 'British Dressage' ? 'British Dressage Level' : 'FEI Dressage Level'}
