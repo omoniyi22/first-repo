@@ -33,6 +33,8 @@ interface Horse {
   sex: string;
   competition_level?: string | null;
   jumping_level?: string | null;
+  dressage_type?: string | null;
+  dressage_level?: string | null;
   photo_url?: string | null;
   years_owned?: number | null;
   strengths?: string | null;
@@ -303,6 +305,22 @@ const Horses = () => {
                               {horse.jumping_level || "Not specified"}
                             </p>
                           </div>
+                          {horse.dressage_type && (
+                            <div>
+                              <p className="text-sm text-gray-600">
+                                Dressage Type
+                              </p>
+                              <p className="font-medium">{horse.dressage_type}</p>
+                            </div>
+                          )}
+                          {horse.dressage_level && (
+                            <div>
+                              <p className="text-sm text-gray-600">
+                                Dressage Level
+                              </p>
+                              <p className="font-medium">{horse.dressage_level}</p>
+                            </div>
+                          )}
                           {horse.years_owned && (
                             <div>
                               <p className="text-sm text-gray-600">

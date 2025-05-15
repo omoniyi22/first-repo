@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { horseBreeds, dressageLevels, jumpingLevels } from '@/lib/formOptions';
+import { britishDressageLevels, feiDressageLevels, dressageTypes } from '@/lib/dressageOptions';
 import { Label } from '@/components/ui/label';
 import { Loader2 } from 'lucide-react';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
@@ -22,6 +23,8 @@ interface HorseFormProps {
     sex: string;
     competition_level?: string;
     jumping_level?: string;
+    dressage_type?: string;
+    dressage_level?: string;
     photo_url?: string | null;
     years_owned?: number | null;
     strengths?: string | null;
@@ -38,6 +41,8 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
   const [sex, setSex] = useState(editingHorse?.sex || '');
   const [level, setLevel] = useState(editingHorse?.competition_level || '');
   const [jumpingLevel, setJumpingLevel] = useState(editingHorse?.jumping_level || '');
+  const [dressageType, setDressageType] = useState(editingHorse?.dressage_type || '');
+  const [dressageLevel, setDressageLevel] = useState(editingHorse?.dressage_level || '');
   const [yearsOwned, setYearsOwned] = useState(editingHorse?.years_owned?.toString() || '');
   const [strengths, setStrengths] = useState(editingHorse?.strengths || '');
   const [weaknesses, setWeaknesses] = useState(editingHorse?.weaknesses || '');
@@ -46,6 +51,21 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
   const [isSaving, setIsSaving] = useState(false);
 
   const isEditing = !!editingHorse;
+  
+  // Reset dressage level when dressage type changes
+  useEffect(() => {
+    setDressageLevel('');
+  }, [dressageType]);
+
+  // Get the appropriate dressage levels based on the selected type
+  const getDressageLevels = () => {
+    if (dressageType === 'British Dressage') {
+      return britishDressageLevels;
+    } else if (dressageType === 'FEI Dressage') {
+      return feiDressageLevels;
+    }
+    return [];
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,6 +91,8 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
         sex,
         competition_level: level,
         jumping_level: jumpingLevel,
+        dressage_type: dressageType || null,
+        dressage_level: dressageLevel || null,
         years_owned: yearsOwned ? parseInt(yearsOwned) : null,
         photo_url: photoUrl,
         strengths,
@@ -207,6 +229,36 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
             </SelectContent>
           </Select>
         </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="dressage-type">Dressage Type</Label>
+          <Select value={dressageType} onValueChange={setDressageType}>
+            <SelectTrigger id="dressage-type">
+              <SelectValue placeholder="Select dressage type" />
+            </SelectTrigger>
+            <SelectContent>
+              {dressageTypes.map((type) => (
+                <SelectItem key={type} value={type}>{type}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {dressageType && (
+          <div className="space-y-2">
+            <Label htmlFor="dressage-level">Dressage Level</Label>
+            <Select value={dressageLevel} onValueChange={setDressageLevel}>
+              <SelectTrigger id="dressage-level">
+                <SelectValue placeholder="Select dressage level" />
+              </SelectTrigger>
+              <SelectContent>
+                {getDressageLevels().map((level) => (
+                  <SelectItem key={level} value={level}>{level}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
 
         <div className="space-y-2">
           <Label htmlFor="years-owned">Years Owned/Ridden</Label>

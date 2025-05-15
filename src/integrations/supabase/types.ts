@@ -244,7 +244,10 @@ export type Database = {
           breed: string
           competition_level: string | null
           created_at: string
+          dressage_level: string | null
+          dressage_type: string | null
           id: string
+          jumping_level: string | null
           name: string
           photo_url: string | null
           sex: string
@@ -260,7 +263,10 @@ export type Database = {
           breed: string
           competition_level?: string | null
           created_at?: string
+          dressage_level?: string | null
+          dressage_type?: string | null
           id?: string
+          jumping_level?: string | null
           name: string
           photo_url?: string | null
           sex: string
@@ -276,7 +282,10 @@ export type Database = {
           breed?: string
           competition_level?: string | null
           created_at?: string
+          dressage_level?: string | null
+          dressage_type?: string | null
           id?: string
+          jumping_level?: string | null
           name?: string
           photo_url?: string | null
           sex?: string
