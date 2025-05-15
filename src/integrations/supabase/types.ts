@@ -238,6 +238,57 @@ export type Database = {
         }
         Relationships: []
       }
+      horses: {
+        Row: {
+          age: number
+          breed: string
+          competition_level: string | null
+          created_at: string
+          id: string
+          name: string
+          photo_url: string | null
+          sex: string
+          special_notes: string | null
+          strengths: string | null
+          updated_at: string
+          user_id: string
+          weaknesses: string | null
+          years_owned: number | null
+        }
+        Insert: {
+          age: number
+          breed: string
+          competition_level?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          photo_url?: string | null
+          sex: string
+          special_notes?: string | null
+          strengths?: string | null
+          updated_at?: string
+          user_id: string
+          weaknesses?: string | null
+          years_owned?: number | null
+        }
+        Update: {
+          age?: number
+          breed?: string
+          competition_level?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          photo_url?: string | null
+          sex?: string
+          special_notes?: string | null
+          strengths?: string | null
+          updated_at?: string
+          user_id?: string
+          weaknesses?: string | null
+          years_owned?: number | null
+        }
+        Relationships: []
+      }
       newsletter_subscribers: {
         Row: {
           created_at: string
