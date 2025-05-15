@@ -91,7 +91,7 @@ export const createEvent = async (event: Omit<Event, 'id' | 'createdAt' | 'updat
 export const updateEvent = async (id: string, event: Partial<Event>) => {
   try {
     // Convert Event format to database schema
-    const dbEvent: any = {
+    const dbEvent: Record<string, any> = {
       title: event.title,
       description: event.description,
       event_date: event.eventDate,
