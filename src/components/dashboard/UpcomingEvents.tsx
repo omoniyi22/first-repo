@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { CalendarIcon, MapPin, Clock, Plus } from 'lucide-react';
@@ -33,6 +34,11 @@ const UpcomingEvents = () => {
         const today = new Date().toISOString();
         
         const userId = user?.id;
+        if (!userId) {
+          setEvents([]);
+          return;
+        }
+        
         const eventsData = await fetchEvents(userId);
         
         // Filter to only upcoming events and limit to 3
@@ -56,7 +62,9 @@ const UpcomingEvents = () => {
       }
     };
     
-    fetchUserEvents();
+    if (user) {
+      fetchUserEvents();
+    }
   }, [toast, language, showAddEventForm, user]);
 
   // Format date based on language

@@ -30,6 +30,11 @@ const UpcomingEvents = () => {
         const today = new Date().toISOString();
         
         const userId = user?.id;
+        if (!userId) {
+          setEvents([]);
+          return;
+        }
+        
         const eventsData = await fetchEvents(userId);
         
         // Filter to only upcoming events and limit to 4
@@ -51,7 +56,9 @@ const UpcomingEvents = () => {
       }
     };
     
-    fetchUserEvents();
+    if (user) {
+      fetchUserEvents();
+    }
   }, [toast, showAddEventForm, user]);
 
   // Format date based on language

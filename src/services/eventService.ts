@@ -74,7 +74,7 @@ export const createEvent = async (event: Omit<Event, 'id' | 'createdAt' | 'updat
         discipline: event.discipline,
         image_url: event.imageUrl || null,
         is_featured: event.isFeatured || false,
-        user_id: user.id
+        user_id: event.userId || user.id // Use provided userId or fallback to current user
       }])
       .select()
       .single();

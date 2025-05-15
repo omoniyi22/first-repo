@@ -13,6 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { createEvent } from '@/services/eventService';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface EventFormProps {
   onComplete: () => void;
@@ -28,6 +29,7 @@ const EventForm = ({ onComplete }: EventFormProps) => {
   const [date, setDate] = useState<Date | undefined>(undefined);
   const { toast } = useToast();
   const { language } = useLanguage();
+  const { user } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,6 +55,7 @@ const EventForm = ({ onComplete }: EventFormProps) => {
         location,
         description,
         discipline,
+        userId: user?.id
       });
       
       toast({
