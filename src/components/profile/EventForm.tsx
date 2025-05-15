@@ -9,64 +9,111 @@ import { format } from 'date-fns';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
+import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/hooks/use-toast';
+import { createEvent } from '@/services/eventService';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface EventFormProps {
   onComplete: () => void;
 }
 
 const EventForm = ({ onComplete }: EventFormProps) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [eventTitle, setEventTitle] = useState('');
   const [eventType, setEventType] = useState('');
   const [location, setLocation] = useState('');
-  const [horse, setHorse] = useState('');
+  const [description, setDescription] = useState('');
+  const [discipline, setDiscipline] = useState<'Jumping' | 'Dressage' | 'Both'>('Dressage');
   const [date, setDate] = useState<Date | undefined>(undefined);
+  const { toast } = useToast();
+  const { language } = useLanguage();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Here you would typically save the event data to your backend
-    console.log({ eventTitle, eventType, location, horse, date });
     
-    // After saving, close the form
-    onComplete();
+    if (!eventTitle || !eventType || !date) {
+      toast({
+        title: language === 'en' ? 'Missing fields' : 'Campos faltantes',
+        description: language === 'en' 
+          ? 'Please fill in all required fields' 
+          : 'Por favor complete todos los campos requeridos',
+        variant: 'destructive'
+      });
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    try {
+      await createEvent({
+        title: eventTitle,
+        eventType,
+        eventDate: date.toISOString(),
+        location,
+        description,
+        discipline,
+      });
+      
+      toast({
+        title: language === 'en' ? 'Event created' : 'Evento creado',
+        description: language === 'en' 
+          ? 'Your event has been created successfully' 
+          : 'Su evento ha sido creado con éxito',
+        variant: 'default'
+      });
+      
+      onComplete();
+    } catch (error) {
+      console.error('Error creating event:', error);
+      toast({
+        title: language === 'en' ? 'Error' : 'Error',
+        description: language === 'en' 
+          ? 'There was an error creating your event' 
+          : 'Hubo un error al crear su evento',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
-
-  // Example horses - in a real app, these would come from your backend
-  const horses = [
-    { id: 1, name: 'Maestro' },
-    { id: 2, name: 'Bella' },
-    { id: 3, name: 'Gatsby' },
-  ];
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="event-title">Event Title</Label>
+        <Label htmlFor="event-title">
+          {language === 'en' ? 'Event Title' : 'Título del Evento'} *
+        </Label>
         <Input
           id="event-title"
           value={eventTitle}
           onChange={(e) => setEventTitle(e.target.value)}
-          placeholder="Enter event title"
+          placeholder={language === 'en' ? 'Enter event title' : 'Ingrese el título del evento'}
           required
         />
       </div>
       
       <div className="space-y-2">
-        <Label htmlFor="event-type">Event Type</Label>
+        <Label htmlFor="event-type">
+          {language === 'en' ? 'Event Type' : 'Tipo de Evento'} *
+        </Label>
         <Select value={eventType} onValueChange={setEventType}>
           <SelectTrigger id="event-type">
-            <SelectValue placeholder="Select type" />
+            <SelectValue placeholder={language === 'en' ? 'Select type' : 'Seleccionar tipo'} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="competition">Competition</SelectItem>
-            <SelectItem value="training">Training</SelectItem>
-            <SelectItem value="clinic">Clinic</SelectItem>
-            <SelectItem value="other">Other</SelectItem>
+            <SelectItem value="Competition">{language === 'en' ? 'Competition' : 'Competición'}</SelectItem>
+            <SelectItem value="Training">{language === 'en' ? 'Training' : 'Entrenamiento'}</SelectItem>
+            <SelectItem value="Clinic">{language === 'en' ? 'Clinic' : 'Clínica'}</SelectItem>
+            <SelectItem value="Other">{language === 'en' ? 'Other' : 'Otro'}</SelectItem>
           </SelectContent>
         </Select>
       </div>
       
       <div className="space-y-2">
-        <Label htmlFor="event-date">Date</Label>
+        <Label htmlFor="event-date">
+          {language === 'en' ? 'Date' : 'Fecha'} *
+        </Label>
         <Popover>
           <PopoverTrigger asChild>
             <Button
@@ -77,7 +124,8 @@ const EventForm = ({ onComplete }: EventFormProps) => {
               )}
             >
               <CalendarIcon className="mr-2 h-4 w-4" />
-              {date ? format(date, "PPP") : <span>Pick a date</span>}
+              {date ? format(date, "PPP") : 
+                <span>{language === 'en' ? 'Pick a date' : 'Elegir una fecha'}</span>}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="start">
@@ -93,32 +141,55 @@ const EventForm = ({ onComplete }: EventFormProps) => {
       </div>
       
       <div className="space-y-2">
-        <Label htmlFor="event-location">Location</Label>
-        <Input
-          id="event-location"
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-          placeholder="Enter location"
-        />
-      </div>
-      
-      <div className="space-y-2">
-        <Label htmlFor="event-horse">Horse</Label>
-        <Select value={horse} onValueChange={setHorse}>
-          <SelectTrigger id="event-horse">
-            <SelectValue placeholder="Select horse" />
+        <Label htmlFor="discipline">
+          {language === 'en' ? 'Discipline' : 'Disciplina'} *
+        </Label>
+        <Select value={discipline} onValueChange={(value: 'Jumping' | 'Dressage' | 'Both') => setDiscipline(value)}>
+          <SelectTrigger id="discipline">
+            <SelectValue placeholder={language === 'en' ? 'Select discipline' : 'Seleccionar disciplina'} />
           </SelectTrigger>
           <SelectContent>
-            {horses.map((horse) => (
-              <SelectItem key={horse.id} value={horse.name}>{horse.name}</SelectItem>
-            ))}
+            <SelectItem value="Jumping">{language === 'en' ? 'Jumping' : 'Salto'}</SelectItem>
+            <SelectItem value="Dressage">{language === 'en' ? 'Dressage' : 'Doma'}</SelectItem>
+            <SelectItem value="Both">{language === 'en' ? 'Both' : 'Ambos'}</SelectItem>
           </SelectContent>
         </Select>
       </div>
       
+      <div className="space-y-2">
+        <Label htmlFor="event-location">
+          {language === 'en' ? 'Location' : 'Ubicación'}
+        </Label>
+        <Input
+          id="event-location"
+          value={location}
+          onChange={(e) => setLocation(e.target.value)}
+          placeholder={language === 'en' ? 'Enter location' : 'Ingrese la ubicación'}
+        />
+      </div>
+      
+      <div className="space-y-2">
+        <Label htmlFor="event-description">
+          {language === 'en' ? 'Description' : 'Descripción'}
+        </Label>
+        <Textarea
+          id="event-description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder={language === 'en' ? 'Enter event description' : 'Ingrese la descripción del evento'}
+          rows={3}
+        />
+      </div>
+      
       <div className="flex justify-end gap-4 pt-2">
-        <Button type="button" variant="outline" onClick={onComplete}>Cancel</Button>
-        <Button type="submit">Save Event</Button>
+        <Button type="button" variant="outline" onClick={onComplete} disabled={isSubmitting}>
+          {language === 'en' ? 'Cancel' : 'Cancelar'}
+        </Button>
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting 
+            ? (language === 'en' ? 'Saving...' : 'Guardando...') 
+            : (language === 'en' ? 'Save Event' : 'Guardar Evento')}
+        </Button>
       </div>
     </form>
   );

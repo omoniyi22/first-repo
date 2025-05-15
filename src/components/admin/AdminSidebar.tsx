@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -13,8 +12,7 @@ import {
   ChevronLeft,
   ChevronRight,
   LogOut,
-  ArrowLeft,
-  Calendar
+  ArrowLeft
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -43,11 +41,6 @@ const AdminSidebar = () => {
       path: '/admin/blog', 
       label: 'Blog Management', 
       icon: <FileEdit className="w-5 h-5" /> 
-    },
-    { 
-      path: '/admin/events', 
-      label: 'Event Management', 
-      icon: <Calendar className="w-5 h-5" /> 
     },
     { 
       path: '/admin/users', 

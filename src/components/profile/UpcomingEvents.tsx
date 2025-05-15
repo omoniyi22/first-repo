@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,12 +11,14 @@ import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { cn } from '@/lib/utils';
 import { getImagePath } from '@/utils/imageUtils';
 import EventForm from './EventForm';
+import { useAuth } from '@/contexts/AuthContext';
 
 const UpcomingEvents = () => {
   const [showAddEventForm, setShowAddEventForm] = useState(false);
   const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+  const { user } = useAuth();
   
   // Fetch events from Supabase
   useEffect(() => {
@@ -28,13 +29,19 @@ const UpcomingEvents = () => {
         // Get current date to filter only upcoming events
         const today = new Date().toISOString();
         
-        // Fetch upcoming events
-        const { data, error } = await supabase
+        // Fetch upcoming events for the current user
+        let query = supabase
           .from('events')
           .select('*')
           .gte('event_date', today)
-          .order('event_date', { ascending: true })
-          .limit(4);
+          .order('event_date', { ascending: true });
+          
+        // Only fetch current user's events
+        if (user) {
+          query = query.eq('user_id', user.id);
+        }
+        
+        const { data, error } = await query.limit(4);
           
         if (error) {
           console.error('Error fetching events:', error);
@@ -59,6 +66,7 @@ const UpcomingEvents = () => {
             description: event.description || '',
             isFeatured: event.is_featured || false,
             imageUrl: event.image_url || '',
+            userId: event.user_id
           };
         });
         
@@ -76,7 +84,7 @@ const UpcomingEvents = () => {
     };
     
     fetchEvents();
-  }, [toast, showAddEventForm]);
+  }, [toast, showAddEventForm, user]);
 
   // Format date based on language
   const formatEventDate = (dateStr: string) => {

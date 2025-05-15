@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { CalendarIcon, MapPin, Clock, Plus } from 'lucide-react';
@@ -14,6 +13,7 @@ import { getImagePath } from '@/utils/imageUtils';
 import { cn } from '@/lib/utils';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import EventForm from '@/components/profile/EventForm';
+import { useAuth } from '@/contexts/AuthContext';
 
 const UpcomingEvents = () => {
   const [events, setEvents] = useState<Event[]>([]);
@@ -22,6 +22,7 @@ const UpcomingEvents = () => {
   const { language } = useLanguage();
   const isMobile = useIsMobile();
   const { toast } = useToast();
+  const { user } = useAuth();
   
   // Fetch events from Supabase
   useEffect(() => {
@@ -32,13 +33,19 @@ const UpcomingEvents = () => {
         // Get current date to filter only upcoming events
         const today = new Date().toISOString();
         
-        // Fetch the next 3 upcoming events ordered by date
-        const { data, error } = await supabase
+        // Fetch the next 3 upcoming events for the current user
+        let query = supabase
           .from('events')
           .select('*')
           .gte('event_date', today)
-          .order('event_date', { ascending: true })
-          .limit(3);
+          .order('event_date', { ascending: true });
+          
+        // Only fetch current user's events
+        if (user) {
+          query = query.eq('user_id', user.id);
+        }
+        
+        const { data, error } = await query.limit(3);
           
         if (error) {
           console.error('Error fetching events:', error);
@@ -63,6 +70,7 @@ const UpcomingEvents = () => {
             description: event.description || '',
             isFeatured: event.is_featured || false,
             imageUrl: event.image_url || '',
+            userId: event.user_id
           };
         });
         
@@ -82,7 +90,7 @@ const UpcomingEvents = () => {
     };
     
     fetchEvents();
-  }, [toast, language, showAddEventForm]);
+  }, [toast, language, showAddEventForm, user]);
 
   // Format date based on language
   const formatEventDate = (dateStr: string) => {

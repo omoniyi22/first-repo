@@ -13,14 +13,22 @@ export interface Event {
   isFeatured?: boolean;
   createdAt?: string;
   updatedAt?: string;
+  userId?: string;
 }
 
-export const fetchEvents = async (): Promise<Event[]> => {
+export const fetchEvents = async (userId?: string): Promise<Event[]> => {
   try {
-    const { data, error } = await supabase
+    let query = supabase
       .from('events')
       .select('*')
       .order('event_date', { ascending: true });
+    
+    // If userId is provided, filter events by user
+    if (userId) {
+      query = query.eq('user_id', userId);
+    }
+    
+    const { data, error } = await query;
     
     if (error) throw error;
     
@@ -50,6 +58,11 @@ export const fetchEventById = async (id: string): Promise<Event | null> => {
 
 export const createEvent = async (event: Omit<Event, 'id' | 'createdAt' | 'updatedAt'>) => {
   try {
+    // Get current user
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) throw new Error('User not authenticated');
+    
     const { data, error } = await supabase
       .from('events')
       .insert([{
@@ -60,7 +73,8 @@ export const createEvent = async (event: Omit<Event, 'id' | 'createdAt' | 'updat
         event_type: event.eventType,
         discipline: event.discipline,
         image_url: event.imageUrl || null,
-        is_featured: event.isFeatured || false
+        is_featured: event.isFeatured || false,
+        user_id: user.id
       }])
       .select()
       .single();
@@ -140,6 +154,7 @@ const transformDatabaseEventToEvent = (dbEvent: any): Event => {
     imageUrl: dbEvent.image_url,
     isFeatured: dbEvent.is_featured,
     createdAt: dbEvent.created_at,
-    updatedAt: dbEvent.updated_at
+    updatedAt: dbEvent.updated_at,
+    userId: dbEvent.user_id
   };
 };
