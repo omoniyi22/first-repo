@@ -10,6 +10,7 @@ import { horseBreeds, dressageLevels } from '@/lib/formOptions';
 import { Label } from '@/components/ui/label';
 import { Loader2 } from 'lucide-react';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
+import MediaSelector from '@/components/admin/media/MediaSelector';
 
 interface HorseFormProps {
   onComplete: () => void;
@@ -39,9 +40,7 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
   const [strengths, setStrengths] = useState(editingHorse?.strengths || '');
   const [weaknesses, setWeaknesses] = useState(editingHorse?.weaknesses || '');
   const [specialNotes, setSpecialNotes] = useState(editingHorse?.special_notes || '');
-  const [photo, setPhoto] = useState<File | null>(null);
   const [photoUrl, setPhotoUrl] = useState<string | null>(editingHorse?.photo_url || null);
-  const [isUploading, setIsUploading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
   const isEditing = !!editingHorse;
@@ -61,39 +60,6 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
     try {
       setIsSaving(true);
       
-      let finalPhotoUrl = photoUrl;
-      
-      // Upload new photo if selected
-      if (photo) {
-        setIsUploading(true);
-        
-        try {
-          // Generate a unique file path
-          const fileExt = photo.name.split('.').pop();
-          const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
-          const filePath = `${user.id}/${fileName}`;
-          
-          // Upload the file to Supabase Storage (if you want to implement this later)
-          // For now, we'll use the URL directly
-          const objectURL = URL.createObjectURL(photo);
-          finalPhotoUrl = objectURL;
-          
-          // Note: In a real implementation, you would upload to Supabase Storage:
-          // const { error: uploadError } = await supabase.storage.from('horse_photos').upload(filePath, photo);
-          // if (uploadError) throw uploadError;
-          // finalPhotoUrl = `${supabaseUrl}/storage/v1/object/public/horse_photos/${filePath}`;
-        } catch (error) {
-          console.error('Error uploading photo:', error);
-          toast({
-            title: "Upload failed",
-            description: "Failed to upload horse photo. Please try again.",
-            variant: "destructive"
-          });
-        } finally {
-          setIsUploading(false);
-        }
-      }
-      
       // Prepare horse data
       const horseData = {
         user_id: user.id,
@@ -103,7 +69,7 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
         sex,
         competition_level: level,
         years_owned: yearsOwned ? parseInt(yearsOwned) : null,
-        photo_url: finalPhotoUrl,
+        photo_url: photoUrl,
         strengths,
         weaknesses,
         special_notes: specialNotes,
@@ -150,13 +116,9 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
     }
   };
 
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setPhoto(e.target.files[0]);
-      // Create a preview URL
-      const previewUrl = URL.createObjectURL(e.target.files[0]);
-      setPhotoUrl(previewUrl);
-    }
+  // Handle image selection from media library
+  const handleImageSelect = (imageUrl: string) => {
+    setPhotoUrl(imageUrl);
   };
 
   return (
@@ -244,9 +206,9 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
       </div>
       
       <div className="space-y-2">
-        <Label htmlFor="horse-photo">Photo</Label>
+        <Label htmlFor="horse-photo">Horse Photo</Label>
         {photoUrl && (
-          <div className="mb-2 w-full max-w-[200px]">
+          <div className="mb-4 w-full max-w-[300px]">
             <AspectRatio ratio={4/3} className="bg-muted rounded-md overflow-hidden">
               <img 
                 src={photoUrl} 
@@ -256,12 +218,10 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
             </AspectRatio>
           </div>
         )}
-        <Input
-          id="horse-photo"
-          type="file"
-          accept="image/*"
-          onChange={handlePhotoChange}
-          className="cursor-pointer"
+        
+        <MediaSelector
+          value={photoUrl || ''}
+          onChange={handleImageSelect}
         />
       </div>
 
@@ -299,7 +259,7 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
         <Button type="button" variant="outline" onClick={onComplete}>Cancel</Button>
         <Button 
           type="submit" 
-          disabled={isSaving || isUploading}
+          disabled={isSaving}
           className="bg-purple-700 hover:bg-purple-800"
         >
           {isSaving ? (
