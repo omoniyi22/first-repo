@@ -1,3 +1,4 @@
+
 import * as React from "react";
 
 export interface ToastOptions {
@@ -20,6 +21,8 @@ type ToasterToast = {
   action?: ToastActionElement;
   variant?: "default" | "destructive";
   duration?: number;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 };
 
 const actionTypes = {
