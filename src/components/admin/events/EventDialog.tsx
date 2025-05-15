@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -41,6 +42,7 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import MediaSelector from '@/components/admin/media/MediaSelector';
 import { useAuth } from '@/contexts/AuthContext';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 // Update the interface to match what MediaSelector expects
 interface MediaSelectorProps {
@@ -176,243 +178,248 @@ const EventDialog = ({ open, onOpenChange, event }: EventDialogProps) => {
   return (
     <>
       <Dialog open={open} onOpenChange={(open) => !open && onOpenChange(false)}>
-        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-[600px] max-h-[95vh] overflow-hidden">
           <DialogHeader>
             <DialogTitle>{event ? 'Edit Event' : 'Create New Event'}</DialogTitle>
           </DialogHeader>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 py-4">
-              <FormField
-                control={form.control}
-                name="title"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Title</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Event title" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="eventDate"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel>Event Date</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant="outline"
-                              className={cn(
-                                "w-full pl-3 text-left font-normal",
-                                !field.value && "text-muted-foreground"
-                              )}
-                            >
-                              {field.value ? (
-                                format(field.value, "PPP")
-                              ) : (
-                                <span>Select date</span>
-                              )}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            initialFocus
-                            className={cn("p-3 pointer-events-auto")}
-                          />
-                        </PopoverContent>
-                      </Popover>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="location"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Location</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Event location (optional)" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="eventType"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Event Type</FormLabel>
-                      <Select 
-                        onValueChange={field.onChange} 
-                        defaultValue={field.value}
-                      >
+          <ScrollArea className="max-h-[80vh] pr-4">
+            <div className="py-2">
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                  <FormField
+                    control={form.control}
+                    name="title"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Title</FormLabel>
                         <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select event type" />
-                          </SelectTrigger>
+                          <Input placeholder="Event title" {...field} />
                         </FormControl>
-                        <SelectContent>
-                          <SelectItem value="Competition">Competition</SelectItem>
-                          <SelectItem value="Clinic">Clinic</SelectItem>
-                          <SelectItem value="Training">Training</SelectItem>
-                          <SelectItem value="Show">Show</SelectItem>
-                          <SelectItem value="Other">Other</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="discipline"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Discipline</FormLabel>
-                      <Select 
-                        onValueChange={field.onChange} 
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select discipline" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="Jumping">Jumping</SelectItem>
-                          <SelectItem value="Dressage">Dressage</SelectItem>
-                          <SelectItem value="Both">Both</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description</FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        placeholder="Event description (optional)" 
-                        className="min-h-[100px]"
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="imageUrl"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Event Image</FormLabel>
-                    <div className="flex items-center gap-2">
-                      <FormControl>
-                        <Input 
-                          placeholder="Image URL (optional)"
-                          {...field}
-                          readOnly
-                        />
-                      </FormControl>
-                      <Button 
-                        type="button" 
-                        variant="outline"
-                        onClick={() => setShowMediaSelector(true)}
-                      >
-                        Browse
-                      </Button>
-                    </div>
-                    {field.value && (
-                      <div className="mt-2">
-                        <img 
-                          src={field.value}
-                          alt="Event preview"
-                          className="h-20 w-auto object-cover rounded-md"
-                        />
-                      </div>
+                        <FormMessage />
+                      </FormItem>
                     )}
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  />
 
-              <FormField
-                control={form.control}
-                name="isFeatured"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel>Featured Event</FormLabel>
-                      <p className="text-sm text-muted-foreground">
-                        Featured events will be highlighted on the homepage and events page.
-                      </p>
-                    </div>
-                  </FormItem>
-                )}
-              />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="eventDate"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                          <FormLabel>Event Date</FormLabel>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant="outline"
+                                  className={cn(
+                                    "w-full pl-3 text-left font-normal",
+                                    !field.value && "text-muted-foreground"
+                                  )}
+                                >
+                                  {field.value ? (
+                                    format(field.value, "PPP")
+                                  ) : (
+                                    <span>Select date</span>
+                                  )}
+                                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                              <Calendar
+                                mode="single"
+                                selected={field.value}
+                                onSelect={field.onChange}
+                                initialFocus
+                                className={cn("p-3 pointer-events-auto")}
+                              />
+                            </PopoverContent>
+                          </Popover>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-              <DialogFooter>
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={() => onOpenChange(false)}
-                  disabled={isSubmitting}
-                >
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  {event ? 'Update Event' : 'Create Event'}
-                </Button>
-              </DialogFooter>
-            </form>
-          </Form>
+                    <FormField
+                      control={form.control}
+                      name="location"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Location</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Event location (optional)" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="eventType"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Event Type</FormLabel>
+                          <Select 
+                            onValueChange={field.onChange} 
+                            defaultValue={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select event type" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="Competition">Competition</SelectItem>
+                              <SelectItem value="Clinic">Clinic</SelectItem>
+                              <SelectItem value="Training">Training</SelectItem>
+                              <SelectItem value="Show">Show</SelectItem>
+                              <SelectItem value="Other">Other</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="discipline"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Discipline</FormLabel>
+                          <Select 
+                            onValueChange={field.onChange} 
+                            defaultValue={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select discipline" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="Jumping">Jumping</SelectItem>
+                              <SelectItem value="Dressage">Dressage</SelectItem>
+                              <SelectItem value="Both">Both</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Description</FormLabel>
+                        <FormControl>
+                          <Textarea 
+                            placeholder="Event description (optional)" 
+                            className="min-h-[100px]"
+                            {...field} 
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="imageUrl"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Event Image</FormLabel>
+                        <div className="flex items-center gap-2">
+                          <FormControl>
+                            <Input 
+                              placeholder="Image URL (optional)"
+                              {...field}
+                              readOnly
+                            />
+                          </FormControl>
+                          <Button 
+                            type="button" 
+                            variant="outline"
+                            onClick={() => setShowMediaSelector(true)}
+                          >
+                            Browse
+                          </Button>
+                        </div>
+                        {field.value && (
+                          <div className="mt-2">
+                            <img 
+                              src={field.value}
+                              alt="Event preview"
+                              className="h-20 w-auto object-cover rounded-md"
+                            />
+                          </div>
+                        )}
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="isFeatured"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                          <FormLabel>Featured Event</FormLabel>
+                          <p className="text-sm text-muted-foreground">
+                            Featured events will be highlighted on the homepage and events page.
+                          </p>
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+
+                  <DialogFooter>
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      onClick={() => onOpenChange(false)}
+                      disabled={isSubmitting}
+                    >
+                      Cancel
+                    </Button>
+                    <Button type="submit" disabled={isSubmitting}>
+                      {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      {event ? 'Update Event' : 'Create Event'}
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </Form>
+            </div>
+          </ScrollArea>
         </DialogContent>
       </Dialog>
       
       {showMediaSelector && (
         <Dialog open={showMediaSelector} onOpenChange={setShowMediaSelector}>
-          <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden">
             <DialogHeader>
               <DialogTitle>Select Image</DialogTitle>
             </DialogHeader>
-            {/* Update MediaSelector props to match the interface */}
-            <MediaSelector 
-              value={form.getValues('imageUrl') || ''} 
-              onChange={handleSelectedMedia}
-            />
+            <ScrollArea className="max-h-[70vh]">
+              <MediaSelector 
+                value={form.getValues('imageUrl') || ''} 
+                onChange={handleSelectedMedia}
+              />
+            </ScrollArea>
           </DialogContent>
         </Dialog>
       )}

@@ -17,6 +17,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import MediaSelector from '@/components/admin/media/MediaSelector';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface EventFormProps {
   onComplete: () => void;
@@ -278,16 +279,18 @@ const EventForm = ({ onComplete, event }: EventFormProps) => {
 
       {showMediaSelector && (
         <Dialog open={showMediaSelector} onOpenChange={setShowMediaSelector}>
-          <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden">
             <DialogHeader>
               <DialogTitle>
                 {language === 'en' ? 'Select Image' : 'Seleccionar Imagen'}
               </DialogTitle>
             </DialogHeader>
-            <MediaSelector 
-              value={imageUrl} 
-              onChange={handleSelectedMedia}
-            />
+            <ScrollArea className="max-h-[70vh] overflow-auto">
+              <MediaSelector 
+                value={imageUrl} 
+                onChange={handleSelectedMedia}
+              />
+            </ScrollArea>
           </DialogContent>
         </Dialog>
       )}

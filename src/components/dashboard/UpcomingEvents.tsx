@@ -14,6 +14,7 @@ import { cn } from '@/lib/utils';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import EventForm from '@/components/profile/EventForm';
 import { useAuth } from '@/contexts/AuthContext';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const UpcomingEvents = () => {
   const [events, setEvents] = useState<Event[]>([]);
@@ -234,7 +235,7 @@ const UpcomingEvents = () => {
       
       {/* Event Form Dialog */}
       <Dialog open={showEventForm} onOpenChange={setShowEventForm}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md max-h-[95vh] overflow-hidden">
           <DialogHeader>
             <DialogTitle className="text-xl font-serif">
               {selectedEvent 
@@ -243,10 +244,14 @@ const UpcomingEvents = () => {
               }
             </DialogTitle>
           </DialogHeader>
-          <EventForm 
-            onComplete={handleCloseForm} 
-            event={selectedEvent}
-          />
+          <ScrollArea className="max-h-[80vh] pr-4">
+            <div className="py-2">
+              <EventForm 
+                onComplete={handleCloseForm} 
+                event={selectedEvent}
+              />
+            </div>
+          </ScrollArea>
         </DialogContent>
       </Dialog>
     </div>

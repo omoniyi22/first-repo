@@ -12,6 +12,7 @@ import { cn } from '@/lib/utils';
 import { getImagePath } from '@/utils/imageUtils';
 import EventForm from './EventForm';
 import { useAuth } from '@/contexts/AuthContext';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const UpcomingEvents = () => {
   const [showAddEventForm, setShowAddEventForm] = useState(false);
@@ -195,11 +196,15 @@ const UpcomingEvents = () => {
       
       {/* Add Event Dialog */}
       <Dialog open={showAddEventForm} onOpenChange={setShowAddEventForm}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md max-h-[95vh] overflow-hidden">
           <DialogHeader>
             <DialogTitle className="text-xl font-serif">Add New Event</DialogTitle>
           </DialogHeader>
-          <EventForm onComplete={() => setShowAddEventForm(false)} />
+          <ScrollArea className="max-h-[80vh] pr-4">
+            <div className="py-2">
+              <EventForm onComplete={() => setShowAddEventForm(false)} />
+            </div>
+          </ScrollArea>
         </DialogContent>
       </Dialog>
     </div>
