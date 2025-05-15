@@ -181,7 +181,7 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="competition-level">Dressage Level</Label>
+          <Label htmlFor="competition-level">Competition Level</Label>
           <Select value={level} onValueChange={setLevel}>
             <SelectTrigger id="competition-level">
               <SelectValue placeholder="Select level" />
