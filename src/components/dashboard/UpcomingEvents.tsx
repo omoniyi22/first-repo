@@ -3,10 +3,9 @@ import { Card } from '@/components/ui/card';
 import { CalendarIcon, MapPin, Clock, Plus } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
 import { format } from 'date-fns';
-import { Event } from '@/services/eventService';
+import { Event, fetchEvents } from '@/services/eventService';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { Button } from '@/components/ui/button';
 import { getImagePath } from '@/utils/imageUtils';
@@ -26,55 +25,23 @@ const UpcomingEvents = () => {
   
   // Fetch events from Supabase
   useEffect(() => {
-    const fetchEvents = async () => {
+    const fetchUserEvents = async () => {
       try {
         setIsLoading(true);
         
         // Get current date to filter only upcoming events
         const today = new Date().toISOString();
         
-        // Fetch the next 3 upcoming events for the current user
-        let query = supabase
-          .from('events')
-          .select('*')
-          .gte('event_date', today)
-          .order('event_date', { ascending: true });
-          
-        // Only fetch current user's events
-        if (user) {
-          query = query.eq('user_id', user.id);
-        }
+        const userId = user?.id;
+        const eventsData = await fetchEvents(userId);
         
-        const { data, error } = await query.limit(3);
-          
-        if (error) {
-          console.error('Error fetching events:', error);
-          throw error;
-        }
+        // Filter to only upcoming events and limit to 3
+        const upcomingEvents = eventsData
+          .filter(event => new Date(event.eventDate) >= new Date(today))
+          .sort((a, b) => new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime())
+          .slice(0, 3);
         
-        // Transform the data to match the Event type and validate discipline
-        const transformedEvents: Event[] = data.map(event => {
-          // Ensure discipline is one of the allowed values
-          let validDiscipline: 'Jumping' | 'Dressage' | 'Both' = 'Both';
-          if (event.discipline === 'Jumping' || event.discipline === 'Dressage') {
-            validDiscipline = event.discipline as 'Jumping' | 'Dressage';
-          }
-          
-          return {
-            id: event.id,
-            title: event.title,
-            eventDate: event.event_date,
-            location: event.location || '',
-            eventType: event.event_type,
-            discipline: validDiscipline,
-            description: event.description || '',
-            isFeatured: event.is_featured || false,
-            imageUrl: event.image_url || '',
-            userId: event.user_id
-          };
-        });
-        
-        setEvents(transformedEvents);
+        setEvents(upcomingEvents);
       } catch (error) {
         console.error('Failed to load events:', error);
         toast({
@@ -89,7 +56,7 @@ const UpcomingEvents = () => {
       }
     };
     
-    fetchEvents();
+    fetchUserEvents();
   }, [toast, language, showAddEventForm, user]);
 
   // Format date based on language
