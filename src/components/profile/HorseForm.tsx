@@ -6,7 +6,7 @@ import { toast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { horseBreeds, dressageLevels } from '@/lib/formOptions';
+import { horseBreeds, dressageLevels, jumpingLevels } from '@/lib/formOptions';
 import { Label } from '@/components/ui/label';
 import { Loader2 } from 'lucide-react';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
@@ -21,6 +21,7 @@ interface HorseFormProps {
     age: number;
     sex: string;
     competition_level?: string;
+    jumping_level?: string;
     photo_url?: string | null;
     years_owned?: number | null;
     strengths?: string | null;
@@ -36,6 +37,7 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
   const [age, setAge] = useState(editingHorse?.age?.toString() || '');
   const [sex, setSex] = useState(editingHorse?.sex || '');
   const [level, setLevel] = useState(editingHorse?.competition_level || '');
+  const [jumpingLevel, setJumpingLevel] = useState(editingHorse?.jumping_level || '');
   const [yearsOwned, setYearsOwned] = useState(editingHorse?.years_owned?.toString() || '');
   const [strengths, setStrengths] = useState(editingHorse?.strengths || '');
   const [weaknesses, setWeaknesses] = useState(editingHorse?.weaknesses || '');
@@ -68,6 +70,7 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
         age: parseInt(age || '0'),
         sex,
         competition_level: level,
+        jumping_level: jumpingLevel,
         years_owned: yearsOwned ? parseInt(yearsOwned) : null,
         photo_url: photoUrl,
         strengths,
@@ -178,13 +181,27 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="competition-level">Competition Level</Label>
+          <Label htmlFor="competition-level">Dressage Level</Label>
           <Select value={level} onValueChange={setLevel}>
             <SelectTrigger id="competition-level">
               <SelectValue placeholder="Select level" />
             </SelectTrigger>
             <SelectContent>
               {dressageLevels.map((level) => (
+                <SelectItem key={level} value={level}>{level}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="jumping-level">Jumping Level</Label>
+          <Select value={jumpingLevel} onValueChange={setJumpingLevel}>
+            <SelectTrigger id="jumping-level">
+              <SelectValue placeholder="Select jumping height" />
+            </SelectTrigger>
+            <SelectContent>
+              {jumpingLevels.map((level) => (
                 <SelectItem key={level} value={level}>{level}</SelectItem>
               ))}
             </SelectContent>

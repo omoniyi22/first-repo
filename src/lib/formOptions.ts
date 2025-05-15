@@ -59,3 +59,18 @@ export const horseBreeds = [
   "Draft Cross",
   "Other"
 ];
+
+// Jumping levels (height-based)
+export const jumpingLevels = [
+  "Cross Rails",
+  "0.60m",
+  "0.70m (2'3\")",
+  "0.80m (2'7\")",
+  "0.90m (3ft)",
+  "1.00m (3'3\")",
+  "1.10m (3'6\")",
+  "1.20m (4ft)",
+  "1.30m (4'3\")",
+  "1.40m (4'7\")",
+  "1.50m+ (4'11\"+)"
+];
