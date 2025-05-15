@@ -6,12 +6,11 @@ import { toast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { horseBreeds, jumpingLevels, dressageTypes, britishDressageLevels, feiDressageLevels } from '@/lib/formOptions';
+import { horseBreeds, dressageLevels } from '@/lib/formOptions';
 import { Label } from '@/components/ui/label';
 import { Loader2 } from 'lucide-react';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import MediaSelector from '@/components/admin/media/MediaSelector';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 interface HorseFormProps {
   onComplete: () => void;
@@ -22,9 +21,6 @@ interface HorseFormProps {
     age: number;
     sex: string;
     competition_level?: string;
-    jumping_level?: string;
-    dressage_type?: string;
-    dressage_level?: string;
     photo_url?: string | null;
     years_owned?: number | null;
     strengths?: string | null;
@@ -40,9 +36,6 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
   const [age, setAge] = useState(editingHorse?.age?.toString() || '');
   const [sex, setSex] = useState(editingHorse?.sex || '');
   const [level, setLevel] = useState(editingHorse?.competition_level || '');
-  const [jumpingLevel, setJumpingLevel] = useState(editingHorse?.jumping_level || '');
-  const [dressageType, setDressageType] = useState(editingHorse?.dressage_type || '');
-  const [dressageLevel, setDressageLevel] = useState(editingHorse?.dressage_level || '');
   const [yearsOwned, setYearsOwned] = useState(editingHorse?.years_owned?.toString() || '');
   const [strengths, setStrengths] = useState(editingHorse?.strengths || '');
   const [weaknesses, setWeaknesses] = useState(editingHorse?.weaknesses || '');
@@ -51,18 +44,6 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
   const [isSaving, setIsSaving] = useState(false);
 
   const isEditing = !!editingHorse;
-
-  // Get available dressage levels based on selected dressage type
-  const availableDressageLevels = dressageType === 'British Dressage' 
-    ? britishDressageLevels 
-    : dressageType === 'FEI Dressage' 
-      ? feiDressageLevels 
-      : [];
-
-  // Reset dressage level when dressage type changes
-  useEffect(() => {
-    setDressageLevel('');
-  }, [dressageType]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,9 +68,6 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
         age: parseInt(age || '0'),
         sex,
         competition_level: level,
-        jumping_level: jumpingLevel,
-        dressage_type: dressageType,
-        dressage_level: dressageLevel,
         years_owned: yearsOwned ? parseInt(yearsOwned) : null,
         photo_url: photoUrl,
         strengths,
@@ -200,6 +178,20 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
         </div>
         
         <div className="space-y-2">
+          <Label htmlFor="competition-level">Competition Level</Label>
+          <Select value={level} onValueChange={setLevel}>
+            <SelectTrigger id="competition-level">
+              <SelectValue placeholder="Select level" />
+            </SelectTrigger>
+            <SelectContent>
+              {dressageLevels.map((level) => (
+                <SelectItem key={level} value={level}>{level}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
           <Label htmlFor="years-owned">Years Owned/Ridden</Label>
           <Input
             id="years-owned"
@@ -212,88 +204,8 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
           />
         </div>
       </div>
-
-      {/* Competition Levels Section */}
-      <div className="pt-4 border-t border-gray-200">
-        <h3 className="text-lg font-medium mb-4">Competition Information</h3>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          <div className="space-y-2">
-            <Label htmlFor="competition-level">Dressage Competition Level</Label>
-            <Select value={level} onValueChange={setLevel}>
-              <SelectTrigger id="competition-level">
-                <SelectValue placeholder="Select level" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">Not applicable</SelectItem>
-                {/* Original dressage levels for backward compatibility */}
-                {horseBreeds.map((level) => (
-                  <SelectItem key={level} value={level}>{level}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="jumping-level">Jumping Level</Label>
-            <Select value={jumpingLevel} onValueChange={setJumpingLevel}>
-              <SelectTrigger id="jumping-level">
-                <SelectValue placeholder="Select jumping level" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">Not applicable</SelectItem>
-                {jumpingLevels.map((level) => (
-                  <SelectItem key={level} value={level}>{level}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-        
-        {/* Dressage Type Selection */}
-        <div className="space-y-2 mb-4">
-          <Label>Dressage Type</Label>
-          <RadioGroup 
-            value={dressageType} 
-            onValueChange={setDressageType}
-            className="flex flex-row space-x-4 pt-2"
-          >
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="British Dressage" id="british" />
-              <Label htmlFor="british" className="cursor-pointer">British Dressage</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="FEI Dressage" id="fei" />
-              <Label htmlFor="fei" className="cursor-pointer">FEI Dressage</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="" id="no-dressage" />
-              <Label htmlFor="no-dressage" className="cursor-pointer">Not Applicable</Label>
-            </div>
-          </RadioGroup>
-        </div>
-        
-        {/* Conditional Dressage Level Selection */}
-        {dressageType && (
-          <div className="space-y-2 mb-4">
-            <Label htmlFor="dressage-level">
-              {dressageType === 'British Dressage' ? 'British Dressage Level' : 'FEI Dressage Level'}
-            </Label>
-            <Select value={dressageLevel} onValueChange={setDressageLevel}>
-              <SelectTrigger id="dressage-level">
-                <SelectValue placeholder={`Select ${dressageType.split(' ')[0]} level`} />
-              </SelectTrigger>
-              <SelectContent>
-                {availableDressageLevels.map((level) => (
-                  <SelectItem key={level} value={level}>{level}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        )}
-      </div>
       
-      <div className="space-y-2 pt-4 border-t border-gray-200">
+      <div className="space-y-2">
         <Label htmlFor="horse-photo">Horse Photo</Label>
         {photoUrl && (
           <div className="mb-4 w-full max-w-[300px]">
