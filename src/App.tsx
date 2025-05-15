@@ -1,3 +1,4 @@
+
 import {
   BrowserRouter as Router,
   Routes,
@@ -40,7 +41,6 @@ import JumpingAbout from "@/pages/JumpingAbout";
 import Admin from "@/pages/Admin";
 import AdminDashboard from "@/pages/AdminDashboard";
 import AdminBlog from "@/pages/AdminBlog";
-import AdminEvents from "@/pages/AdminEvents";
 import AdminUsers from "@/pages/AdminUsers";
 import AdminContent from "@/pages/AdminContent";
 import AdminMedia from "@/pages/AdminMedia";
@@ -118,7 +118,6 @@ function App() {
                     />
                     <Route path="dashboard" element={<AdminDashboard />} />
                     <Route path="blog" element={<AdminBlog />} />
-                    <Route path="events" element={<AdminEvents />} />
                     <Route path="users" element={<AdminUsers />} />
                     <Route path="content" element={<AdminContent />} />
                     <Route path="media" element={<AdminMedia />} />
