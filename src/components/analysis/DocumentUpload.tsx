@@ -65,12 +65,10 @@ const jumpingCompetitionTypes = [
   'Training Round'
 ];
 
-// Mock horses data for development
-const mockHorses = [
-  { id: 'horse1', name: 'Thunder' },
-  { id: 'horse2', name: 'Whisper' },
-  { id: 'horse3', name: 'Storm' }
-];
+interface Horse {
+  id: string;
+  name: string;
+}
 
 const DocumentUpload = () => {
   const { user } = useAuth();
@@ -81,7 +79,8 @@ const DocumentUpload = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [isUploading, setIsUploading] = useState<boolean>(false);
-  const [horses, setHorses] = useState<any[]>([]);
+  const [horses, setHorses] = useState<Horse[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   
   const form = useForm<DocumentUploadFormValues>({
     resolver: zodResolver(DocumentUploadFormSchema),
@@ -104,18 +103,39 @@ const DocumentUpload = () => {
 
   useEffect(() => {
     const fetchHorses = async () => {
-      if (!user) return;
+      if (!user) {
+        setIsLoading(false);
+        return;
+      }
       
       try {
-        // Use mock data instead of Supabase query
-        setHorses(mockHorses);
+        setIsLoading(true);
+        const { data, error } = await supabase
+          .from('horses')
+          .select('id, name')
+          .eq('user_id', user.id)
+          .order('name');
+          
+        if (error) {
+          console.error('Error fetching horses:', error);
+          throw error;
+        }
+        
+        setHorses(data || []);
       } catch (error) {
-        console.error('Error fetching horses:', error);
+        console.error('Error in fetchHorses:', error);
+        toast({
+          title: language === 'en' ? "Failed to load horses" : "Error al cargar caballos",
+          description: language === 'en' ? "Please try again later" : "Por favor intente más tarde",
+          variant: "destructive"
+        });
+      } finally {
+        setIsLoading(false);
       }
     };
     
     fetchHorses();
-  }, [user]);
+  }, [user, language, toast]);
   
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
@@ -459,18 +479,45 @@ const DocumentUpload = () => {
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
+                  disabled={isLoading || horses.length === 0}
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder={language === 'en' ? "Select a horse" : "Seleccionar un caballo"} />
+                      <SelectValue placeholder={
+                        isLoading 
+                          ? (language === 'en' ? "Loading horses..." : "Cargando caballos...")
+                          : horses.length === 0
+                            ? (language === 'en' ? "No horses found" : "No se encontraron caballos")
+                            : (language === 'en' ? "Select a horse" : "Seleccionar un caballo")
+                      } />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {horses.map((horse) => (
-                      <SelectItem key={horse.id} value={horse.id}>{horse.name}</SelectItem>
-                    ))}
+                    {horses.length === 0 ? (
+                      <SelectItem disabled value="none">
+                        {language === 'en' 
+                          ? "Add horses in your profile first" 
+                          : "Agrega caballos en tu perfil primero"}
+                      </SelectItem>
+                    ) : (
+                      horses.map((horse) => (
+                        <SelectItem key={horse.id} value={horse.id}>{horse.name}</SelectItem>
+                      ))
+                    )}
                   </SelectContent>
                 </Select>
+                {horses.length === 0 && !isLoading && (
+                  <div className="mt-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => window.location.href = '/profile'}
+                    >
+                      {language === 'en' ? "Go to Profile" : "Ir al Perfil"}
+                    </Button>
+                  </div>
+                )}
                 <FormMessage />
               </FormItem>
             )}
@@ -510,7 +557,7 @@ const DocumentUpload = () => {
             <Button 
               type="submit" 
               className={`w-full ${discipline === 'dressage' ? 'bg-purple-700 hover:bg-purple-800' : 'bg-blue-600 hover:bg-blue-700'}`}
-              disabled={!selectedFile || isUploading}
+              disabled={!selectedFile || isUploading || horses.length === 0}
             >
               {isUploading 
                 ? (language === 'en' ? "Uploading..." : "Subiendo...") 
