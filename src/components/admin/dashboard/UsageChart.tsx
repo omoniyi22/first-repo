@@ -27,11 +27,11 @@ const UsageChart = () => {
           <defs>
             <linearGradient id="dressageGradient" x1="0" y1="0" x2="1" y2="0">
               <stop offset="5%" stopColor="#7b4a97" stopOpacity={1}/>
-              <stop offset="95%" stopColor="#9b87f5" stopOpacity={1}/>
+              <stop offset="95%" stopColor="#6b3987" stopOpacity={1}/>
             </linearGradient>
             <linearGradient id="jumpingGradient" x1="0" y1="0" x2="1" y2="0">
               <stop offset="5%" stopColor="#4a6da7" stopOpacity={1}/>
-              <stop offset="95%" stopColor="#5a7db7" stopOpacity={1}/>
+              <stop offset="95%" stopColor="#3a5d97" stopOpacity={1}/>
             </linearGradient>
           </defs>
           <CartesianGrid strokeDasharray="3 3" opacity={0.3} />

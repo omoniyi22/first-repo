@@ -42,7 +42,7 @@ const PerformanceOverview = () => {
     { movement: 'Rider Position', score: 7.3, fullMark: 10 },
   ];
 
-  // Example statistics data with icons and gradient classes
+  // Updated stats with brand color gradients
   const stats = [
     {
       title: 'Average Score',
@@ -50,7 +50,7 @@ const PerformanceOverview = () => {
       change: '+2.4%',
       positive: true,
       icon: <TrendingUp className="h-6 w-6 text-white" />,
-      gradient: 'bg-gradient-to-r from-pink-500 to-pink-400',
+      gradient: 'bg-gradient-to-r from-[#8a55a9] to-[#6b3987]', // AI Dressage gradient
     },
     {
       title: 'Tests Analyzed',
@@ -58,7 +58,7 @@ const PerformanceOverview = () => {
       change: '+3',
       positive: true,
       icon: <FileText className="h-6 w-6 text-white" />,
-      gradient: 'bg-gradient-to-r from-purple-500 to-purple-400',
+      gradient: 'bg-gradient-to-r from-[#5a7db7] to-[#3a5d97]', // AI Jump gradient
     },
     {
       title: 'Strongest Movement',
@@ -67,7 +67,7 @@ const PerformanceOverview = () => {
       change: '',
       positive: true,
       icon: <Award className="h-6 w-6 text-white" />,
-      gradient: 'bg-gradient-to-r from-cyan-500 to-cyan-400',
+      gradient: 'bg-gradient-to-r from-[#7b4a97] to-[#6e3bab]', // Purple gradient
     },
     {
       title: 'Focus Area',
@@ -76,7 +76,7 @@ const PerformanceOverview = () => {
       change: '',
       positive: false,
       icon: <Star className="h-6 w-6 text-white" />,
-      gradient: 'bg-gradient-to-r from-amber-500 to-amber-400',
+      gradient: 'bg-gradient-to-r from-[#4a6da7] to-[#3a5d97]', // Blue gradient
     },
   ];
 
@@ -91,7 +91,7 @@ const PerformanceOverview = () => {
       </h2>
       
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        {/* Stats Cards with Gradient Backgrounds */}
+        {/* Stats Cards with Theme-Matching Gradient Backgrounds */}
         {stats.map((stat, index) => (
           <Card 
             key={index} 
@@ -141,8 +141,8 @@ const PerformanceOverview = () => {
                 >
                   <defs>
                     <linearGradient id="scoreGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#4a6da7" stopOpacity={0.8}/>
-                      <stop offset="95%" stopColor="#4a6da7" stopOpacity={0.1}/>
+                      <stop offset="5%" stopColor="#7b4a97" stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor="#7b4a97" stopOpacity={0.1}/>
                     </linearGradient>
                   </defs>
                   <XAxis 
@@ -162,7 +162,7 @@ const PerformanceOverview = () => {
                   <Area 
                     type="monotone" 
                     dataKey="score" 
-                    stroke="#4a6da7" 
+                    stroke="#7b4a97" 
                     strokeWidth={2}
                     fillOpacity={1} 
                     fill="url(#scoreGradient)" 
@@ -192,8 +192,8 @@ const PerformanceOverview = () => {
                 <Radar 
                   name="Scores" 
                   dataKey="score" 
-                  stroke="#4a6da7" 
-                  fill="#4a6da7" 
+                  stroke="#7b4a97" 
+                  fill="#7b4a97" 
                   fillOpacity={0.5} 
                 />
                 <Legend wrapperStyle={{ fontSize: '12px', marginTop: '5px' }} />

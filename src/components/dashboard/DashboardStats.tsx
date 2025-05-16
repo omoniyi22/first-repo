@@ -14,7 +14,7 @@ const DashboardStats = () => {
       change: '+2.4%',
       positive: true,
       icon: <TrendingUp className="h-5 w-5 text-white" />,
-      gradient: 'bg-gradient-to-r from-pink-500 to-pink-400',
+      gradient: 'bg-gradient-to-r from-[#8a55a9] to-[#6b3987]', // AI Dressage gradient
     },
     {
       title: language === 'en' ? 'Tests Analyzed' : 'Pruebas Analizadas',
@@ -22,7 +22,7 @@ const DashboardStats = () => {
       change: '+3',
       positive: true,
       icon: <FileText className="h-5 w-5 text-white" />,
-      gradient: 'bg-gradient-to-r from-purple-500 to-purple-400',
+      gradient: 'bg-gradient-to-r from-[#7b4a97] to-[#6e3bab]', // Purple gradient
     },
     {
       title: language === 'en' ? 'Strongest Movement' : 'Movimiento Más Fuerte',
@@ -31,7 +31,7 @@ const DashboardStats = () => {
       change: '',
       positive: true,
       icon: <Award className="h-5 w-5 text-white" />,
-      gradient: 'bg-gradient-to-r from-cyan-500 to-cyan-400',
+      gradient: 'bg-gradient-to-r from-[#5a7db7] to-[#3a5d97]', // AI Jump gradient
     },
     {
       title: language === 'en' ? 'Focus Area' : 'Área de Enfoque',
@@ -39,8 +39,8 @@ const DashboardStats = () => {
       subValue: language === 'en' ? 'Transitions' : 'Transiciones',
       change: '',
       positive: false,
-      icon: <Star className="h-5 w-5 text-amber-500" />,
-      gradient: 'bg-gradient-to-r from-amber-500 to-amber-400',
+      icon: <Star className="h-5 w-5 text-white" />,
+      gradient: 'bg-gradient-to-r from-[#4a6da7] to-[#3a5d97]', // Blue gradient
     },
   ];
 
