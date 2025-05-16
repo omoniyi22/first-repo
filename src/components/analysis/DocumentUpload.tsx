@@ -11,7 +11,15 @@ import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { Card } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
-import { uploadOptimizedImage } from '@/lib/storage';
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
 import {
   Select,
   SelectContent,
@@ -27,7 +35,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Calendar as CalendarIcon, Upload, File, X } from 'lucide-react';
+import { Calendar as CalendarIcon, Upload, File, X, Loader2 } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import {
   Popover,
@@ -39,6 +47,8 @@ import { format } from 'date-fns';
 import { dressageLevels } from '@/lib/formOptions';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { fetchPdfAsBase64 } from '@/utils/pdfUtils';
+import { imageToBase64PDF } from '@/utils/img2pdf';
 
 const DocumentUploadFormSchema = z.object({
   discipline: z.enum(['dressage', 'jumping']),
@@ -72,7 +82,10 @@ const mockHorses = [
   { id: 'horse3', name: 'Storm' }
 ];
 
-const DocumentUpload = () => {
+interface DocumentUploadProps {
+  fetchDocs?: () => void;
+}
+const DocumentUpload = ({fetchDocs}: DocumentUploadProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const { language, translations } = useLanguage();
@@ -82,7 +95,10 @@ const DocumentUpload = () => {
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [horses, setHorses] = useState<any[]>([]);
-  
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [newDocumentId, setNewDocumentId] = useState<string | null>(null);
+  const [base64Image, setBase64Image] = useState<any>('');
+  const [isShowSpinner, setIsShowSpinner] = useState<boolean>(false);
   const form = useForm<DocumentUploadFormValues>({
     resolver: zodResolver(DocumentUploadFormSchema),
     defaultValues: {
@@ -126,15 +142,16 @@ const DocumentUpload = () => {
       if (
         fileType === 'application/pdf' || 
         fileType === 'image/jpeg' || 
-        fileType === 'image/png'
+        fileType === 'image/png' ||
+        fileType === 'image/webp'
       ) {
         setSelectedFile(file);
       } else {
         toast({
           title: language === 'en' ? "Invalid file type" : "Tipo de archivo no válido",
           description: language === 'en' 
-            ? "Please upload a PDF, JPG, or PNG file." 
-            : "Por favor sube un archivo PDF, JPG o PNG.",
+            ? "Please upload a PDF, JPG, Webp or PNG file." 
+            : "Por favor sube un archivo PDF, JPG, Webp o PNG.",
           variant: "destructive"
         });
       }
@@ -185,7 +202,9 @@ const DocumentUpload = () => {
           cacheControl: '3600',
           upsert: false
         });
-      
+        
+      console.log(supabase.storage.from('analysis'));
+      console.log("I called",uploadError);
       if (uploadError) {
         throw new Error(uploadError.message);
       }
@@ -196,7 +215,6 @@ const DocumentUpload = () => {
       const { data: publicUrlData } = supabase.storage
         .from('analysis')
         .getPublicUrl(filePath);
-      
       // Insert document metadata into the database
       const { data: documentData, error: documentError } = await supabase
         .from('document_analysis')
@@ -219,27 +237,23 @@ const DocumentUpload = () => {
       if (documentError) {
         throw new Error(documentError.message);
       }
-      
-      setUploadProgress(90);
-      
-      // Trigger document analysis processing (if you have a backend function for this)
-      try {
-        await supabase.functions.invoke('process-document-analysis', {
-          body: { documentId: documentData[0].id }
-        });
-      } catch (processingError) {
-        console.warn('Processing may happen asynchronously:', processingError);
-        // Don't fail the upload if processing fails, it can be retried later
-      }
-      
+      // toast({
+      //   title: language === 'en' ? "Document uploaded successfully" : "Documento subido con éxito",
+      //   description: language === 'en' 
+      //     ? "Your document will be analyzed shortly." 
+      //     : "Tu documento será analizado en breve.",
+      // });
+
       setUploadProgress(100);
+      fetchDocs();
       
-      toast({
-        title: language === 'en' ? "Document uploaded successfully" : "Documento subido con éxito",
-        description: language === 'en' 
-          ? "Your document will be analyzed shortly." 
-          : "Tu documento será analizado en breve.",
-      });
+      const canvasImage = publicUrlData.publicUrl.includes('.pdf')
+        ? await fetchPdfAsBase64(publicUrlData.publicUrl)
+        : await imageToBase64PDF(publicUrlData.publicUrl);
+      console.log("pdfbase64", canvasImage);
+      setBase64Image(canvasImage);
+      setNewDocumentId(documentData[0].id);
+      setShowConfirmModal(true);
       
       // Reset form and states
       form.reset({
@@ -294,7 +308,7 @@ const DocumentUpload = () => {
                 id="document-upload"
                 type="file"
                 onChange={handleFileChange}
-                accept=".pdf,.jpg,.jpeg,.png"
+                accept=".pdf,.jpg,.jpeg,.png,.webp"
                 className="hidden"
               />
             </div>
@@ -519,6 +533,60 @@ const DocumentUpload = () => {
           </div>
         </form>
       </Form>
+      <Dialog open={showConfirmModal} onOpenChange={setShowConfirmModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {language === 'en' ? 'Proceed with AI analysis?' : '¿Continuar con análisis de IA?'}
+            </DialogTitle>
+            <DialogDescription>
+              {language === 'en'
+                ? 'Your document was uploaded. Would you like to proceed with AI analysis now?'
+                : 'Tu documento fue subido. ¿Quieres continuar con el análisis de IA ahora?'}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex justify-end gap-2">
+            <Button variant="ghost" onClick={() => setShowConfirmModal(false)}>
+              {language === 'en' ? 'Cancel' : 'Cancelar'}
+            </Button>
+            <Button
+              onClick={async () => {
+                setShowConfirmModal(false);
+                setIsShowSpinner(true);
+                try {
+                  await supabase.functions.invoke('process-document-analysis', {
+                    body: { documentId: newDocumentId, base64Image: base64Image },
+                  });
+
+                  toast({
+                    title:
+                      language === 'en'
+                        ? 'Document is analyzed successfully'
+                        : 'Documento analizado con éxito',
+                    description:
+                      language === 'en'
+                        ? 'Your document is being analyzed.'
+                        : 'Tu documento está siendo analizado.',
+                  });
+                  fetchDocs();
+                  setIsShowSpinner(false);
+                } catch (err) {
+                  console.warn('Processing failed:', err);
+                  setIsShowSpinner(false);
+                }
+              }}
+              className={discipline === 'dressage' ? 'bg-purple-700 hover:bg-purple-800' : 'bg-blue-600 hover:bg-blue-700'}
+            >
+              {language === 'en' ? 'Yes, analyze' : 'Sí, analizar'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      {isShowSpinner && (
+        <div className="fixed top-0 right-0 w-screen h-full flex justify-center items-center p-12">
+          <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        </div>
+      )}
     </Card>
   );
 };
