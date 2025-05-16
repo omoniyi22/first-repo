@@ -34,7 +34,7 @@ interface AnalysisResultData {
   strengths?: string[];
   weaknesses?: string[];
   recommendations?: string[];
-  generalComments?: object;
+  judgeComments?: string;
   faults?: JumpingFault[];
   courseTime?: number;
   optimumTime?: number;
@@ -126,7 +126,6 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({ docum
               .eq('document_id', documentId)
               .single();
               
-              console.log("I called", resultData);
             if (resultError) {
               console.warn('Could not fetch analysis results:', resultError);
               // For now, fall back to mock data if no results are available
@@ -225,7 +224,7 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({ docum
         <h3 className="text-xl sm:text-2xl font-semibold mb-2 sm:mb-4">
           {language === 'en' ? 'Analysis Results' : 'Resultados del Análisis'}
         </h3>
-        {resultData.totalScore || resultData.percentage ? (
+        {resultData.totalScore && resultData.percentage ? (
           <p className="text-lg">
             {language === 'en' ? 'Total Score:' : 'Puntuación Total:'} <span className="font-semibold">{resultData.totalScore}</span> (<span className="font-semibold">{resultData.percentage}%</span>)
           </p>
@@ -253,21 +252,9 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({ docum
                 {resultData.scores.map((score, index) => (
                   <tr key={index} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
                     <td className="py-2 px-3 text-sm">{score.movement}</td>
-                    <td className="py-2 px-3 text-sm"> 
-                      {Object.entries(score)
-                        .filter(([key]) => key.startsWith('judge'))
-                        .map(([key, value]) => (
-                          <div key={key}>{key.replace('judge', '')}: {value || "-"}</div>
-                        ))}
-                    </td>
+                    <td className="py-2 px-3 text-sm">{score.score}</td>
                     <td className="py-2 px-3 text-sm">{score.maxScore}</td>
-                    <td className="py-2 px-3 text-sm">
-                      {Object.entries(score)
-                        .filter(([key]) => key.startsWith('comment'))
-                        .map(([key, value]) => (
-                          <div key={key}>{key.replace('comment', '')}: {value || '-'}</div>
-                        ))}
-                    </td>
+                    <td className="py-2 px-3 text-sm">{score.comment || '-'}</td>
                   </tr>
                 ))}
               </tbody>
@@ -307,128 +294,135 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({ docum
       )}
 
       {/* Display sections conditionally with improved spacing and responsive design */}
+      {resultData.comments && resultData.comments.length > 0 && (
         <Card className="p-4 sm:p-6">
           <h4 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
             {language === 'en' ? 'Comments' : 'Comentarios'}
           </h4>
           <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
-            {resultData?.comments?.map((comment, index) => (
+            {resultData.comments.map((comment, index) => (
               <li key={index} className="text-sm sm:text-base">{comment}</li>
-            )) || "No Comments!"}
+            ))}
           </ul>
         </Card>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-        <Card className="p-4 sm:p-6">
-          <h4 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
-            {language === 'en' ? 'Strengths' : 'Fortalezas'}
-          </h4>
-          <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
-            {resultData?.strengths?.map((strength, index) => (
-              <li key={index} className="text-sm sm:text-base">{strength}</li>
-            ))}
-          </ul>
-        </Card>
+        {resultData.strengths && resultData.strengths.length > 0 && (
+          <Card className="p-4 sm:p-6">
+            <h4 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
+              {language === 'en' ? 'Strengths' : 'Fortalezas'}
+            </h4>
+            <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
+              {resultData.strengths.map((strength, index) => (
+                <li key={index} className="text-sm sm:text-base">{strength}</li>
+              ))}
+            </ul>
+          </Card>
+        )}
 
-        <Card className="p-4 sm:p-6">
-          <h4 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
-            {language === 'en' ? 'Weaknesses' : 'Debilidades'}
-          </h4>
-          <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
-            {resultData?.weaknesses?.map((weakness, index) => (
-              <li key={index} className="text-sm sm:text-base">{weakness}</li>
-            ))}
-          </ul>
-        </Card>
+        {resultData.weaknesses && resultData.weaknesses.length > 0 && (
+          <Card className="p-4 sm:p-6">
+            <h4 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
+              {language === 'en' ? 'Weaknesses' : 'Debilidades'}
+            </h4>
+            <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
+              {resultData.weaknesses.map((weakness, index) => (
+                <li key={index} className="text-sm sm:text-base">{weakness}</li>
+              ))}
+            </ul>
+          </Card>
+        )}
       </div>
 
-      <Card className="p-4 sm:p-6">
-        <h4 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
-          {language === 'en' ? 'Recommendations' : 'Recomendaciones'}
-        </h4>
-        <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
-          {resultData?.recommendations?.map((recommendation, index) => (
-            <li key={index} className="text-sm sm:text-base">{recommendation}</li>
-          )) || "No Recommendations!"}
-        </ul>
-      </Card>
-
-      <Card className="p-4 sm:p-6">
-        <h4 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
-          {language === 'en' ? 'Judge Comments' : 'Comentarios del Juez'}
-        </h4>
-        <ul className="text-sm sm:text-base">
-            {Object.entries(resultData.generalComments)
-            .filter(([_, comment]) => !!comment && comment.trim() !== '')
-            .map(([judge, comment], index) => (
-              <li key={index} className="text-sm sm:text-base">
-                <strong>{judge.replace('judge', '')}:</strong> {comment}
-              </li>
+      {resultData.recommendations && resultData.recommendations.length > 0 && (
+        <Card className="p-4 sm:p-6">
+          <h4 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
+            {language === 'en' ? 'Recommendations' : 'Recomendaciones'}
+          </h4>
+          <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
+            {resultData.recommendations.map((recommendation, index) => (
+              <li key={index} className="text-sm sm:text-base">{recommendation}</li>
             ))}
-        </ul>
-      </Card>
+          </ul>
+        </Card>
+      )}
 
-      <Card className="p-4 sm:p-6">
-        <h4 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
-          {language === 'en' ? 'Time Analysis' : 'Análisis de Tiempo'}
-        </h4>
-        {!!resultData.courseTime ? (
-          <p className="text-sm sm:text-base mb-2">
-            {language === 'en' ? 'Course Time:' : 'Tiempo del Curso:'} <span className="font-medium">{resultData.courseTime}</span>
-          </p>
-        ) : (
-          <p className="text-sm sm:text-base mb-2">{language === 'en' ? 'Course Time:' : 'Tiempo del Curso:'} <span>-</span></p>
-        )}
-        {!!resultData.optimumTime ? (
-          <p className="text-sm sm:text-base mb-2">
-            {language === 'en' ? 'Optimum Time:' : 'Tiempo Óptimo:'} <span className="font-medium">{resultData.optimumTime}</span>
-          </p>
-        ): (
-          <p className="text-sm sm:text-base mb-2">{language === 'en' ? 'Optimum Time:' : 'Tiempo Óptimo:'} <span>-</span></p>
-        )}
-        {!!resultData.timePenalties ? (
-          <p className="text-sm sm:text-base">
-            {language === 'en' ? 'Time Penalties:' : 'Penalizaciones de Tiempo:'} <span className="font-medium">{resultData.timePenalties}</span>
-          </p>
-        ): (
-          <p className="text-sm sm:text-base">{language === 'en' ? 'Time Penalties:' : 'Penalizaciones de Tiempo:'} -</p>
-        )}
-      </Card>
+      {resultData.judgeComments && (
+        <Card className="p-4 sm:p-6">
+          <h4 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
+            {language === 'en' ? 'Judge Comments' : 'Comentarios del Juez'}
+          </h4>
+          <p className="text-sm sm:text-base">{resultData.judgeComments}</p>
+        </Card>
+      )}
 
-      <Card className="p-4 sm:p-6">
-        <h4 className="text-lg sm:text-xl font-semibold mb-3">
-          {language === 'en' ? 'Total Faults' : 'Faltas Totales'}
-        </h4>
-        <p className="text-xl font-bold">{resultData?.totalFaults || 0}</p>
-      </Card>
+      {(resultData.courseTime || resultData.optimumTime) && (
+        <Card className="p-4 sm:p-6">
+          <h4 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
+            {language === 'en' ? 'Time Analysis' : 'Análisis de Tiempo'}
+          </h4>
+          {resultData.courseTime && (
+            <p className="text-sm sm:text-base mb-2">
+              {language === 'en' ? 'Course Time:' : 'Tiempo del Curso:'} <span className="font-medium">{resultData.courseTime}</span>
+            </p>
+          )}
+          {resultData.optimumTime && (
+            <p className="text-sm sm:text-base mb-2">
+              {language === 'en' ? 'Optimum Time:' : 'Tiempo Óptimo:'} <span className="font-medium">{resultData.optimumTime}</span>
+            </p>
+          )}
+          {resultData.timePenalties && (
+            <p className="text-sm sm:text-base">
+              {language === 'en' ? 'Time Penalties:' : 'Penalizaciones de Tiempo:'} <span className="font-medium">{resultData.timePenalties}</span>
+            </p>
+          )}
+        </Card>
+      )}
 
-      <Card className="p-4 sm:p-6">
-        <h4 className="text-lg sm:text-xl font-semibold mb-3">
-          {language === 'en' ? 'Placing' : 'Colocación'}
-        </h4>
-        <p className="text-xl font-bold">{resultData?.placing || "-"}</p>
-      </Card>
+      {resultData.totalFaults !== undefined && (
+        <Card className="p-4 sm:p-6">
+          <h4 className="text-lg sm:text-xl font-semibold mb-3">
+            {language === 'en' ? 'Total Faults' : 'Faltas Totales'}
+          </h4>
+          <p className="text-xl font-bold">{resultData.totalFaults}</p>
+        </Card>
+      )}
 
-      <Card className="p-4 sm:p-6">
-        <h4 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
-          {language === 'en' ? 'Jump Types' : 'Tipos de Salto'}
-        </h4>
-        <div className="flex flex-wrap gap-2">
-          {resultData?.jumpTypes?.map((type, index) => (
-            <Badge key={index} variant="outline" className="text-sm bg-blue-50 text-blue-700 border-blue-200">{type}</Badge>
-          ))}
-        </div>
-      </Card>
-      <Card className="p-4 sm:p-6">
-        <h4 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
-          {language === 'en' ? 'Common Errors' : 'Errores Comunes'}
-        </h4>
-        <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
-          {resultData?.commonErrors?.map((error, index) => (
-            <li key={index} className="text-sm sm:text-base">{error}</li>
-          ))}
-        </ul>
-      </Card>
+      {resultData.placing && (
+        <Card className="p-4 sm:p-6">
+          <h4 className="text-lg sm:text-xl font-semibold mb-3">
+            {language === 'en' ? 'Placing' : 'Colocación'}
+          </h4>
+          <p className="text-xl font-bold">{resultData.placing}</p>
+        </Card>
+      )}
+
+      {resultData.jumpTypes && resultData.jumpTypes.length > 0 && (
+        <Card className="p-4 sm:p-6">
+          <h4 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
+            {language === 'en' ? 'Jump Types' : 'Tipos de Salto'}
+          </h4>
+          <div className="flex flex-wrap gap-2">
+            {resultData.jumpTypes.map((type, index) => (
+              <Badge key={index} variant="outline" className="text-sm bg-blue-50 text-blue-700 border-blue-200">{type}</Badge>
+            ))}
+          </div>
+        </Card>
+      )}
+
+      {resultData.commonErrors && resultData.commonErrors.length > 0 && (
+        <Card className="p-4 sm:p-6">
+          <h4 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
+            {language === 'en' ? 'Common Errors' : 'Errores Comunes'}
+          </h4>
+          <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
+            {resultData.commonErrors.map((error, index) => (
+              <li key={index} className="text-sm sm:text-base">{error}</li>
+            ))}
+          </ul>
+        </Card>
+      )}
     </div>
   );
 };

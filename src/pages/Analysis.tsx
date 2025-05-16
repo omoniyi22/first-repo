@@ -15,8 +15,6 @@ import DocumentAnalysisDisplay from '@/components/analysis/DocumentAnalysisDispl
 import VideoUpload from '@/components/analysis/VideoUpload';
 import VideoAnalysisDisplay from '@/components/analysis/VideoAnalysisDisplay';
 import { supabase } from '@/integrations/supabase/client';
-import { fetchPdfAsBase64 } from '@/utils/pdfUtils';
-import { imageToBase64PDF } from '@/utils/img2pdf';
 
 interface DocumentAnalysisItem {
   id: string;
@@ -40,26 +38,14 @@ const Analysis = () => {
   const navigate = useNavigate();
   const { language, translations } = useLanguage();
   const t = translations[language];
-  const buttonText = {
-    en: {
-      pending: "Analyze Now",
-      processing: "Re-analyze",
-      completed: "View Analysis"
-    },
-    es: {
-      pending: "Analizar Ahora",
-      processing: "Re-analizar",
-      completed: "Ver Análisis"
-    }
-  };
+  
   const [activeTab, setActiveTab] = useState<string>('document-upload');
   const [documents, setDocuments] = useState<DocumentAnalysisItem[]>([]);
   const [videos, setVideos] = useState<DocumentAnalysisItem[]>([]);
   const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(null);
   const [selectedVideoId, setSelectedVideoId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isSpinnerLoading, setIsSpinnerLoading] = useState<boolean>(false);
-
+  
   useEffect(() => {
     // Redirect to login if not authenticated
     if (!user) {
@@ -110,66 +96,12 @@ const Analysis = () => {
     fetchUserData();
   }, [user, navigate, language]);
   
-  const fetchDocs = async () => {
-    const { data: analysisData, error } = await supabase
-      .from('document_analysis')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false });
-    if (analysisData) {
-      // Filter documents (PDFs, text files, etc.) and videos
-      const docs = analysisData.filter(item => 
-        !item.file_type.startsWith('video/') && 
-        !item.video_type
-      );
-      const vids = analysisData.filter(item => 
-        item.file_type.startsWith('video/') || 
-        item.video_type
-      );
-      
-      setDocuments(docs);
-      setVideos(vids);
-    }
-  }
-  const analysisDocument = async(newDocumentId, documentURL) => {
-    setIsSpinnerLoading(true);
-    const canvasImage = documentURL.includes('.pdf')
-        ? await fetchPdfAsBase64(documentURL)
-        : await imageToBase64PDF(documentURL);
-    try {
-      await supabase.functions.invoke('process-document-analysis', {
-        body: { documentId: newDocumentId, base64Image: canvasImage },
-      });
-
-      toast({
-        title:
-          language === 'en'
-            ? 'Document is analyzed successfully'
-            : 'Documento analizado con éxito',
-        description:
-          language === 'en'
-            ? 'Your document is being analyzed.'
-            : 'Tu documento está siendo analizado.',
-      });
-      fetchDocs();
-      setIsSpinnerLoading(false);
-    } catch (err) {
-      setIsSpinnerLoading(false);
-      console.warn('Processing failed:', err);
-    }
-  };
   // Helper function to format dates
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString();
   };
-  if (isSpinnerLoading) {
-    return (
-      <div className="fixed w-screen flex items-center justify-center p-8 h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-purple-700" />
-      </div>
-    );
-  }
+  
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -196,7 +128,7 @@ const Analysis = () => {
             </TabsList>
             
             <TabsContent value="document-upload">
-              <DocumentUpload fetchDocs={fetchDocs}/>
+              <DocumentUpload />
             </TabsContent>
             
             <TabsContent value="document-list">
@@ -284,14 +216,11 @@ const Analysis = () => {
                                   <Button
                                     size="sm"
                                     variant="outline"
-                                    onClick={() => {
-                                      doc.status == 'completed'
-                                        ? setSelectedDocumentId(doc.id)
-                                        : analysisDocument(doc.id, doc.document_url)
-                                    }}
+                                    onClick={() => setSelectedDocumentId(doc.id)}
+                                    disabled={doc.status !== 'completed'}
                                     className={doc.discipline === 'dressage' ? 'text-purple-700 border-purple-200' : 'text-blue-700 border-blue-200'}
                                   >
-                                    {buttonText[language][doc.status]}
+                                    {language === 'en' ? "View Analysis" : "Ver Análisis"}
                                   </Button>
                                 </td>
                               </tr>
