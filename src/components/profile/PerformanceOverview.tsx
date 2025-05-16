@@ -50,7 +50,7 @@ const PerformanceOverview = () => {
       change: '+2.4%',
       positive: true,
       icon: <TrendingUp className="h-6 w-6 text-white" />,
-      gradient: 'bg-gradient-to-r from-[#8a55a9] to-[#6b3987]', // AI Dressage gradient
+      gradient: 'bg-gradient-to-r from-[#a28bfb] to-[#7759eb]', // AI Dressage gradient
     },
     {
       title: 'Tests Analyzed',
@@ -58,7 +58,7 @@ const PerformanceOverview = () => {
       change: '+3',
       positive: true,
       icon: <FileText className="h-6 w-6 text-white" />,
-      gradient: 'bg-gradient-to-r from-[#5a7db7] to-[#3a5d97]', // AI Jump gradient
+      gradient: 'bg-gradient-to-r from-[#5e92fa] to-[#3d78ec]', // AI Jump gradient
     },
     {
       title: 'Strongest Movement',
@@ -67,7 +67,7 @@ const PerformanceOverview = () => {
       change: '',
       positive: true,
       icon: <Award className="h-6 w-6 text-white" />,
-      gradient: 'bg-gradient-to-r from-[#7b4a97] to-[#6e3bab]', // Purple gradient
+      gradient: 'bg-gradient-to-r from-[#f57cb5] to-[#d80669]', // Purple gradient
     },
     {
       title: 'Focus Area',
@@ -76,7 +76,7 @@ const PerformanceOverview = () => {
       change: '',
       positive: false,
       icon: <Star className="h-6 w-6 text-white" />,
-      gradient: 'bg-gradient-to-r from-[#4a6da7] to-[#3a5d97]', // Blue gradient
+      gradient: 'bg-gradient-to-r from-[#ffd565] to-[#ff831d]', // Blue gradient
     },
   ];
 
@@ -141,8 +141,8 @@ const PerformanceOverview = () => {
                 >
                   <defs>
                     <linearGradient id="scoreGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#7b4a97" stopOpacity={0.8}/>
-                      <stop offset="95%" stopColor="#7b4a97" stopOpacity={0.1}/>
+                      <stop offset="5%" stopColor="#7658eb" stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor="#7658eb" stopOpacity={0.1}/>
                     </linearGradient>
                   </defs>
                   <XAxis 
@@ -192,8 +192,8 @@ const PerformanceOverview = () => {
                 <Radar 
                   name="Scores" 
                   dataKey="score" 
-                  stroke="#7b4a97" 
-                  fill="#7b4a97" 
+                  stroke="#7658eb" 
+                  fill="#7658eb" 
                   fillOpacity={0.5} 
                 />
                 <Legend wrapperStyle={{ fontSize: '12px', marginTop: '5px' }} />
