@@ -42,21 +42,23 @@ const PerformanceOverview = () => {
     { movement: 'Rider Position', score: 7.3, fullMark: 10 },
   ];
 
-  // Example statistics data with icons
+  // Example statistics data with icons and gradient classes
   const stats = [
     {
       title: 'Average Score',
       value: '64.8%',
       change: '+2.4%',
       positive: true,
-      icon: <TrendingUp className="h-6 w-6 text-purple-600" />,
+      icon: <TrendingUp className="h-6 w-6 text-white" />,
+      gradient: 'bg-gradient-to-r from-pink-500 to-pink-400',
     },
     {
       title: 'Tests Analyzed',
       value: '12',
       change: '+3',
       positive: true,
-      icon: <FileText className="h-6 w-6 text-blue-600" />,
+      icon: <FileText className="h-6 w-6 text-white" />,
+      gradient: 'bg-gradient-to-r from-purple-500 to-purple-400',
     },
     {
       title: 'Strongest Movement',
@@ -64,7 +66,8 @@ const PerformanceOverview = () => {
       subValue: 'Extended',
       change: '',
       positive: true,
-      icon: <Award className="h-6 w-6 text-green-600" />,
+      icon: <Award className="h-6 w-6 text-white" />,
+      gradient: 'bg-gradient-to-r from-cyan-500 to-cyan-400',
     },
     {
       title: 'Focus Area',
@@ -72,7 +75,8 @@ const PerformanceOverview = () => {
       subValue: 'Transitions',
       change: '',
       positive: false,
-      icon: <Star className="h-6 w-6 text-amber-600" />,
+      icon: <Star className="h-6 w-6 text-white" />,
+      gradient: 'bg-gradient-to-r from-amber-500 to-amber-400',
     },
   ];
 
@@ -87,29 +91,32 @@ const PerformanceOverview = () => {
       </h2>
       
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        {/* Stats Cards */}
+        {/* Stats Cards with Gradient Backgrounds */}
         {stats.map((stat, index) => (
-          <Card key={index} className="p-6 border border-gray-100 hover:border-blue-300 transition-all duration-200">
-            <CardContent className="p-0">
+          <Card 
+            key={index} 
+            className={`border-none shadow-md hover:shadow-lg transition-all duration-200 ${stat.gradient}`}
+          >
+            <CardContent className="p-6">
               <div className="flex justify-between items-start">
-                <h3 className="text-sm font-medium text-gray-600">
+                <h3 className="text-sm font-medium text-white">
                   {stat.title}
                 </h3>
                 {stat.icon}
               </div>
               <div className="mt-4 flex justify-between items-end">
                 <div>
-                  <p className="text-3xl font-semibold text-gray-900">
+                  <p className="text-3xl font-semibold text-white">
                     {stat.value}
                   </p>
                   {stat.subValue && (
-                    <p className="text-sm text-gray-700">
+                    <p className="text-sm text-white/90">
                       {stat.subValue}
                     </p>
                   )}
                 </div>
                 {stat.change && (
-                  <div className={`px-2 py-1 rounded-full text-sm ${stat.positive ? 'text-green-700 bg-green-50' : 'text-amber-700 bg-amber-50'} flex items-center`}>
+                  <div className="px-2 py-1 rounded-full text-sm text-white bg-white/20 flex items-center">
                     {stat.positive && <ArrowUp className="h-3 w-3 mr-1" />}
                     {stat.change}
                   </div>

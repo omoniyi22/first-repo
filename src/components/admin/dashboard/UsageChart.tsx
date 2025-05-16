@@ -24,6 +24,16 @@ const UsageChart = () => {
             bottom: 5,
           }}
         >
+          <defs>
+            <linearGradient id="dressageGradient" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="5%" stopColor="#7b4a97" stopOpacity={1}/>
+              <stop offset="95%" stopColor="#9b87f5" stopOpacity={1}/>
+            </linearGradient>
+            <linearGradient id="jumpingGradient" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="5%" stopColor="#4a6da7" stopOpacity={1}/>
+              <stop offset="95%" stopColor="#5a7db7" stopOpacity={1}/>
+            </linearGradient>
+          </defs>
           <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
           <XAxis 
             dataKey="name" 
@@ -43,7 +53,7 @@ const UsageChart = () => {
             type="monotone" 
             dataKey="dressage" 
             name="Dressage" 
-            stroke="#7b4a97" 
+            stroke="url(#dressageGradient)" 
             strokeWidth={2} 
             activeDot={{ r: 6 }} 
           />
@@ -51,7 +61,7 @@ const UsageChart = () => {
             type="monotone" 
             dataKey="jumping" 
             name="Jumping" 
-            stroke="#4a6da7" 
+            stroke="url(#jumpingGradient)" 
             strokeWidth={2}
             activeDot={{ r: 6 }} 
           />
