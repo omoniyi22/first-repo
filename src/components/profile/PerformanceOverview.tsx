@@ -126,7 +126,7 @@ const PerformanceOverview = () => {
         <Card className="p-4 border border-gray-100">
           <h3 className="text-lg font-medium text-gray-900 mb-2">Score Trend</h3>
           <div className="h-80 w-full">
-            <ChartContainer config={chartConfig}>
+            <ChartContainer config={chartConfig} className='max-h-full h-full max-w-full w-full' >
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart
                   data={scoreTrendData}
