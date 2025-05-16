@@ -122,12 +122,12 @@ const PerformanceOverview = () => {
 
       {/* Charts Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-        {/* Score Trend Chart */}
+        {/* Score Trend Chart - Removed style with overflow and maxWidth */}
         <Card className="p-4 border border-gray-100">
           <h3 className="text-lg font-medium text-gray-900 mb-2">Score Trend</h3>
-          <div className="h-64 w-full" style={{ maxWidth: '100%', overflowX: 'hidden' }}>
+          <div className="h-64 w-full">
             <ChartContainer config={chartConfig}>
-              <ResponsiveContainer width="99%" height="100%">
+              <ResponsiveContainer width="100%" height="100%">
                 <AreaChart
                   data={scoreTrendData}
                   margin={{ top: 5, right: 5, left: 0, bottom: 5 }}
@@ -166,11 +166,11 @@ const PerformanceOverview = () => {
           </div>
         </Card>
 
-        {/* Movement Radar Chart */}
+        {/* Movement Radar Chart - Also update this chart to be consistent */}
         <Card className="p-4 border border-gray-100">
           <h3 className="text-lg font-medium text-gray-900 mb-2">Movement Scores</h3>
-          <div className="h-64 w-full" style={{ maxWidth: '100%', overflowX: 'hidden' }}>
-            <ResponsiveContainer width="99%" height="100%">
+          <div className="h-64 w-full">
+            <ResponsiveContainer width="100%" height="100%">
               <RadarChart outerRadius="70%" data={movementData}>
                 <PolarGrid gridType="polygon" />
                 <PolarAngleAxis 

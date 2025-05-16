@@ -13,8 +13,8 @@ const UsageChart = () => {
   ];
 
   return (
-    <div className="h-[300px] w-full" style={{ maxWidth: '100%', overflowX: 'hidden' }}>
-      <ResponsiveContainer width="99%" height="100%">
+    <div className="h-[300px] w-full">
+      <ResponsiveContainer width="100%" height="100%">
         <LineChart
           data={data}
           margin={{
