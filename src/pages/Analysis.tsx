@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -17,6 +16,7 @@ import VideoAnalysisDisplay from '@/components/analysis/VideoAnalysisDisplay';
 import { supabase } from '@/integrations/supabase/client';
 import { fetchPdfAsBase64 } from '@/utils/pdfUtils';
 import { imageToBase64PDF } from '@/utils/img2pdf';
+import { useViewport } from '@/hooks/use-viewport';
 
 interface DocumentAnalysisItem {
   id: string;
@@ -40,6 +40,8 @@ const Analysis = () => {
   const navigate = useNavigate();
   const { language, translations } = useLanguage();
   const t = translations[language];
+  const { isMobile } = useViewport();
+  
   const buttonText = {
     en: {
       pending: "Analyze Now",
@@ -180,17 +182,17 @@ const Analysis = () => {
           </h1>
           
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="mb-6 grid grid-cols-4 md:grid-cols-4 w-full">
-              <TabsTrigger value="document-upload">
+            <TabsList className={`mb-6 ${isMobile ? 'flex flex-wrap gap-1' : 'grid grid-cols-4'} w-full`}>
+              <TabsTrigger value="document-upload" className={`${isMobile ? 'flex-grow text-xs py-1 px-2' : ''}`}>
                 {language === 'en' ? "Upload Document" : "Subir Documento"}
               </TabsTrigger>
-              <TabsTrigger value="document-list">
+              <TabsTrigger value="document-list" className={`${isMobile ? 'flex-grow text-xs py-1 px-2' : ''}`}>
                 {language === 'en' ? "My Documents" : "Mis Documentos"} ({documents.length})
               </TabsTrigger>
-              <TabsTrigger value="video-upload">
+              <TabsTrigger value="video-upload" className={`${isMobile ? 'flex-grow text-xs py-1 px-2' : ''}`}>
                 {language === 'en' ? "Upload Video" : "Subir Video"}
               </TabsTrigger>
-              <TabsTrigger value="video-list">
+              <TabsTrigger value="video-list" className={`${isMobile ? 'flex-grow text-xs py-1 px-2' : ''}`}>
                 {language === 'en' ? "My Videos" : "Mis Videos"} ({videos.length})
               </TabsTrigger>
             </TabsList>
