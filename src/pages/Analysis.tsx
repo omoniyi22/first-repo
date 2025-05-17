@@ -143,16 +143,17 @@ const Analysis = () => {
         body: { documentId: newDocumentId, base64Image: canvasImage },
       });
 
-      toast({
-        title:
-          language === 'en'
-            ? 'Document is analyzed successfully'
-            : 'Documento analizado con éxito',
-        description:
-          language === 'en'
-            ? 'Your document is being analyzed.'
-            : 'Tu documento está siendo analizado.',
-      });
+      toast(
+        language === 'en'
+          ? 'Document is analyzed successfully'
+          : 'Documento analizado con éxito',
+        {
+          description:
+            language === 'en'
+              ? 'Your document is being analyzed.'
+              : 'Tu documento está siendo analizado.',
+        }
+      );
       fetchDocs();
       setIsSpinnerLoading(false);
     } catch (err) {
