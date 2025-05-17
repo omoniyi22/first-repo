@@ -261,10 +261,10 @@ const MediaSelector = ({ value, onChange, onImageSelect }: MediaSelectorProps) =
   const formatDate = (dateString: string): string => {
     try {
       const date = new Date(dateString);
-      return date.toLocaleDateString('en-US', { 
-        year: 'numeric', 
-        month: 'short', 
-        day: 'numeric',
+      return date.toLocaleDateString('en-GB', { 
+        year: '2-digit', 
+        month: '2-digit', 
+        day: '2-digit',
         hour: '2-digit',
         minute: '2-digit'
       });

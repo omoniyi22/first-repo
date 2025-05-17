@@ -70,10 +70,10 @@ const FeaturedPost = ({ post }: FeaturedPostProps) => {
               {localizedCategory}
             </span>
             <span className="ml-3 text-sm text-gray-500">
-              {new Date(post.date).toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "short",
-                day: "numeric",
+              {new Date(post.date).toLocaleDateString("en-GB", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "2-digit",
               })}
             </span>
           </div>

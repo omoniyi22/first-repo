@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,7 +10,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { BlogPost } from "@/data/blogPosts";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -29,7 +35,13 @@ const formSchema = z.object({
   content: z.string().optional(),
   author: z.string().min(1, "Author is required"),
   discipline: z.enum(["Jumping", "Dressage"]),
-  category: z.enum(["Technology", "Analytics", "Training", "Guides", "Competition"]),
+  category: z.enum([
+    "Technology",
+    "Analytics",
+    "Training",
+    "Guides",
+    "Competition",
+  ]),
   slug: z.string().min(1, "Slug is required"),
   image: z.string().min(1, "Image URL is required"),
 });
@@ -45,7 +57,12 @@ const BlogPostForm = ({ post, onSave, onCancel }: BlogPostFormProps) => {
       content: "",
       author: "",
       discipline: "Jumping" as "Jumping" | "Dressage",
-      category: "Technology" as "Technology" | "Analytics" | "Training" | "Guides" | "Competition",
+      category: "Technology" as
+        | "Technology"
+        | "Analytics"
+        | "Training"
+        | "Guides"
+        | "Competition",
       slug: "",
       image: "/placeholder.svg",
     },
@@ -72,21 +89,23 @@ const BlogPostForm = ({ post, onSave, onCancel }: BlogPostFormProps) => {
     setIsSubmitting(true);
     try {
       console.log("Submitting blog post form with values:", values);
-      
+
       // Ensure content is not null/undefined
       const content = values.content || "";
-      
+
       const updatedPost: BlogPost = {
         id: post?.id || Math.floor(Math.random() * 1000), // Will be replaced with real ID from Supabase
         title: values.title,
         excerpt: values.excerpt,
         content: content, // Use the validated content
         author: values.author,
-        date: post?.date || new Date().toLocaleDateString('en-US', { 
-          year: 'numeric', 
-          month: 'long', 
-          day: 'numeric' 
-        }),
+        date:
+          post?.date ||
+          new Date().toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "2-digit",
+          }),
         discipline: values.discipline,
         category: values.category,
         slug: values.slug,
@@ -95,7 +114,7 @@ const BlogPostForm = ({ post, onSave, onCancel }: BlogPostFormProps) => {
         authorImage: post?.authorImage || "/placeholder.svg",
         translations: post?.translations || {},
         // Keep the Supabase ID if we're editing
-        ...(post && post.supabaseId ? { supabaseId: post.supabaseId } : {})
+        ...(post && post.supabaseId ? { supabaseId: post.supabaseId } : {}),
       };
 
       onSave(updatedPost);
@@ -117,7 +136,10 @@ const BlogPostForm = ({ post, onSave, onCancel }: BlogPostFormProps) => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6 py-4">
+      <form
+        onSubmit={form.handleSubmit(handleSubmit)}
+        className="space-y-6 py-4"
+      >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormField
             control={form.control}
@@ -126,8 +148,8 @@ const BlogPostForm = ({ post, onSave, onCancel }: BlogPostFormProps) => {
               <FormItem>
                 <FormLabel>Title</FormLabel>
                 <FormControl>
-                  <Input 
-                    placeholder="Enter blog post title" 
+                  <Input
+                    placeholder="Enter blog post title"
                     {...field}
                     onBlur={() => {
                       field.onBlur();
@@ -149,10 +171,10 @@ const BlogPostForm = ({ post, onSave, onCancel }: BlogPostFormProps) => {
               <FormItem>
                 <FormLabel>
                   Slug
-                  <Button 
-                    type="button" 
-                    variant="link" 
-                    className="h-auto p-0 ml-2" 
+                  <Button
+                    type="button"
+                    variant="link"
+                    className="h-auto p-0 ml-2"
                     onClick={generateSlug}
                   >
                     Generate from title
@@ -174,10 +196,10 @@ const BlogPostForm = ({ post, onSave, onCancel }: BlogPostFormProps) => {
             <FormItem>
               <FormLabel>Excerpt</FormLabel>
               <FormControl>
-                <Textarea 
-                  placeholder="Enter a short excerpt" 
-                  className="resize-none h-20" 
-                  {...field} 
+                <Textarea
+                  placeholder="Enter a short excerpt"
+                  className="resize-none h-20"
+                  {...field}
                 />
               </FormControl>
               <FormMessage />
@@ -192,10 +214,10 @@ const BlogPostForm = ({ post, onSave, onCancel }: BlogPostFormProps) => {
             <FormItem>
               <FormLabel>Content</FormLabel>
               <FormControl>
-                <Textarea 
-                  placeholder="Enter blog content" 
-                  className="resize-none h-48" 
-                  {...field} 
+                <Textarea
+                  placeholder="Enter blog content"
+                  className="resize-none h-48"
+                  {...field}
                 />
               </FormControl>
               <FormMessage />
@@ -224,8 +246,8 @@ const BlogPostForm = ({ post, onSave, onCancel }: BlogPostFormProps) => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Discipline</FormLabel>
-                <Select 
-                  onValueChange={field.onChange} 
+                <Select
+                  onValueChange={field.onChange}
                   defaultValue={field.value}
                 >
                   <FormControl>
@@ -249,8 +271,8 @@ const BlogPostForm = ({ post, onSave, onCancel }: BlogPostFormProps) => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Category</FormLabel>
-                <Select 
-                  onValueChange={field.onChange} 
+                <Select
+                  onValueChange={field.onChange}
                   defaultValue={field.value}
                 >
                   <FormControl>
@@ -279,10 +301,7 @@ const BlogPostForm = ({ post, onSave, onCancel }: BlogPostFormProps) => {
             <FormItem>
               <FormLabel>Featured Image</FormLabel>
               <FormControl>
-                <MediaSelector
-                  value={field.value}
-                  onChange={field.onChange}
-                />
+                <MediaSelector value={field.value} onChange={field.onChange} />
               </FormControl>
               <FormMessage />
             </FormItem>

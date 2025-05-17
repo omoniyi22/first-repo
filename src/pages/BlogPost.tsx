@@ -174,10 +174,10 @@ const BlogPostPage = () => {
                 <div className="flex items-center">
                   <Calendar className="h-4 w-4 mr-1" />
                   <span>
-                    {new Date(post.date).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
+                    {new Date(post.date).toLocaleDateString("en-GB", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "2-digit",
                     })}
                   </span>
                 </div>

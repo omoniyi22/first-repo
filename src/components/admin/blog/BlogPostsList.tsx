@@ -99,10 +99,10 @@ const BlogPostsList = ({ posts, onEdit, onDelete }: BlogPostsListProps) => {
                   </TableCell>
                   <TableCell>{post.author}</TableCell>
                   <TableCell>
-                    {new Date(post.date).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
+                    {new Date(post.date).toLocaleDateString("en-GB", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "2-digit",
                     })}
                   </TableCell>
                   <TableCell className="hidden md:table-cell">

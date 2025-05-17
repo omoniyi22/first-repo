@@ -101,10 +101,10 @@ const BlogPostCard = ({ post, hideAuthor = false }: BlogPostCardProps) => {
               <div>
                 <span className="text-xs font-medium">{post.author}</span>
                 <span className="text-xs text-gray-500 block">
-                  {new Date(post.date).toLocaleDateString("en-US", {
-                    year: "numeric",
-                    month: "short",
-                    day: "numeric",
+                  {new Date(post.date).toLocaleDateString("en-GB", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "2-digit",
                   })}
                 </span>
               </div>
