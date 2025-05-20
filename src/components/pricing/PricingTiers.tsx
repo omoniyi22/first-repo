@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Check } from "lucide-react";
 import PricingToggle from "./PricingToggle";
@@ -13,7 +12,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { useToast } from "@/hooks/use-toast";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface PricingPlan {
   id: string;
@@ -43,10 +48,16 @@ const PricingTiers = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [checkingOut, setCheckingOut] = useState(false);
   const [showLoginDialog, setShowLoginDialog] = useState(false);
-  
+
   const { language, translations } = useLanguage();
   const { session } = useAuth();
-  const { isSubscribed, planId, isLoading: subscriptionLoading, checkoutPlan, openCustomerPortal } = useSubscription();
+  const {
+    isSubscribed,
+    planId,
+    isLoading: subscriptionLoading,
+    checkoutPlan,
+    openCustomerPortal,
+  } = useSubscription();
   const { toast } = useToast();
   const t = translations[language];
 
@@ -54,68 +65,75 @@ const PricingTiers = () => {
     const fetchPricingData = async () => {
       try {
         setIsLoading(true);
-        
+
         // Fetch pricing plans
         const { data: plansData, error: plansError } = await supabase
-          .from('pricing_plans')
-          .select('*')
-          .order('created_at');
-        
+          .from("pricing_plans")
+          .select("*")
+          .order("created_at");
+
         if (plansError) {
-          console.error('Error fetching pricing plans:', plansError);
+          console.error("Error fetching pricing plans:", plansError);
           return;
         }
-        
+
         // Fetch plan features
         const { data: featuresData, error: featuresError } = await supabase
-          .from('pricing_features')
-          .select('*')
-          .order('display_order');
-        
+          .from("pricing_features")
+          .select("*")
+          .order("display_order");
+
         if (featuresError) {
-          console.error('Error fetching features:', featuresError);
+          console.error("Error fetching features:", featuresError);
           return;
         }
-        
+
         // Organize data
-        const formattedPlans: PricingPlan[] = plansData.map(plan => ({
+        const formattedPlans: PricingPlan[] = plansData.map((plan) => ({
           ...plan,
-          features: featuresData.filter(feature => feature.plan_id === plan.id)
-                              .sort((a, b) => a.display_order - b.display_order)
+          features: featuresData
+            .filter((feature) => feature.plan_id === plan.id)
+            .sort((a, b) => a.display_order - b.display_order),
         }));
-        
+
         setPlans(formattedPlans);
       } catch (error) {
-        console.error('Error loading pricing data:', error);
+        console.error("Error loading pricing data:", error);
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchPricingData();
-    
+
     // Check URL parameters for Stripe return status
     const searchParams = new URLSearchParams(window.location.search);
-    if (searchParams.get('success') === 'true') {
+    if (searchParams.get("success") === "true") {
       toast({
-        title: language === "en" ? "Subscription Successful!" : "¡Suscripción Exitosa!",
-        description: language === "en" 
-          ? "Your subscription has been activated" 
-          : "Tu suscripción ha sido activada",
+        title:
+          language === "en"
+            ? "Subscription Successful!"
+            : "¡Suscripción Exitosa!",
+        description:
+          language === "en"
+            ? "Your subscription has been activated"
+            : "Tu suscripción ha sido activada",
         variant: "default",
       });
-      
+
       // Clean up the URL
       window.history.replaceState({}, document.title, window.location.pathname);
-    } else if (searchParams.get('canceled') === 'true') {
+    } else if (searchParams.get("canceled") === "true") {
       toast({
-        title: language === "en" ? "Subscription Canceled" : "Suscripción Cancelada",
-        description: language === "en"
-          ? "Your subscription was not completed"
-          : "Tu suscripción no fue completada",
+        title:
+          language === "en" ? "Subscription Canceled" : "Suscripción Cancelada",
+        description:
+          language === "en"
+            ? "Your subscription was not completed"
+            : "Tu suscripción no fue completada",
         variant: "default",
       });
-      
+
       // Clean up the URL
       window.history.replaceState({}, document.title, window.location.pathname);
     }
@@ -130,17 +148,20 @@ const PricingTiers = () => {
       setShowLoginDialog(true);
       return;
     }
-    
+
     if (isSubscribed && planId === plan.id) {
       // User is already subscribed to this plan - open management portal
       openCustomerPortal();
       return;
     }
-    
+
     try {
       setCheckingOut(true);
-      const checkoutUrl = await checkoutPlan(plan.id, isAnnual ? 'annual' : 'monthly');
-      
+      const checkoutUrl = await checkoutPlan(
+        plan.id,
+        isAnnual ? "annual" : "monthly"
+      );
+
       if (checkoutUrl) {
         // Redirect to Stripe checkout
         window.location.href = checkoutUrl;
@@ -180,7 +201,7 @@ const PricingTiers = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {plans.map((plan, index) => {
             const isCurrentPlan = isSubscribed && planId === plan.id;
-            
+
             return (
               <AnimatedSection
                 key={plan.id}
@@ -204,7 +225,7 @@ const PricingTiers = () => {
                       {language === "en" ? "Current Plan" : "Plan Actual"}
                     </Badge>
                   )}
-                  
+
                   {!isCurrentPlan && plan.is_highlighted && (
                     <Badge className="absolute top-0 left-0 right-0 -translate-y-1/2 mx-auto w-max bg-purple-700 hover:bg-purple-800 px-3 py-1 rounded-full text-white font-semibold shadow-md pricing-badge">
                       {t["most-popular"]}
@@ -233,8 +254,9 @@ const PricingTiers = () => {
                     {isAnnual && (
                       <p className="text-sm text-gray-600 mb-6 h-5">
                         {t["billed-annually"]} (£
-                        {(isAnnual ? plan.annual_price : plan.monthly_price) * 12}/
-                        {t["year"]})
+                        {(isAnnual ? plan.annual_price : plan.monthly_price) *
+                          12}
+                        /{t["year"]})
                       </p>
                     )}
                   </div>
@@ -262,7 +284,9 @@ const PricingTiers = () => {
                               }`}
                             />
                             <span className="text-sm text-gray-700">
-                              {language === "en" ? feature.text_en : feature.text_es}
+                              {language === "en"
+                                ? feature.text_en
+                                : feature.text_es}
                             </span>
                           </li>
                         ))}
@@ -274,7 +298,7 @@ const PricingTiers = () => {
                   <div className="mt-10">
                     <Button
                       className={`w-full py-6 rounded-lg text-base h-auto font-medium transition-all duration-300 ${
-                        isCurrentPlan 
+                        isCurrentPlan
                           ? "bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white"
                           : "bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white"
                       }`}
@@ -284,12 +308,20 @@ const PricingTiers = () => {
                       {checkingOut ? (
                         <div className="flex items-center justify-center">
                           <div className="animate-spin h-5 w-5 mr-3 rounded-full border-2 border-t-transparent"></div>
-                          {language === "en" ? "Processing..." : "Procesando..."}
+                          {language === "en"
+                            ? "Processing..."
+                            : "Procesando..."}
                         </div>
                       ) : isCurrentPlan ? (
-                        language === "en" ? "Manage Subscription" : "Gestionar Suscripción"
+                        language === "en" ? (
+                          "Manage Subscription"
+                        ) : (
+                          "Gestionar Suscripción"
+                        )
+                      ) : language === "en" ? (
+                        plan.button_text_en
                       ) : (
-                        language === "en" ? plan.button_text_en : plan.button_text_es
+                        plan.button_text_es
                       )}
                     </Button>
                   </div>
@@ -303,77 +335,52 @@ const PricingTiers = () => {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>
-                {language === "en" ? "Sign in required" : "Inicio de sesión requerido"}
+                {language === "en"
+                  ? "Sign in required"
+                  : "Inicio de sesión requerido"}
               </DialogTitle>
               <DialogDescription>
-                {language === "en" 
+                {language === "en"
                   ? "Please sign in to subscribe to this plan. You'll be redirected to the sign in page."
                   : "Por favor, inicia sesión para suscribirte a este plan. Serás redirigido a la página de inicio de sesión."}
               </DialogDescription>
             </DialogHeader>
             <div className="flex justify-end space-x-2 mt-4">
-              <Button variant="outline" onClick={() => setShowLoginDialog(false)}>
+              <Button
+                variant="outline"
+                onClick={() => setShowLoginDialog(false)}
+              >
                 {language === "en" ? "Cancel" : "Cancelar"}
               </Button>
-              <Button onClick={() => {
-                setShowLoginDialog(false);
-                window.location.href = "/sign-in?redirect=/pricing";
-              }}>
+              <Button
+                onClick={() => {
+                  setShowLoginDialog(false);
+                  window.location.href = "/sign-in?redirect=/pricing";
+                }}
+              >
                 {language === "en" ? "Sign In" : "Iniciar Sesión"}
               </Button>
             </div>
           </DialogContent>
         </Dialog>
 
-        {/* <AnimatedSection
+        <AnimatedSection
           animation="fade-in"
           className="mt-20 bg-purple-50 rounded-xl p-8 md:p-12"
         >
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div>
               <h2 className="text-2xl md:text-3xl font-serif font-semibold text-navy-900 mb-4">
-                {t["faq-title"]}
+                Not sure which plan is right for you?
               </h2>
 
               <div className="space-y-6 mt-8">
-                <div>
-                  <h3 className="font-medium text-navy-900 mb-2">
-                    {language === "en"
-                      ? "How does the free trial work?"
-                      : "¿Cómo funciona la prueba gratuita?"}
-                  </h3>
-                  <p className="text-gray-700">
-                    {language === "en"
-                      ? "You can upload one dressage test score sheet for free analysis after creating an account. No credit card required to get started."
-                      : "Puedes cargar una hoja de puntuación de prueba de doma para análisis gratuito después de crear una cuenta. No se requiere tarjeta de crédito para comenzar."}
-                  </p>
-                </div>
-
-                <div>
-                  <h3 className="font-medium text-navy-900 mb-2">
-                    {language === "en"
-                      ? "Can I switch plans later?"
-                      : "¿Puedo cambiar de plan más tarde?"}
-                  </h3>
-                  <p className="text-gray-700">
-                    {language === "en"
-                      ? "Yes, you can upgrade or downgrade your plan at any time. Changes to your subscription will be applied immediately."
-                      : "Sí, puedes actualizar o degradar tu plan en cualquier momento. Los cambios en tu suscripción se aplicarán inmediatamente."}
-                  </p>
-                </div>
-
-                <div>
-                  <h3 className="font-medium text-navy-900 mb-2">
-                    {language === "en"
-                      ? "Are there any additional fees?"
-                      : "¿Hay alguna tarifa adicional?"}
-                  </h3>
-                  <p className="text-gray-700">
-                    {language === "en"
-                      ? "No, the listed price includes all features for that plan. There are no hidden fees or additional charges."
-                      : "No, el precio indicado incluye todas las características para ese plan. No hay tarifas ocultas ni cargos adicionales."}
-                  </p>
-                </div>
+                <p className="text-gray-700">
+                  {`We get it,every athlete’s journey is different. If you’re
+                  unsure which option fits your goals best, just drop us a
+                  message. Whether you're training solo or with a coach, we’ll
+                  help you pick the perfect plan to support your progress. `}
+                </p>
               </div>
             </div>
 
@@ -409,7 +416,7 @@ const PricingTiers = () => {
               </div>
             </div>
           </div>
-        </AnimatedSection> */}
+        </AnimatedSection>
       </div>
     </section>
   );
