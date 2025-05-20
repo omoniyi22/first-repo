@@ -84,8 +84,8 @@ const JumpingHowItWorks = () => {
       </div> */}
 
       {/* Hero Section */}
-      <div className="relative pt-20">
-        <div className="w-full h-80 md:h-96 overflow-hidden relative">
+      <div className="relative pt-16">
+        <div className="w-full h-80 md:h-[calc(100vh-64px)] overflow-hidden relative">
           <img
             src="/lovable-uploads/6f7781f9-7971-457e-8fa3-7494ec0725f1.png"
             alt="Horse and rider jumping over competition obstacle with AI analytics overlay"

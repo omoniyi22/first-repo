@@ -65,7 +65,7 @@ const StepsSection = () => {
   const activeStepData = steps.find(step => step.id === activeStep) || steps[0];
 
   return (
-    <section className="py-24 bg-white">
+    <section className="py-16 bg-white">
       <div className="container mx-auto px-6">
         <AnimatedSection animation="fade-in" className="text-center max-w-3xl mx-auto mb-16">
           <h1 className="text-4xl md:text-5xl font-serif font-semibold text-gray-900 mb-6">

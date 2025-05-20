@@ -1,66 +1,65 @@
-
-import React from 'react';
-import { useEffect } from 'react';
-import { SEO, generateDisciplineMetadata } from '@/lib/seo';
-import Navbar from '@/components/layout/Navbar';
-import Footer from '@/components/layout/Footer';
-import StepsSection from '@/components/howitworks/StepsSection';
-import FaqSection from '@/components/howitworks/FaqSection';
+import React from "react";
+import { useEffect } from "react";
+import { SEO, generateDisciplineMetadata } from "@/lib/seo";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
+import StepsSection from "@/components/howitworks/StepsSection";
+import FaqSection from "@/components/howitworks/FaqSection";
 import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
-  BreadcrumbSeparator
+  BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
 
 const DressageHowItWorks = () => {
   // Initialize scroll reveal for animations
   useEffect(() => {
     const initScrollReveal = () => {
-      const revealItems = document.querySelectorAll('.reveal-scroll');
-      
+      const revealItems = document.querySelectorAll(".reveal-scroll");
+
       const revealCallback = (entries: IntersectionObserverEntry[]) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            entry.target.classList.add('revealed');
+            entry.target.classList.add("revealed");
           }
         });
       };
-      
+
       const observer = new IntersectionObserver(revealCallback, {
         threshold: 0.1,
       });
-      
+
       revealItems.forEach((item) => {
         observer.observe(item);
       });
-      
+
       return () => {
         revealItems.forEach((item) => {
           observer.unobserve(item);
         });
       };
     };
-    
+
     initScrollReveal();
-    
+
     // Scroll to top on page load
     window.scrollTo(0, 0);
   }, []);
 
   // Get discipline-specific metadata
-  const seoMetadata = generateDisciplineMetadata('Dressage', {
-    canonicalUrl: '/dressage/how-it-works',
-    ogImage: '/lovable-uploads/5e82da92-7197-4290-8ed3-3848fcd50fb3.png'
+  const seoMetadata = generateDisciplineMetadata("Dressage", {
+    canonicalUrl: "/dressage/how-it-works",
+    ogImage: "/lovable-uploads/5e82da92-7197-4290-8ed3-3848fcd50fb3.png",
   });
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-100 to-white">
       <SEO {...seoMetadata} />
       <Navbar />
-      
+
       {/* <div className="container mx-auto px-6 pt-24 pb-4">
         <Breadcrumb>
           <BreadcrumbList>
@@ -82,12 +81,12 @@ const DressageHowItWorks = () => {
           </BreadcrumbList>
         </Breadcrumb>
       </div> */}
-      
+
       {/* Hero Section */}
-      <div className="relative pt-20">
-        <div className="w-full h-80 md:h-96 overflow-hidden relative">
-          <img 
-            src="/lovable-uploads/5e82da92-7197-4290-8ed3-3848fcd50fb3.png" 
+      <div className="relative pt-16">
+        <div className="w-full h-80 md:h-[calc(100vh-64px)] overflow-hidden relative">
+          <img
+            src="/lovable-uploads/5e82da92-7197-4290-8ed3-3848fcd50fb3.png"
             alt="Dressage rider performing with AI analytics visualization overlay"
             className="w-full h-full object-cover object-bottom"
           />
@@ -98,13 +97,14 @@ const DressageHowItWorks = () => {
                 How AI Dressage Analysis Works
               </h1>
               <p className="text-xl text-white/90 max-w-xl mt-4 drop-shadow-lg text-shadow-md">
-                Understand the process behind our AI-powered equestrian dressage analysis
+                Understand the process behind our AI-powered equestrian dressage
+                analysis
               </p>
             </div>
           </div>
         </div>
       </div>
-      
+
       <main className="">
         <StepsSection />
         <FaqSection />
