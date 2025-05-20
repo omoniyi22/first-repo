@@ -1,11 +1,10 @@
-
-import { ArrowUp, TrendingUp, User, Award, FileText, Star } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
-import { 
+import { ArrowUp, TrendingUp, User, Award, FileText, Star } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import {
   ChartContainer,
   ChartTooltip,
-  ChartTooltipContent
-} from '@/components/ui/chart';
+  ChartTooltipContent,
+} from "@/components/ui/chart";
 import {
   AreaChart,
   Area,
@@ -18,70 +17,70 @@ import {
   PolarRadiusAxis,
   Radar,
   RadarChart,
-  Legend
-} from 'recharts';
+  Legend,
+} from "recharts";
 
 const PerformanceOverview = () => {
   // Example score trend data for the chart
   const scoreTrendData = [
-    { month: 'Jan', score: 62.8 },
-    { month: 'Feb', score: 63.2 },
-    { month: 'Mar', score: 63.9 },
-    { month: 'Apr', score: 62.7 },
-    { month: 'May', score: 64.5 },
-    { month: 'Jun', score: 64.8 },
+    { month: "Jan", score: 62.8 },
+    { month: "Feb", score: 63.2 },
+    { month: "Mar", score: 63.9 },
+    { month: "Apr", score: 62.7 },
+    { month: "May", score: 64.5 },
+    { month: "Jun", score: 64.8 },
   ];
 
   // Example data for the movement radar chart
   const movementData = [
-    { movement: 'Walk', score: 7.1, fullMark: 10 },
-    { movement: 'Trot', score: 6.8, fullMark: 10 },
-    { movement: 'Canter', score: 6.2, fullMark: 10 },
-    { movement: 'Transitions', score: 6.5, fullMark: 10 },
-    { movement: 'Submission', score: 6.0, fullMark: 10 },
-    { movement: 'Rider Position', score: 7.3, fullMark: 10 },
+    { movement: "Walk", score: 7.1, fullMark: 10 },
+    { movement: "Trot", score: 6.8, fullMark: 10 },
+    { movement: "Canter", score: 6.2, fullMark: 10 },
+    { movement: "Transitions", score: 6.5, fullMark: 10 },
+    { movement: "Submission", score: 6.0, fullMark: 10 },
+    { movement: "Rider Position", score: 7.3, fullMark: 10 },
   ];
 
   // Updated stats with brand color gradients
   const stats = [
     {
-      title: 'Average Score',
-      value: '64.8%',
-      change: '+2.4%',
+      title: "Average Score",
+      value: "64.8%",
+      change: "+2.4%",
       positive: true,
       icon: <TrendingUp className="h-6 w-6 text-white" />,
-      gradient: 'bg-gradient-to-r from-[#a28bfb] to-[#7759eb]', // AI Dressage gradient
+      gradient: "bg-gradient-to-r from-[#a28bfb] to-[#7759eb]", // AI Dressage gradient
     },
     {
-      title: 'Tests Analyzed',
-      value: '12',
-      change: '+3',
+      title: "Tests Analyzed",
+      value: "12",
+      change: "+3",
       positive: true,
       icon: <FileText className="h-6 w-6 text-white" />,
-      gradient: 'bg-gradient-to-r from-[#5e92fa] to-[#3d78ec]', // AI Jump gradient
+      gradient: "bg-gradient-to-r from-[#5e92fa] to-[#3d78ec]", // AI Jump gradient
     },
     {
-      title: 'Strongest Movement',
-      value: 'Trot',
-      subValue: 'Extended',
-      change: '',
+      title: "Strongest Movement",
+      value: "Trot",
+      subValue: "Extended",
+      change: "",
       positive: true,
       icon: <Award className="h-6 w-6 text-white" />,
-      gradient: 'bg-gradient-to-r from-[#f57cb5] to-[#d80669]', // Purple gradient
+      gradient: "bg-gradient-to-r from-[#f57cb5] to-[#d80669]", // Purple gradient
     },
     {
-      title: 'Focus Area',
-      value: 'Canter',
-      subValue: 'Transitions',
-      change: '',
+      title: "Focus Area",
+      value: "Canter",
+      subValue: "Transitions",
+      change: "",
       positive: false,
       icon: <Star className="h-6 w-6 text-white" />,
-      gradient: 'bg-gradient-to-r from-[#ffd565] to-[#ff831d]', // Blue gradient
+      gradient: "bg-gradient-to-r from-[#ffd565] to-[#ff831d]", // Blue gradient
     },
   ];
 
   const chartConfig = {
-    score: { label: "Score" }
+    score: { label: "Score" },
   };
 
   return (
@@ -89,19 +88,17 @@ const PerformanceOverview = () => {
       <h2 className="text-xl font-serif font-semibold text-gray-900 mb-4">
         Performance Overview
       </h2>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {/* Stats Cards with Theme-Matching Gradient Backgrounds */}
         {stats.map((stat, index) => (
-          <Card 
-            key={index} 
+          <Card
+            key={index}
             className={`border-none shadow-md hover:shadow-lg transition-all duration-200 ${stat.gradient}`}
           >
             <CardContent className="p-6">
               <div className="flex justify-between items-start">
-                <h3 className="text-sm font-medium text-white">
-                  {stat.title}
-                </h3>
+                <h3 className="text-sm font-medium text-white">{stat.title}</h3>
                 {stat.icon}
               </div>
               <div className="mt-4 flex justify-between items-end">
@@ -110,9 +107,7 @@ const PerformanceOverview = () => {
                     {stat.value}
                   </p>
                   {stat.subValue && (
-                    <p className="text-sm text-white/90">
-                      {stat.subValue}
-                    </p>
+                    <p className="text-sm text-white/90">{stat.subValue}</p>
                   )}
                 </div>
                 {stat.change && (
@@ -131,27 +126,59 @@ const PerformanceOverview = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
         {/* Score Trend Chart */}
         <Card className="p-4 border border-gray-100">
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Score Trend</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">
+            Score Trend
+          </h3>
           <div className="h-80 w-full">
-            <ChartContainer config={chartConfig} className='max-h-full h-full max-w-full w-full' >
+            <ChartContainer
+              config={chartConfig}
+              className="max-h-full h-full max-w-full w-full"
+            >
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart
                   data={scoreTrendData}
                   margin={{ top: 5, right: 5, left: 0, bottom: 5 }}
                 >
                   <defs>
-                    <linearGradient id="scoreGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#7658eb" stopOpacity={0.8}/>
-                      <stop offset="95%" stopColor="#7658eb" stopOpacity={0.1}/>
+                    {/* Combined gradient with color and opacity transitions */}
+                    <linearGradient
+                      id="scoreGradient"
+                      x1="0"
+                      y1="0"
+                      x2="1"
+                      y2="1"
+                    >
+                      <stop offset="0%" stopColor="#7759eb" stopOpacity={0.9} />
+                      <stop
+                        offset="50%"
+                        stopColor="#5f69ee"
+                        stopOpacity={0.5}
+                      />
+                      <stop
+                        offset="100%"
+                        stopColor="#3d78ec"
+                        stopOpacity={0.1}
+                      />
+                    </linearGradient>
+
+                    <linearGradient
+                      id="strokeGradient"
+                      x1="0"
+                      y1="0"
+                      x2="1"
+                      y2="0"
+                    >
+                      <stop offset="50%" stopColor="#7759eb" />
+                      <stop offset="100%" stopColor="#3d78ec" />
                     </linearGradient>
                   </defs>
-                  <XAxis 
-                    dataKey="month" 
+                  <XAxis
+                    dataKey="month"
                     axisLine={false}
                     tickLine={false}
                     tick={{ fontSize: 11 }}
                   />
-                  <YAxis 
+                  <YAxis
                     domain={[60, 70]}
                     axisLine={false}
                     tickLine={false}
@@ -159,13 +186,13 @@ const PerformanceOverview = () => {
                     width={25}
                   />
                   <ChartTooltip content={<ChartTooltipContent />} />
-                  <Area 
-                    type="monotone" 
-                    dataKey="score" 
-                    stroke="#7b4a97" 
+                  <Area
+                    type="monotone"
+                    dataKey="score"
+                    stroke="url(#strokeGradient)"
                     strokeWidth={2}
-                    fillOpacity={1} 
-                    fill="url(#scoreGradient)" 
+                    fillOpacity={1}
+                    fill="url(#scoreGradient)"
                   />
                 </AreaChart>
               </ResponsiveContainer>
@@ -175,28 +202,51 @@ const PerformanceOverview = () => {
 
         {/* Movement Radar Chart */}
         <Card className="p-4 border border-gray-100">
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Movement Scores</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">
+            Movement Scores
+          </h3>
           <div className="h-80 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <RadarChart outerRadius="70%" data={movementData}>
+                <defs>
+                  {/* Left to right linear gradient for the radar fill */}
+                  <linearGradient
+                    id="radarGradient"
+                    x1="0"
+                    y1="0"
+                    x2="1"
+                    y2="0"
+                  >
+                    <stop offset="0%" stopColor="#7658eb" stopOpacity={0.7} />
+                    <stop offset="100%" stopColor="#3d78ec" stopOpacity={0.7} />
+                  </linearGradient>
+
+                  {/* Left to right linear gradient for the radar stroke */}
+                  <linearGradient
+                    id="radarStrokeGradient"
+                    x1="0"
+                    y1="0"
+                    x2="1"
+                    y2="0"
+                  >
+                    <stop offset="0%" stopColor="#7658eb" />
+                    <stop offset="100%" stopColor="#3d78ec" />
+                  </linearGradient>
+                </defs>
                 <PolarGrid gridType="polygon" />
-                <PolarAngleAxis 
-                  dataKey="movement" 
-                  tick={{ fontSize: 11 }}
-                />
-                <PolarRadiusAxis 
-                  domain={[0, 10]} 
+                <PolarAngleAxis dataKey="movement" tick={{ fontSize: 11 }} />
+                <PolarRadiusAxis
+                  domain={[0, 10]}
                   axisLine={false}
                   tick={{ fontSize: 10 }}
                 />
-                <Radar 
-                  name="Scores" 
-                  dataKey="score" 
-                  stroke="#7658eb" 
-                  fill="#7658eb" 
-                  fillOpacity={0.5} 
+                <Radar
+                  name="Scores"
+                  dataKey="score"
+                  stroke="url(#radarStrokeGradient)"
+                  fill="url(#radarGradient)"
                 />
-                <Legend wrapperStyle={{ fontSize: '12px', marginTop: '5px' }} />
+                <Legend wrapperStyle={{ fontSize: "12px", marginTop: "5px" }} />
                 <Tooltip />
               </RadarChart>
             </ResponsiveContainer>
