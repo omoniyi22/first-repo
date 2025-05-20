@@ -1,9 +1,9 @@
+
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import AnimatedSection from "../ui/AnimatedSection";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-
 
 interface FaqItemProps {
   question: string;
@@ -99,8 +99,7 @@ const FaqSection = () => {
             Frequently Asked Questions
           </h2>
           <p className="text-lg text-gray-700">
-            Have questions about AI Dressage Trainer? Find answers to the most
-            common questions below.
+            Have questions about AI Equestrian? Find answers to the most common questions below.
           </p>
         </AnimatedSection>
 
