@@ -325,7 +325,7 @@ const PricingTiers = () => {
           </DialogContent>
         </Dialog>
 
-        <AnimatedSection
+        {/* <AnimatedSection
           animation="fade-in"
           className="mt-20 bg-purple-50 rounded-xl p-8 md:p-12"
         >
@@ -409,7 +409,7 @@ const PricingTiers = () => {
               </div>
             </div>
           </div>
-        </AnimatedSection>
+        </AnimatedSection> */}
       </div>
     </section>
   );

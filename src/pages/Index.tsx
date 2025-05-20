@@ -275,7 +275,7 @@ const Index = () => {
               </p>
             </div>
             
-            <div className="grid md:grid-cols-2 gap-8 mb-10">
+            <div className="grid md:grid-cols-2 gap-8 mb-20">
               {isLoading ? (
                 // Loading skeletons
                 <>

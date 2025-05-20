@@ -61,7 +61,7 @@ const DressageHowItWorks = () => {
       <SEO {...seoMetadata} />
       <Navbar />
       
-      <div className="container mx-auto px-6 pt-24 pb-4">
+      {/* <div className="container mx-auto px-6 pt-24 pb-4">
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
@@ -81,10 +81,10 @@ const DressageHowItWorks = () => {
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-      </div>
+      </div> */}
       
       {/* Hero Section */}
-      <div className="relative mb-12">
+      <div className="relative pt-20">
         <div className="w-full h-80 md:h-96 overflow-hidden relative">
           <img 
             src="/lovable-uploads/5e82da92-7197-4290-8ed3-3848fcd50fb3.png" 
@@ -105,7 +105,7 @@ const DressageHowItWorks = () => {
         </div>
       </div>
       
-      <main className="pt-2">
+      <main className="">
         <StepsSection />
         <FaqSection />
       </main>

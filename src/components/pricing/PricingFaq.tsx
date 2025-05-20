@@ -146,15 +146,24 @@ const PricingFaq = () => {
           className="text-center max-w-2xl mx-auto mt-12"
         >
           <h3 className="text-xl font-medium text-navy-900 mb-4">
-            {t["still-questions"]}
+            Not sure which plan is right for you?
           </h3>
-          <p className="text-gray-700 mb-6">{t["questions-text"]}</p>
+          <p className="text-gray-700 mb-6">
+            {/* {t["questions-text"]} */}
+            {` We get it,every athlete’s journey is different. If you’re unsure
+            which option fits your goals best, just drop us a message. Whether
+            you're training solo or with a coach, we’ll help you pick the
+            perfect plan to support your progress.`}
+          </p>
           <div className="flex justify-center">
-            <Link to="mailto:info@aiequestrian.com">
+            {/* <Link to="mailto:info@aiequestrian.com">
               <Button className="bg-navy-700 hover:bg-navy-800 text-white px-6 py-3 rounded-lg text-base font-medium h-auto flex items-center gap-2">
-                <MessageCircle className="w-5 h-5" />
                 {t["contact-support"]}
               </Button>
+            </Link> */}
+            <Link to="mailto:info@aiequestrian.com">
+              <MessageCircle className="w-5 h-5" />
+              <Button variant="primary">Contact Support</Button>
             </Link>
           </div>
         </AnimatedSection>
