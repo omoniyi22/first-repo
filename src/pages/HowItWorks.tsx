@@ -60,32 +60,55 @@ const HowItWorks = () => {
       <Navbar />
       
       {/* Hero Section */}
-      <div className="relative pt-16">
-        <div className="w-full h-80 md:h-[calc(100vh-64px)] overflow-hidden relative">
-          <img
-            src="/lovable-uploads/7d2227eb-924f-4f33-84a3-cb1f6da7d4f4.png"
-            alt="Equestrian analytics visualization showing a horse and rider with AI tracking overlays"
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-900/70 to-transparent"></div>
-          <div className="absolute inset-0 flex items-center">
-            <div className="container mx-auto px-6">
-              <div className="max-w-xl">
-                <h1 className="text-4xl md:text-5xl font-serif font-bold text-white mb-6 drop-shadow-lg text-shadow-lg">
-                  How AI Equestrian Works
-                </h1>
-                <p className="text-lg text-white/90 mb-8 drop-shadow-lg text-shadow-md">
-                  Discover how our AI-powered platform analyzes your riding performance, 
-                  identifies areas for improvement, and provides personalized training recommendations.
-                </p>
-                <Link to="/sign-in?signup=true">
-                  <Button 
-                    variant="primary" 
-                    className="hover:bg-purple-700 hover:shadow-lg transition-all"
-                  >
-                    Get Started
-                  </Button>
-                </Link>
+      <div className="pt-24 md:pt-32">
+        <div className="container mx-auto px-6">
+          <div className="grid md:grid-cols-2 gap-8 items-center">
+            {/* Left Column - Text Content */}
+            <div className="order-2 md:order-1">
+              <h1 className="text-4xl md:text-5xl font-serif font-semibold text-purple-900 mb-6">
+                How AI Equestrian Works
+              </h1>
+              <p className="text-lg text-gray-700 mb-8">
+                Our AI-powered platform analyzes your riding performance, identifies areas 
+                for improvement, and provides personalized training recommendations to help 
+                you achieve your equestrian goals.
+              </p>
+              <Link to="/sign-in?signup=true">
+                <Button 
+                  variant="primary" 
+                  className="hover:bg-purple-700 hover:shadow-lg transition-all"
+                >
+                  Get Started
+                </Button>
+              </Link>
+              <div className="hidden md:block mt-12">
+                <div className="w-12 h-12 border-2 border-purple-600 rounded-full flex items-center justify-center">
+                  <span className="text-purple-600 font-semibold">1</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column - Image with AI Analysis */}
+            <div className="order-1 md:order-2 relative">
+              <div className="rounded-xl overflow-hidden shadow-xl">
+                <img 
+                  src="/lovable-uploads/6f7781f9-7971-457e-8fa3-7494ec0725f1.png"
+                  alt="AI analysis of jumping technique with feedback overlays"
+                  className="w-full h-auto"
+                />
+                
+                {/* AI Analysis Overlays */}
+                <div className="absolute top-[20%] right-[15%] bg-white p-3 rounded-lg shadow-md text-sm max-w-[200px]">
+                  <p className="text-gray-800">You're leaning forward by 7 degrees, sit tall and engage your core.</p>
+                </div>
+                
+                <div className="absolute bottom-[30%] left-[10%] bg-white p-3 rounded-lg shadow-md text-sm max-w-[200px]">
+                  <p className="text-gray-800">Release properly, give your horse freedom over the fence.</p>
+                </div>
+                
+                <div className="absolute top-[60%] right-[10%] bg-white p-3 rounded-lg shadow-md text-sm max-w-[200px]">
+                  <p className="text-gray-800">Your jump approach speed is slightly high — try slowing down for better control.</p>
+                </div>
               </div>
             </div>
           </div>
