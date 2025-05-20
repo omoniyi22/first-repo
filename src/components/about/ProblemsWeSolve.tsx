@@ -12,7 +12,7 @@ const ProblemsWeSolve = () => {
           <h2 className="text-3xl md:text-4xl font-serif font-semibold text-purple-900 mb-4">
             Problems We Solve
           </h2>
-          <p className="text-lg text-blue-700">
+          <p className="text-lg text-gray-700">
             We leverage AI technology to address the unique challenges faced by riders across disciplines.
           </p>
         </AnimatedSection>
@@ -25,7 +25,7 @@ const ProblemsWeSolve = () => {
                 Transforming Equestrian Performance Through Intelligence
               </h3>
               
-              <p className="text-blue-700 mb-6">
+              <p className="text-gray-700 mb-6">
                 Equestrian sports blend artistry with technical precision, demanding constant refinement from both horse and rider. 
                 At AI Equestrian, we're addressing the fundamental challenges that prevent riders from reaching their full potential.
               </p>
@@ -46,7 +46,7 @@ const ProblemsWeSolve = () => {
                     </div>
                     <div>
                       <h4 className="font-medium text-blue-900 mb-1">Limited Feedback Between Lessons</h4>
-                      <p className="text-purple-600 text-sm">
+                      <p className="text-gray-700 text-sm">
                         Most riders receive guidance only during infrequent lessons. AI Equestrian provides continuous analysis between coaching sessions.
                       </p>
                     </div>
@@ -63,7 +63,7 @@ const ProblemsWeSolve = () => {
                     </div>
                     <div>
                       <h4 className="font-medium text-purple-900 mb-1">Difficulty Tracking Progress</h4>
-                      <p className="text-blue-600 text-sm">
+                      <p className="text-gray-700 text-sm">
                         Traditional methods make it challenging to measure improvement objectively. Our platform delivers quantifiable metrics and visual progress tracking.
                       </p>
                     </div>
@@ -80,7 +80,7 @@ const ProblemsWeSolve = () => {
                     </div>
                     <div>
                       <h4 className="font-medium text-blue-900 mb-1">Inconsistent Performance Analysis</h4>
-                      <p className="text-purple-600 text-sm">
+                      <p className="text-gray-700 text-sm">
                         Relying on memory or scattered notes leads to fragmented insights. We transform test sheets and videos into comprehensive, organized analysis.
                       </p>
                     </div>
@@ -97,7 +97,7 @@ const ProblemsWeSolve = () => {
                     </div>
                     <div>
                       <h4 className="font-medium text-purple-900 mb-1">Missing the Unseen Details</h4>
-                      <p className="text-blue-600 text-sm">
+                      <p className="text-gray-700 text-sm">
                         The human eye can miss subtle elements that impact performance. Our technology captures movement nuances that might otherwise go unnoticed.
                       </p>
                     </div>
@@ -114,7 +114,7 @@ const ProblemsWeSolve = () => {
                     </div>
                     <div>
                       <h4 className="font-medium text-blue-900 mb-1">Training Program Uncertainty</h4>
-                      <p className="text-purple-600 text-sm">
+                      <p className="text-gray-700 text-sm">
                         Many riders struggle to develop structured training plans. Our recommendation system creates targeted exercises based on your actual performance data.
                       </p>
                     </div>

@@ -63,7 +63,7 @@ const About = () => {
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-blue-50">
       <SEO {...seoMetadata} />
       <Navbar />
-      <main className="pt-20">
+      <main className="pt-16">
         {/* Hero Section */}
         <HeroSection />
 
@@ -89,7 +89,7 @@ const About = () => {
               <h2 className="text-3xl md:text-4xl font-serif font-semibold mb-4 text-blue-900">
                 Partnerships & Sponsorships
               </h2>
-              <p className="text-lg text-blue-700">
+              <p className="text-lg text-gray-700">
                 We're proud to collaborate with leading equestrian organizations
                 and brands to advance the sport and support riders at all
                 levels.
@@ -105,7 +105,7 @@ const About = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="text-center">
-                  <p className="text-blue-600 mb-4">
+                  <p className="text-gray-700 mb-4">
                     Official technology partner providing AI training solutions
                     to national team riders.
                   </p>
@@ -123,7 +123,7 @@ const About = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="text-center">
-                  <p className="text-blue-600 mb-4">
+                  <p className="text-gray-700 mb-4">
                     Premium equipment manufacturer partnering to integrate
                     technology with traditional training tools.
                   </p>
@@ -141,7 +141,7 @@ const About = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="text-center">
-                  <p className="text-blue-600 mb-4">
+                  <p className="text-gray-700 mb-4">
                     Official AI analysis partner for major international
                     competitions and events.
                   </p>
@@ -156,7 +156,7 @@ const About = () => {
               <h3 className="text-xl font-medium mb-4 text-purple-800">
                 Interested in partnering with AI Equestrian?
               </h3>
-              <p className="text-blue-700 mb-6 max-w-2xl mx-auto">
+              <p className="text-gray-700 mb-6 max-w-2xl mx-auto">
                 We're always looking to collaborate with organizations and
                 brands that share our vision for the future of equestrian
                 training.
