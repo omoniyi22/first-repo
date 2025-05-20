@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { FileText, Users, Calendar, BarChart3, Horse, LayoutDashboard } from 'lucide-react';
+import { FileText, Users, Calendar, BarChart3, Award, LayoutDashboard } from 'lucide-react';
 import AnimatedSection from '../ui/AnimatedSection';
 
 interface BenefitCardProps {
@@ -36,7 +36,7 @@ const BenefitsSection = () => {
     {
       title: "Horse Management",
       description: "Easily track and manage progress for each of your horses in one place.",
-      icon: <Horse size={24} />
+      icon: <Award size={24} />
     },
     {
       title: "User Dashboard",
