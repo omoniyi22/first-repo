@@ -109,8 +109,12 @@ const About = () => {
                     Official technology partner providing AI training solutions
                     to national team riders.
                   </p>
-                  <div className="h-20 w-20 bg-purple-100 rounded-full mx-auto flex items-center justify-center">
-                    <span className="text-blue-400">Logo</span>
+                  <div className="h-20 w-20 bg-purple-100 rounded-full mx-auto flex items-center justify-center overflow-hidden">
+                    <img
+                      src="/lovable-uploads/tla-stables.jpeg"
+                      alt=""
+                      className="max-w-full max-h-full object-cover"
+                    />
                   </div>
                 </CardContent>
               </Card>
@@ -127,8 +131,12 @@ const About = () => {
                     Premium equipment manufacturer partnering to integrate
                     technology with traditional training tools.
                   </p>
-                  <div className="h-20 w-20 bg-purple-100 rounded-full mx-auto flex items-center justify-center">
-                    <span className="text-blue-400">Logo</span>
+                  <div className="h-20 w-20 bg-purple-100 rounded-full mx-auto flex items-center justify-center p-2 overflow-hidden">
+                    <img
+                      src="/lovable-uploads/da-logo.png"
+                      alt=""
+                      className="max-w-full max-h-full object-cover"
+                    />
                   </div>
                 </CardContent>
               </Card>
