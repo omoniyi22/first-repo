@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Upload, User, Loader2 } from 'lucide-react';
@@ -6,6 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { v4 as uuidv4 } from 'uuid';
+import { ImageCropper } from '@/components/ui/image-cropper';
 
 interface ProfileImageProps {
   profilePic: string | null;
@@ -17,12 +19,14 @@ const ProfileImage: React.FC<ProfileImageProps> = ({ profilePic, setProfilePic }
   const { toast } = useToast();
   const { language } = useLanguage();
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [cropperImage, setCropperImage] = useState<string | null>(null);
+  const [showCropper, setShowCropper] = useState(false);
   
   const displayName = user?.user_metadata?.full_name || 
                       user?.email?.split('@')[0] || 
                       'Rider';
 
-  const handleProfilePicUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelection = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       
@@ -36,64 +40,87 @@ const ProfileImage: React.FC<ProfileImageProps> = ({ profilePic, setProfilePic }
       }
       
       try {
-        setIsUploadingImage(true);
+        // Create a temporary URL for the selected image
+        const imageUrl = URL.createObjectURL(file);
         
-        // Create a unique file name with a structure that matches the RLS policy
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${uuidv4()}.${fileExt}`;
-        
-        // This path structure matches our RLS policy: profile-images/[filename]
-        const filePath = `profile-images/${fileName}`;
-        
-        // Log upload attempt for debugging
-        console.log('Attempting upload to bucket:', 'profile-images', 'path:', filePath);
-        
-        // Upload file to Supabase Storage
-        const { error: uploadError, data } = await supabase.storage
-          .from('profile-images')
-          .upload(filePath, file, {
-            cacheControl: '3600',
-            upsert: true  // Allow overwriting existing files
-          });
-          
-        if (uploadError) {
-          console.error('Upload error details:', uploadError);
-          throw uploadError;
-        }
-        
-        // Log successful upload
-        console.log('Upload successful:', data);
-        
-        // Get public URL
-        const { data: { publicUrl } } = supabase.storage
-          .from('profile-images')
-          .getPublicUrl(filePath);
-        
-        console.log('Public URL:', publicUrl);
-        
-        // Update profile with new image URL
-        setProfilePic(publicUrl);
-        
-        toast({
-          title: language === 'en' ? "Profile picture updated" : "Foto de perfil actualizada",
-          description: language === 'en' 
-            ? "Your profile picture has been updated successfully." 
-            : "Tu foto de perfil ha sido actualizada exitosamente."
-        });
+        // Open the cropper with the selected image
+        setCropperImage(imageUrl);
+        setShowCropper(true);
       } catch (error: any) {
-        // Revert profile picture state if there was an error
-        console.error('Error uploading image:', error);
+        console.error('Error handling file selection:', error);
         
         toast({
-          title: language === 'en' ? "Upload failed" : "Error al subir",
+          title: language === 'en' ? "File error" : "Error de archivo",
           description: error.message || (language === 'en' 
-            ? "Failed to upload image. Please try again." 
-            : "Error al subir la imagen. Por favor, inténtalo de nuevo."),
+            ? "Failed to process the selected image. Please try again." 
+            : "Error al procesar la imagen seleccionada. Por favor, inténtalo de nuevo."),
           variant: "destructive"
         });
-      } finally {
-        setIsUploadingImage(false);
       }
+    }
+  };
+
+  const handleUploadCroppedImage = async (croppedBlob: Blob) => {
+    if (!user) return;
+    
+    setIsUploadingImage(true);
+    
+    try {
+      // Create a unique file name with a structure that matches the RLS policy
+      const fileExt = 'jpg'; // Always use jpg for cropped images
+      const fileName = `${uuidv4()}.${fileExt}`;
+      
+      // This path structure matches our RLS policy: profile-images/[filename]
+      const filePath = `profile-images/${fileName}`;
+      
+      // Log upload attempt for debugging
+      console.log('Attempting upload to bucket:', 'profile-images', 'path:', filePath);
+      
+      // Upload file to Supabase Storage
+      const { error: uploadError, data } = await supabase.storage
+        .from('profile-images')
+        .upload(filePath, croppedBlob, {
+          cacheControl: '3600',
+          upsert: true  // Allow overwriting existing files
+        });
+        
+      if (uploadError) {
+        console.error('Upload error details:', uploadError);
+        throw uploadError;
+      }
+      
+      // Log successful upload
+      console.log('Upload successful:', data);
+      
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('profile-images')
+        .getPublicUrl(filePath);
+      
+      console.log('Public URL:', publicUrl);
+      
+      // Update profile with new image URL
+      setProfilePic(publicUrl);
+      
+      toast({
+        title: language === 'en' ? "Profile picture updated" : "Foto de perfil actualizada",
+        description: language === 'en' 
+          ? "Your profile picture has been updated successfully." 
+          : "Tu foto de perfil ha sido actualizada exitosamente."
+      });
+    } catch (error: any) {
+      // Revert profile picture state if there was an error
+      console.error('Error uploading image:', error);
+      
+      toast({
+        title: language === 'en' ? "Upload failed" : "Error al subir",
+        description: error.message || (language === 'en' 
+          ? "Failed to upload image. Please try again." 
+          : "Error al subir la imagen. Por favor, inténtalo de nuevo."),
+        variant: "destructive"
+      });
+    } finally {
+      setIsUploadingImage(false);
     }
   };
 
@@ -124,11 +151,24 @@ const ProfileImage: React.FC<ProfileImageProps> = ({ profilePic, setProfilePic }
             id="profile-pic-upload" 
             className="hidden" 
             accept="image/*"
-            onChange={handleProfilePicUpload}
+            onChange={handleFileSelection}
             disabled={isUploadingImage}
           />
         </label>
       </div>
+
+      {/* Image cropper component */}
+      {cropperImage && (
+        <ImageCropper
+          image={cropperImage}
+          isOpen={showCropper}
+          onClose={() => {
+            setShowCropper(false);
+            setCropperImage(null);
+          }}
+          onCropComplete={handleUploadCroppedImage}
+        />
+      )}
     </div>
   );
 };
