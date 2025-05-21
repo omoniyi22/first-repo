@@ -207,7 +207,7 @@ const Navbar = () => {
                     ></path>
                   </svg>
                 </button>
-                <div className="absolute left-0 top-full mt-1 w-48 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                <div className="absolute left-0 top-full mt-1 w-48 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 overflow-hidden">
                   <div className="py-1">
                     <Link
                       to="/how-it-works"
@@ -352,7 +352,7 @@ const Navbar = () => {
                 <Link to="/sign-in">
                   <Button
                     variant="outline"
-                    className="border-white text-white bg-transparent hover:bg-gradient-to-r hover:from-purple-800 hover:to-blue-700 hover:text-white hover:border-transparent transition-all font-sans text-sm"
+                    className="border-white hover:border-purple-800 text-white bg-transparent hover:bg-gradient-to-r hover:from-purple-800 hover:to-blue-700 hover:text-white transition-all font-sans text-sm"
                   >
                     Log In
                   </Button>

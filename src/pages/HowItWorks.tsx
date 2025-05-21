@@ -63,7 +63,7 @@ const HowItWorks = () => {
         <div className="container mx-auto px-6">
           <div className="grid md:grid-cols-2 gap-8 items-center">
             {/* Left Column - Text Content */}
-            <div className="order-2 md:order-1">
+            <div className="order-2 md:order-1 lg:w-4/5 lg:mx-auto">
               <h1 className="text-4xl md:text-5xl font-serif font-semibold text-navy-900 mb-6">
                 How AI Equestrian Works
               </h1>
@@ -84,11 +84,11 @@ const HowItWorks = () => {
                   Get Started
                 </Button>
               </Link> */}
-              <div className="hidden md:block mt-12">
+              {/* <div className="hidden md:block mt-12">
                 <div className="w-10 h-20 border-2 border-purple-600 rounded-full flex items-end justify-center p-2">
                   <span className="bg-purple-600 font-semibold rounded-full w-1 h-8"></span>
                 </div>
-              </div>
+              </div> */}
             </div>
 
             {/* Right Column - Image with AI Analysis */}

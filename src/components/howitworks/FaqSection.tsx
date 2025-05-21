@@ -38,15 +38,16 @@ const FaqItem = ({ question, answer, isOpen, toggleOpen }: FaqItemProps) => {
 };
 
 const FaqSection = ({ pageName }: { pageName?: string }) => {
+  console.log("🚀 ~ FaqSection ~ pageName:", pageName);
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   // Sample FAQ data
   let bg =
     pageName == "howItWorks"
       ? "bg-gradient-to-r from-[#e4defb] to-[#d8e4fb]"
+      : pageName == "JumpingHowItWorks"
+      ? "bg-[#eff6ff]"
       : "bg-purple-50";
-
-  bg = pageName == "JumpingHowItWorks" ? "bg-[#eff6ff]" : "bg-purple-50";
 
   const btnBg =
     pageName == "JumpingHowItWorks" ? "bg-blue-600 hover:bg-blue-600" : "";
