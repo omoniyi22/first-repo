@@ -32,7 +32,7 @@ const TeamSection = () => {
     <section className="py-16 bg-silver-50">
       <div className="container mx-auto px-6">
         <AnimatedSection animation="fade-in" className="text-center max-w-3xl mx-auto mb-12">
-          <h2 className="text-3xl md:text-4xl font-serif font-semibold text-navy-900 mb-4">
+          <h2 className="text-3xl md:text-4xl font-serif font-semibold text-purple-900 mb-4">
             Meet Our Team
           </h2>
           <p className="text-lg text-navy-700">

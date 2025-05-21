@@ -210,7 +210,7 @@ const Blog = () => {
       <main className="container mx-auto px-6 pt-32 pb-16">
         {/* SEO-optimized heading structure - Removed breadcrumb */}
         <div className="mb-6">
-          <h1 className="text-4xl md:text-5xl font-serif font-bold text-gray-900 mb-4">{t["blog-title"]}</h1>
+          <h1 className="text-4xl md:text-5xl font-serif font-bold text-purple-900 mb-4">{t["blog-title"]}</h1>
           <p className="text-xl text-gray-700 max-w-3xl">
             {t["blog-description"]}
           </p>
@@ -258,7 +258,7 @@ const Blog = () => {
           <div className="mb-10">
             {filteredPosts.length > 0 ? (
               <>
-                <h2 className="text-2xl font-serif font-bold text-gray-900 mb-6">
+                <h2 className="text-2xl font-serif font-bold text-purple-900 mb-6">
                   {disciplineFilter !== 'all' || categoryFilter !== 'all' || searchQuery
                     ? `${filteredPosts.length} ${filteredPosts.length === 1 ? t["result"] : t["results"]}`
                     : t["latest-articles"]
@@ -301,7 +301,7 @@ const Blog = () => {
         <div className="reveal-scroll mt-16 bg-gray-100 rounded-xl p-8 md:p-12 opacity-0 translate-y-8 transition-all duration-700 ease-out">
           <div className="md:flex items-center justify-between">
             <div className="md:w-2/3 mb-6 md:mb-0">
-              <h2 className="text-2xl md:text-3xl font-serif font-bold text-gray-900 mb-4">{t["newsletter-title"]}</h2>
+              <h2 className="text-2xl md:text-3xl font-serif font-bold text-purple-900 mb-4">{t["newsletter-title"]}</h2>
               <p className="text-gray-700">{t["newsletter-description"]}</p>
             </div>
             <div className="md:w-1/3">

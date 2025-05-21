@@ -68,7 +68,7 @@ const StepsSection = () => {
     <section className="py-16 bg-white">
       <div className="container mx-auto px-6">
         <AnimatedSection animation="fade-in" className="text-center max-w-3xl mx-auto mb-16">
-          <h1 className="text-4xl md:text-5xl font-serif font-semibold text-gray-900 mb-6">
+          <h1 className="text-4xl md:text-5xl font-serif font-semibold text-purple-900 mb-6">
             How AI Dressage Trainer Works
           </h1>
           <p className="text-lg text-gray-700">
@@ -129,7 +129,7 @@ const StepsSection = () => {
               </div>
               
               <div className="p-8">
-                <h2 className="text-2xl font-serif font-semibold text-gray-900 mb-4">
+                <h2 className="text-2xl font-serif font-semibold text-purple-900 mb-4">
                   {activeStepData.title}
                 </h2>
                 
@@ -159,7 +159,7 @@ const StepsSection = () => {
         <AnimatedSection animation="fade-in" className="bg-purple-50 rounded-2xl p-8 md:p-12">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             <div>
-              <h2 className="text-2xl md:text-3xl font-serif font-semibold text-gray-900 mb-6">
+              <h2 className="text-2xl md:text-3xl font-serif font-semibold text-purple-900 mb-6">
                 See the Platform in Action
               </h2>
               

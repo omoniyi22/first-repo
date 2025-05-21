@@ -27,7 +27,7 @@ const EquestrianMissionSection = () => {
           </AnimatedSection>
           
           <AnimatedSection animation="fade-in">
-            <h2 className="text-3xl font-serif font-semibold text-gray-900 mb-6">
+            <h2 className="text-3xl font-serif font-semibold text-purple-900 mb-6">
               Our Mission & Vision
             </h2>
             

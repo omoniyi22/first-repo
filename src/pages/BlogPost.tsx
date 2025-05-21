@@ -166,7 +166,7 @@ const BlogPostPage = () => {
 
             {/* Blog post header */}
             <div className="max-w-4xl mx-auto mb-8">
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-gray-900 mb-4">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-purple-900 mb-4">
                 {getLocalizedContent("title", post.title)}
               </h1>
 

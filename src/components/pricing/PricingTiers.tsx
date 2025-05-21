@@ -184,7 +184,7 @@ const PricingTiers = () => {
   }
 
   return (
-    <section className="py-24 bg-white">
+    <section className="bg-white">
       <div className="container mx-auto px-6">
         <AnimatedSection
           animation="fade-in"
@@ -369,7 +369,7 @@ const PricingTiers = () => {
           className="mt-20 bg-purple-50 rounded-xl p-8 md:p-12"
         >
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div>
+            <div className="flex flex-col justify-center ">
               <h2 className="text-2xl md:text-3xl font-serif font-semibold text-navy-900 mb-4">
                 Not sure which plan is right for you?
               </h2>
@@ -403,7 +403,7 @@ const PricingTiers = () => {
 
                 <p className="text-gray-700 mb-8">{t["help-text"]}</p>
 
-                <div className="flex justify-center">
+                <div className="flex justify-start">
                   <Link to="mailto:info@aiequestrian.com">
                     <Button
                       variant="outline"

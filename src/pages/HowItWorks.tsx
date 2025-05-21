@@ -64,7 +64,7 @@ const HowItWorks = () => {
           <div className="grid md:grid-cols-2 gap-8 items-center">
             {/* Left Column - Text Content */}
             <div className="order-2 md:order-1">
-              <h1 className="text-4xl md:text-7xl font-serif font-semibold text-purple-900 mb-6">
+              <h1 className="text-4xl md:text-5xl font-serif font-semibold text-navy-900 mb-6">
                 How AI Equestrian Works
               </h1>
               <p className="text-lg text-gray-700 mb-8">
@@ -95,7 +95,7 @@ const HowItWorks = () => {
             <div className="order-1 md:order-2 relative -mt-11 -mr-11">
               <div className="rounded-es-[15%] overflow-hidden ">
                 <img
-                  src="/lovable-uploads/6f7781f9-7971-457e-8fa3-7494ec0725f1.png"
+                  src="/lovable-uploads/how-it-works-image.png"
                   alt="AI analysis of jumping technique with feedback overlays"
                   className="w-auto min-h-[85vh] max-h-[85vh] object-cover"
                 />
@@ -129,7 +129,7 @@ const HowItWorks = () => {
       <main>
         <AnimatedSection animation="fade-in" className="py-16 bg-white">
           <div className="container mx-auto px-6">
-            <h2 className="text-3xl md:text-4xl font-serif font-medium text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-serif font-medium text-center mb-12 text-purple-900">
               How AI Equestrian Works
             </h2>
             <p className="text-center text-gray-700 max-w-3xl mx-auto mb-16">
@@ -143,7 +143,7 @@ const HowItWorks = () => {
 
         <PrivacySection />
         <BenefitsSection />
-        <FaqSection />
+        <FaqSection pageName="howItWorks" />
       </main>
 
       <Footer />

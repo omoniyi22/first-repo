@@ -6,7 +6,7 @@ const MissionAndVision = () => {
     <section className="py-24 bg-white">
       <div className="container mx-auto px-6">
         <AnimatedSection animation="fade-in" className="max-w-4xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-serif font-semibold text-center text-gray-900 mb-8">
+          <h2 className="text-3xl md:text-4xl font-serif font-semibold text-center text-purple-900 mb-8">
             Our Mission & Vision
           </h2>
           

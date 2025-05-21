@@ -1,6 +1,5 @@
-
 import { useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, MessageCircle } from "lucide-react";
 import AnimatedSection from "../ui/AnimatedSection";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -38,9 +37,19 @@ const FaqItem = ({ question, answer, isOpen, toggleOpen }: FaqItemProps) => {
   );
 };
 
-const FaqSection = () => {
+const FaqSection = ({ pageName }: { pageName?: string }) => {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
+  // Sample FAQ data
+  let bg =
+    pageName == "howItWorks"
+      ? "bg-gradient-to-r from-[#e4defb] to-[#d8e4fb]"
+      : "bg-purple-50";
+
+  bg = pageName == "JumpingHowItWorks" ? "bg-[#eff6ff]" : "bg-purple-50";
+
+  const btnBg =
+    pageName == "JumpingHowItWorks" ? "bg-blue-600 hover:bg-blue-600" : "";
   const faqs = [
     {
       question: "How accurate is the AI analysis of score sheets?",
@@ -89,17 +98,18 @@ const FaqSection = () => {
   };
 
   return (
-    <section className="py-20 bg-purple-50">
+    <section className={`py-20 ${bg}`}>
       <div className="container mx-auto px-6">
         <AnimatedSection
           animation="fade-in"
           className="text-center max-w-3xl mx-auto mb-16"
         >
-          <h2 className="text-3xl md:text-4xl font-serif font-semibold text-gray-900 mb-4">
+          <h2 className="text-3xl md:text-4xl font-serif font-semibold text-purple-900 mb-4">
             Frequently Asked Questions
           </h2>
           <p className="text-lg text-gray-700">
-            Have questions about AI Equestrian? Find answers to the most common questions below.
+            Have questions about AI Equestrian? Find answers to the most common
+            questions below.
           </p>
         </AnimatedSection>
 
@@ -126,8 +136,11 @@ const FaqSection = () => {
             If you couldn't find the answer to your question, please don't
             hesitate to reach out to our support team.
           </p>
-          <Link to="mailto:info@aiequestrian.com" >
-            <Button variant="primary">Contact Support</Button>
+          <Link to="mailto:info@aiequestrian.com">
+            <Button variant="primary" className={btnBg}>
+              <MessageCircle className="w-5 h-5" />
+              Contact Support
+            </Button>
           </Link>
         </AnimatedSection>
       </div>

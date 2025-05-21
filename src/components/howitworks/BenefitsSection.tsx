@@ -11,11 +11,11 @@ interface BenefitCardProps {
 
 const BenefitCard = ({ title, description, icon }: BenefitCardProps) => {
   return (
-    <div className="bg-gray-50 rounded-xl p-8 hover:shadow-sm transition-shadow duration-300 relative overflow-hidden">
+    <div className="bg-gray-50 rounded-2xl p-8 hover:shadow-sm transition-shadow duration-300 relative overflow-hidden w-full md:w-1/3 lg:w-1/4">
       {/* Left accent border */}
       <div className="absolute left-0 top-0 bottom-0 w-2 bg-purple-500"></div>
       
-      <div className="mb-5 h-10 w-10 text-purple-600">
+      <div className="mb-5 h-14 w-14 bg-white rounded-full flex items-center justify-center text-purple-600">
         {icon}
       </div>
       <h3 className="text-xl font-serif font-medium mb-3 text-gray-900">{title}</h3>
@@ -65,7 +65,7 @@ const BenefitsSection = () => {
           What You Benefit From
         </h2>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="flex justify-around flex-wrap gap-6">
           {benefits.map((benefit, index) => (
             <BenefitCard 
               key={index}

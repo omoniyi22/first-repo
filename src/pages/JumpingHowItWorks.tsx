@@ -108,7 +108,7 @@ const JumpingHowItWorks = () => {
 
       <main>
         <JumpingStepsSection />
-        <FaqSection />
+        <FaqSection pageName="JumpingHowItWorks" />
         {/* <JumpingFaqSection /> */}
       </main>
       <Footer />

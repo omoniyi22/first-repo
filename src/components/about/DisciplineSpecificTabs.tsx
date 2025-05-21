@@ -130,7 +130,7 @@ const DisciplineSpecificTabs = () => {
     <section className="py-16 bg-gradient-to-br from-purple-100 to-blue-100">
       <div className="container mx-auto px-6">
         <AnimatedSection animation="fade-in" className="text-center max-w-3xl mx-auto mb-12">
-          <h2 className="text-3xl md:text-4xl font-serif font-semibold text-gray-900 mb-4">
+          <h2 className="text-3xl md:text-4xl font-serif font-semibold text-purple-900 mb-4">
             Discipline-Specific Challenges
           </h2>
           <p className="text-lg text-gray-700 mb-6">
