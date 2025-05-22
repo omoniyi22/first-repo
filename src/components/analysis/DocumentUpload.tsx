@@ -171,30 +171,30 @@ const DocumentUpload = ({fetchDocs}: DocumentUploadProps) => {
     if (!selectedFile || !user) {
       toast({
         title: language === 'en' ? "Missing information" : "Información faltante",
-        description: language === 'en' 
-          ? "Please select a file and fill in all required fields." 
+        description: language === 'en'
+          ? "Please select a file and fill in all required fields."
           : "Por favor selecciona un archivo y completa todos los campos requeridos.",
         variant: "destructive"
       });
       return;
     }
-    
+
     setIsUploading(true);
     setUploadProgress(10);
-    
+
     try {
       // Find the selected horse name
       const selectedHorse = horses.find(h => h.id === data.horseId);
       const horseName = selectedHorse?.name || 'Unknown Horse';
-      
+
       // Create a unique file path
       const fileExt = selectedFile.name.split('.').pop();
       const fileName = `${Date.now()}-${selectedFile.name.replace(/\s+/g, '-')}`;
       const filePath = `${user.id}/${fileName}`;
-      
+
       // Simulate progress
       setUploadProgress(30);
-      
+
       // Upload file to Supabase Storage
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('analysis')
@@ -202,19 +202,24 @@ const DocumentUpload = ({fetchDocs}: DocumentUploadProps) => {
           cacheControl: '3600',
           upsert: false
         });
-        
-      console.log(supabase.storage.from('analysis'));
-      console.log("I called",uploadError);
+
       if (uploadError) {
         throw new Error(uploadError.message);
       }
-      
+
       setUploadProgress(60);
-      
+
       // Get the public URL
       const { data: publicUrlData } = supabase.storage
         .from('analysis')
         .getPublicUrl(filePath);
+
+      if (!publicUrlData?.publicUrl) {
+        throw new Error(language === 'en'
+          ? 'Failed to retrieve public URL.'
+          : 'No se pudo obtener la URL pública.');
+      }
+
       // Insert document metadata into the database
       const { data: documentData, error: documentError } = await supabase
         .from('document_analysis')
@@ -233,51 +238,51 @@ const DocumentUpload = ({fetchDocs}: DocumentUploadProps) => {
           status: 'pending'
         })
         .select();
-      
+
       if (documentError) {
         throw new Error(documentError.message);
       }
-      // toast({
-      //   title: language === 'en' ? "Document uploaded successfully" : "Documento subido con éxito",
-      //   description: language === 'en' 
-      //     ? "Your document will be analyzed shortly." 
-      //     : "Tu documento será analizado en breve.",
-      // });
 
       setUploadProgress(100);
       fetchDocs();
-      
+
+      // Convert document to base64 preview
       const canvasImage = publicUrlData.publicUrl.includes('.pdf')
         ? await fetchPdfAsBase64(publicUrlData.publicUrl)
         : await imageToBase64PDF(publicUrlData.publicUrl);
-      console.log("pdfbase64", canvasImage);
+
       setBase64Image(canvasImage);
       setNewDocumentId(documentData[0].id);
       setShowConfirmModal(true);
-      
+
       // Reset form and states
       form.reset({
         discipline: 'dressage',
         date: new Date(),
       });
       setSelectedFile(null);
-      
-      // Set uploading to false after a short delay to show 100% state
+
+      // Show full upload bar before hiding
       setTimeout(() => {
         setIsUploading(false);
         setUploadProgress(0);
       }, 1000);
-      
+
     } catch (error: any) {
       console.error('Upload error:', error);
+
       toast({
         title: language === 'en' ? "Upload failed" : "Error al subir",
-        description: error.message || (language === 'en' 
-          ? "There was an error uploading your document. Please try again." 
-          : "Hubo un error al subir tu documento. Por favor intenta de nuevo."),
+        description: error?.message || (
+          language === 'en'
+            ? "There was an error uploading your document. Please try again."
+            : "Hubo un error al subir tu documento. Por favor intenta de nuevo."
+        ),
         variant: "destructive"
       });
+
       setIsUploading(false);
+      setUploadProgress(0);
     }
   };
 

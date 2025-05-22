@@ -52,10 +52,12 @@ const VideoUploadFormSchema = z.object({
 
 type VideoUploadFormValues = z.infer<typeof VideoUploadFormSchema>;
 
-interface Horse {
-  id: string;
-  name: string;
-}
+// Mock horses data for development
+const mockHorses = [
+  { id: 'horse1', name: 'Thunder' },
+  { id: 'horse2', name: 'Whisper' },
+  { id: 'horse3', name: 'Storm' }
+];
 
 const VideoUpload = () => {
   const { user } = useAuth();
@@ -67,8 +69,7 @@ const VideoUpload = () => {
   const [videoPreviewUrl, setVideoPreviewUrl] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [isUploading, setIsUploading] = useState<boolean>(false);
-  const [horses, setHorses] = useState<Horse[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [horses, setHorses] = useState<any[]>([]);
   
   const form = useForm<VideoUploadFormValues>({
     resolver: zodResolver(VideoUploadFormSchema),
@@ -83,39 +84,18 @@ const VideoUpload = () => {
 
   useEffect(() => {
     const fetchHorses = async () => {
-      if (!user) {
-        setIsLoading(false);
-        return;
-      }
+      if (!user) return;
       
       try {
-        setIsLoading(true);
-        const { data, error } = await supabase
-          .from('horses')
-          .select('id, name')
-          .eq('user_id', user.id)
-          .order('name');
-          
-        if (error) {
-          console.error('Error fetching horses:', error);
-          throw error;
-        }
-        
-        setHorses(data || []);
+        // Use mock data instead of Supabase query
+        setHorses(mockHorses);
       } catch (error) {
-        console.error('Error in fetchHorses:', error);
-        toast({
-          title: language === 'en' ? "Failed to load horses" : "Error al cargar caballos",
-          description: language === 'en' ? "Please try again later" : "Por favor intente más tarde",
-          variant: "destructive"
-        });
-      } finally {
-        setIsLoading(false);
+        console.error('Error fetching horses:', error);
       }
     };
     
     fetchHorses();
-  }, [user, language, toast]);
+  }, [user]);
   
   const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
@@ -220,21 +200,27 @@ const VideoUpload = () => {
       
       console.log("Video URL:", urlData.publicUrl);
       
-      // Find the selected horse
-      const selectedHorse = horses.find(horse => horse.id === data.horseId);
-      const horseName = selectedHorse?.name || 'Unknown Horse';
-      
+      const base64VideoFile = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(selectedVideo);
+        reader.onload = () => {
+          const result = reader.result as string;
+          // Remove the `data:<type>;base64,` prefix
+          const base64 = result.split(',')[1];
+          resolve(base64);
+        };
+        reader.onerror = (error) => reject(error);
+      });
+
       // Prepare document analysis record data
       const documentData = {
-        id: videoAnalysisId,
         user_id: user.id,
         horse_id: data.horseId,
-        horse_name: horseName,
+        horse_name: horses.find(horse => horse.id === data.horseId)?.name || 'Unknown Horse',
         discipline: data.discipline,
         video_type: data.videoType,
         document_date: data.date.toISOString(),
         document_url: urlData.publicUrl,
-        tags: tagArray,
         notes: data.notes,
         status: 'pending',
         file_name: selectedVideo.name,
@@ -258,8 +244,8 @@ const VideoUpload = () => {
       // Trigger the analysis function
       try {
         const { error: functionError } = await supabase.functions
-          .invoke('process-document-analysis', {
-            body: { documentId: videoAnalysisId }
+          .invoke('process-video-analysis', {
+            body: { documentId: videoAnalysisId, base64Video: base64VideoFile}
           });
           
         if (functionError) {
@@ -439,45 +425,18 @@ const VideoUpload = () => {
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
-                  disabled={isLoading || horses.length === 0}
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder={
-                        isLoading 
-                          ? (language === 'en' ? "Loading horses..." : "Cargando caballos...")
-                          : horses.length === 0
-                            ? (language === 'en' ? "No horses found" : "No se encontraron caballos")
-                            : (language === 'en' ? "Select a horse" : "Seleccionar un caballo")
-                      } />
+                      <SelectValue placeholder={language === 'en' ? "Select a horse" : "Seleccionar un caballo"} />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {horses.length === 0 ? (
-                      <SelectItem disabled value="none">
-                        {language === 'en' 
-                          ? "Add horses in your profile first" 
-                          : "Agrega caballos en tu perfil primero"}
-                      </SelectItem>
-                    ) : (
-                      horses.map((horse) => (
-                        <SelectItem key={horse.id} value={horse.id}>{horse.name}</SelectItem>
-                      ))
-                    )}
+                    {horses.map((horse) => (
+                      <SelectItem key={horse.id} value={horse.id}>{horse.name}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
-                {horses.length === 0 && !isLoading && (
-                  <div className="mt-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => window.location.href = '/profile'}
-                    >
-                      {language === 'en' ? "Go to Profile" : "Ir al Perfil"}
-                    </Button>
-                  </div>
-                )}
                 <FormMessage />
               </FormItem>
             )}
@@ -576,7 +535,7 @@ const VideoUpload = () => {
             <Button 
               type="submit" 
               className={`w-full ${discipline === 'dressage' ? 'bg-purple-700 hover:bg-purple-800' : 'bg-blue-600 hover:bg-blue-700'}`}
-              disabled={!selectedVideo || isUploading || horses.length === 0}
+              disabled={!selectedVideo || isUploading}
             >
               {isUploading 
                 ? (language === 'en' ? "Uploading..." : "Subiendo...") 
