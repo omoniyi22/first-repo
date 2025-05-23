@@ -422,16 +422,16 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({ videoId }) 
           </h3>
           <div>
             <p className="py-1">
-              {language === 'en' ? 'Time:' : 'Puntuación Total:'} <span className="font-semibold">{analysisResult.round_summary["Time"]} Seconds</span>
+              {language === 'en' ? 'Time:' : 'Tiempo:'} <span className="font-semibold">{analysisResult.round_summary["Time"]} Seconds</span>
             </p>
             <p className="py-1">
-              {language === 'en' ? 'Total Faults:' : 'Puntuación Total:'} <span className="font-semibold">{analysisResult.round_summary["Total faults"]}</span>
+              {language === 'en' ? 'Total Faults:' : 'Faltas Totales:'} <span className="font-semibold">{analysisResult.round_summary["Total faults"]}</span>
             </p>
             <p className="py-1">
-              {language === 'en' ? 'Clear Jumps:' : 'Puntuación Total:'} <span className="font-semibold">{analysisResult.round_summary["Clear jumps"]}</span>
+              {language === 'en' ? 'Clear Jumps:' : 'Saltos Limpios:'} <span className="font-semibold">{analysisResult.round_summary["Clear jumps"]}</span>
             </p>
             <p className="py-1">
-              {language === 'en' ? 'Clear Round Rate:' : 'Puntuación Total:'} <span className="font-semibold">{analysisResult.round_summary["Clear round rate"]}</span>
+              {language === 'en' ? 'Clear Round Rate:' : 'Porcentaje de Recorridos Limpios:'} <span className="font-semibold">{analysisResult.round_summary["Clear round rate"]}</span>
             </p>
           </div>
         </Card>
@@ -441,13 +441,13 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({ videoId }) 
           </h3>
           <div>
             <p className="py-1">
-              {language === 'en' ? 'Course Map:' : 'Puntuación Total:'} <span className="font-semibold">{analysisResult.course_analysis["Course Map"]}</span>
+              {language === 'en' ? 'Course Map:' : 'Mapa del Recorrido:'} <span className="font-semibold">{analysisResult.course_analysis["Course Map"]}</span>
             </p>
             <p className="py-1">
-              {language === 'en' ? 'Jump Types Identified:' : 'Puntuación Total:'} <span className="font-semibold">{analysisResult.course_analysis["Jump types identified"]}</span>
+              {language === 'en' ? 'Jump Types Identified:' : 'Tipos de Saltos Identificados:'} <span className="font-semibold">{analysisResult.course_analysis["Jump types identified"]}</span>
             </p>
             <p className="py-1">
-              {language === 'en' ? 'Course difficulty:' : 'Puntuación Total:'} <span className="font-semibold">{analysisResult.course_analysis["Course difficulty"]}</span>
+              {language === 'en' ? 'Course difficulty:' : 'Dificultad del Recorrido:'} <span className="font-semibold">{analysisResult.course_analysis["Course difficulty"]}</span>
             </p>
           </div>
         </Card>
@@ -466,7 +466,7 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({ videoId }) 
       <div className="grid grid-cols-2 gap-2">
         <Card className="my-4 p-4 sm:p-6">
           <h3 className="text-xl sm:text-2xl font-semibold mb-2 sm:mb-4">
-            {language === 'en' ? 'Jump by jump Analysis' : 'Resultados del Análisis'}
+            {language === 'en' ? 'Jump by jump Analysis' : 'Análisis Salto por Salto'}
           </h3>
           <div className="overflow-x-auto">
             <table className="min-w-full border border-gray-300 rounded-lg">
@@ -498,7 +498,7 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({ videoId }) 
         <div className="flex flex-col">
           <Card className="my-4 p-4 sm:p-6">
             <h3 className="text-xl sm:text-2xl font-semibold mb-2 sm:mb-4">
-              {language === 'en' ? 'Best Jump' : 'Resultados del Análisis'}
+              {language === 'en' ? 'Best Jump' : 'Mejor Salto'}
             </h3>
             <div>
               <p className="mb-2">Jump Number <b>#{analysisResult.performance_highlights.best_jump.jump_number}</b></p>
@@ -511,7 +511,7 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({ videoId }) 
           </Card>
           <Card className="my-4 p-4 sm:p-6 flex-grow">
             <h3 className="text-xl sm:text-2xl font-semibold mb-2 sm:mb-4">
-              {language === 'en' ? 'Focus Area' : 'Resultados del Análisis'}
+              {language === 'en' ? 'Focus Area' : 'Área de Mejora'}
             </h3>
             <div>
               {analysisResult.performance_highlights.area_for_improvement.map((area, index) => (
@@ -535,7 +535,19 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({ videoId }) 
           </Card>
         </div>
       </div>
-      
+      <Card className="p-4 sm:p-6">
+        <h4 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
+          {language === 'en' ? 'Recommendations' : 'Recomendaciones'}
+        </h4>
+        <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
+          {analysisResult?.recommendations?.map((recommendation, index) => (
+            <li key={index} className="text-sm sm:text-base">
+              {recommendation['tip']}<br/>
+              <b>{language === 'en' ? 'To improve:' : 'Para mejorar:'}</b> {recommendation['reason']}
+            </li>
+          )) || "No Recommendations!"}
+        </ul>
+      </Card>
     </div>
     
   );
