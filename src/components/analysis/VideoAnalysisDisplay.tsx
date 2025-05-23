@@ -37,7 +37,6 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({ videoId }) 
   const t = translations[language];
   
   const [analysis, setAnalysis] = useState<VideoAnalysisData | null>(null);
-  const [analysisResult, setAnalysisResult] = useState<any>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
@@ -73,16 +72,7 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({ videoId }) 
         if (data) {
           console.log("Retrieved video data:", data);
           setAnalysis(data as VideoAnalysisData);
-          if (data.status === 'completed') {
-            const { data: resultData, error: resultError } = await supabase
-              .from('analysis_results')
-              .select('result_json')
-              .eq('document_id', videoId)
-              .single();
-            
-            console.log("Analysis Result Data", resultData);
-            setAnalysisResult(resultData.result_json);
-          }
+          
           // Properly decode the URL to ensure it works correctly
           if (data.document_url) {
             const decoded = decodeURIComponent(data.document_url);
@@ -268,276 +258,160 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({ videoId }) 
   
   // For the demo, we'll show a basic video player with the video URL
   return (
-    <div>
-      <Card className="p-6 bg-white">
-        <div className="mb-6">
-          <h2 className="text-2xl font-serif font-semibold">
-            {language === 'en' ? "Video Analysis" : "Análisis de Video"}
-          </h2>
-          <div className="flex flex-wrap gap-2 text-sm text-gray-500 mt-2">
-            <span>{analysis.horse_name}</span>
-            <span>•</span>
-            <span>{new Date(analysis.document_date).toLocaleDateString()}</span>
-            <span>•</span>
-            <span>
-              {analysis.discipline === 'dressage' 
-                ? (language === 'en' ? "Dressage" : "Doma") 
-                : (language === 'en' ? "Jumping" : "Salto")}
-              {analysis.video_type && (
-                <>
-                  {" - "}
-                  {analysis.video_type === 'training' 
-                    ? (language === 'en' ? "Training" : "Entrenamiento")
-                    : (language === 'en' ? "Competition" : "Competición")
-                  }
-                </>
-              )}
-            </span>
-          </div>
-        </div>
-        
-        {/* Video player */}
-        <div className="mb-6">
-          <div className="relative bg-black rounded-lg overflow-hidden aspect-video">
-            {videoError ? (
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-white bg-gray-900 bg-opacity-80 p-4">
-                <AlertCircle className="h-12 w-12 mb-2 text-red-400" />
-                <p className="text-center mb-4">
-                  {language === 'en' 
-                    ? "There was a problem playing this video." 
-                    : "Hubo un problema al reproducir este video."}
-                </p>
-                <Button 
-                  variant="outline" 
-                  className="text-white border-white hover:bg-white hover:text-gray-900"
-                  onClick={() => {
-                    setVideoError(false);
-                    if (videoRef.current) {
-                      videoRef.current.load();
-                    }
-                  }}
-                >
-                  {language === 'en' ? "Try Again" : "Intentar de nuevo"}
-                </Button>
-              </div>
-            ) : null}
-            
-            <video
-              ref={videoRef}
-              src={decodedUrl || analysis.document_url}
-              className="w-full h-full"
-              onTimeUpdate={handleTimeUpdate}
-              onLoadedMetadata={handleLoadedMetadata}
-              onEnded={handleVideoEnded}
-              onError={handleVideoError}
-              preload="metadata"
-              playsInline
-              controls={false}
-              crossOrigin="anonymous"
-            />
-          </div>
-          
-          <div className="mt-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-gray-500">{formatTime(currentTime)}</span>
-              <span className="text-sm text-gray-500">{formatTime(duration)}</span>
-            </div>
-            
-            <Slider
-              value={[currentTime]}
-              min={0}
-              max={duration || 100}
-              step={0.1}
-              onValueChange={handleSliderChange}
-              className="mb-4"
-              disabled={videoError}
-            />
-            
-            <div className="flex justify-center gap-4">
-              <Button 
-                variant="outline" 
-                size="icon" 
-                onClick={seekBackward}
-                aria-label="Skip backward 5 seconds"
-                disabled={videoError}
-              >
-                <SkipBack className="h-5 w-5" />
-              </Button>
-              <Button 
-                variant="outline" 
-                size="icon"
-                onClick={togglePlayPause}
-                aria-label={isPlaying ? "Pause" : "Play"}
-                disabled={videoError}
-              >
-                {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
-              </Button>
-              <Button 
-                variant="outline" 
-                size="icon"
-                onClick={seekForward}
-                aria-label="Skip forward 5 seconds"
-                disabled={videoError}
-              >
-                <SkipForward className="h-5 w-5" />
-              </Button>
-            </div>
-          </div>
-        </div>
-        
-        {/* Notes and tags section */}
-        <div className="mt-8">
-          <div className="p-4 bg-gray-50 rounded-lg">
-            {analysis.notes && (
-              <div className="mt-4 p-4 bg-white rounded border">
-                <h4 className="font-medium mb-1">{language === 'en' ? "Your Notes" : "Tus Notas"}</h4>
-                <p className="text-gray-700">{analysis.notes}</p>
-              </div>
+    <Card className="p-6 bg-white">
+      <div className="mb-6">
+        <h2 className="text-2xl font-serif font-semibold">
+          {language === 'en' ? "Video Analysis" : "Análisis de Video"}
+        </h2>
+        <div className="flex flex-wrap gap-2 text-sm text-gray-500 mt-2">
+          <span>{analysis.horse_name}</span>
+          <span>•</span>
+          <span>{new Date(analysis.document_date).toLocaleDateString()}</span>
+          <span>•</span>
+          <span>
+            {analysis.discipline === 'dressage' 
+              ? (language === 'en' ? "Dressage" : "Doma") 
+              : (language === 'en' ? "Jumping" : "Salto")}
+            {analysis.video_type && (
+              <>
+                {" - "}
+                {analysis.video_type === 'training' 
+                  ? (language === 'en' ? "Training" : "Entrenamiento")
+                  : (language === 'en' ? "Competition" : "Competición")
+                }
+              </>
             )}
-          </div>
-          
-          {analysis.tags && analysis.tags.length > 0 && (
-            <div className="mt-4">
-              <h4 className="text-sm font-medium mb-2">{language === 'en' ? "Tags" : "Etiquetas"}</h4>
-              <div className="flex flex-wrap gap-2">
-                {analysis.tags.map((tag, index) => (
-                  <span 
-                    key={index}
-                    className={`text-xs px-2 py-1 rounded-full ${
-                      analysis.discipline === 'dressage' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'
-                    }`}
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      </Card>
-      <div className="grid grid-cols-2 gap-2">
-        <Card className="my-4 p-4 sm:p-6">
-          <h3 className="text-xl sm:text-2xl font-semibold mb-2 sm:mb-4">
-            {language === 'en' ? 'Analysis Results' : 'Resultados del Análisis'}
-          </h3>
-          <div>
-            <p className="py-1">
-              {language === 'en' ? 'Time:' : 'Puntuación Total:'} <span className="font-semibold">{analysisResult.round_summary["Time"]} Seconds</span>
-            </p>
-            <p className="py-1">
-              {language === 'en' ? 'Total Faults:' : 'Puntuación Total:'} <span className="font-semibold">{analysisResult.round_summary["Total faults"]}</span>
-            </p>
-            <p className="py-1">
-              {language === 'en' ? 'Clear Jumps:' : 'Puntuación Total:'} <span className="font-semibold">{analysisResult.round_summary["Clear jumps"]}</span>
-            </p>
-            <p className="py-1">
-              {language === 'en' ? 'Clear Round Rate:' : 'Puntuación Total:'} <span className="font-semibold">{analysisResult.round_summary["Clear round rate"]}</span>
-            </p>
-          </div>
-        </Card>
-        <Card className="my-4 p-4 sm:p-6">
-          <h3 className="text-xl sm:text-2xl font-semibold mb-2 sm:mb-4">
-            {language === 'en' ? 'Course Analysis' : 'Resultados del Análisis'}
-          </h3>
-          <div>
-            <p className="py-1">
-              {language === 'en' ? 'Course Map:' : 'Puntuación Total:'} <span className="font-semibold">{analysisResult.course_analysis["Course Map"]}</span>
-            </p>
-            <p className="py-1">
-              {language === 'en' ? 'Jump Types Identified:' : 'Puntuación Total:'} <span className="font-semibold">{analysisResult.course_analysis["Jump types identified"]}</span>
-            </p>
-            <p className="py-1">
-              {language === 'en' ? 'Course difficulty:' : 'Puntuación Total:'} <span className="font-semibold">{analysisResult.course_analysis["Course difficulty"]}</span>
-            </p>
-          </div>
-        </Card>
-      </div>
-      <Card className="my-4 p-4 sm:p-6">
-        <h3 className="text-xl sm:text-2xl font-semibold mb-2 sm:mb-4">
-          {language === 'en' ? 'Personalized Insight' : 'Resultados del Análisis'}
-        </h3>
-        <div>
-          <p className="py-1">
-            {analysisResult.personalInsight}
-          </p>
-        </div>
-      </Card>
-        
-      <div className="grid grid-cols-2 gap-2">
-        <Card className="my-4 p-4 sm:p-6">
-          <h3 className="text-xl sm:text-2xl font-semibold mb-2 sm:mb-4">
-            {language === 'en' ? 'Jump by jump Analysis' : 'Resultados del Análisis'}
-          </h3>
-          <div className="overflow-x-auto">
-            <table className="min-w-full border border-gray-300 rounded-lg">
-              <thead className="bg-gray-100">
-                <tr>
-                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">
-                    {language === 'en' ? 'Jump #' : 'Salto #'}
-                  </th>
-                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">
-                    {language === 'en' ? 'Type' : 'Tipo'}
-                  </th>
-                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">
-                    {language === 'en' ? 'Result' : 'Resultado'}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {analysisResult.jump_by_jump_results.map((jump, index) => (
-                  <tr key={index} className="border-t border-gray-200">
-                    <td className="px-4 py-2 text-sm">{jump['Jump number']}</td>
-                    <td className="px-4 py-2 text-sm capitalize">{jump['Jump type']}</td>
-                    <td className="px-4 py-2 text-sm">{jump['Result']}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </Card>
-        <div className="flex flex-col">
-          <Card className="my-4 p-4 sm:p-6">
-            <h3 className="text-xl sm:text-2xl font-semibold mb-2 sm:mb-4">
-              {language === 'en' ? 'Best Jump' : 'Resultados del Análisis'}
-            </h3>
-            <div>
-              <p className="mb-2">Jump Number <b>#{analysisResult.performance_highlights.best_jump.jump_number}</b></p>
-              <ul className="pl-6">
-                {analysisResult.performance_highlights.best_jump.strengths.map((item, index) => (
-                  <li key={index} className="list-disc">{item}</li>
-                ))}
-              </ul>
-            </div>
-          </Card>
-          <Card className="my-4 p-4 sm:p-6 flex-grow">
-            <h3 className="text-xl sm:text-2xl font-semibold mb-2 sm:mb-4">
-              {language === 'en' ? 'Focus Area' : 'Resultados del Análisis'}
-            </h3>
-            <div>
-              {analysisResult.performance_highlights.area_for_improvement.map((area, index) => (
-                <div className="my-4" key={index}>
-                  <p className="mb-2">Weakness of Jump <b>#{area.jump_number}</b></p>
-                  <ul className="pl-6 mb-4">
-                    {area.weakness.map((item, i) => (
-                      <li key={i} className="list-disc">{item}</li>
-                    ))}
-                  </ul>
-                  <p className="mb-2">To Improve:</p>
-                  <ul className="pl-6 mb-2">
-                    {area.tip.map((item, i) => (
-                      <li key={i} className="list-disc">{item}</li>
-                    ))}
-                  </ul>
-                  <hr />
-                </div>
-              ))}
-            </div>
-          </Card>
+          </span>
         </div>
       </div>
       
-    </div>
-    
+      {/* Video player */}
+      <div className="mb-6">
+        <div className="relative bg-black rounded-lg overflow-hidden aspect-video">
+          {videoError ? (
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-white bg-gray-900 bg-opacity-80 p-4">
+              <AlertCircle className="h-12 w-12 mb-2 text-red-400" />
+              <p className="text-center mb-4">
+                {language === 'en' 
+                  ? "There was a problem playing this video." 
+                  : "Hubo un problema al reproducir este video."}
+              </p>
+              <Button 
+                variant="outline" 
+                className="text-white border-white hover:bg-white hover:text-gray-900"
+                onClick={() => {
+                  setVideoError(false);
+                  if (videoRef.current) {
+                    videoRef.current.load();
+                  }
+                }}
+              >
+                {language === 'en' ? "Try Again" : "Intentar de nuevo"}
+              </Button>
+            </div>
+          ) : null}
+          
+          <video
+            ref={videoRef}
+            src={decodedUrl || analysis.document_url}
+            className="w-full h-full"
+            onTimeUpdate={handleTimeUpdate}
+            onLoadedMetadata={handleLoadedMetadata}
+            onEnded={handleVideoEnded}
+            onError={handleVideoError}
+            preload="metadata"
+            playsInline
+            controls={false}
+            crossOrigin="anonymous"
+          />
+        </div>
+        
+        <div className="mt-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm text-gray-500">{formatTime(currentTime)}</span>
+            <span className="text-sm text-gray-500">{formatTime(duration)}</span>
+          </div>
+          
+          <Slider
+            value={[currentTime]}
+            min={0}
+            max={duration || 100}
+            step={0.1}
+            onValueChange={handleSliderChange}
+            className="mb-4"
+            disabled={videoError}
+          />
+          
+          <div className="flex justify-center gap-4">
+            <Button 
+              variant="outline" 
+              size="icon" 
+              onClick={seekBackward}
+              aria-label="Skip backward 5 seconds"
+              disabled={videoError}
+            >
+              <SkipBack className="h-5 w-5" />
+            </Button>
+            <Button 
+              variant="outline" 
+              size="icon"
+              onClick={togglePlayPause}
+              aria-label={isPlaying ? "Pause" : "Play"}
+              disabled={videoError}
+            >
+              {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+            </Button>
+            <Button 
+              variant="outline" 
+              size="icon"
+              onClick={seekForward}
+              aria-label="Skip forward 5 seconds"
+              disabled={videoError}
+            >
+              <SkipForward className="h-5 w-5" />
+            </Button>
+          </div>
+        </div>
+      </div>
+      
+      {/* Notes and tags section */}
+      <div className="mt-8">
+        <div className="p-4 bg-gray-50 rounded-lg">
+          <h3 className="text-lg font-semibold mb-3">
+            {language === 'en' ? "Note" : "Nota"}
+          </h3>
+          <p className="text-gray-600">
+            {language === 'en'
+              ? "Video analysis features will be available in an upcoming release. This is currently a preview of the video player component."
+              : "Las funciones de análisis de video estarán disponibles en una próxima versión. Esto es actualmente una vista previa del componente de reproductor de video."}
+          </p>
+          {analysis.notes && (
+            <div className="mt-4 p-4 bg-white rounded border">
+              <h4 className="font-medium mb-1">{language === 'en' ? "Your Notes" : "Tus Notas"}</h4>
+              <p className="text-gray-700">{analysis.notes}</p>
+            </div>
+          )}
+        </div>
+        
+        {analysis.tags && analysis.tags.length > 0 && (
+          <div className="mt-4">
+            <h4 className="text-sm font-medium mb-2">{language === 'en' ? "Tags" : "Etiquetas"}</h4>
+            <div className="flex flex-wrap gap-2">
+              {analysis.tags.map((tag, index) => (
+                <span 
+                  key={index}
+                  className={`text-xs px-2 py-1 rounded-full ${
+                    analysis.discipline === 'dressage' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'
+                  }`}
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </Card>
   );
 };
 

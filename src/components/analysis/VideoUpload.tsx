@@ -59,10 +59,7 @@ const mockHorses = [
   { id: 'horse3', name: 'Storm' }
 ];
 
-interface VideoUploadProps {
-  fetchDocs?: () => void;
-}
-const VideoUpload = ({fetchDocs}: VideoUploadProps) => {
+const VideoUpload = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const { language, translations } = useLanguage();
@@ -202,7 +199,7 @@ const VideoUpload = ({fetchDocs}: VideoUploadProps) => {
         .getPublicUrl(filePath);
       
       console.log("Video URL:", urlData.publicUrl);
-
+      
       const base64VideoFile = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(selectedVideo);
@@ -233,12 +230,10 @@ const VideoUpload = ({fetchDocs}: VideoUploadProps) => {
       console.log("Saving document analysis record:", documentData);
       
       // Add the video analysis record to the database
-      const { data: videoAnalysisData, error: dbError } = await supabase
+      const { error: dbError } = await supabase
         .from('document_analysis')
-        .insert(documentData)
-        .select();
-      
-      
+        .insert(documentData);
+        
       if (dbError) {
         console.error("Database error:", dbError);
         throw new Error(dbError.message);
@@ -250,7 +245,7 @@ const VideoUpload = ({fetchDocs}: VideoUploadProps) => {
       try {
         const { error: functionError } = await supabase.functions
           .invoke('process-video-analysis', {
-            body: { documentId: videoAnalysisData[0].id, base64Video: base64VideoFile}
+            body: { documentId: videoAnalysisId, base64Video: base64VideoFile}
           });
           
         if (functionError) {
@@ -263,7 +258,7 @@ const VideoUpload = ({fetchDocs}: VideoUploadProps) => {
         console.error("Error calling function:", functionCallError);
         // Continue as video is saved
       }
-      fetchDocs();
+      
       clearInterval(progressInterval);
       setUploadProgress(100);
       
