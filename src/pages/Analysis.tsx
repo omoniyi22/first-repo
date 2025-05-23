@@ -389,7 +389,7 @@ const Analysis = () => {
             </TabsContent>
 
             <TabsContent value="video-upload">
-              <VideoUpload />
+              <VideoUpload fetchDocs={fetchDocs}/>
             </TabsContent>
 
             <TabsContent value="video-list">
