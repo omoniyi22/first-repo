@@ -430,9 +430,6 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({ videoId }) 
             <p className="py-1">
               {language === 'en' ? 'Clear Jumps:' : 'Saltos Limpios:'} <span className="font-semibold">{analysisResult.round_summary["Clear jumps"]}</span>
             </p>
-            <p className="py-1">
-              {language === 'en' ? 'Clear Round Rate:' : 'Porcentaje de Recorridos Limpios:'} <span className="font-semibold">{analysisResult.round_summary["Clear round rate"]}</span>
-            </p>
           </div>
         </Card>
         <Card className="my-4 p-4 sm:p-6">
