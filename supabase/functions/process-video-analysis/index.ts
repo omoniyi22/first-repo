@@ -66,10 +66,10 @@ serve(async (req)=>{
     if (!raw) throw new Error('GEMINI_SERVICE_ACCOUNT_JSON is not set');
     const serviceAccount = JSON.parse(raw);
     console.log("Using project:", serviceAccount.project_id);
-    const { documentId, base64Image } = await req.json();
-    if (!documentId || !base64Image) {
+    const { documentId, base64Video } = await req.json();
+    if (!documentId || !base64Video) {
       return new Response(JSON.stringify({
-        error: 'Missing documentId or base64Image'
+        error: 'Missing documentId or base64Video'
       }), {
         status: 400,
         headers: corsHeaders
@@ -83,100 +83,66 @@ serve(async (req)=>{
     const model = "gemini-2.0-flash"; // or gemini-1.5-flash
     const geminiUrl = `https://us-central1-aiplatform.googleapis.com/v1/projects/${serviceAccount.project_id}/locations/us-central1/publishers/google/models/${model}:generateContent`;
     const prompt = `
-      This is the test score sheet of one rider's jumping or dressage movement.
-      You should get the name of horse from document like Frapp, Varadero, Pagasus, Han, Lolo and so on.
-      You can get that in the first part of PDF, normally it is next of the rider name.
-      Each movement is evaluated by several judges.
-      Extract JSON with movement, score, comments, patterns and percentage.
-      Every individual movement should include all judge's score and comment.
-      JSON format should be like follow.
-      All formats must be followed like an example and if there are no contents, fill the field with null.
-      Once analyze the document, you should give your recommend to improve skill based on analyzed results with strengths and weakness.
+      Please analyze the uploaded rider video and return a JSON structured summary with the following sections:
+
+      1. **Round Summary**
+        - Total faults (include type: rail, refusal, time fault)
+        - Number of clear jumps vs total (total faults + clear jumps should be same with total jumps)
+        - Time (it will be length of video but you can adjust this as seconds)
+        - Clear round rate for this round
+
+      2. **Course Analysis**
+        - Basic digitized course map (jump layout representation)
+        - Jump types and counts (e.g., verticals, oxers, combinations and so on)
+        - General course difficulty (based on spacing, turn difficulty)
+        You should extract all infos like follow:
+        {"Course Map": "Simple digitized version showing jump layout", "Jump types identified": "6 verticals, 4 oxers, 1 triple combination, 2 water jumps", "Course difficulty": "3 difficult jumps but easy to turn"},
+        Here, Total count of jumps (6 + 4 + 1 + 2 = 13) in Jump types identified should be same with follow Jump Number
+         
+      3. **Jump-by-Jump Results**
+        For each jump:
+        - Jump number
+        - Jump type
+        - Result (e.g., clear, rail, refusal, time fault)
+
+      4. **Performance Highlights**
+        - Best Jump: Identify one standout jump with explanation
+        - Area for Improvement: One problematic jump or pattern with context and history (if available)
+
+      5. **Basic Video Analysis**
+        - Detect individual jumps and timestamp each
+        - Mark takeoff and landing points
+        - Organize video clips by jump type
+
+      6. **Simple Fault Patterns**
+        - Most common fault type
+        - Course location trends (first half vs second half)
+        - Jump type trends (e.g., combination faults, water jump issues)
+
+      7. **Progress Tracking**
+        - Show recent trend in clear round rate (if previous data is available)
+        - Identify consistent strengths
+        - Highlight focus area for improvement
+
+      Output the final analysis in the following JSON structure (this is sample data, just follow the structure no content!!):
       {
-        "percentage": 68.5,
-        "horse": "Han",
-        "scores": [
-          {
-            "movement": "Halt at X",
-            "judgeA": 6,
-            "judgeB": 6,
-            "judgeC": 6,
-            "maxScore": 10,
-            "commentA": "Slightly unbalanced",
-            "commentB": "Slightly unbalanced",
-            "commentC": "Slightly unbalanced"
-          },
-          {
-            "movement": "Halt at X",
-            "judgeA": 6,
-            "judgeB": 6,
-            "judgeC": 6,
-            "maxScore": 10,
-            "commentA": "Slightly unbalanced",
-            "commentB": "Slightly unbalanced",
-            "commentC": "Slightly unbalanced"
-          }
-        ],
-        "strengths": [
-          "Good rhythm",
-          "Nice energy throughout",
-          "Attentive to aids"
-        ],
-        "weaknesses": [
-          "Tension in transitions",
-          "Balance in halts needs work"
-        ],
-        "generalComments": {
-          "judgeA": "Work on balanced halts",
-          "judgeB": "Work on balanced halts",
-          "judgeC": ""
+        "personalInsight": "Based on your riding patterns, you appear to be a rider who excels at precise technical elements but may benefit from developing more expression and freedom in movements."
+        "round_summary": {"Total faults": "2(1 rail, 1 time fault)", "Clear jumps": "11 out of 13", "Time": 79, "Clear round rate": "92%"},
+        "course_analysis": {"Course Map": "Simple digitized version showing jump layout", "Jump types identified": "6 verticals, 4 oxers, 1 triple combination, 2 water jumps", "Course difficulty": "... (You should get the difficulty based on jump spacing and turn requirements)"},
+        "jump_by_jump_results": [...],
+        "performance_highlights": {
+          "best_jump": {jump_number: 11, strengths: ['Consistently clear across recent rounds', 'Strong, confident approach maintained', 'Good rhythm and balance']},
+          "area_for_improvement": [{jump_number: 7, weakness: ['Pattern shows difficulty with related distances in combinations', 'Pattern shows difficulty with related distances in combinations'], tip: ['exercise more' ...]}]
         },
-        "recommendations": [
-          {
-            "tip": "Practice more balanced halts",
-            "reason": "Weakness in balanced halts"
-          },
-          {
-            "tip": "Work on reducing tension during transitions",
-            "reason": "Transitions appear rushed and tight"
-          },
-          {
-            "tip": "Ride combinations with greater control and preparation",
-            "reason": "Frequent faults in combination jumps"
-          }
-        ],
-        "focusArea": [
-          {
-            "area": "Right Center Quality (5.0)",
-            "tip": {
-              "quickFix": "Try breathing out as you apply right leg aid",
-              "Exercise": "20m circle with gradual spiral in and out"
-            }
-          },
-          {
-            "area": "Medium Trot Expression (5.5)",
-            "tip": {
-              "quickFix": "Think 'up' not 'forward' in transitions.",
-              "Exercise": "Trot poles with varied spacing to encourage suspension"
-            }
-          }
-        ],
-        "highestScore": {
-          "score": 8,
-          "movement": "Halt at X"
-        },
-        "lowestScore": {
-          "score": 6,
-          "movement": "Halt at X"
-        },
-        "personalInsight": "You seem to be a rider who excels at precise technical elements, especially halts and geometry. However, if you focus more on relaxation and expression during transitions and medium gaits, you could significantly improve your overall performance."
+        "fault_patterns": [{area: 'Most common fault type', content: 'Rails (75% of total faults)'}, {area: 'Fault location pattern', content: '80% of faults occur in second half of course'}],
+        "recommendations": [{tip: "Practicse more balanced halts", "reason": "Weak of Balanced Halts"}, {tip: "Practicse more balanced halts", "reason": "Weak of Balanced Halts"}]
       }
-      Percentage, strengths (at least 2 strengths), weaknesses (at least 2 weaknesses), recommendations, focus area and personal insight(Your personal thoughts) must be required in results.
-      At least 3 Recommendations are needed and all recommendations should be deep, meaningful, useful, correct and in detail.
-      If there's Spanish in content, you should translate to English to ensure content is English.
-      And should choose professional riding words like "flying changes" instead of "changes of leg" and your personal insight content pattern should be written to the person like "You seem to be ... if you ..." with 3-5 sentences and must be richful and helpful for riders.
+      You should extract the helpful, meaninful, and also correct performance highlights and faults from the video.
+      Your personal insight content pattern should be written to the person like "You seem to be ... if you ..." with 3-5 sentences and must be richful and helpful for riders.
+      At least 3 Recommendations are needed and all recommendations should be deep, meaningful, useful, correct and in detail to improve rider's skill based on analysis.
+      Only return the JSON without any comment like "Here is the analyzed result of the video.". Keep explanations short, objective, and specific.
       In other words, riders can get the attractive recommendations, focus area and personal insight from your analysis - you should make them to love this tool.
-    `;
+      `;
     const geminiResponse = await fetch(geminiUrl, {
       method: 'POST',
       headers: {
@@ -193,8 +159,8 @@ serve(async (req)=>{
               },
               {
                 inlineData: {
-                  mimeType: 'application/pdf',
-                  data: base64Image
+                  mimeType: 'video/mp4',
+                  data: base64Video
                 }
               }
             ]
@@ -209,8 +175,8 @@ serve(async (req)=>{
     }
     const geminiResult = JSON.parse(result);
     let resultText = geminiResult.candidates[0].content.parts[0].text;
-    console.log("resultText:", resultText);
     resultText = resultText.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
+    console.log("resultText:", resultText);
     let finalResult;
     try {
       finalResult = JSON.parse(resultText);
@@ -218,23 +184,12 @@ serve(async (req)=>{
       console.error("❌ Failed to parse JSON:", resultText);
       throw new Error("Gemini returned invalid JSON format");
     }
-    const horseName = finalResult.horse || null;
-    let horseId = null;
-    if (horseName) {
-      const { data: horseData, error: horseError } = await supabase.from('horses').select('id').ilike('name', horseName).single();
-      if (horseError) {
-        console.warn('Horse not found:', horseError.message);
-      } else {
-        horseId = horseData.id;
-      }
-    }
+    console.log("geminiVideoResult", finalResult);
     await supabase.from('analysis_results').insert({
       document_id: documentId,
       result_json: finalResult
     });
     await supabase.from('document_analysis').update({
-      horse_name: horseName,
-      horse_id: horseId,
       status: 'completed',
       updated_at: new Date().toISOString()
     }).eq('id', documentId);

@@ -126,7 +126,7 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({ docum
               .eq('document_id', documentId)
               .single();
               
-              console.log("I called", resultData);
+              console.log("analysis result data =>", resultData);
             if (resultError) {
               console.warn('Could not fetch analysis results:', resultError);
               // For now, fall back to mock data if no results are available
@@ -227,7 +227,7 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({ docum
         </h3>
         {resultData.totalScore || resultData.percentage ? (
           <p className="text-lg">
-            {language === 'en' ? 'Total Score:' : 'Puntuación Total:'} <span className="font-semibold">{resultData.totalScore}</span> (<span className="font-semibold">{resultData.percentage}%</span>)
+            {language === 'en' ? 'Total Score:' : 'Puntuación Total:'} <span className="font-semibold">{resultData.percentage}%</span>
           </p>
         ) : (
           <p>{language === 'en' ? 'Score not available' : 'Puntuación no disponible'}</p>
@@ -365,8 +365,8 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({ docum
         <Card className="p-4 sm:p-6">
           <h4 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
             {language === 'en'
-              ? `Your Top ${resultData['focusArea'].length} Focus Area${resultData['focusArea'].length > 1 ? 's' : ''}`
-              : `Tus ${resultData['focusArea'].length} áreas principales`}
+              ? `Your Top Focus Area${resultData['focusArea'].length > 1 ? 's' : ''} (${resultData['focusArea'].length})`
+              : `Tus áreas principales (${resultData['focusArea'].length})`}
           </h4>
           <ol className="pl-6">
             {resultData['focusArea'].map((item, index) => (

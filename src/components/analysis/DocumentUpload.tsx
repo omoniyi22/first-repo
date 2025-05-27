@@ -48,7 +48,8 @@ import { dressageLevels } from '@/lib/formOptions';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { fetchPdfAsBase64 } from '@/utils/pdfUtils';
-import { imageToBase64PDF } from '@/utils/img2pdf';
+import { convertImagesToPDF, imageToBase64PDF } from '@/utils/img2pdf';
+import * as jsPDF from 'jspdf';
 
 const DocumentUploadFormSchema = z.object({
   discipline: z.enum(['dressage', 'jumping']),
@@ -91,7 +92,7 @@ const DocumentUpload = ({fetchDocs}: DocumentUploadProps) => {
   const { language, translations } = useLanguage();
   const t = translations[language];
   
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [horses, setHorses] = useState<any[]>([]);
@@ -134,32 +135,54 @@ const DocumentUpload = ({fetchDocs}: DocumentUploadProps) => {
   }, [user]);
   
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
+    const files = e.target.files;
     
-    if (file) {
-      // Check if file is PDF, JPG, or PNG
-      const fileType = file.type;
-      if (
-        fileType === 'application/pdf' || 
-        fileType === 'image/jpeg' || 
-        fileType === 'image/png' ||
-        fileType === 'image/webp'
-      ) {
-        setSelectedFile(file);
+    if (files && files.length > 0) {
+      const validFiles: File[] = [];
+      let hasInvalidFiles = false;
+      
+      // Check if there's a PDF file
+      const pdfFile = Array.from(files).find(file => file.type === 'application/pdf');
+      
+      if (pdfFile) {
+        // If PDF is found, only use that
+        validFiles.push(pdfFile);
       } else {
+        // Otherwise, collect all valid image files
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          const fileType = file.type;
+          
+          if (
+            fileType === 'image/jpeg' || 
+            fileType === 'image/png' ||
+            fileType === 'image/webp'
+          ) {
+            validFiles.push(file);
+          } else {
+            hasInvalidFiles = true;
+          }
+        }
+      }
+      
+      if (hasInvalidFiles) {
         toast({
           title: language === 'en' ? "Invalid file type" : "Tipo de archivo no válido",
           description: language === 'en' 
-            ? "Please upload a PDF, JPG, Webp or PNG file." 
-            : "Por favor sube un archivo PDF, JPG, Webp o PNG.",
+            ? "Please upload only PDF, JPG, PNG or WebP files." 
+            : "Por favor sube solo archivos PDF, JPG, PNG o WebP.",
           variant: "destructive"
         });
       }
+      
+      if (validFiles.length > 0) {
+        setSelectedFiles(prev => [...prev, ...validFiles]);
+      }
     }
   };
-  
+
   const removeSelectedFile = () => {
-    setSelectedFile(null);
+    setSelectedFiles([]);
     // Reset file input
     const fileInput = document.getElementById('document-upload') as HTMLInputElement;
     if (fileInput) {
@@ -168,12 +191,12 @@ const DocumentUpload = ({fetchDocs}: DocumentUploadProps) => {
   };
 
   const onSubmit = async (data: DocumentUploadFormValues) => {
-    if (!selectedFile || !user) {
+    if (selectedFiles.length === 0 || !user) {
       toast({
         title: language === 'en' ? "Missing information" : "Información faltante",
         description: language === 'en'
-          ? "Please select a file and fill in all required fields."
-          : "Por favor selecciona un archivo y completa todos los campos requeridos.",
+          ? "Please select at least one file and fill in all required fields."
+          : "Por favor selecciona al menos un archivo y completa todos los campos requeridos.",
         variant: "destructive"
       });
       return;
@@ -186,28 +209,47 @@ const DocumentUpload = ({fetchDocs}: DocumentUploadProps) => {
       // Find the selected horse name
       const selectedHorse = horses.find(h => h.id === data.horseId);
       const horseName = selectedHorse?.name || 'Unknown Horse';
-
-      // Create a unique file path
-      const fileExt = selectedFile.name.split('.').pop();
-      const fileName = `${Date.now()}-${selectedFile.name.replace(/\s+/g, '-')}`;
+      
+      // Create a filename
+      const timestamp = Date.now();
+      let fileName, fileBlob, fileType;
+      
+      // Check if we're dealing with a single PDF or multiple images
+      const isPDF = selectedFiles.some(file => file.type === 'application/pdf');
+      
+      if (isPDF) {
+        // Use the PDF directly
+        const pdfFile = selectedFiles.find(file => file.type === 'application/pdf')!;
+        fileName = `${timestamp}-${pdfFile.name.replace(/\s+/g, '-')}`;
+        fileBlob = pdfFile;
+        fileType = 'application/pdf';
+      } else {
+        // Convert images to a single PDF
+        fileName = `${timestamp}-combined-document.pdf`;
+        fileBlob = await convertImagesToPDF(selectedFiles);
+        fileType = 'application/pdf';
+      }
+      
+      console.log(fileBlob);
       const filePath = `${user.id}/${fileName}`;
-
-      // Simulate progress
-      setUploadProgress(30);
-
+      
+      // Update progress
+      setUploadProgress(40);
+      
       // Upload file to Supabase Storage
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('analysis')
-        .upload(filePath, selectedFile, {
+        .upload(filePath, fileBlob, {
           cacheControl: '3600',
-          upsert: false
+          upsert: false,
+          contentType: fileType
         });
 
       if (uploadError) {
         throw new Error(uploadError.message);
       }
 
-      setUploadProgress(60);
+      setUploadProgress(70);
 
       // Get the public URL
       const { data: publicUrlData } = supabase.storage
@@ -220,6 +262,18 @@ const DocumentUpload = ({fetchDocs}: DocumentUploadProps) => {
           : 'No se pudo obtener la URL pública.');
       }
 
+      // Convert PDF to base64 for preview and processing
+      const pdfBase64 = await fetchPdfAsBase64(publicUrlData.publicUrl);
+      
+      // Create a descriptive filename for the database
+      let displayFileName;
+      if (isPDF) {
+        const pdfFile = selectedFiles.find(file => file.type === 'application/pdf')!;
+        displayFileName = pdfFile.name;
+      } else {
+        displayFileName = `Combined (${selectedFiles.length} images)`;
+      }
+      
       // Insert document metadata into the database
       const { data: documentData, error: documentError } = await supabase
         .from('document_analysis')
@@ -232,8 +286,8 @@ const DocumentUpload = ({fetchDocs}: DocumentUploadProps) => {
           competition_type: data.discipline === 'jumping' ? data.competitionType : null,
           document_date: data.date.toISOString(),
           document_url: publicUrlData.publicUrl,
-          file_name: selectedFile.name,
-          file_type: selectedFile.type,
+          file_name: displayFileName,
+          file_type: fileType,
           notes: data.notes || null,
           status: 'pending'
         })
@@ -243,15 +297,11 @@ const DocumentUpload = ({fetchDocs}: DocumentUploadProps) => {
         throw new Error(documentError.message);
       }
 
-      setUploadProgress(100);
-      fetchDocs();
+      setUploadProgress(90);
+      fetchDocs && fetchDocs();
 
-      // Convert document to base64 preview
-      const canvasImage = publicUrlData.publicUrl.includes('.pdf')
-        ? await fetchPdfAsBase64(publicUrlData.publicUrl)
-        : await imageToBase64PDF(publicUrlData.publicUrl);
-
-      setBase64Image(canvasImage);
+      // Set the base64 image for preview
+      setBase64Image(pdfBase64);
       setNewDocumentId(documentData[0].id);
       setShowConfirmModal(true);
 
@@ -260,9 +310,10 @@ const DocumentUpload = ({fetchDocs}: DocumentUploadProps) => {
         discipline: 'dressage',
         date: new Date(),
       });
-      setSelectedFile(null);
+      setSelectedFiles([]);
 
       // Show full upload bar before hiding
+      setUploadProgress(100);
       setTimeout(() => {
         setIsUploading(false);
         setUploadProgress(0);
@@ -275,8 +326,8 @@ const DocumentUpload = ({fetchDocs}: DocumentUploadProps) => {
         title: language === 'en' ? "Upload failed" : "Error al subir",
         description: error?.message || (
           language === 'en'
-            ? "There was an error uploading your document. Please try again."
-            : "Hubo un error al subir tu documento. Por favor intenta de nuevo."
+            ? "There was an error uploading your files. Please try again."
+            : "Hubo un error al subir tus archivos. Por favor intenta de nuevo."
         ),
         variant: "destructive"
       });
@@ -291,15 +342,17 @@ const DocumentUpload = ({fetchDocs}: DocumentUploadProps) => {
       <h2 className="text-2xl font-serif font-semibold mb-6">{language === 'en' ? "Upload Document for Analysis" : "Subir Documento para Análisis"}</h2>
       
       <div className="mb-6">
-        <Label htmlFor="document-upload">{language === 'en' ? "Select Document (PDF, JPG, PNG)" : "Seleccionar Documento (PDF, JPG, PNG)"}</Label>
-        <div className={`mt-2 border-2 border-dashed rounded-lg p-4 ${selectedFile ? 'border-purple-300 bg-purple-50' : 'border-gray-300'}`}>
-          {!selectedFile ? (
+        <Label htmlFor="document-upload">
+          {language === 'en' ? "Select Document (PDF, JPG, PNG)" : "Seleccionar Documento (PDF, JPG, PNG)"}
+        </Label>
+        <div className={`mt-2 border-2 border-dashed rounded-lg p-4 ${selectedFiles.length > 0 ? 'border-purple-300 bg-purple-50' : 'border-gray-300'}`}>
+          {selectedFiles.length === 0 ? (
             <div className="text-center">
               <Upload className="mx-auto h-10 w-10 text-gray-400 mb-2" />
               <p className="text-sm text-gray-500 mb-2">
                 {language === 'en' 
-                  ? "Drag and drop your file here, or click to select" 
-                  : "Arrastra y suelta tu archivo aquí, o haz clic para seleccionar"}
+                  ? "Drag and drop your files here, or click to select" 
+                  : "Arrastra y suelta tus archivos aquí, o haz clic para seleccionar"}
               </p>
               <Button 
                 type="button" 
@@ -313,29 +366,48 @@ const DocumentUpload = ({fetchDocs}: DocumentUploadProps) => {
                 id="document-upload"
                 type="file"
                 onChange={handleFileChange}
-                accept=".pdf,.jpg,.jpeg,.png,.webp"
+                accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp"
+                multiple
                 className="hidden"
               />
             </div>
           ) : (
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <File className="h-8 w-8 text-purple-500 mr-2" />
-                <div>
-                  <p className="text-sm font-medium">{selectedFile.name}</p>
-                  <p className="text-xs text-gray-500">
-                    {(selectedFile.size / 1024 / 1024).toFixed(2)} MB • {selectedFile.type}
-                  </p>
-                </div>
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <p className="text-sm font-medium">
+                  {language === 'en' 
+                    ? `${selectedFiles.length} files selected` 
+                    : `${selectedFiles.length} archivos seleccionados`}
+                </p>
+                <Button 
+                  type="button" 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => setSelectedFiles([])}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
               </div>
-              <Button 
-                type="button" 
-                variant="ghost" 
-                size="sm" 
-                onClick={removeSelectedFile}
-              >
-                <X className="h-4 w-4" />
-              </Button>
+              <div className="max-h-40 overflow-y-auto border rounded-md p-2">
+                {selectedFiles.map((file, index) => (
+                  <div key={index} className="flex items-center justify-between py-1">
+                    <div className="flex items-center">
+                      <File className="h-4 w-4 text-purple-500 mr-2" />
+                      <p className="text-xs truncate max-w-[200px]">{file.name}</p>
+                    </div>
+                    <Button 
+                      type="button" 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => {
+                        setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+                      }}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>
@@ -529,7 +601,7 @@ const DocumentUpload = ({fetchDocs}: DocumentUploadProps) => {
             <Button 
               type="submit" 
               className={`w-full ${discipline === 'dressage' ? 'bg-purple-700 hover:bg-purple-800' : 'bg-blue-600 hover:bg-blue-700'}`}
-              disabled={!selectedFile || isUploading}
+              disabled={!selectedFiles || isUploading}
             >
               {isUploading 
                 ? (language === 'en' ? "Uploading..." : "Subiendo...") 
@@ -597,3 +669,7 @@ const DocumentUpload = ({fetchDocs}: DocumentUploadProps) => {
 };
 
 export default DocumentUpload;
+
+
+
+
