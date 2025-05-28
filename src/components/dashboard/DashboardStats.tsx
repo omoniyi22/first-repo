@@ -1,3 +1,4 @@
+
 import { ArrowDown, ArrowUp } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -44,28 +45,16 @@ const DashboardStats = () => {
       setIsLoading(true);
       try {
         
-        // Fetch all document analysis count (regardless of status)
-        const { data: allDocs, error: docError } = await supabase
-          .from('document_analysis')
-          .select('id, document_date')
-          .eq('user_id', user.id)
-          .order('document_date', { ascending: false });
-
-        if (docError) {
-          console.error('Error fetching documents:', docError.message);
-          return;
-        }
-
-        // Fetch completed documents for other stats
-        const { data: completedDocs, error: completedDocError } = await supabase
+        // Fetch document analysis count
+        const { data: completedDocs, error: docError } = await supabase
           .from('document_analysis')
           .select('id, document_date')
           .eq('user_id', user.id)
           .eq('status', 'completed')
           .order('document_date', { ascending: false });
 
-        if (completedDocError) {
-          console.error('Error fetching completed documents:', completedDocError.message);
+        if (docError) {
+          console.error('Error fetching completed documents:', docError.message);
           return;
         }
         
@@ -126,7 +115,7 @@ const DashboardStats = () => {
                   positive: positiveChange,
                 },
                 analyzed_test: {
-                  value: allDocs?.length.toString() || '0',
+                  value: analysisResults.length.toString(),
                   change: '', // Could be enhanced to show change over time
                   positive: true,
                 },
@@ -138,7 +127,7 @@ const DashboardStats = () => {
                 }
               });
             } else {
-              // No analysis results found but we have uploaded documents
+              // No analysis results found
               setStats({
                 average_score: {
                   value: '0%',
@@ -146,7 +135,7 @@ const DashboardStats = () => {
                   positive: true,
                 },
                 analyzed_test: {
-                  value: allDocs?.length.toString() || '0',
+                  value: '0',
                   change: '',
                   positive: true,
                 },
@@ -160,7 +149,8 @@ const DashboardStats = () => {
             }
           }
         } else {
-          // Set stats based on all uploaded documents, even if none are completed
+          console.log('No completed documents found.');
+          // Set default stats when no completed documents
           setStats({
             average_score: {
               value: '0%',
@@ -168,19 +158,15 @@ const DashboardStats = () => {
               positive: true,
             },
             analyzed_test: {
-              value: allDocs?.length.toString() || '0',
+              value: '0',
               change: '',
               positive: true,
             },
             strongest_movement: {
-              value: allDocs && allDocs.length > 0 
-                ? (language === 'en' ? 'Analysis pending' : 'Análisis pendiente')
-                : (language === 'en' ? 'Upload your first test' : 'Sube tu primera prueba'),
+              value: language === 'en' ? 'Upload your first test' : 'Sube tu primera prueba',
             },
             focus_area: {
-              value: allDocs && allDocs.length > 0 
-                ? (language === 'en' ? 'Analysis pending' : 'Análisis pendiente')
-                : (language === 'en' ? 'Upload your first test' : 'Sube tu primera prueba')
+              value: language === 'en' ? 'Upload your first test' : 'Sube tu primera prueba'
             }
           });
         }
