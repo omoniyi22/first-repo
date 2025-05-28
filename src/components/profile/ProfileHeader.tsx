@@ -15,6 +15,7 @@ interface ProfileData {
   stable_affiliation: string | null;
   coach_name: string | null;
   region: string | null;
+  discipline: string | null;
   profile_picture_url: string | null;
   created_at?: string | null;
   updated_at?: string | null;
@@ -28,6 +29,7 @@ const ProfileHeader = () => {
   const [stableAffiliation, setStableAffiliation] = useState('');
   const [coachName, setCoachName] = useState('');
   const [region, setRegion] = useState('');
+  const [discipline, setDiscipline] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   
@@ -71,6 +73,7 @@ const ProfileHeader = () => {
           setStableAffiliation(profile.stable_affiliation || '');
           setCoachName(profile.coach_name || '');
           setRegion(profile.region || '');
+          setDiscipline(profile.discipline || '');
           setProfilePic(profile.profile_picture_url);
         }
       } catch (error) {
@@ -103,6 +106,7 @@ const ProfileHeader = () => {
         stable_affiliation: stableAffiliation,
         coach_name: coachName,
         region: region,
+        discipline: discipline,
         profile_picture_url: profilePic,
         updated_at: new Date().toISOString()
       };
@@ -165,6 +169,8 @@ const ProfileHeader = () => {
           setCoachName={setCoachName}
           region={region}
           setRegion={setRegion}
+          discipline={discipline}
+          setDiscipline={setDiscipline}
         />
       </div>
       

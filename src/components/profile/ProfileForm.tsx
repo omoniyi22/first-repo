@@ -13,6 +13,8 @@ interface ProfileFormProps {
   setCoachName: (value: string) => void;
   region: string;
   setRegion: (value: string) => void;
+  discipline: string;
+  setDiscipline: (value: string) => void;
 }
 
 const ProfileForm: React.FC<ProfileFormProps> = ({
@@ -24,7 +26,9 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
   coachName,
   setCoachName,
   region,
-  setRegion
+  setRegion,
+  discipline,
+  setDiscipline
 }) => {
   return (
     <div className="flex-1">
@@ -34,6 +38,22 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
       
       {/* Form Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Discipline */}
+        <div className="space-y-2">
+          <label htmlFor="discipline" className="text-sm font-medium text-gray-700">
+            Primary Discipline
+          </label>
+          <Select value={discipline} onValueChange={setDiscipline}>
+            <SelectTrigger id="discipline" className="w-full">
+              <SelectValue placeholder="Select your primary discipline" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="dressage">Dressage</SelectItem>
+              <SelectItem value="jumping">Show Jumping</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
         {/* Rider Category */}
         <div className="space-y-2">
           <label htmlFor="rider-category" className="text-sm font-medium text-gray-700">
