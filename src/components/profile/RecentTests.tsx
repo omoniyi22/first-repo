@@ -1,8 +1,11 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FileText } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const RecentTests = () => {
+  const navigate = useNavigate();
+
   // Example tests - in a real app, these would come from your backend
   const tests = [
     {
@@ -37,7 +40,11 @@ const RecentTests = () => {
         <h2 className="text-xl font-serif font-semibold text-gray-900">
           Recent Tests
         </h2>
-        <Button variant="link" className="text-blue-700">
+        <Button
+          variant="link"
+          className="text-blue-700"
+          onClick={() => navigate("/analysis")}
+        >
           View All
         </Button>
       </div>
