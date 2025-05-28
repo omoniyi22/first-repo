@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { fetchBlogPostBySlug, fetchBlogPosts } from "@/services/blogService";
@@ -21,6 +22,7 @@ const BlogPostPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [relatedPosts, setRelatedPosts] = useState<BlogPost[]>([]);
+  const [renderedContent, setRenderedContent] = useState<string>("");
   const { language, translations } = useLanguage();
   const t = translations[language];
   const { toast } = useToast();
@@ -83,6 +85,30 @@ const BlogPostPage = () => {
     fetchRelatedPosts();
   }, [post]);
 
+  // Render markdown content when post changes
+  useEffect(() => {
+    if (!post) return;
+
+    const renderMarkdown = async () => {
+      const content = getLocalizedContent("content", post.content || "");
+      
+      if (!content) {
+        setRenderedContent("");
+        return;
+      }
+
+      try {
+        const result = await marked(content);
+        setRenderedContent(typeof result === 'string' ? result : '');
+      } catch (error) {
+        console.error("Error rendering markdown:", error);
+        setRenderedContent(content);
+      }
+    };
+
+    renderMarkdown();
+  }, [post, language]);
+
   // Get SEO metadata
   const seoMetadata = post
     ? getPageMetadata("blogPost", {
@@ -98,27 +124,6 @@ const BlogPostPage = () => {
       return post.translations.es[field];
     }
     return fallback;
-  };
-
-  // Render markdown content
-  const renderContent = (content: string) => {
-    if (!content)
-      return (
-        <p className="text-gray-500 italic">{t["no-content-available"]}</p>
-      );
-
-    try {
-      const html = marked(content);
-      return (
-        <div
-          className="prose prose-lg max-w-none"
-          dangerouslySetInnerHTML={{ __html: html }}
-        />
-      );
-    } catch (error) {
-      console.error("Error rendering markdown:", error);
-      return <div className="whitespace-pre-wrap">{content}</div>;
-    }
   };
 
   return (
@@ -226,8 +231,13 @@ const BlogPostPage = () => {
 
             {/* Blog content */}
             <article className="max-w-4xl mx-auto mb-16">
-              {renderContent(
-                getLocalizedContent("content", post.content || "")
+              {renderedContent ? (
+                <div
+                  className="prose prose-lg max-w-none"
+                  dangerouslySetInnerHTML={{ __html: renderedContent }}
+                />
+              ) : (
+                <p className="text-gray-500 italic">{t["no-content-available"]}</p>
               )}
             </article>
 
