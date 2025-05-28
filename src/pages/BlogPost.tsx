@@ -1,3 +1,4 @@
+
 import { useParams, Navigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { blogPosts } from '@/data/blogPosts';
@@ -23,16 +24,17 @@ const BlogPost = () => {
   useEffect(() => {
     if (post?.content) {
       // Convert markdown to HTML and set it to state
-      marked(post.content)
-        .then((html) => {
-          if (typeof html === 'string') {
-            setHtmlContent(html);
-          }
-        })
-        .catch((error) => {
+      const result = marked(post.content);
+      if (typeof result === 'string') {
+        setHtmlContent(result);
+      } else {
+        result.then((html) => {
+          setHtmlContent(html);
+        }).catch((error) => {
           console.error('Error converting markdown:', error);
           setHtmlContent('');
         });
+      }
     }
   }, [post?.content]);
 
@@ -44,7 +46,7 @@ const BlogPost = () => {
   const seoMetadata = getPageMetadata("blog", {
     title: post.title,
     description: post.excerpt,
-    image: post.image,
+    ogImage: post.image,
   });
 
   // Scroll to top on page load
@@ -89,7 +91,7 @@ const BlogPost = () => {
             <span>{formatDate(post.date, language)}</span>
             <span className="mx-1">•</span>
             <Clock className="h-4 w-4" />
-            <span>{post.reading_time}</span>
+            <span>{post.readingTime}</span>
             <span className="mx-1">•</span>
             <User className="h-4 w-4" />
             <span>{post.author}</span>
