@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { useToast } from '@/hooks/use-toast';
-import { toast } from 'sonner';
-import { useAuth } from '@/contexts/AuthContext';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Progress } from '@/components/ui/progress';
-import { Card } from '@/components/ui/card';
-import { supabase } from '@/integrations/supabase/client';
+import React, { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
+import { Card } from "@/components/ui/card";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Dialog,
   DialogTrigger,
@@ -18,14 +18,14 @@ import {
   DialogFooter,
   DialogTitle,
   DialogDescription,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 import {
   Form,
   FormControl,
@@ -33,25 +33,31 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Calendar as CalendarIcon, Upload, File, X, Loader2 } from 'lucide-react';
-import { Calendar } from '@/components/ui/calendar';
+} from "@/components/ui/form";
+import {
+  Calendar as CalendarIcon,
+  Upload,
+  File,
+  X,
+  Loader2,
+} from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover';
-import { cn } from '@/lib/utils';
-import { format } from 'date-fns';
-import { dressageLevels } from '@/lib/formOptions';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { fetchPdfAsBase64 } from '@/utils/pdfUtils';
-import { convertImagesToPDF, imageToBase64PDF } from '@/utils/img2pdf';
-import * as jsPDF from 'jspdf';
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { dressageLevels } from "@/lib/formOptions";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { fetchPdfAsBase64 } from "@/utils/pdfUtils";
+import { convertImagesToPDF, imageToBase64PDF } from "@/utils/img2pdf";
+import * as jsPDF from "jspdf";
 
 const DocumentUploadFormSchema = z.object({
-  discipline: z.enum(['dressage', 'jumping']),
+  discipline: z.enum(["dressage", "jumping"]),
   testLevel: z.string().optional(),
   competitionType: z.string().optional(),
   date: z.date({
@@ -66,24 +72,24 @@ const DocumentUploadFormSchema = z.object({
 type DocumentUploadFormValues = z.infer<typeof DocumentUploadFormSchema>;
 
 const jumpingCompetitionTypes = [
-  'Show Jumping',
-  'Derby',
-  'Grand Prix',
-  'Power & Speed',
-  'Table A',
-  'Table C',
-  'Training Round'
+  "Show Jumping",
+  "Derby",
+  "Grand Prix",
+  "Power & Speed",
+  "Table A",
+  "Table C",
+  "Training Round",
 ];
 
 interface DocumentUploadProps {
   fetchDocs?: () => void;
 }
-const DocumentUpload = ({fetchDocs}: DocumentUploadProps) => {
+const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const { language, translations } = useLanguage();
   const t = translations[language];
-  
+
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [isUploading, setIsUploading] = useState<boolean>(false);
@@ -91,76 +97,82 @@ const DocumentUpload = ({fetchDocs}: DocumentUploadProps) => {
   const [isLoadingHorses, setIsLoadingHorses] = useState<boolean>(true);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [newDocumentId, setNewDocumentId] = useState<string | null>(null);
-  const [base64Image, setBase64Image] = useState<any>('');
+  const [base64Image, setBase64Image] = useState<any>("");
   const [isShowSpinner, setIsShowSpinner] = useState<boolean>(false);
-  
+
   const form = useForm<DocumentUploadFormValues>({
     resolver: zodResolver(DocumentUploadFormSchema),
     defaultValues: {
-      discipline: 'dressage',
+      discipline: "dressage",
       date: new Date(),
     },
   });
-  
-  const discipline = form.watch('discipline');
+
+  const discipline = form.watch("discipline");
 
   useEffect(() => {
     // Reset form fields when discipline changes
-    if (discipline === 'dressage') {
-      form.setValue('competitionType', undefined);
+    if (discipline === "dressage") {
+      form.setValue("competitionType", undefined);
     } else {
-      form.setValue('testLevel', undefined);
+      form.setValue("testLevel", undefined);
     }
   }, [discipline, form]);
 
   useEffect(() => {
     const fetchHorses = async () => {
       if (!user) return;
-      
+
       try {
         setIsLoadingHorses(true);
-        
+
         // Fetch horses from the user's profile
         const { data: horsesData, error } = await supabase
-          .from('horses')
-          .select('id, name, breed, age')
-          .eq('user_id', user.id)
-          .order('name');
-        
+          .from("horses")
+          .select("id, name, breed, age")
+          .eq("user_id", user.id)
+          .order("name");
+
         if (error) {
-          console.error('Error fetching horses:', error);
+          console.error("Error fetching horses:", error);
           toast({
-            title: language === 'en' ? "Error loading horses" : "Error al cargar caballos",
-            description: language === 'en' 
-              ? "Could not load your horses. Please try again." 
-              : "No se pudieron cargar tus caballos. Inténtalo de nuevo.",
-            variant: "destructive"
+            title:
+              language === "en"
+                ? "Error loading horses"
+                : "Error al cargar caballos",
+            description:
+              language === "en"
+                ? "Could not load your horses. Please try again."
+                : "No se pudieron cargar tus caballos. Inténtalo de nuevo.",
+            variant: "destructive",
           });
           setHorses([]);
         } else {
           setHorses(horsesData || []);
         }
       } catch (error) {
-        console.error('Error fetching horses:', error);
+        console.error("Error fetching horses:", error);
         setHorses([]);
       } finally {
         setIsLoadingHorses(false);
       }
     };
-    
+
     fetchHorses();
   }, [user, language, toast]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    
+
     if (files && files.length > 0) {
       const validFiles: File[] = [];
       let hasInvalidFiles = false;
-      
+
       // Check if there's a PDF file
-      const pdfFile = Array.from(files).find(file => file.type === 'application/pdf');
-      
+      const pdfFile = Array.from(files).find(
+        (file) => file.type === "application/pdf"
+      );
+
       if (pdfFile) {
         // If PDF is found, only use that
         validFiles.push(pdfFile);
@@ -169,11 +181,11 @@ const DocumentUpload = ({fetchDocs}: DocumentUploadProps) => {
         for (let i = 0; i < files.length; i++) {
           const file = files[i];
           const fileType = file.type;
-          
+
           if (
-            fileType === 'image/jpeg' || 
-            fileType === 'image/png' ||
-            fileType === 'image/webp'
+            fileType === "image/jpeg" ||
+            fileType === "image/png" ||
+            fileType === "image/webp"
           ) {
             validFiles.push(file);
           } else {
@@ -181,19 +193,23 @@ const DocumentUpload = ({fetchDocs}: DocumentUploadProps) => {
           }
         }
       }
-      
+
       if (hasInvalidFiles) {
         toast({
-          title: language === 'en' ? "Invalid file type" : "Tipo de archivo no válido",
-          description: language === 'en' 
-            ? "Please upload only PDF, JPG, PNG or WebP files." 
-            : "Por favor sube solo archivos PDF, JPG, PNG o WebP.",
-          variant: "destructive"
+          title:
+            language === "en"
+              ? "Invalid file type"
+              : "Tipo de archivo no válido",
+          description:
+            language === "en"
+              ? "Please upload only PDF, JPG, PNG or WebP files."
+              : "Por favor sube solo archivos PDF, JPG, PNG o WebP.",
+          variant: "destructive",
         });
       }
-      
+
       if (validFiles.length > 0) {
-        setSelectedFiles(prev => [...prev, ...validFiles]);
+        setSelectedFiles((prev) => [...prev, ...validFiles]);
       }
     }
   };
@@ -201,20 +217,24 @@ const DocumentUpload = ({fetchDocs}: DocumentUploadProps) => {
   const removeSelectedFile = () => {
     setSelectedFiles([]);
     // Reset file input
-    const fileInput = document.getElementById('document-upload') as HTMLInputElement;
+    const fileInput = document.getElementById(
+      "document-upload"
+    ) as HTMLInputElement;
     if (fileInput) {
-      fileInput.value = '';
+      fileInput.value = "";
     }
   };
 
   const onSubmit = async (data: DocumentUploadFormValues) => {
     if (selectedFiles.length === 0 || !user) {
       toast({
-        title: language === 'en' ? "Missing information" : "Información faltante",
-        description: language === 'en'
-          ? "Please select at least one file and fill in all required fields."
-          : "Por favor selecciona al menos un archivo y completa todos los campos requeridos.",
-        variant: "destructive"
+        title:
+          language === "en" ? "Missing information" : "Información faltante",
+        description:
+          language === "en"
+            ? "Please select at least one file and fill in all required fields."
+            : "Por favor selecciona al menos un archivo y completa todos los campos requeridos.",
+        variant: "destructive",
       });
       return;
     }
@@ -224,42 +244,66 @@ const DocumentUpload = ({fetchDocs}: DocumentUploadProps) => {
 
     try {
       // Find the selected horse name
-      const selectedHorse = horses.find(h => h.id === data.horseId);
-      const horseName = selectedHorse?.name || 'Unknown Horse';
-      
-      // Create a filename
-      const timestamp = Date.now();
+      const selectedHorse = horses.find((h) => h.id === data.horseId);
+      const horseName = selectedHorse?.name || "Unknown Horse";
+
+      // Create a custom filename based on test level/competition type and date
       let fileName, fileBlob, fileType;
-      
-      // Check if we're dealing with a single PDF or multiple images
-      const isPDF = selectedFiles.some(file => file.type === 'application/pdf');
-      
-      if (isPDF) {
-        // Use the PDF directly
-        const pdfFile = selectedFiles.find(file => file.type === 'application/pdf')!;
-        fileName = `${timestamp}-${pdfFile.name.replace(/\s+/g, '-')}`;
-        fileBlob = pdfFile;
-        fileType = 'application/pdf';
+
+      // Format the date for filename (YYYY-MM-DD)
+      const formattedDate = format(data.date, "yyyy-MM-dd");
+
+      // Create filename prefix based on discipline
+      let filePrefix = "";
+      if (data.discipline === "dressage" && data.testLevel) {
+        filePrefix = `${data.testLevel}_${formattedDate}`;
+      } else if (data.discipline === "jumping" && data.competitionType) {
+        filePrefix = `${data.competitionType.replace(
+          /\s+/g,
+          "-"
+        )}_${formattedDate}`;
       } else {
-        // Convert images to a single PDF
-        fileName = `${timestamp}-combined-document.pdf`;
-        fileBlob = await convertImagesToPDF(selectedFiles);
-        fileType = 'application/pdf';
+        // Fallback if no test level or competition type is selected
+        filePrefix = `${data.discipline}_${formattedDate}`;
       }
-      
-      console.log(fileBlob);
+
+      // Clean the prefix to make it filename-safe
+      filePrefix = filePrefix.replace(/[^a-zA-Z0-9\-_]/g, "-");
+
+      // Check if we're dealing with a single PDF or multiple images
+      const isPDF = selectedFiles.some(
+        (file) => file.type === "application/pdf"
+      );
+
+      if (isPDF) {
+        // Use the PDF directly with custom filename
+        const pdfFile = selectedFiles.find(
+          (file) => file.type === "application/pdf"
+        )!;
+        const originalExtension = pdfFile.name.split(".").pop();
+        fileName = `${filePrefix}.${originalExtension}`;
+        fileBlob = pdfFile;
+        fileType = "application/pdf";
+      } else {
+        // Convert images to a single PDF with custom filename
+        fileName = `${filePrefix}_combined.pdf`;
+        fileBlob = await convertImagesToPDF(selectedFiles);
+        fileType = "application/pdf";
+      }
+
+      console.log("Generated filename:", fileName);
       const filePath = `${user.id}/${fileName}`;
-      
+
       // Update progress
       setUploadProgress(40);
-      
+
       // Upload file to Supabase Storage
       const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('analysis')
+        .from("analysis")
         .upload(filePath, fileBlob, {
-          cacheControl: '3600',
+          cacheControl: "3600",
           upsert: false,
-          contentType: fileType
+          contentType: fileType,
         });
 
       if (uploadError) {
@@ -270,43 +314,45 @@ const DocumentUpload = ({fetchDocs}: DocumentUploadProps) => {
 
       // Get the public URL
       const { data: publicUrlData } = supabase.storage
-        .from('analysis')
+        .from("analysis")
         .getPublicUrl(filePath);
 
       if (!publicUrlData?.publicUrl) {
-        throw new Error(language === 'en'
-          ? 'Failed to retrieve public URL.'
-          : 'No se pudo obtener la URL pública.');
+        throw new Error(
+          language === "en"
+            ? "Failed to retrieve public URL."
+            : "No se pudo obtener la URL pública."
+        );
       }
 
       // Convert PDF to base64 for preview and processing
       const pdfBase64 = await fetchPdfAsBase64(publicUrlData.publicUrl);
-      
-      // Create a descriptive filename for the database
+
+      // Create a descriptive filename for the database display
       let displayFileName;
       if (isPDF) {
-        const pdfFile = selectedFiles.find(file => file.type === 'application/pdf')!;
-        displayFileName = pdfFile.name;
+        displayFileName = fileName; // Use our custom filename
       } else {
-        displayFileName = `Combined (${selectedFiles.length} images)`;
+        displayFileName = `${filePrefix}_combined (${selectedFiles.length} images).pdf`;
       }
-      
+
       // Insert document metadata into the database
       const { data: documentData, error: documentError } = await supabase
-        .from('document_analysis')
+        .from("document_analysis")
         .insert({
           user_id: user.id,
           horse_id: data.horseId,
           horse_name: horseName,
           discipline: data.discipline,
-          test_level: data.discipline === 'dressage' ? data.testLevel : null,
-          competition_type: data.discipline === 'jumping' ? data.competitionType : null,
+          test_level: data.discipline === "dressage" ? data.testLevel : null,
+          competition_type:
+            data.discipline === "jumping" ? data.competitionType : null,
           document_date: data.date.toISOString(),
           document_url: publicUrlData.publicUrl,
           file_name: displayFileName,
           file_type: fileType,
           notes: data.notes || null,
-          status: 'pending'
+          status: "pending",
         })
         .select();
 
@@ -324,7 +370,7 @@ const DocumentUpload = ({fetchDocs}: DocumentUploadProps) => {
 
       // Reset form and states
       form.reset({
-        discipline: 'dressage',
+        discipline: "dressage",
         date: new Date(),
       });
       setSelectedFiles([]);
@@ -335,18 +381,17 @@ const DocumentUpload = ({fetchDocs}: DocumentUploadProps) => {
         setIsUploading(false);
         setUploadProgress(0);
       }, 1000);
-
     } catch (error: any) {
-      console.error('Upload error:', error);
+      console.error("Upload error:", error);
 
       toast({
-        title: language === 'en' ? "Upload failed" : "Error al subir",
-        description: error?.message || (
-          language === 'en'
+        title: language === "en" ? "Upload failed" : "Error al subir",
+        description:
+          error?.message ||
+          (language === "en"
             ? "There was an error uploading your files. Please try again."
-            : "Hubo un error al subir tus archivos. Por favor intenta de nuevo."
-        ),
-        variant: "destructive"
+            : "Hubo un error al subir tus archivos. Por favor intenta de nuevo."),
+        variant: "destructive",
       });
 
       setIsUploading(false);
@@ -356,28 +401,42 @@ const DocumentUpload = ({fetchDocs}: DocumentUploadProps) => {
 
   return (
     <Card className="p-6 bg-white shadow-sm border border-gray-100 rounded-lg">
-      <h2 className="text-2xl font-serif font-semibold mb-6">{language === 'en' ? "Upload Document for Analysis" : "Subir Documento para Análisis"}</h2>
-      
+      <h2 className="text-2xl font-serif font-semibold mb-6">
+        {language === "en"
+          ? "Upload Document for Analysis"
+          : "Subir Documento para Análisis"}
+      </h2>
+
       <div className="mb-6">
         <Label htmlFor="document-upload">
-          {language === 'en' ? "Select Document (PDF, JPG, PNG)" : "Seleccionar Documento (PDF, JPG, PNG)"}
+          {language === "en"
+            ? "Select Document (PDF, JPG, PNG)"
+            : "Seleccionar Documento (PDF, JPG, PNG)"}
         </Label>
-        <div className={`mt-2 border-2 border-dashed rounded-lg p-4 ${selectedFiles.length > 0 ? 'border-purple-300 bg-purple-50' : 'border-gray-300'}`}>
+        <div
+          className={`mt-2 border-2 border-dashed rounded-lg p-4 ${
+            selectedFiles.length > 0
+              ? "border-purple-300 bg-purple-50"
+              : "border-gray-300"
+          }`}
+        >
           {selectedFiles.length === 0 ? (
             <div className="text-center">
               <Upload className="mx-auto h-10 w-10 text-gray-400 mb-2" />
               <p className="text-sm text-gray-500 mb-2">
-                {language === 'en' 
-                  ? "Drag and drop your files here, or click to select" 
+                {language === "en"
+                  ? "Drag and drop your files here, or click to select"
                   : "Arrastra y suelta tus archivos aquí, o haz clic para seleccionar"}
               </p>
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={() => document.getElementById('document-upload')?.click()}
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() =>
+                  document.getElementById("document-upload")?.click()
+                }
                 className="mt-2"
               >
-                {language === 'en' ? "Browse Files" : "Explorar Archivos"}
+                {language === "en" ? "Browse Files" : "Explorar Archivos"}
               </Button>
               <input
                 id="document-upload"
@@ -392,14 +451,14 @@ const DocumentUpload = ({fetchDocs}: DocumentUploadProps) => {
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <p className="text-sm font-medium">
-                  {language === 'en' 
-                    ? `${selectedFiles.length} files selected` 
+                  {language === "en"
+                    ? `${selectedFiles.length} files selected`
                     : `${selectedFiles.length} archivos seleccionados`}
                 </p>
-                <Button 
-                  type="button" 
-                  variant="ghost" 
-                  size="sm" 
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
                   onClick={() => setSelectedFiles([])}
                 >
                   <X className="h-4 w-4" />
@@ -407,17 +466,24 @@ const DocumentUpload = ({fetchDocs}: DocumentUploadProps) => {
               </div>
               <div className="max-h-40 overflow-y-auto border rounded-md p-2">
                 {selectedFiles.map((file, index) => (
-                  <div key={index} className="flex items-center justify-between py-1">
+                  <div
+                    key={index}
+                    className="flex items-center justify-between py-1"
+                  >
                     <div className="flex items-center">
                       <File className="h-4 w-4 text-purple-500 mr-2" />
-                      <p className="text-xs truncate max-w-[200px]">{file.name}</p>
+                      <p className="text-xs truncate max-w-[200px]">
+                        {file.name}
+                      </p>
                     </div>
-                    <Button 
-                      type="button" 
-                      variant="ghost" 
-                      size="sm" 
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
                       onClick={() => {
-                        setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+                        setSelectedFiles((prev) =>
+                          prev.filter((_, i) => i !== index)
+                        );
                       }}
                     >
                       <X className="h-3 w-3" />
@@ -429,7 +495,7 @@ const DocumentUpload = ({fetchDocs}: DocumentUploadProps) => {
           )}
         </div>
       </div>
-      
+
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           {/* Discipline Selector */}
@@ -438,46 +504,68 @@ const DocumentUpload = ({fetchDocs}: DocumentUploadProps) => {
             name="discipline"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{language === 'en' ? "Discipline" : "Disciplina"}</FormLabel>
+                <FormLabel>
+                  {language === "en" ? "Discipline" : "Disciplina"}
+                </FormLabel>
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder={language === 'en' ? "Select discipline" : "Seleccionar disciplina"} />
+                      <SelectValue
+                        placeholder={
+                          language === "en"
+                            ? "Select discipline"
+                            : "Seleccionar disciplina"
+                        }
+                      />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="dressage">{language === 'en' ? "Dressage" : "Doma Clásica"}</SelectItem>
-                    <SelectItem value="jumping">{language === 'en' ? "Jumping" : "Salto"}</SelectItem>
+                    <SelectItem value="dressage">
+                      {language === "en" ? "Dressage" : "Doma Clásica"}
+                    </SelectItem>
+                    <SelectItem value="jumping">
+                      {language === "en" ? "Jumping" : "Salto"}
+                    </SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
               </FormItem>
             )}
           />
-          
+
           {/* Test Level (Dressage only) */}
-          {discipline === 'dressage' && (
+          {discipline === "dressage" && (
             <FormField
               control={form.control}
               name="testLevel"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{language === 'en' ? "Test Level" : "Nivel de Prueba"}</FormLabel>
+                  <FormLabel>
+                    {language === "en" ? "Test Level" : "Nivel de Prueba"}
+                  </FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder={language === 'en' ? "Select test level" : "Seleccionar nivel de prueba"} />
+                        <SelectValue
+                          placeholder={
+                            language === "en"
+                              ? "Select test level"
+                              : "Seleccionar nivel de prueba"
+                          }
+                        />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
                       {dressageLevels.map((level) => (
-                        <SelectItem key={level} value={level}>{level}</SelectItem>
+                        <SelectItem key={level} value={level}>
+                          {level}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -486,27 +574,39 @@ const DocumentUpload = ({fetchDocs}: DocumentUploadProps) => {
               )}
             />
           )}
-          
+
           {/* Competition Type (Jumping only) */}
-          {discipline === 'jumping' && (
+          {discipline === "jumping" && (
             <FormField
               control={form.control}
               name="competitionType"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{language === 'en' ? "Competition Type" : "Tipo de Competición"}</FormLabel>
+                  <FormLabel>
+                    {language === "en"
+                      ? "Competition Type"
+                      : "Tipo de Competición"}
+                  </FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder={language === 'en' ? "Select competition type" : "Seleccionar tipo de competición"} />
+                        <SelectValue
+                          placeholder={
+                            language === "en"
+                              ? "Select competition type"
+                              : "Seleccionar tipo de competición"
+                          }
+                        />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
                       {jumpingCompetitionTypes.map((type) => (
-                        <SelectItem key={type} value={type}>{type}</SelectItem>
+                        <SelectItem key={type} value={type}>
+                          {type}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -515,14 +615,16 @@ const DocumentUpload = ({fetchDocs}: DocumentUploadProps) => {
               )}
             />
           )}
-          
+
           {/* Date Picker */}
           <FormField
             control={form.control}
             name="date"
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel>{language === 'en' ? "Test Date" : "Fecha de la Prueba"}</FormLabel>
+                <FormLabel>
+                  {language === "en" ? "Test Date" : "Fecha de la Prueba"}
+                </FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
                     <FormControl>
@@ -536,7 +638,9 @@ const DocumentUpload = ({fetchDocs}: DocumentUploadProps) => {
                         {field.value ? (
                           format(field.value, "PPP")
                         ) : (
-                          <span>{language === 'en' ? "Pick a date" : "Elegir fecha"}</span>
+                          <span>
+                            {language === "en" ? "Pick a date" : "Elegir fecha"}
+                          </span>
                         )}
                         <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                       </Button>
@@ -556,14 +660,14 @@ const DocumentUpload = ({fetchDocs}: DocumentUploadProps) => {
               </FormItem>
             )}
           />
-          
+
           {/* Horse Selector */}
           <FormField
             control={form.control}
             name="horseId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{language === 'en' ? "Horse" : "Caballo"}</FormLabel>
+                <FormLabel>{language === "en" ? "Horse" : "Caballo"}</FormLabel>
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
@@ -571,56 +675,66 @@ const DocumentUpload = ({fetchDocs}: DocumentUploadProps) => {
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue 
+                      <SelectValue
                         placeholder={
-                          isLoadingHorses 
-                            ? (language === 'en' ? "Loading horses..." : "Cargando caballos...")
+                          isLoadingHorses
+                            ? language === "en"
+                              ? "Loading horses..."
+                              : "Cargando caballos..."
                             : horses.length === 0
-                            ? (language === 'en' ? "No horses found - Add horses in your profile" : "No se encontraron caballos - Añade caballos en tu perfil")
-                            : (language === 'en' ? "Select a horse" : "Seleccionar un caballo")
-                        } 
+                            ? language === "en"
+                              ? "No horses found - Add horses in your profile"
+                              : "No se encontraron caballos - Añade caballos en tu perfil"
+                            : language === "en"
+                            ? "Select a horse"
+                            : "Seleccionar un caballo"
+                        }
                       />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {horses.length > 0 ? (
-                      horses.map((horse) => (
-                        <SelectItem key={horse.id} value={horse.id}>
-                          {horse.name} ({horse.breed}, {horse.age} years)
-                        </SelectItem>
-                      ))
-                    ) : (
-                      !isLoadingHorses && (
-                        <SelectItem value="no-horses" disabled>
-                          {language === 'en' ? "No horses available" : "No hay caballos disponibles"}
-                        </SelectItem>
-                      )
-                    )}
+                    {horses.length > 0
+                      ? horses.map((horse) => (
+                          <SelectItem key={horse.id} value={horse.id}>
+                            {horse.name} ({horse.breed}, {horse.age} years)
+                          </SelectItem>
+                        ))
+                      : !isLoadingHorses && (
+                          <SelectItem value="no-horses" disabled>
+                            {language === "en"
+                              ? "No horses available"
+                              : "No hay caballos disponibles"}
+                          </SelectItem>
+                        )}
                   </SelectContent>
                 </Select>
                 <FormMessage />
                 {horses.length === 0 && !isLoadingHorses && (
                   <p className="text-sm text-gray-500 mt-1">
-                    {language === 'en' 
-                      ? "Please add horses to your profile first to upload documents for analysis." 
+                    {language === "en"
+                      ? "Please add horses to your profile first to upload documents for analysis."
                       : "Por favor añade caballos a tu perfil primero para subir documentos para análisis."}
                   </p>
                 )}
               </FormItem>
             )}
           />
-          
+
           {/* Notes */}
           <FormField
             control={form.control}
             name="notes"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{language === 'en' ? "Notes" : "Notas"}</FormLabel>
+                <FormLabel>{language === "en" ? "Notes" : "Notas"}</FormLabel>
                 <FormControl>
                   <textarea
                     className="w-full p-2 border rounded-md resize-none h-24"
-                    placeholder={language === 'en' ? "Add any additional notes about this test or document" : "Añade notas adicionales sobre esta prueba o documento"}
+                    placeholder={
+                      language === "en"
+                        ? "Add any additional notes about this test or document"
+                        : "Añade notas adicionales sobre esta prueba o documento"
+                    }
                     {...field}
                   />
                 </FormControl>
@@ -628,27 +742,36 @@ const DocumentUpload = ({fetchDocs}: DocumentUploadProps) => {
               </FormItem>
             )}
           />
-          
+
           {/* Upload Progress */}
           {isUploading && (
             <div className="space-y-2">
               <Progress value={uploadProgress} className="h-2 w-full" />
               <p className="text-sm text-center text-gray-500">
-                {language === 'en' ? "Uploading..." : "Subiendo..."} {Math.round(uploadProgress)}%
+                {language === "en" ? "Uploading..." : "Subiendo..."}{" "}
+                {Math.round(uploadProgress)}%
               </p>
             </div>
           )}
-          
+
           {/* Submit Button */}
           <div className="pt-2">
-            <Button 
-              type="submit" 
-              className={`w-full ${discipline === 'dressage' ? 'bg-purple-700 hover:bg-purple-800' : 'bg-blue-600 hover:bg-blue-700'}`}
+            <Button
+              type="submit"
+              className={`w-full ${
+                discipline === "dressage"
+                  ? "bg-purple-700 hover:bg-purple-800"
+                  : "bg-blue-600 hover:bg-blue-700"
+              }`}
               disabled={!selectedFiles || isUploading || horses.length === 0}
             >
-              {isUploading 
-                ? (language === 'en' ? "Uploading..." : "Subiendo...") 
-                : (language === 'en' ? "Upload Document" : "Subir Documento")}
+              {isUploading
+                ? language === "en"
+                  ? "Uploading..."
+                  : "Subiendo..."
+                : language === "en"
+                ? "Upload Document"
+                : "Subir Documento"}
             </Button>
           </div>
         </form>
@@ -657,47 +780,56 @@ const DocumentUpload = ({fetchDocs}: DocumentUploadProps) => {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {language === 'en' ? 'Proceed with AI analysis?' : '¿Continuar con análisis de IA?'}
+              {language === "en"
+                ? "Proceed with AI analysis?"
+                : "¿Continuar con análisis de IA?"}
             </DialogTitle>
             <DialogDescription>
-              {language === 'en'
-                ? 'Your document was uploaded. Would you like to proceed with AI analysis now?'
-                : 'Tu documento fue subido. ¿Quieres continuar con el análisis de IA ahora?'}
+              {language === "en"
+                ? "Your document was uploaded. Would you like to proceed with AI analysis now?"
+                : "Tu documento fue subido. ¿Quieres continuar con el análisis de IA ahora?"}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="flex justify-end gap-2">
             <Button variant="ghost" onClick={() => setShowConfirmModal(false)}>
-              {language === 'en' ? 'Cancel' : 'Cancelar'}
+              {language === "en" ? "Cancel" : "Cancelar"}
             </Button>
             <Button
               onClick={async () => {
                 setShowConfirmModal(false);
                 setIsShowSpinner(true);
                 try {
-                  await supabase.functions.invoke('process-document-analysis', {
-                    body: { documentId: newDocumentId, base64Image: base64Image },
+                  await supabase.functions.invoke("process-document-analysis", {
+                    body: {
+                      documentId: newDocumentId,
+                      base64Image: base64Image,
+                    },
                   });
 
                   toast({
                     title:
-                      language === 'en'
-                        ? 'Document is analyzed successfully'
-                        : 'Documento analizado con éxito',
+                      language === "en"
+                        ? "Document is analyzed successfully"
+                        : "Documento analizado con éxito",
                     description:
-                      language === 'en'
-                        ? 'Your document is being analyzed.'
-                        : 'Tu documento está siendo analizado.',
+                      language === "en"
+                        ? "Your document is being analyzed."
+                        : "Tu documento está siendo analizado.",
                   });
                   fetchDocs();
                   setIsShowSpinner(false);
                 } catch (err) {
-                  console.warn('Processing failed:', err);
+                  console.warn("Processing failed:", err);
                   setIsShowSpinner(false);
                 }
               }}
-              className={discipline === 'dressage' ? 'bg-purple-700 hover:bg-purple-800' : 'bg-blue-600 hover:bg-blue-700'}
+              className={
+                discipline === "dressage"
+                  ? "bg-purple-700 hover:bg-purple-800"
+                  : "bg-blue-600 hover:bg-blue-700"
+              }
             >
-              {language === 'en' ? 'Yes, analyze' : 'Sí, analizar'}
+              {language === "en" ? "Yes, analyze" : "Sí, analizar"}
             </Button>
           </DialogFooter>
         </DialogContent>
