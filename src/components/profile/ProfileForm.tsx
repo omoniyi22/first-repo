@@ -49,7 +49,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="dressage">Dressage</SelectItem>
-              <SelectItem value="jumping">Show Jumping</SelectItem>
+              <SelectItem value="jumping">Jumping</SelectItem>
             </SelectContent>
           </Select>
         </div>
