@@ -99,6 +99,8 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
   const [newDocumentId, setNewDocumentId] = useState<string | null>(null);
   const [base64Image, setBase64Image] = useState<any>("");
   const [isShowSpinner, setIsShowSpinner] = useState<boolean>(false);
+  const [userDiscipline, setUserDiscipline] = useState<string>('');
+  const [isLoadingProfile, setIsLoadingProfile] = useState<boolean>(true);
 
   const form = useForm<DocumentUploadFormValues>({
     resolver: zodResolver(DocumentUploadFormSchema),
@@ -120,11 +122,26 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
   }, [discipline, form]);
 
   useEffect(() => {
-    const fetchHorses = async () => {
+    const fetchUserData = async () => {
       if (!user) return;
 
       try {
         setIsLoadingHorses(true);
+        setIsLoadingProfile(true);
+        
+        // Fetch user profile to get discipline
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('discipline')
+          .eq('id', user.id)
+          .single();
+        
+        if (profileError && profileError.code !== 'PGRST116') {
+          console.error('Error fetching profile:', profileError);
+        } else if (profileData?.discipline) {
+          setUserDiscipline(profileData.discipline);
+          form.setValue('discipline', profileData.discipline as 'dressage' | 'jumping');
+        }
 
         // Fetch horses from the user's profile
         const { data: horsesData, error } = await supabase
@@ -155,11 +172,12 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
         setHorses([]);
       } finally {
         setIsLoadingHorses(false);
+        setIsLoadingProfile(false);
       }
     };
 
-    fetchHorses();
-  }, [user, language, toast]);
+    fetchUserData();
+  }, [user, language, toast, form]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -370,7 +388,7 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
 
       // Reset form and states
       form.reset({
-        discipline: "dressage",
+        discipline: userDiscipline as 'dressage' | 'jumping',
         date: new Date(),
       });
       setSelectedFiles([]);
@@ -398,6 +416,16 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
       setUploadProgress(0);
     }
   };
+
+  if (isLoadingProfile) {
+    return (
+      <Card className="p-6 bg-white shadow-sm border border-gray-100 rounded-lg">
+        <div className="flex justify-center items-center h-32">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-700"></div>
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <Card className="p-6 bg-white shadow-sm border border-gray-100 rounded-lg">
@@ -498,7 +526,7 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          {/* Discipline Selector */}
+          {/* Discipline Selector - Read Only */}
           <FormField
             control={form.control}
             name="discipline"
@@ -507,37 +535,23 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
                 <FormLabel>
                   {language === "en" ? "Discipline" : "Disciplina"}
                 </FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue
-                        placeholder={
-                          language === "en"
-                            ? "Select discipline"
-                            : "Seleccionar disciplina"
-                        }
-                      />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="dressage">
-                      {language === "en" ? "Dressage" : "Doma Clásica"}
-                    </SelectItem>
-                    <SelectItem value="jumping">
-                      {language === "en" ? "Jumping" : "Salto"}
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
+                <FormControl>
+                  <Input
+                    value={userDiscipline === 'dressage' 
+                      ? (language === 'en' ? "Dressage" : "Doma Clásica")
+                      : (language === 'en' ? "Jumping" : "Salto")
+                    }
+                    readOnly
+                    className="bg-gray-50 cursor-not-allowed"
+                  />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
 
           {/* Test Level (Dressage only) */}
-          {discipline === "dressage" && (
+          {userDiscipline === "dressage" && (
             <FormField
               control={form.control}
               name="testLevel"
@@ -576,7 +590,7 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
           )}
 
           {/* Competition Type (Jumping only) */}
-          {discipline === "jumping" && (
+          {userDiscipline === "jumping" && (
             <FormField
               control={form.control}
               name="competitionType"
@@ -759,7 +773,7 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
             <Button
               type="submit"
               className={`w-full ${
-                discipline === "dressage"
+                userDiscipline === "dressage"
                   ? "bg-purple-700 hover:bg-purple-800"
                   : "bg-blue-600 hover:bg-blue-700"
               }`}
@@ -824,7 +838,7 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
                 }
               }}
               className={
-                discipline === "dressage"
+                userDiscipline === "dressage"
                   ? "bg-purple-700 hover:bg-purple-800"
                   : "bg-blue-600 hover:bg-blue-700"
               }

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useToast } from '@/hooks/use-toast';
@@ -52,16 +53,10 @@ const VideoUploadFormSchema = z.object({
 
 type VideoUploadFormValues = z.infer<typeof VideoUploadFormSchema>;
 
-// Mock horses data for development
-const mockHorses = [
-  { id: 'horse1', name: 'Thunder' },
-  { id: 'horse2', name: 'Whisper' },
-  { id: 'horse3', name: 'Storm' }
-];
-
 interface VideoUploadProps {
   fetchDocs?: () => void;
 }
+
 const VideoUpload = ({fetchDocs}: VideoUploadProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -73,6 +68,8 @@ const VideoUpload = ({fetchDocs}: VideoUploadProps) => {
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [horses, setHorses] = useState<any[]>([]);
+  const [userDiscipline, setUserDiscipline] = useState<string>('');
+  const [isLoadingProfile, setIsLoadingProfile] = useState<boolean>(true);
   
   const form = useForm<VideoUploadFormValues>({
     resolver: zodResolver(VideoUploadFormSchema),
@@ -85,20 +82,57 @@ const VideoUpload = ({fetchDocs}: VideoUploadProps) => {
   
   const discipline = form.watch('discipline');
 
+  // Fetch user profile and horses
   useEffect(() => {
-    const fetchHorses = async () => {
+    const fetchUserData = async () => {
       if (!user) return;
       
       try {
-        // Use mock data instead of Supabase query
-        setHorses(mockHorses);
+        setIsLoadingProfile(true);
+        
+        // Fetch user profile to get discipline
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('discipline')
+          .eq('id', user.id)
+          .single();
+        
+        if (profileError && profileError.code !== 'PGRST116') {
+          console.error('Error fetching profile:', profileError);
+        } else if (profileData?.discipline) {
+          setUserDiscipline(profileData.discipline);
+          form.setValue('discipline', profileData.discipline as 'dressage' | 'jumping');
+        }
+        
+        // Fetch horses from the user's profile
+        const { data: horsesData, error: horsesError } = await supabase
+          .from('horses')
+          .select('id, name, breed, age')
+          .eq('user_id', user.id)
+          .order('name');
+        
+        if (horsesError) {
+          console.error('Error fetching horses:', horsesError);
+          toast({
+            title: language === 'en' ? "Error loading horses" : "Error al cargar caballos",
+            description: language === 'en' 
+              ? "Could not load your horses. Please try again." 
+              : "No se pudieron cargar tus caballos. Inténtalo de nuevo.",
+            variant: "destructive"
+          });
+          setHorses([]);
+        } else {
+          setHorses(horsesData || []);
+        }
       } catch (error) {
-        console.error('Error fetching horses:', error);
+        console.error('Error fetching user data:', error);
+      } finally {
+        setIsLoadingProfile(false);
       }
     };
     
-    fetchHorses();
-  }, [user]);
+    fetchUserData();
+  }, [user, language, toast, form]);
   
   const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
@@ -215,11 +249,15 @@ const VideoUpload = ({fetchDocs}: VideoUploadProps) => {
         reader.onerror = (error) => reject(error);
       });
 
+      // Find the selected horse name
+      const selectedHorse = horses.find(h => h.id === data.horseId);
+      const horseName = selectedHorse?.name || 'Unknown Horse';
+
       // Prepare document analysis record data
       const documentData = {
         user_id: user.id,
         horse_id: data.horseId,
-        horse_name: horses.find(horse => horse.id === data.horseId)?.name || 'Unknown Horse',
+        horse_name: horseName,
         discipline: data.discipline,
         video_type: data.videoType,
         document_date: data.date.toISOString(),
@@ -276,7 +314,7 @@ const VideoUpload = ({fetchDocs}: VideoUploadProps) => {
       
       // Reset form and states
       form.reset({
-        discipline: 'dressage',
+        discipline: userDiscipline as 'dressage' | 'jumping',
         videoType: 'training',
         date: new Date(),
       });
@@ -296,6 +334,16 @@ const VideoUpload = ({fetchDocs}: VideoUploadProps) => {
       setTimeout(() => setUploadProgress(0), 1000);
     }
   };
+
+  if (isLoadingProfile) {
+    return (
+      <Card className="p-6 bg-white shadow-sm border border-gray-100 rounded-lg">
+        <div className="flex justify-center items-center h-32">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-700"></div>
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <Card className="p-6 bg-white shadow-sm border border-gray-100 rounded-lg">
@@ -367,27 +415,23 @@ const VideoUpload = ({fetchDocs}: VideoUploadProps) => {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Discipline Selector */}
+            {/* Discipline Selector - Read Only */}
             <FormField
               control={form.control}
               name="discipline"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{language === 'en' ? "Discipline" : "Disciplina"}</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder={language === 'en' ? "Select discipline" : "Seleccionar disciplina"} />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="dressage">{language === 'en' ? "Dressage" : "Doma Clásica"}</SelectItem>
-                      <SelectItem value="jumping">{language === 'en' ? "Jumping" : "Salto"}</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <FormControl>
+                    <Input
+                      value={userDiscipline === 'dressage' 
+                        ? (language === 'en' ? "Dressage" : "Doma Clásica")
+                        : (language === 'en' ? "Jumping" : "Salto")
+                      }
+                      readOnly
+                      className="bg-gray-50 cursor-not-allowed"
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -430,19 +474,47 @@ const VideoUpload = ({fetchDocs}: VideoUploadProps) => {
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
+                  disabled={horses.length === 0}
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder={language === 'en' ? "Select a horse" : "Seleccionar un caballo"} />
+                      <SelectValue 
+                        placeholder={
+                          horses.length === 0
+                            ? language === 'en'
+                              ? "No horses found - Add horses in your profile"
+                              : "No se encontraron caballos - Añade caballos en tu perfil"
+                            : language === 'en'
+                            ? "Select a horse"
+                            : "Seleccionar un caballo"
+                        }
+                      />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {horses.map((horse) => (
-                      <SelectItem key={horse.id} value={horse.id}>{horse.name}</SelectItem>
-                    ))}
+                    {horses.length > 0
+                      ? horses.map((horse) => (
+                          <SelectItem key={horse.id} value={horse.id}>
+                            {horse.name} ({horse.breed}, {horse.age} years)
+                          </SelectItem>
+                        ))
+                      : (
+                          <SelectItem value="no-horses" disabled>
+                            {language === 'en'
+                              ? "No horses available"
+                              : "No hay caballos disponibles"}
+                          </SelectItem>
+                        )}
                   </SelectContent>
                 </Select>
                 <FormMessage />
+                {horses.length === 0 && (
+                  <p className="text-sm text-gray-500 mt-1">
+                    {language === 'en'
+                      ? "Please add horses to your profile first to upload videos for analysis."
+                      : "Por favor añade caballos a tu perfil primero para subir videos para análisis."}
+                  </p>
+                )}
               </FormItem>
             )}
           />
@@ -540,7 +612,7 @@ const VideoUpload = ({fetchDocs}: VideoUploadProps) => {
             <Button 
               type="submit" 
               className={`w-full ${discipline === 'dressage' ? 'bg-purple-700 hover:bg-purple-800' : 'bg-blue-600 hover:bg-blue-700'}`}
-              disabled={!selectedVideo || isUploading}
+              disabled={!selectedVideo || isUploading || horses.length === 0}
             >
               {isUploading 
                 ? (language === 'en' ? "Uploading..." : "Subiendo...") 
