@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -540,7 +541,7 @@ const Analysis = () => {
                     <Button onClick={() => setActiveTab("upload")}>
                       {language === "en" ? "Upload Video" : "Subir Video"}
                     </Button>
-                  </div>
+                  </Card>
                 )
               )}
             </TabsContent>
