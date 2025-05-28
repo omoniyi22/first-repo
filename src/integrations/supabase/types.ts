@@ -403,6 +403,7 @@ export type Database = {
         Row: {
           coach_name: string | null
           created_at: string | null
+          discipline: string | null
           id: string
           profile_picture_url: string | null
           region: string | null
@@ -413,6 +414,7 @@ export type Database = {
         Insert: {
           coach_name?: string | null
           created_at?: string | null
+          discipline?: string | null
           id: string
           profile_picture_url?: string | null
           region?: string | null
@@ -423,6 +425,7 @@ export type Database = {
         Update: {
           coach_name?: string | null
           created_at?: string | null
+          discipline?: string | null
           id?: string
           profile_picture_url?: string | null
           region?: string | null

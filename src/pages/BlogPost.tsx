@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { fetchBlogPostBySlug, fetchBlogPosts } from "@/services/blogService";
@@ -101,14 +102,14 @@ const BlogPostPage = () => {
   };
 
   // Render markdown content
-  const renderContent = (content: string) => {
+  const renderContent = async (content: string) => {
     if (!content)
       return (
         <p className="text-gray-500 italic">{t["no-content-available"]}</p>
       );
 
     try {
-      const html = marked(content);
+      const html = await marked(content);
       return (
         <div
           className="prose prose-lg max-w-none"
@@ -226,9 +227,15 @@ const BlogPostPage = () => {
 
             {/* Blog content */}
             <article className="max-w-4xl mx-auto mb-16">
-              {renderContent(
-                getLocalizedContent("content", post.content || "")
-              )}
+              <div className="prose prose-lg max-w-none">
+                {post.content ? (
+                  <div dangerouslySetInnerHTML={{ 
+                    __html: typeof marked === 'function' ? marked.parse(getLocalizedContent("content", post.content)) : getLocalizedContent("content", post.content)
+                  }} />
+                ) : (
+                  <p className="text-gray-500 italic">{t["no-content-available"]}</p>
+                )}
+              </div>
             </article>
 
             {/* Author info */}
