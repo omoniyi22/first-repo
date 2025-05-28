@@ -30,35 +30,6 @@ const DashboardStats = () => {
       title: language === 'en' ? 'Focus Area' : 'Área de Enfoque',
     },
   ];
-
-  const statss = [
-    {
-      title: language === 'en' ? 'Average Score' : 'Puntuación Media',
-      value: '64.8%',
-      change: '+2.4%',
-      positive: false,
-    },
-    {
-      title: language === 'en' ? 'Tests Analyzed' : 'Pruebas Analizadas',
-      value: '12',
-      change: '+3',
-      positive: true,
-    },
-    {
-      title: language === 'en' ? 'Strongest Movement' : 'Movimiento Más Fuerte',
-      value: language === 'en' ? 'Trot' : 'Trote',
-      subValue: language === 'en' ? 'Extended' : 'Extendido',
-      change: '',
-      positive: true,
-    },
-    {
-      title: language === 'en' ? 'Focus Area' : 'Área de Enfoque',
-      value: language === 'en' ? 'Canter' : 'Galope',
-      subValue: language === 'en' ? 'Transitions' : 'Transiciones',
-      change: '',
-      positive: false,
-    },
-  ];
   
   useEffect(() => {
     const fetchData = async () => {
@@ -70,12 +41,14 @@ const DashboardStats = () => {
         // Fetch document analysis count
         const { data: completedDocs, error: docError } = await supabase
           .from('document_analysis')
-          .select('id')
+          .select('id, document_date')
           .eq('user_id', user.id)
-          .eq('status', 'completed');
+          .eq('status', 'completed')
+          .order('document_date', { ascending: false });
 
         if (docError) {
           console.error('Error fetching completed documents:', docError.message);
+          return;
         }
         
         if (completedDocs && completedDocs.length > 0) {
@@ -91,30 +64,39 @@ const DashboardStats = () => {
           } else {
             if (analysisResults && analysisResults.length > 0) {
               // Calculate average score
-              const scores = analysisResults.map(r => r.result_json['percentage']).filter(s => typeof s === 'number');
+              const scores = analysisResults
+                .map(r => r.result_json?.percentage)
+                .filter(s => typeof s === 'number' && !isNaN(s));
+              
               const totalScore = scores.reduce((acc, score) => acc + score, 0);
               const averageScore = scores.length > 0 ? (totalScore / scores.length) : 0;
 
-              // Sort documents by document date descending
-              const { data: completedDocsWithDates } = await supabase
-                .from('document_analysis')
-                .select('id, document_date')
-                .eq('user_id', user.id)
-                .eq('status', 'completed')
-                .order('document_date', { ascending: false });
+              // Get latest analysis result
+              const latestDocId = completedDocs[0]?.id;
+              const latestAnalysis = analysisResults.find(r => r.document_id === latestDocId);
+              const lastScore = latestAnalysis?.result_json?.percentage ?? null;
 
-              let lastScore = null;
-              let latestDocId = null;
-              let latestAnalysis = null;
-              if (completedDocsWithDates?.length) {
-                latestDocId = completedDocsWithDates[0].id;
-                latestAnalysis = analysisResults.find(r => r.document_id === latestDocId);
-                lastScore = latestAnalysis?.result_json['percentage'] ?? null;
+              // Calculate change compared to previous score if available
+              let scoreChange = null;
+              let positiveChange = true;
+              
+              if (scores.length > 1 && lastScore !== null) {
+                // Compare with the average of other scores
+                const otherScores = scores.slice(1);
+                const prevAverage = otherScores.reduce((acc, score) => acc + score, 0) / otherScores.length;
+                scoreChange = lastScore - prevAverage;
+                positiveChange = scoreChange >= 0;
               }
-              console.log(latestAnalysis);
-              // Calculate change
-              const scoreChange = lastScore !== null ? (averageScore - lastScore) : null;
-              const positiveChange = scoreChange !== null ? scoreChange >= 0 : true;
+
+              // Get strongest movement and focus area from latest analysis
+              const latestResultJson = latestAnalysis?.result_json;
+              const strongestMovement = latestResultJson?.strengths?.[0] || 
+                                     (language === 'en' ? 'Not Available' : 'No Disponible');
+              
+              const focusAreas = latestResultJson?.focusArea?.map(item => item.area) || [];
+              const focusAreaText = focusAreas.length > 0 
+                ? focusAreas.slice(0, 2).join(", ") 
+                : (language === 'en' ? 'Not Available' : 'No Disponible');
 
               setStats({
                 average_score: {
@@ -124,23 +106,60 @@ const DashboardStats = () => {
                 },
                 analyzed_test: {
                   value: analysisResults.length.toString(),
-                  change: '', // optionally compute based on previous timeframe
+                  change: '', // Could be enhanced to show change over time
                   positive: true,
                 },
                 strongest_movement: {
-                  value: latestAnalysis.result_json['strengths'][0], // Replace with actual logic if available
+                  value: strongestMovement,
                 },
                 focus_area: {
-                  value: latestAnalysis.result_json['focusArea'].map((item) => item.area).join(", ") // Replace with actual logic if available
+                  value: focusAreaText
+                }
+              });
+            } else {
+              // No analysis results found
+              setStats({
+                average_score: {
+                  value: '0%',
+                  change: '',
+                  positive: true,
+                },
+                analyzed_test: {
+                  value: '0',
+                  change: '',
+                  positive: true,
+                },
+                strongest_movement: {
+                  value: language === 'en' ? 'No data yet' : 'Sin datos aún',
+                },
+                focus_area: {
+                  value: language === 'en' ? 'No data yet' : 'Sin datos aún'
                 }
               });
             }
           }
         } else {
           console.log('No completed documents found.');
+          // Set default stats when no completed documents
+          setStats({
+            average_score: {
+              value: '0%',
+              change: '',
+              positive: true,
+            },
+            analyzed_test: {
+              value: '0',
+              change: '',
+              positive: true,
+            },
+            strongest_movement: {
+              value: language === 'en' ? 'Upload your first test' : 'Sube tu primera prueba',
+            },
+            focus_area: {
+              value: language === 'en' ? 'Upload your first test' : 'Sube tu primera prueba'
+            }
+          });
         }
-        // In a real app, you would fetch video analysis and subscription counts similarly
-        // For now we'll use dummy data
       } catch (error) {
         console.error('Failed to fetch dashboard stats:', error);
       } finally {
@@ -149,12 +168,7 @@ const DashboardStats = () => {
     };
 
     fetchData();
-  }, []);
-  //  const { count: docCount, error: docError } = await supabase
-  //           .from('document_analysis')
-  //           .select('*', { count: 'exact', head: true });
-  // Example statistics - in a real app, these would come from your backend
-  
+  }, [user, language]);
 
   return (
     <div className="mt-6 sm:mt-8">
@@ -176,7 +190,7 @@ const DashboardStats = () => {
                       : 'text-xl sm:text-3xl'
                   }`}
                 >
-                  {stats[stat.key]?.value}
+                  {isLoading ? '...' : (stats[stat.key]?.value || '...')}
                 </p>
                 {stats[stat.key]?.subValue && (
                   <p className="text-xs sm:text-sm text-purple-700">

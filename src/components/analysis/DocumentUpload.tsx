@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useToast } from '@/hooks/use-toast';
@@ -76,13 +75,6 @@ const jumpingCompetitionTypes = [
   'Training Round'
 ];
 
-// Mock horses data for development
-const mockHorses = [
-  { id: 'horse1', name: 'Thunder' },
-  { id: 'horse2', name: 'Whisper' },
-  { id: 'horse3', name: 'Storm' }
-];
-
 interface DocumentUploadProps {
   fetchDocs?: () => void;
 }
@@ -96,10 +88,12 @@ const DocumentUpload = ({fetchDocs}: DocumentUploadProps) => {
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [horses, setHorses] = useState<any[]>([]);
+  const [isLoadingHorses, setIsLoadingHorses] = useState<boolean>(true);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [newDocumentId, setNewDocumentId] = useState<string | null>(null);
   const [base64Image, setBase64Image] = useState<any>('');
   const [isShowSpinner, setIsShowSpinner] = useState<boolean>(false);
+  
   const form = useForm<DocumentUploadFormValues>({
     resolver: zodResolver(DocumentUploadFormSchema),
     defaultValues: {
@@ -124,16 +118,39 @@ const DocumentUpload = ({fetchDocs}: DocumentUploadProps) => {
       if (!user) return;
       
       try {
-        // Use mock data instead of Supabase query
-        setHorses(mockHorses);
+        setIsLoadingHorses(true);
+        
+        // Fetch horses from the user's profile
+        const { data: horsesData, error } = await supabase
+          .from('horses')
+          .select('id, name, breed, age')
+          .eq('user_id', user.id)
+          .order('name');
+        
+        if (error) {
+          console.error('Error fetching horses:', error);
+          toast({
+            title: language === 'en' ? "Error loading horses" : "Error al cargar caballos",
+            description: language === 'en' 
+              ? "Could not load your horses. Please try again." 
+              : "No se pudieron cargar tus caballos. Inténtalo de nuevo.",
+            variant: "destructive"
+          });
+          setHorses([]);
+        } else {
+          setHorses(horsesData || []);
+        }
       } catch (error) {
         console.error('Error fetching horses:', error);
+        setHorses([]);
+      } finally {
+        setIsLoadingHorses(false);
       }
     };
     
     fetchHorses();
-  }, [user]);
-  
+  }, [user, language, toast]);
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     
@@ -550,19 +567,45 @@ const DocumentUpload = ({fetchDocs}: DocumentUploadProps) => {
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
+                  disabled={isLoadingHorses}
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder={language === 'en' ? "Select a horse" : "Seleccionar un caballo"} />
+                      <SelectValue 
+                        placeholder={
+                          isLoadingHorses 
+                            ? (language === 'en' ? "Loading horses..." : "Cargando caballos...")
+                            : horses.length === 0
+                            ? (language === 'en' ? "No horses found - Add horses in your profile" : "No se encontraron caballos - Añade caballos en tu perfil")
+                            : (language === 'en' ? "Select a horse" : "Seleccionar un caballo")
+                        } 
+                      />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {horses.map((horse) => (
-                      <SelectItem key={horse.id} value={horse.id}>{horse.name}</SelectItem>
-                    ))}
+                    {horses.length > 0 ? (
+                      horses.map((horse) => (
+                        <SelectItem key={horse.id} value={horse.id}>
+                          {horse.name} ({horse.breed}, {horse.age} years)
+                        </SelectItem>
+                      ))
+                    ) : (
+                      !isLoadingHorses && (
+                        <SelectItem value="no-horses" disabled>
+                          {language === 'en' ? "No horses available" : "No hay caballos disponibles"}
+                        </SelectItem>
+                      )
+                    )}
                   </SelectContent>
                 </Select>
                 <FormMessage />
+                {horses.length === 0 && !isLoadingHorses && (
+                  <p className="text-sm text-gray-500 mt-1">
+                    {language === 'en' 
+                      ? "Please add horses to your profile first to upload documents for analysis." 
+                      : "Por favor añade caballos a tu perfil primero para subir documentos para análisis."}
+                  </p>
+                )}
               </FormItem>
             )}
           />
@@ -601,7 +644,7 @@ const DocumentUpload = ({fetchDocs}: DocumentUploadProps) => {
             <Button 
               type="submit" 
               className={`w-full ${discipline === 'dressage' ? 'bg-purple-700 hover:bg-purple-800' : 'bg-blue-600 hover:bg-blue-700'}`}
-              disabled={!selectedFiles || isUploading}
+              disabled={!selectedFiles || isUploading || horses.length === 0}
             >
               {isUploading 
                 ? (language === 'en' ? "Uploading..." : "Subiendo...") 
@@ -669,7 +712,3 @@ const DocumentUpload = ({fetchDocs}: DocumentUploadProps) => {
 };
 
 export default DocumentUpload;
-
-
-
-
