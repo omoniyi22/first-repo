@@ -6,6 +6,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 
+// Type definitions for analysis results
+interface AnalysisResultJson {
+  percentage?: number;
+  strengths?: string[];
+  focusArea?: Array<{ area: string }>;
+}
+
 const DashboardStats = () => {
   const [stats, setStats] = useState<any>({});
   const { user } = useAuth();
@@ -63,10 +70,13 @@ const DashboardStats = () => {
             console.error('Error fetching analysis results:', resultError.message);
           } else {
             if (analysisResults && analysisResults.length > 0) {
-              // Calculate average score
+              // Calculate average score with proper typing
               const scores = analysisResults
-                .map(r => r.result_json?.percentage)
-                .filter(s => typeof s === 'number' && !isNaN(s));
+                .map(r => {
+                  const resultJson = r.result_json as AnalysisResultJson;
+                  return resultJson?.percentage;
+                })
+                .filter((s): s is number => typeof s === 'number' && !isNaN(s));
               
               const totalScore = scores.reduce((acc, score) => acc + score, 0);
               const averageScore = scores.length > 0 ? (totalScore / scores.length) : 0;
@@ -74,7 +84,8 @@ const DashboardStats = () => {
               // Get latest analysis result
               const latestDocId = completedDocs[0]?.id;
               const latestAnalysis = analysisResults.find(r => r.document_id === latestDocId);
-              const lastScore = latestAnalysis?.result_json?.percentage ?? null;
+              const latestResultJson = latestAnalysis?.result_json as AnalysisResultJson;
+              const lastScore = latestResultJson?.percentage ?? null;
 
               // Calculate change compared to previous score if available
               let scoreChange = null;
@@ -89,7 +100,6 @@ const DashboardStats = () => {
               }
 
               // Get strongest movement and focus area from latest analysis
-              const latestResultJson = latestAnalysis?.result_json;
               const strongestMovement = latestResultJson?.strengths?.[0] || 
                                      (language === 'en' ? 'Not Available' : 'No Disponible');
               
