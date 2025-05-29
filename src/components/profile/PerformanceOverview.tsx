@@ -49,6 +49,7 @@ const PerformanceOverview = () => {
   const [strongestMovementDetails, setStrongestMovementDetails] = useState("");
   const [focusArea, setFocusArea] = useState("Transitions");
   const [focusAreaDetails, setFocusAreaDetails] = useState("");
+  const [scoreTrendData, setScoreTrendData] = useState([]);
 
   useEffect(() => {
     const fetchRecentTests = async () => {
@@ -284,7 +285,7 @@ const PerformanceOverview = () => {
           };
         });
 
-        console.log("📊 Tests with Parsed Percentages:", testsResults);
+        // console.log("📊 Tests with Parsed Percentages:", testsResults);
 
         // Get current month and year
         const now = new Date();
@@ -295,7 +296,7 @@ const PerformanceOverview = () => {
           "0"
         )}`;
 
-        console.log(`📅 Current Month: ${currentMonthKey}`);
+        // console.log(`📅 Current Month: ${currentMonthKey}`);
 
         // Filter and process current month tests
         const currentMonthTests =
@@ -307,15 +308,15 @@ const PerformanceOverview = () => {
             return testMonthKey === currentMonthKey;
           }) || [];
 
-        console.log("📊 Current Month All Tests:", currentMonthTests);
+        // console.log("📊 Current Month All Tests:", currentMonthTests);
 
         // Calculate strongest movement and focus area from current month tests
         const strongestMovementData =
           calculateStrongestMovement(currentMonthTests);
         const focusAreaData = calculateFocusArea(currentMonthTests);
 
-        console.log("🏆 Strongest Movement Analysis:", strongestMovementData);
-        console.log("🎯 Focus Area Analysis:", focusAreaData);
+        // console.log("🏆 Strongest Movement Analysis:", strongestMovementData);
+        // console.log("🎯 Focus Area Analysis:", focusAreaData);
 
         // Filter only tests with valid percentages for current month
         const currentMonthValidTests = currentMonthTests.filter(
@@ -325,7 +326,7 @@ const PerformanceOverview = () => {
             test.parsedPercentage > 0
         );
 
-        console.log("📊 Current Month Valid Tests:", currentMonthValidTests);
+        // console.log("📊 Current Month Valid Tests:", currentMonthValidTests);
 
         // Calculate current month's average score and count
         const currentMonthAverageScore =
@@ -339,12 +340,12 @@ const PerformanceOverview = () => {
         const currentMonthTestsCount = currentMonthTests.length; // Total tests (including null percentages)
         const currentMonthValidTestsCount = currentMonthValidTests.length; // Only valid tests
 
-        console.log(`📊 Current Month (${currentMonthKey}) Statistics:`);
-        console.log(`  - Total Tests: ${currentMonthTestsCount}`);
-        console.log(`  - Valid Tests: ${currentMonthValidTestsCount}`);
-        console.log(
-          `  - Average Score: ${currentMonthAverageScore.toFixed(1)}%`
-        );
+        // console.log(`📊 Current Month (${currentMonthKey}) Statistics:`);
+        // console.log(`  - Total Tests: ${currentMonthTestsCount}`);
+        // console.log(`  - Valid Tests: ${currentMonthValidTestsCount}`);
+        // console.log(
+        //   `  - Average Score: ${currentMonthAverageScore.toFixed(1)}%`
+        // );
 
         // Group ALL tests by month for comparison
         const groupTestsByMonth = (tests: any[]) => {
@@ -415,8 +416,8 @@ const PerformanceOverview = () => {
           const monthlyAverages = calculateMonthlyAverages(monthlyGroups);
           const sortedMonths = Object.keys(monthlyAverages).sort();
 
-          console.log("📅 All Monthly Data:", monthlyAverages);
-          console.log("📅 Sorted Months:", sortedMonths);
+          // console.log("📅 All Monthly Data:", monthlyAverages);
+          // console.log("📅 Sorted Months:", sortedMonths);
 
           // Find current month and previous month for comparison
           const currentMonthIndex = sortedMonths.indexOf(currentMonthKey);
@@ -427,15 +428,15 @@ const PerformanceOverview = () => {
             const currentMonthData = monthlyAverages[currentMonthKey];
             const previousMonthData = monthlyAverages[previousMonth];
 
-            console.log(`📊 Comparison Data:`);
-            console.log(
-              `  Current Month (${currentMonthKey}):`,
-              currentMonthData
-            );
-            console.log(
-              `  Previous Month (${previousMonth}):`,
-              previousMonthData
-            );
+            // console.log(`📊 Comparison Data:`);
+            // console.log(
+            //   `  Current Month (${currentMonthKey}):`,
+            //   currentMonthData
+            // );
+            // console.log(
+            //   `  Previous Month (${previousMonth}):`,
+            //   previousMonthData
+            // );
 
             // Calculate score percentage change (only if both months have valid data)
             if (
@@ -453,8 +454,8 @@ const PerformanceOverview = () => {
             testsCountChange =
               currentMonthData.count - (previousMonthData?.count || 0);
 
-            console.log(`  Score Change: ${scorePercentageChange.toFixed(1)}%`);
-            console.log(`  Tests Change: ${testsCountChange}`);
+            // console.log(`  Score Change: ${scorePercentageChange.toFixed(1)}%`);
+            // console.log(`  Tests Change: ${testsCountChange}`);
           } else if (currentMonthIndex === 0 || currentMonthIndex === -1) {
             // Current month is the first month or current month has no data
             if (monthlyAverages[currentMonthKey]) {
@@ -465,29 +466,29 @@ const PerformanceOverview = () => {
               scorePercentageChange = 0;
             }
 
-            console.log(`📊 First month of data or no current month data`);
+            // console.log(`📊 First month of data or no current month data`);
           }
         }
 
-        console.log("📊 Final Analytics Summary:");
-        console.log(
-          `Current Month Average Score: ${currentMonthAverageScore.toFixed(1)}%`
-        );
-        console.log(`Current Month Tests Count: ${currentMonthTestsCount}`);
-        console.log(
-          `Strongest Movement: ${strongestMovementData.strongestMovement} (${strongestMovementData.strongestMovementName})`
-        );
-        console.log(
-          `Focus Area: ${focusAreaData.mostCommonCategory} (${focusAreaData.mostCommonArea})`
-        );
-        console.log(
-          `Score Change: ${
-            scorePercentageChange >= 0 ? "+" : ""
-          }${scorePercentageChange.toFixed(1)}%`
-        );
-        console.log(
-          `Tests Change: ${testsCountChange >= 0 ? "+" : ""}${testsCountChange}`
-        );
+        // console.log("📊 Final Analytics Summary:");
+        // console.log(
+        //   `Current Month Average Score: ${currentMonthAverageScore.toFixed(1)}%`
+        // );
+        // console.log(`Current Month Tests Count: ${currentMonthTestsCount}`);
+        // console.log(
+        //   `Strongest Movement: ${strongestMovementData.strongestMovement} (${strongestMovementData.strongestMovementName})`
+        // );
+        // console.log(
+        //   `Focus Area: ${focusAreaData.mostCommonCategory} (${focusAreaData.mostCommonArea})`
+        // );
+        // console.log(
+        //   `Score Change: ${
+        //     scorePercentageChange >= 0 ? "+" : ""
+        //   }${scorePercentageChange.toFixed(1)}%`
+        // );
+        // console.log(
+        //   `Tests Change: ${testsCountChange >= 0 ? "+" : ""}${testsCountChange}`
+        // );
 
         // Set state values - NOW USING CURRENT MONTH DATA ONLY
         setAverageScore(currentMonthAverageScore || 0); // Current month average
@@ -513,6 +514,104 @@ const PerformanceOverview = () => {
     fetchRecentTests();
   }, [user]);
 
+  useEffect(() => {
+    const monthlyAverages = calculateMonthlyAverages(tests);
+    const scoreTrendData = monthlyAverages.map((item) => ({
+      month: item.month,
+      score: item.score,
+    }));
+    setScoreTrendData(scoreTrendData);
+  }, [tests]);
+
+  // Function to calculate monthly averages from test data
+  function calculateMonthlyAverages(testData) {
+    // console.log("📊 Calculating monthly averages...");
+
+    // Step 1: Extract valid test scores with dates
+    const validTests = [];
+
+    testData.forEach((test, index) => {
+      if (test.analysis_results && test.analysis_results.length > 0) {
+        const result = test.analysis_results[0].result_json;
+        const percentage = result.percentage;
+
+        // Only include tests with valid percentages (not null, not 0)
+        if (percentage !== null && percentage !== undefined && percentage > 0) {
+          const testDate = new Date(test.document_date);
+          validTests.push({
+            date: testDate,
+            percentage: percentage,
+            month: testDate.toLocaleDateString("en-US", { month: "short" }),
+            year: testDate.getFullYear(),
+          });
+        }
+      }
+    });
+
+    // console.log(`Found ${validTests.length} valid tests`);
+
+    // Step 2: Group tests by month
+    const monthlyGroups = {};
+
+    validTests.forEach((test) => {
+      const monthKey = test.month; // Just use month name for grouping
+
+      if (!monthlyGroups[monthKey]) {
+        monthlyGroups[monthKey] = {
+          month: test.month,
+          scores: [],
+          total: 0,
+          count: 0,
+        };
+      }
+
+      monthlyGroups[monthKey].scores.push(test.percentage);
+      monthlyGroups[monthKey].total += test.percentage;
+      monthlyGroups[monthKey].count++;
+    });
+
+    // Step 3: Calculate average for each month
+    const monthlyAverages = [];
+
+    Object.keys(monthlyGroups).forEach((monthKey) => {
+      const group = monthlyGroups[monthKey];
+      const average = group.total / group.count;
+
+      monthlyAverages.push({
+        month: group.month,
+        score: Number(average.toFixed(1)),
+      });
+
+      // console.log(
+      //   `${group.month}: ${group.scores.join(
+      //     ", "
+      //   )} → Average: ${average.toFixed(1)}%`
+      // );
+    });
+
+    // Step 4: Sort by month order
+    const monthOrder = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+
+    monthlyAverages.sort((a, b) => {
+      return monthOrder.indexOf(a.month) - monthOrder.indexOf(b.month);
+    });
+
+    return monthlyAverages;
+  }
+
   // Helper functions for displaying the data
   const formatPercentageChange = (change: number): string => {
     const sign = change >= 0 ? "+" : "";
@@ -523,18 +622,6 @@ const PerformanceOverview = () => {
     const sign = change >= 0 ? "+" : "";
     return `${sign}${change}`;
   };
-
-  // Add this state variable to your component:
-  // const [currentMonthTestsCount, setCurrentMonthTestsCount] = useState(0);
-
-  const scoreTrendData = [
-    { month: "Jan", score: 62.8 },
-    { month: "Feb", score: 63.2 },
-    { month: "Mar", score: 63.9 },
-    { month: "Apr", score: 62.7 },
-    { month: "May", score: 64.5 },
-    { month: "Jun", score: 64.8 },
-  ];
 
   // Example data for the movement radar chart
   const movementData = [
@@ -684,7 +771,6 @@ const PerformanceOverview = () => {
                     tick={{ fontSize: 11 }}
                   />
                   <YAxis
-                    domain={[60, 70]}
                     axisLine={false}
                     tickLine={false}
                     tick={{ fontSize: 11 }}
