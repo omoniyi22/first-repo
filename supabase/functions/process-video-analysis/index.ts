@@ -133,27 +133,31 @@ serve(async (req)=>{
 
       Output the final analysis in the following JSON structure (this is sample data, just follow the structure no content!!):
       {
-        "personalInsight": "Based on your riding patterns, you appear to be a rider who excels at precise technical elements but may benefit from developing more expression and freedom in movements."
-        "round_summary": {"Total faults": "2(1 rail, 1 time fault)", "Clear jumps": "11 out of 13", "Time": 79},
-        "course_analysis": {"Course Map": "...", "Jump types identified": "6 verticals, 4 oxers, 1 triple combination, 2 water jumps", "Course difficulty": "... (You should get the difficulty based on jump spacing and turn requirements)"},
-        "jump_by_jump_results": [...],
-        "performance_highlights": {
-          "best_jump": {jump_number: 11, strengths: ['Consistently clear across recent rounds', 'Strong, confident approach maintained', 'Good rhythm and balance']},
-          "area_for_improvement": [{jump_number: 7, weakness: ['Pattern shows difficulty with related distances in combinations', 'Pattern shows difficulty with related distances in combinations'], tip: ['exercise more' ...]}]
+        "en": {
+          "personalInsight": "Based on your riding patterns, you appear to be a rider who excels at precise technical elements but may benefit from developing more expression and freedom in movements."
+          "round_summary": {"Total faults": "2(1 rail, 1 time fault)", "Clear jumps": "11 out of 13", "Time": 79},
+          "course_analysis": {"Course Map": "...", "Jump types identified": "6 verticals, 4 oxers, 1 triple combination, 2 water jumps", "Course difficulty": "... (You should get the difficulty based on jump spacing and turn requirements)"},
+          "jump_by_jump_results": [...],
+          "performance_highlights": {
+            "best_jump": {jump_number: 11, strengths: ['Consistently clear across recent rounds', 'Strong, confident approach maintained', 'Good rhythm and balance']},
+            "area_for_improvement": [{jump_number: 7, weakness: ['Pattern shows difficulty with related distances in combinations', 'Pattern shows difficulty with related distances in combinations'], tip: ['exercise more' ...]}]
+          },
+          "jump_analysis": {
+            "pattern_recognition": "You had rails at jumps 3,7, and 11 - all verticals after turns. Focus on maintaining rhythm through corners",
+            "approach_analysis": "Your best jump was #3 - consistent approach to the vertical. Try replicating this rhythm on other verticals.",
+            "technical_recommendations": "Practice gymnastic exercises to improve your takeoff timing",
+            "course_strategy_insight": "You tend to rush combinations - practice counting strides between elements" 
+          },
+          "fault_patterns": [{area: 'Most common fault type', content: 'Rails (75% of total faults)'}, {area: 'Fault location pattern', content: '80% of faults occur in second half of course'}],
+          "recommendations": [{tip: "Practicse more balanced halts", "reason": "Weak of Balanced Halts"}, {tip: "Practicse more balanced halts", "reason": "Weak of Balanced Halts"}]
         },
-        "jump_analysis": {
-          "pattern_recognition": "You had rails at jumps 3,7, and 11 - all verticals after turns. Focus on maintaining rhythm through corners",
-          "approach_analysis": "Your best jump was #3 - consistent approach to the vertical. Try replicating this rhythm on other verticals.",
-          "technical_recommendations": "Practice gymnastic exercises to improve your takeoff timing",
-          "course_strategy_insight": "You tend to rush combinations - practice counting strides between elements" 
-        },
-        "fault_patterns": [{area: 'Most common fault type', content: 'Rails (75% of total faults)'}, {area: 'Fault location pattern', content: '80% of faults occur in second half of course'}],
-        "recommendations": [{tip: "Practicse more balanced halts", "reason": "Weak of Balanced Halts"}, {tip: "Practicse more balanced halts", "reason": "Weak of Balanced Halts"}]
+        "es": {...}
       }
       You should extract the helpful, meaninful, and also correct performance highlights and faults from the video.
       Your personal insight content pattern should be written to the person like "You seem to be ... if you ..." with 3-5 sentences and must be richful and helpful for riders.
       At least 3 Recommendations are needed and all recommendations should be deep, meaningful, useful, correct and in detail to improve rider's skill based on analysis.
       Only return the JSON without any comment like "Here is the analyzed result of the video.". Keep explanations short, objective, and specific.
+      I need the results with both Spanish and English - (en, es).
       In other words, riders can get the attractive recommendations, focus area and personal insight from your analysis - you should make them to love this tool.
       `;
     const geminiResponse = await fetch(geminiUrl, {

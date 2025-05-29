@@ -422,13 +422,13 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({ videoId }) 
           </h3>
           <div>
             <p className="py-1">
-              {language === 'en' ? 'Time:' : 'Tiempo:'} <span className="font-semibold">{analysisResult.round_summary["Time"]} Seconds</span>
+              {language === 'en' ? 'Time:' : 'Tiempo:'} <span className="font-semibold">{analysisResult[language].round_summary["Time"]} Seconds</span>
             </p>
             <p className="py-1">
-              {language === 'en' ? 'Total Faults:' : 'Faltas Totales:'} <span className="font-semibold">{analysisResult.round_summary["Total faults"]}</span>
+              {language === 'en' ? 'Total Faults:' : 'Faltas Totales:'} <span className="font-semibold">{analysisResult[language].round_summary["Total faults"]}</span>
             </p>
             <p className="py-1">
-              {language === 'en' ? 'Clear Jumps:' : 'Saltos Limpios:'} <span className="font-semibold">{analysisResult.round_summary["Clear jumps"]}</span>
+              {language === 'en' ? 'Clear Jumps:' : 'Saltos Limpios:'} <span className="font-semibold">{analysisResult[language].round_summary["Clear jumps"]}</span>
             </p>
           </div>
         </Card>
@@ -438,13 +438,13 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({ videoId }) 
           </h3>
           <div>
             <p className="py-1">
-              {language === 'en' ? 'Course Map:' : 'Mapa del Recorrido:'} <span className="font-semibold">{analysisResult.course_analysis["Course Map"]}</span>
+              {language === 'en' ? 'Course Map:' : 'Mapa del Recorrido:'} <span className="font-semibold">{analysisResult[language].course_analysis["Course Map"]}</span>
             </p>
             <p className="py-1">
-              {language === 'en' ? 'Jump Types Identified:' : 'Tipos de Saltos Identificados:'} <span className="font-semibold">{analysisResult.course_analysis["Jump types identified"]}</span>
+              {language === 'en' ? 'Jump Types Identified:' : 'Tipos de Saltos Identificados:'} <span className="font-semibold">{analysisResult[language].course_analysis["Jump types identified"]}</span>
             </p>
             <p className="py-1">
-              {language === 'en' ? 'Course difficulty:' : 'Dificultad del Recorrido:'} <span className="font-semibold">{analysisResult.course_analysis["Course difficulty"]}</span>
+              {language === 'en' ? 'Course difficulty:' : 'Dificultad del Recorrido:'} <span className="font-semibold">{analysisResult[language].course_analysis["Course difficulty"]}</span>
             </p>
           </div>
         </Card>
@@ -455,7 +455,7 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({ videoId }) 
         </h3>
         <div>
           <p className="py-1">
-            {analysisResult.personalInsight}
+            {analysisResult[language].personalInsight}
           </p>
         </div>
       </Card>
@@ -481,7 +481,7 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({ videoId }) 
                 </tr>
               </thead>
               <tbody>
-                {analysisResult.jump_by_jump_results.map((jump, index) => (
+                {analysisResult[language].jump_by_jump_results.map((jump, index) => (
                   <tr key={index} className="border-t border-gray-200">
                     <td className="px-4 py-2 text-sm">{jump['Jump number']}</td>
                     <td className="px-4 py-2 text-sm capitalize">{jump['Jump type']}</td>
@@ -498,9 +498,9 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({ videoId }) 
               {language === 'en' ? 'Best Jump' : 'Mejor Salto'}
             </h3>
             <div>
-              <p className="mb-2">Jump Number <b>#{analysisResult.performance_highlights.best_jump.jump_number}</b></p>
+              <p className="mb-2">Jump Number <b>#{analysisResult[language].performance_highlights.best_jump.jump_number}</b></p>
               <ul className="pl-6">
-                {analysisResult.performance_highlights.best_jump.strengths.map((item, index) => (
+                {analysisResult[language].performance_highlights.best_jump.strengths.map((item, index) => (
                   <li key={index} className="list-disc">{item}</li>
                 ))}
               </ul>
@@ -511,7 +511,7 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({ videoId }) 
               {language === 'en' ? 'Focus Area' : 'Área de Mejora'}
             </h3>
             <div>
-              {analysisResult.performance_highlights.area_for_improvement.map((area, index) => (
+              {analysisResult[language].performance_highlights.area_for_improvement.map((area, index) => (
                 <div className="my-4" key={index}>
                   <p className="mb-2">Weakness of Jump <b>#{area.jump_number}</b></p>
                   <ul className="pl-6 mb-4">
@@ -538,16 +538,16 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({ videoId }) 
         </h4>
         <div>
           <p className="py-1">
-            {language === 'en' ? 'Pattern Recognition:' : 'Mapa del Recorrido:'} <span className="font-semibold">{analysisResult.jump_analysis["pattern_recognition"]}</span>
+            {language === 'en' ? 'Pattern Recognition:' : 'Reconocimiento de Patrones:'} <span className="font-semibold">{analysisResult[language].jump_analysis["pattern_recognition"]}</span>
           </p>
           <p className="py-1">
-            {language === 'en' ? 'Approach analysis:' : 'Tipos de Saltos Identificados:'} <span className="font-semibold">{analysisResult.jump_analysis["approach_analysis"]}</span>
+            {language === 'en' ? 'Approach analysis:' : 'Análisis del Enfoque:'} <span className="font-semibold">{analysisResult[language].jump_analysis["approach_analysis"]}</span>
           </p>
           <p className="py-1">
-            {language === 'en' ? 'Technical Recommendations:' : 'Dificultad del Recorrido:'} <span className="font-semibold">{analysisResult.jump_analysis["technical_recommendations"]}</span>
+            {language === 'en' ? 'Technical Recommendations:' : 'Recomendaciones Técnicas:'} <span className="font-semibold">{analysisResult[language].jump_analysis["technical_recommendations"]}</span>
           </p>
           <p className="py-1">
-            {language === 'en' ? 'Course Strategy Insight:' : 'Dificultad del Recorrido:'} <span className="font-semibold">{analysisResult.jump_analysis["course_strategy_insight"]}</span>
+            {language === 'en' ? 'Course Strategy Insight:' : 'Estrategia del Recorrido:'} <span className="font-semibold">{analysisResult[language].jump_analysis["course_strategy_insight"]}</span>
           </p>
         </div>
       </Card>
@@ -556,7 +556,7 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({ videoId }) 
           {language === 'en' ? 'Recommendations' : 'Recomendaciones'}
         </h4>
         <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
-          {analysisResult?.recommendations?.map((recommendation, index) => (
+          {analysisResult[language]?.recommendations?.map((recommendation, index) => (
             <li key={index} className="text-sm sm:text-base">
               {recommendation['tip']}<br/>
               <b>{language === 'en' ? 'To improve:' : 'Para mejorar:'}</b> {recommendation['reason']}

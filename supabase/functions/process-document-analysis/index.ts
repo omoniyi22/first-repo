@@ -93,87 +93,90 @@ serve(async (req)=>{
       All formats must be followed like an example and if there are no contents, fill the field with null.
       Once analyze the document, you should give your recommend to improve skill based on analyzed results with strengths and weakness.
       {
-        "percentage": 68.5,
-        "horse": "Han",
-        "scores": [
-          {
-            "movement": "Halt at X",
-            "judgeA": 6,
-            "judgeB": 6,
-            "judgeC": 6,
-            "maxScore": 10,
-            "commentA": "Slightly unbalanced",
-            "commentB": "Slightly unbalanced",
-            "commentC": "Slightly unbalanced"
-          },
-          {
-            "movement": "Halt at X",
-            "judgeA": 6,
-            "judgeB": 6,
-            "judgeC": 6,
-            "maxScore": 10,
-            "commentA": "Slightly unbalanced",
-            "commentB": "Slightly unbalanced",
-            "commentC": "Slightly unbalanced"
-          }
-        ],
-        "strengths": [
-          "Good rhythm",
-          "Nice energy throughout",
-          "Attentive to aids"
-        ],
-        "weaknesses": [
-          "Tension in transitions",
-          "Balance in halts needs work"
-        ],
-        "generalComments": {
-          "judgeA": "Work on balanced halts",
-          "judgeB": "Work on balanced halts",
-          "judgeC": ""
-        },
-        "recommendations": [
-          {
-            "tip": "Practice more balanced halts",
-            "reason": "Weakness in balanced halts"
-          },
-          {
-            "tip": "Work on reducing tension during transitions",
-            "reason": "Transitions appear rushed and tight"
-          },
-          {
-            "tip": "Ride combinations with greater control and preparation",
-            "reason": "Frequent faults in combination jumps"
-          }
-        ],
-        "focusArea": [
-          {
-            "area": "Right Center Quality (5.0)",
-            "tip": {
-              "quickFix": "Try breathing out as you apply right leg aid",
-              "Exercise": "20m circle with gradual spiral in and out"
+        "en": {
+          "percentage": 68.5,
+          "horse": "Han",
+          "scores": [
+            {
+              "movement": "Halt at X",
+              "judgeA": 6,
+              "judgeB": 6,
+              "judgeC": 6,
+              "maxScore": 10,
+              "commentA": "Slightly unbalanced",
+              "commentB": "Slightly unbalanced",
+              "commentC": "Slightly unbalanced"
+            },
+            {
+              "movement": "Halt at X",
+              "judgeA": 6,
+              "judgeB": 6,
+              "judgeC": 6,
+              "maxScore": 10,
+              "commentA": "Slightly unbalanced",
+              "commentB": "Slightly unbalanced",
+              "commentC": "Slightly unbalanced"
             }
+          ],
+          "strengths": [
+            "Good rhythm",
+            "Nice energy throughout",
+            "Attentive to aids"
+          ],
+          "weaknesses": [
+            "Tension in transitions",
+            "Balance in halts needs work"
+          ],
+          "generalComments": {
+            "judgeA": "Work on balanced halts",
+            "judgeB": "Work on balanced halts",
+            "judgeC": ""
           },
-          {
-            "area": "Medium Trot Expression (5.5)",
-            "tip": {
-              "quickFix": "Think 'up' not 'forward' in transitions.",
-              "Exercise": "Trot poles with varied spacing to encourage suspension"
+          "recommendations": [
+            {
+              "tip": "Practice more balanced halts",
+              "reason": "Weakness in balanced halts"
+            },
+            {
+              "tip": "Work on reducing tension during transitions",
+              "reason": "Transitions appear rushed and tight"
+            },
+            {
+              "tip": "Ride combinations with greater control and preparation",
+              "reason": "Frequent faults in combination jumps"
             }
-          }
-        ],
-        "highestScore": {
-          "score": 8,
-          "movement": "Halt at X"
+          ],
+          "focusArea": [
+            {
+              "area": "Right Center Quality (5.0)",
+              "tip": {
+                "quickFix": "Try breathing out as you apply right leg aid",
+                "Exercise": "20m circle with gradual spiral in and out"
+              }
+            },
+            {
+              "area": "Medium Trot Expression (5.5)",
+              "tip": {
+                "quickFix": "Think 'up' not 'forward' in transitions.",
+                "Exercise": "Trot poles with varied spacing to encourage suspension"
+              }
+            }
+          ],
+          "highestScore": {
+            "score": 8,
+            "movement": "Halt at X"
+          },
+          "lowestScore": {
+            "score": 6,
+            "movement": "Halt at X"
+          },
+          "personalInsight": "You seem to be a rider who excels at precise technical elements, especially halts and geometry. However, if you focus more on relaxation and expression during transitions and medium gaits, you could significantly improve your overall performance."
         },
-        "lowestScore": {
-          "score": 6,
-          "movement": "Halt at X"
-        },
-        "personalInsight": "You seem to be a rider who excels at precise technical elements, especially halts and geometry. However, if you focus more on relaxation and expression during transitions and medium gaits, you could significantly improve your overall performance."
+        "es": {...}        
       }
       Percentage, strengths (at least 2 strengths), weaknesses (at least 2 weaknesses), recommendations, focus area and personal insight(Your personal thoughts) must be required in results.
       At least 3 Recommendations are needed and all recommendations should be deep, meaningful, useful, correct and in detail (More specific exercise recommendations as well such as: "Try shoulder - in exercises" rather than just "focus on relaxtion").
-      If there's Spanish in document, you should keep all contents (personalInsights, Recommendations, strenghts and so on) in the same language as the document uploaded.
+      I need the results with both Spanish and English - (en, es).
       And should choose professional riding words like "flying changes" instead of "changes of leg" and your personal insight content pattern should be written to the person like "You seem to be ... if you ..." with 3-5 sentences and must be richful and helpful for riders.
       In other words, riders can get the attractive recommendations, focus area and personal insight from your analysis - you should make them to love this tool.
     `;

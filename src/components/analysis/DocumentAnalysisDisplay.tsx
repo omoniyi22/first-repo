@@ -27,23 +27,46 @@ interface JumpingFault {
 }
 
 interface AnalysisResultData {
-  scores?: MovementScore[];
-  totalScore?: number;
-  percentage?: number;
-  comments?: string[];
-  strengths?: string[];
-  weaknesses?: string[];
-  recommendations?: string[];
-  generalComments?: object;
-  faults?: JumpingFault[];
-  courseTime?: number;
-  optimumTime?: number;
-  timeFaults?: number;
-  timePenalties?: number;
-  totalFaults?: number;
-  placing?: string;
-  jumpTypes?: string[];
-  commonErrors?: string[];
+  en: {
+    scores?: MovementScore[];
+    totalScore?: number;
+    percentage?: number;
+    comments?: string[];
+    strengths?: string[];
+    weaknesses?: string[];
+    recommendations?: string[];
+    generalComments?: object;
+    faults?: JumpingFault[];
+    courseTime?: number;
+    optimumTime?: number;
+    timeFaults?: number;
+    timePenalties?: number;
+    totalFaults?: number;
+    placing?: string;
+    jumpTypes?: string[];
+    commonErrors?: string[];
+    personalInsight?: string;
+  },
+  es: {
+    scores?: MovementScore[];
+    totalScore?: number;
+    percentage?: number;
+    comments?: string[];
+    strengths?: string[];
+    weaknesses?: string[];
+    recommendations?: string[];
+    generalComments?: object;
+    faults?: JumpingFault[];
+    courseTime?: number;
+    optimumTime?: number;
+    timeFaults?: number;
+    timePenalties?: number;
+    totalFaults?: number;
+    placing?: string;
+    jumpTypes?: string[];
+    commonErrors?: string[];
+    personalInsight?: string;
+  },
 }
 
 interface DocumentAnalysis {
@@ -65,30 +88,6 @@ interface DocumentAnalysis {
 interface DocumentAnalysisDisplayProps {
   documentId: string;
 }
-
-// Mock result data for development - we'll replace this with real API calls later
-const mockResultData: AnalysisResultData = {
-  totalScore: 68,
-  percentage: 68.5,
-  scores: [
-    { movement: 'Entry at A', score: 7, maxScore: 10, comment: 'Good rhythm' },
-    { movement: 'Halt at X', score: 6, maxScore: 10, comment: 'Slightly unbalanced' },
-    { movement: 'Working trot', score: 7.5, maxScore: 10, comment: 'Nice energy' },
-  ],
-  strengths: ['Good rhythm', 'Nice energy throughout', 'Attentive to aids'],
-  weaknesses: ['Tension in transitions', 'Balance in halts needs work'],
-  recommendations: ['Work on balanced halts', 'Practice smoother transitions'],
-  faults: [
-    { jumpNumber: 1, faultType: 'Knockdown', faults: 4, description: 'Back rail' },
-    { jumpNumber: 5, faultType: 'Refusal', faults: 4, description: 'First refusal' },
-  ],
-  totalFaults: 8,
-  courseTime: 82.4,
-  optimumTime: 80.0,
-  timePenalties: 1,
-  jumpTypes: ['Vertical', 'Oxer', 'Combination', 'Water jump'],
-  commonErrors: ['Coming too fast to verticals', 'Rushing combinations']
-};
 
 const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({ documentId }) => {
   const { language } = useLanguage();
@@ -129,14 +128,11 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({ docum
               console.log("analysis result data =>", resultData);
             if (resultError) {
               console.warn('Could not fetch analysis results:', resultError);
-              // For now, fall back to mock data if no results are available
-              setResultData(mockResultData);
             } else if (resultData) {
               // Use actual result data from the database
-              setResultData(resultData.result_json as AnalysisResultData);
+              setResultData(resultData.result_json as unknown as AnalysisResultData);
             } else {
               // Fall back to mock data if no results
-              setResultData(mockResultData);
             }
           } else {
             // Document is not completed yet
@@ -225,9 +221,10 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({ docum
         <h3 className="text-xl sm:text-2xl font-semibold mb-2 sm:mb-4">
           {language === 'en' ? 'Analysis Results' : 'Resultados del Análisis'}
         </h3>
-        {resultData.totalScore || resultData.percentage ? (
+        {resultData[language].percentage ? (
           <p className="text-lg">
-            {language === 'en' ? 'Total Score:' : 'Puntuación Total:'} <span className="font-semibold">{resultData.percentage}%</span>
+            {language === 'en' ? `Total Score:` : `Puntuación Total:`}&nbsp; 
+            <span className="font-semibold">{resultData[language].percentage}%</span>
           </p>
         ) : (
           <p>{language === 'en' ? 'Score not available' : 'Puntuación no disponible'}</p>
@@ -240,8 +237,8 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({ docum
             {language === 'en' ? 'Highest Score' : 'Fortalezas'}
           </h4>
           <div>
-            <b className="text-lg">{resultData['highestScore'].score}</b>
-            &nbsp;at <b>{resultData['highestScore'].movement}</b>
+            <b className="text-lg">{language === 'en' ? resultData.en['highestScore'].score : resultData.es['highestScore'].score}</b>
+            &nbsp;at <b>{language === 'en' ? resultData.en['highestScore'].movement : resultData.es['highestScore'].movement}</b>
           </div>
         </Card>
 
@@ -250,8 +247,8 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({ docum
             {language === 'en' ? 'Lowest Score' : 'Debilidades'}
           </h4>
           <div>
-            <b className="text-lg">{resultData['lowestScore'].score}</b>
-            &nbsp;at <b>{resultData['lowestScore'].movement}</b>
+            <b className="text-lg">{language === 'en' ? resultData.en['lowestScore'].score : resultData.es['lowestScore'].score}</b>
+            &nbsp;at <b>{language === 'en' ? resultData.en['lowestScore'].movement : resultData.es['lowestScore'].movement}</b>
           </div>
         </Card>
       </div>
@@ -261,11 +258,11 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({ docum
           {language === 'en' ? 'Personalized Insight' : 'Debilidades'}
         </h4>
         <div>
-          <p>{resultData['personalInsight']}</p>
+          <p>{language === 'en' ? resultData.en['personalInsight'] : resultData.es['personalInsight'] }</p>
         </div>
       </Card>
       
-      {resultData.scores && resultData.scores.length > 0 && (
+      {resultData.en.scores && resultData.en.scores.length > 0 && (
         <Card className="p-4 sm:p-6 overflow-hidden">
           <h4 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
             {language === 'en' ? 'Movement Scores' : 'Puntuaciones de Movimiento'}
@@ -281,7 +278,7 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({ docum
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {resultData.scores.map((score, index) => (
+                {resultData[language].scores.map((score, index) => (
                   <tr key={index} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
                     <td className="py-2 px-3 text-sm">{score.movement}</td>
                     <td className="py-2 px-3 text-sm"> 
@@ -307,7 +304,7 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({ docum
         </Card>
       )}
 
-      {resultData.faults && resultData.faults.length > 0 && (
+      {resultData[language].faults && resultData[language].faults.length > 0 && (
         <Card className="p-4 sm:p-6 overflow-hidden">
           <h4 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
             {language === 'en' ? 'Jumping Faults' : 'Faltas de Salto'}
@@ -323,7 +320,7 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({ docum
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {resultData.faults.map((fault, index) => (
+                {resultData[language].faults.map((fault, index) => (
                   <tr key={index} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
                     <td className="py-2 px-3 text-sm">{fault.jumpNumber || fault.jump || '-'}</td>
                     <td className="py-2 px-3 text-sm">{fault.faults || '-'}</td>
@@ -343,7 +340,7 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({ docum
             {language === 'en' ? 'Strengths' : 'Fortalezas'}
           </h4>
           <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
-            {resultData?.strengths?.map((strength, index) => (
+            {resultData[language]?.strengths?.map((strength, index) => (
               <li key={index} className="text-sm sm:text-base">{strength}</li>
             ))}
           </ul>
@@ -354,22 +351,22 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({ docum
             {language === 'en' ? 'Weaknesses' : 'Debilidades'}
           </h4>
           <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
-            {resultData?.weaknesses?.map((weakness, index) => (
+            {resultData[language]?.weaknesses?.map((weakness, index) => (
               <li key={index} className="text-sm sm:text-base">{weakness}</li>
             ))}
           </ul>
         </Card>
       </div>
 
-      {resultData['focusArea'] && (
+      {resultData[language]['focusArea'] && (
         <Card className="p-4 sm:p-6">
           <h4 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
             {language === 'en'
-              ? `Your Top Focus Area${resultData['focusArea'].length > 1 ? 's' : ''} (${resultData['focusArea'].length})`
-              : `Tus áreas principales (${resultData['focusArea'].length})`}
+              ? `Your Top Focus Area${resultData[language]['focusArea'].length > 1 ? 's' : ''} (${resultData[language]['focusArea'].length})`
+              : `Tus áreas principales (${resultData[language]['focusArea'].length})`}
           </h4>
           <ol className="pl-6">
-            {resultData['focusArea'].map((item, index) => (
+            {resultData[language]['focusArea'].map((item, index) => (
               <li key={index} className='list-decimal font-semibold'>
                 <div className="text-lg font-semibold py-2">{item.area}</div>
                 <ul className="pl-4">
@@ -392,7 +389,7 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({ docum
           {language === 'en' ? 'Recommendations' : 'Recomendaciones'}
         </h4>
         <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
-          {resultData?.recommendations?.map((recommendation, index) => (
+          {resultData[language]?.recommendations?.map((recommendation, index) => (
             <li key={index} className="text-sm sm:text-base">
               {recommendation['tip']}<br/>
               <b>{language === 'en' ? 'To improve:' : 'Para mejorar:'}</b> {recommendation['reason']}
@@ -406,7 +403,7 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({ docum
           {language === 'en' ? 'Judge Comments' : 'Comentarios del Juez'}
         </h4>
         <ul className="text-sm sm:text-base">
-            {Object.entries(resultData.generalComments)
+            {Object.entries(resultData[language].generalComments)
             .filter(([_, comment]) => !!comment && comment.trim() !== '')
             .map(([judge, comment], index) => (
               <li key={index} className="text-sm sm:text-base">
