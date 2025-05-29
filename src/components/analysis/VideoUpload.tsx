@@ -25,7 +25,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Calendar as CalendarIcon, Upload, Video, X } from 'lucide-react';
+import { Calendar as CalendarIcon, Upload, Video, X, Loader2 } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import {
   Popover,
@@ -33,7 +33,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
-import { format } from 'date-fns';
+import { format, set } from 'date-fns';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { v4 as uuidv4 } from 'uuid';
@@ -70,6 +70,7 @@ const VideoUpload = ({fetchDocs}: VideoUploadProps) => {
   const [horses, setHorses] = useState<any[]>([]);
   const [userDiscipline, setUserDiscipline] = useState<string>('');
   const [isLoadingProfile, setIsLoadingProfile] = useState<boolean>(true);
+  const [isShowSpinner, setIsShowSpinner] = useState<boolean>(false);
   
   const form = useForm<VideoUploadFormValues>({
     resolver: zodResolver(VideoUploadFormSchema),
@@ -195,17 +196,8 @@ const VideoUpload = ({fetchDocs}: VideoUploadProps) => {
     
     try {
       console.log("Starting video upload process");
-      
-      // Create a progress interval to show upload progress
-      const progressInterval = setInterval(() => {
-        setUploadProgress(prev => {
-          if (prev >= 95) {
-            clearInterval(progressInterval);
-            return 95;
-          }
-          return prev + 5;
-        });
-      }, 100);
+      setIsShowSpinner(true);
+      setUploadProgress(10);
       
       // Generate unique ID for the video analysis
       const videoAnalysisId = uuidv4();
@@ -248,6 +240,7 @@ const VideoUpload = ({fetchDocs}: VideoUploadProps) => {
         };
         reader.onerror = (error) => reject(error);
       });
+      setUploadProgress(30);
 
       // Find the selected horse name
       const selectedHorse = horses.find(h => h.id === data.horseId);
@@ -286,6 +279,7 @@ const VideoUpload = ({fetchDocs}: VideoUploadProps) => {
       
       // Trigger the analysis function
       try {
+        setUploadProgress(70);
         const { error: functionError } = await supabase.functions
           .invoke('process-video-analysis', {
             body: { documentId: videoAnalysisData[0].id, base64Video: base64VideoFile}
@@ -302,7 +296,6 @@ const VideoUpload = ({fetchDocs}: VideoUploadProps) => {
         // Continue as video is saved
       }
       fetchDocs();
-      clearInterval(progressInterval);
       setUploadProgress(100);
       
       toast({
@@ -331,6 +324,7 @@ const VideoUpload = ({fetchDocs}: VideoUploadProps) => {
       });
     } finally {
       setIsUploading(false);
+      setIsShowSpinner(false);
       setTimeout(() => setUploadProgress(0), 1000);
     }
   };
@@ -621,6 +615,11 @@ const VideoUpload = ({fetchDocs}: VideoUploadProps) => {
           </div>
         </form>
       </Form>
+      {isShowSpinner && (
+        <div className="fixed top-0 right-0 w-screen h-full flex justify-center items-center p-12">
+          <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        </div>
+      )}
     </Card>
   );
 };

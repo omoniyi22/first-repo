@@ -172,8 +172,8 @@ serve(async (req)=>{
         "personalInsight": "You seem to be a rider who excels at precise technical elements, especially halts and geometry. However, if you focus more on relaxation and expression during transitions and medium gaits, you could significantly improve your overall performance."
       }
       Percentage, strengths (at least 2 strengths), weaknesses (at least 2 weaknesses), recommendations, focus area and personal insight(Your personal thoughts) must be required in results.
-      At least 3 Recommendations are needed and all recommendations should be deep, meaningful, useful, correct and in detail.
-      If there's Spanish in content, you should translate to English to ensure content is English.
+      At least 3 Recommendations are needed and all recommendations should be deep, meaningful, useful, correct and in detail (More specific exercise recommendations as well such as: "Try shoulder - in exercises" rather than just "focus on relaxtion").
+      If there's Spanish in document, you should keep all contents (personalInsights, Recommendations, strenghts and so on) in the same language as the document uploaded.
       And should choose professional riding words like "flying changes" instead of "changes of leg" and your personal insight content pattern should be written to the person like "You seem to be ... if you ..." with 3-5 sentences and must be richful and helpful for riders.
       In other words, riders can get the attractive recommendations, focus area and personal insight from your analysis - you should make them to love this tool.
     `;
@@ -218,23 +218,11 @@ serve(async (req)=>{
       console.error("❌ Failed to parse JSON:", resultText);
       throw new Error("Gemini returned invalid JSON format");
     }
-    const horseName = finalResult.horse || null;
-    let horseId = null;
-    if (horseName) {
-      const { data: horseData, error: horseError } = await supabase.from('horses').select('id').ilike('name', horseName).single();
-      if (horseError) {
-        console.warn('Horse not found:', horseError.message);
-      } else {
-        horseId = horseData.id;
-      }
-    }
     await supabase.from('analysis_results').insert({
       document_id: documentId,
       result_json: finalResult
     });
     await supabase.from('document_analysis').update({
-      horse_name: horseName,
-      horse_id: horseId,
       status: 'completed',
       updated_at: new Date().toISOString()
     }).eq('id', documentId);

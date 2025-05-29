@@ -533,6 +533,25 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({ videoId }) 
         </div>
       </div>
       <Card className="p-4 sm:p-6">
+        <h4 className="text-xl sm:text-2xl font-semibold mb-2 sm:mb-4">
+          {language === 'en' ? 'Jump Analysis' : 'Resultados del Análisis'}
+        </h4>
+        <div>
+          <p className="py-1">
+            {language === 'en' ? 'Pattern Recognition:' : 'Mapa del Recorrido:'} <span className="font-semibold">{analysisResult.jump_analysis["pattern_recognition"]}</span>
+          </p>
+          <p className="py-1">
+            {language === 'en' ? 'Approach analysis:' : 'Tipos de Saltos Identificados:'} <span className="font-semibold">{analysisResult.jump_analysis["approach_analysis"]}</span>
+          </p>
+          <p className="py-1">
+            {language === 'en' ? 'Technical Recommendations:' : 'Dificultad del Recorrido:'} <span className="font-semibold">{analysisResult.jump_analysis["technical_recommendations"]}</span>
+          </p>
+          <p className="py-1">
+            {language === 'en' ? 'Course Strategy Insight:' : 'Dificultad del Recorrido:'} <span className="font-semibold">{analysisResult.jump_analysis["course_strategy_insight"]}</span>
+          </p>
+        </div>
+      </Card>
+      <Card className="p-4 sm:p-6">
         <h4 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
           {language === 'en' ? 'Recommendations' : 'Recomendaciones'}
         </h4>

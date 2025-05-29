@@ -89,11 +89,10 @@ serve(async (req)=>{
         - Total faults (include type: rail, refusal, time fault)
         - Number of clear jumps vs total (total faults + clear jumps should be same with total jumps)
         - Time (it will be length of video but you can adjust this as seconds)
-        - Clear round rate for this round
 
       2. **Course Analysis**
         - Basic digitized course map (jump layout representation)
-        - Jump types and counts (e.g., verticals, oxers, combinations and so on)
+        - Jump types and counts (e.g., verticals, oxers, combinations)
         - General course difficulty (based on spacing, turn difficulty)
         You should extract all infos like follow:
         {"Course Map": "Simple digitized version showing jump layout", "Jump types identified": "6 verticals, 4 oxers, 1 triple combination, 2 water jumps", "Course difficulty": "3 difficult jumps but easy to turn"},
@@ -107,12 +106,20 @@ serve(async (req)=>{
 
       4. **Performance Highlights**
         - Best Jump: Identify one standout jump with explanation
-        - Area for Improvement: One problematic jump or pattern with context and history (if available)
+        - Area for Improvement: All problematic jumps or pattern with context and history (if available)
+        Add 3-4 specific training recommendations based on fault patterns.
+        Include approach/technique observations beyond just "naturally athletic".
+        Suggest specific exercises or course types to practice.
 
-      5. **Basic Video Analysis**
-        - Detect individual jumps and timestamp each
-        - Mark takeoff and landing points
-        - Organize video clips by jump type
+      5. **Jump Analysis**
+        - Peattern recognition
+        e.g,.: "You had rails at jumps 3,7, and 11 - all verticals after turns. Focus on maintaining rhythm through corners"
+        - Approach analysis
+        e.g,.: "Your best jump was #3 - consistent approach to the vertical. Try replicating this rhythm on other verticals."
+        - Technical recommendations
+        e.g,.: "Practice gymnastic exercises to improve your takeoff timing" / "Work on maintaining leg position over oxers." and so on...
+        - Course Strategy insights
+        e.g,.: "You tend to rush combinations - practice counting strides between elements" (Maybe identify the rider's strongest type of jump - verticals vs oxers vs combinations)
 
       6. **Simple Fault Patterns**
         - Most common fault type
@@ -127,12 +134,18 @@ serve(async (req)=>{
       Output the final analysis in the following JSON structure (this is sample data, just follow the structure no content!!):
       {
         "personalInsight": "Based on your riding patterns, you appear to be a rider who excels at precise technical elements but may benefit from developing more expression and freedom in movements."
-        "round_summary": {"Total faults": "2(1 rail, 1 time fault)", "Clear jumps": "11 out of 13", "Time": 79, "Clear round rate": "92%"},
-        "course_analysis": {"Course Map": "Simple digitized version showing jump layout", "Jump types identified": "6 verticals, 4 oxers, 1 triple combination, 2 water jumps", "Course difficulty": "... (You should get the difficulty based on jump spacing and turn requirements)"},
+        "round_summary": {"Total faults": "2(1 rail, 1 time fault)", "Clear jumps": "11 out of 13", "Time": 79},
+        "course_analysis": {"Course Map": "...", "Jump types identified": "6 verticals, 4 oxers, 1 triple combination, 2 water jumps", "Course difficulty": "... (You should get the difficulty based on jump spacing and turn requirements)"},
         "jump_by_jump_results": [...],
         "performance_highlights": {
           "best_jump": {jump_number: 11, strengths: ['Consistently clear across recent rounds', 'Strong, confident approach maintained', 'Good rhythm and balance']},
           "area_for_improvement": [{jump_number: 7, weakness: ['Pattern shows difficulty with related distances in combinations', 'Pattern shows difficulty with related distances in combinations'], tip: ['exercise more' ...]}]
+        },
+        "jump_analysis": {
+          "pattern_recognition": "You had rails at jumps 3,7, and 11 - all verticals after turns. Focus on maintaining rhythm through corners",
+          "approach_analysis": "Your best jump was #3 - consistent approach to the vertical. Try replicating this rhythm on other verticals.",
+          "technical_recommendations": "Practice gymnastic exercises to improve your takeoff timing",
+          "course_strategy_insight": "You tend to rush combinations - practice counting strides between elements" 
         },
         "fault_patterns": [{area: 'Most common fault type', content: 'Rails (75% of total faults)'}, {area: 'Fault location pattern', content: '80% of faults occur in second half of course'}],
         "recommendations": [{tip: "Practicse more balanced halts", "reason": "Weak of Balanced Halts"}, {tip: "Practicse more balanced halts", "reason": "Weak of Balanced Halts"}]
