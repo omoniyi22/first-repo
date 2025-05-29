@@ -1,5 +1,8 @@
 import { ArrowUp, TrendingUp, User, Award, FileText, Star } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+
 import {
   ChartContainer,
   ChartTooltip,
@@ -19,8 +22,83 @@ import {
   RadarChart,
   Legend,
 } from "recharts";
+import { useEffect, useState } from "react";
+
+interface TestData {
+  id: string;
+  file_name: string;
+  document_date: string;
+  horse_name: string;
+  test_level?: string;
+  discipline: string;
+  status: string;
+  document_url: string;
+}
 
 const PerformanceOverview = () => {
+  const [tests, setTests] = useState<TestData[]>([]);
+  const [averageScore, setAverageScore] = useState<number>(0);
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchRecentTests = async () => {
+      if (!user) return;
+
+      try {
+        const { data, error } = await supabase
+          .from("document_analysis")
+          .select(
+            `
+    *,
+    analysis_results(*)
+  `
+          )
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false });
+
+        console.log("🚀 ~ fetchRecentTests ~ data:", data);
+        if (error) {
+          console.error("Error fetching recent tests:", error);
+          return;
+        }
+
+        // Define the expected shape of result_json
+        interface AnalysisResultJson {
+          percentage?: number;
+          [key: string]: any;
+        }
+
+        const testsResults = data?.map((test) => {
+          const result = test.analysis_results[0]?.result_json;
+          // If result_json is a string, parse it; otherwise, assume it's already an object
+          if (typeof result === "string") {
+            try {
+              return JSON.parse(result) as AnalysisResultJson;
+            } catch {
+              return {};
+            }
+          }
+          return result as AnalysisResultJson;
+        });
+
+        const averageScore =
+          testsResults?.reduce(
+            (acc, test) => acc + (test?.percentage || 0),
+            0
+          ) / (testsResults?.length || 1);
+        setAverageScore(averageScore || 0);
+        setTests(data || []);
+      } catch (error) {
+        console.error("Error fetching recent tests:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRecentTests();
+  }, [user]);
+
   // Example score trend data for the chart
   const scoreTrendData = [
     { month: "Jan", score: 62.8 },
@@ -45,7 +123,7 @@ const PerformanceOverview = () => {
   const stats = [
     {
       title: "Average Score",
-      value: "64.8%",
+      value: `${averageScore.toFixed(1)}%`,
       change: "+2.4%",
       positive: true,
       icon: <TrendingUp className="h-6 w-6 text-white" />,
@@ -53,7 +131,7 @@ const PerformanceOverview = () => {
     },
     {
       title: "Tests Analyzed",
-      value: "12",
+      value: tests.length.toString(),
       change: "+3",
       positive: true,
       icon: <FileText className="h-6 w-6 text-white" />,
