@@ -16,6 +16,8 @@ export const dressageLevels = [
 
 // Region/Country options
 export const regions = [
+  "United Kingdom",
+  "Spain",
   "North America",
   "Central America",
   "South America",
