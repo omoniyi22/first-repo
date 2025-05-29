@@ -509,7 +509,7 @@ const Navbar = () => {
                   </div>
                   <Button
                     variant="outline"
-                    className="w-full border-white text-white hover:bg-purple-800"
+                    className="w-full border-white text-purple-800 hover:bg-purple-800"
                     onClick={handleSignOut}
                   >
                     <LogOut className="h-4 w-4 mr-2" />

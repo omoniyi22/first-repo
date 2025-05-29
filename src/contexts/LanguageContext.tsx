@@ -19,7 +19,7 @@ const defaultTranslations = {
     "event": "Event",
     "about": "About",
     "dashboard": "Dashboard",
-    "profile-setup": "Profile Setup",
+    "profile-setup": "Profile",
     "sign-in": "Sign In",
     "sign-out": "Sign Out",
     "get-started": "Get Started",
