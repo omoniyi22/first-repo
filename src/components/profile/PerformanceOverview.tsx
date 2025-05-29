@@ -44,6 +44,12 @@ const PerformanceOverview = () => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
 
+  // NEW state variables for strongest movement and focus area
+  const [strongestMovement, setStrongestMovement] = useState("Trot");
+  const [strongestMovementDetails, setStrongestMovementDetails] = useState("");
+  const [focusArea, setFocusArea] = useState("Transitions");
+  const [focusAreaDetails, setFocusAreaDetails] = useState("");
+
   useEffect(() => {
     const fetchRecentTests = async () => {
       if (!user) return;
@@ -64,7 +70,191 @@ const PerformanceOverview = () => {
           console.error("Error fetching recent tests:", error);
           return;
         }
-        // console.log("🚀 ~ fetchRecentTests ~ data:", data);
+
+        // Helper function to calculate strongest movement from current month tests
+        const calculateStrongestMovement = (currentMonthTests) => {
+          const movementScores = {};
+          let overallHighestScore = 0;
+          let strongestMovement = "";
+          let strongestMovementType = ""; // e.g., "Trot", "Canter", "Walk"
+
+          currentMonthTests.forEach((test) => {
+            const analysisResult = test.analysis_results?.[0]?.result_json;
+            let parsedResult;
+
+            if (typeof analysisResult === "string") {
+              try {
+                parsedResult = JSON.parse(analysisResult);
+              } catch {
+                return;
+              }
+            } else {
+              parsedResult = analysisResult;
+            }
+
+            // Use the pre-calculated highest score from analysis
+            if (parsedResult?.highestScore) {
+              const score = parsedResult.highestScore.score;
+              const movement = parsedResult.highestScore.movement;
+
+              if (score > overallHighestScore) {
+                overallHighestScore = score;
+                strongestMovement = movement;
+
+                // Determine movement type based on movement name
+                const movementLower = movement.toLowerCase();
+                if (
+                  movementLower.includes("trote") ||
+                  movementLower.includes("trot")
+                ) {
+                  strongestMovementType = "Trot";
+                } else if (
+                  movementLower.includes("galope") ||
+                  movementLower.includes("canter") ||
+                  movementLower.includes("cambio")
+                ) {
+                  strongestMovementType = "Canter";
+                } else if (
+                  movementLower.includes("paso") ||
+                  movementLower.includes("walk")
+                ) {
+                  strongestMovementType = "Walk";
+                } else if (
+                  movementLower.includes("passage") ||
+                  movementLower.includes("piaffe")
+                ) {
+                  strongestMovementType = "Passage";
+                } else {
+                  strongestMovementType = "Extended"; // Default for other movements
+                }
+              }
+            }
+
+            // Also analyze individual scores for better insights
+            if (parsedResult?.scores) {
+              parsedResult.scores.forEach((scoreData) => {
+                const movement = scoreData.movement;
+                const score =
+                  scoreData.judgeA ||
+                  scoreData.judgeB ||
+                  scoreData.judgeC ||
+                  scoreData.judgeH;
+
+                if (score && movement) {
+                  if (!movementScores[movement]) {
+                    movementScores[movement] = {
+                      scores: [],
+                      totalScore: 0,
+                      count: 0,
+                      average: 0,
+                    };
+                  }
+
+                  movementScores[movement].scores.push(score);
+                  movementScores[movement].totalScore += score;
+                  movementScores[movement].count++;
+                  movementScores[movement].average =
+                    movementScores[movement].totalScore /
+                    movementScores[movement].count;
+                }
+              });
+            }
+          });
+
+          return {
+            strongestMovement: strongestMovementType || "Trot", // Default to Trot if nothing found
+            strongestMovementName: strongestMovement,
+            overallHighestScore,
+            movementAverages: movementScores,
+          };
+        };
+
+        // Helper function to calculate most common focus area
+        const calculateFocusArea = (currentMonthTests) => {
+          const focusAreas = {};
+          const focusAreaCategories = {
+            transition: ["transicion", "transition", "cambio", "change"],
+            balance: ["equilibrio", "balance", "estabilidad", "stability"],
+            contact: ["contacto", "contact", "rienda", "rein"],
+            impulsion: ["impulsion", "impulso", "energia", "energy"],
+            straightness: ["rectitud", "straight", "derecho"],
+            collection: ["reunion", "collection", "reunido"],
+            rhythm: ["ritmo", "rhythm", "cadencia", "cadence"],
+            suppleness: ["flexibilidad", "suppleness", "flexion"],
+          };
+
+          currentMonthTests.forEach((test) => {
+            const analysisResult = test.analysis_results?.[0]?.result_json;
+            let parsedResult;
+
+            if (typeof analysisResult === "string") {
+              try {
+                parsedResult = JSON.parse(analysisResult);
+              } catch {
+                return;
+              }
+            } else {
+              parsedResult = analysisResult;
+            }
+
+            if (parsedResult?.focusArea) {
+              parsedResult.focusArea.forEach((focus) => {
+                const area = focus.area;
+                if (area) {
+                  if (!focusAreas[area]) {
+                    focusAreas[area] = {
+                      count: 0,
+                      tips: [],
+                      category: "Other",
+                    };
+                  }
+                  focusAreas[area].count++;
+                  focusAreas[area].tips.push(focus.tip);
+
+                  // Categorize the focus area
+                  const areaLower = area.toLowerCase();
+                  for (const [category, keywords] of Object.entries(
+                    focusAreaCategories
+                  )) {
+                    if (
+                      keywords.some((keyword) => areaLower.includes(keyword))
+                    ) {
+                      focusAreas[area].category =
+                        category.charAt(0).toUpperCase() + category.slice(1);
+                      break;
+                    }
+                  }
+                }
+              });
+            }
+          });
+
+          // Find most common focus area
+          let mostCommonArea = "";
+          let mostCommonCategory = "Transitions"; // Default
+          let highestCount = 0;
+
+          Object.keys(focusAreas).forEach((area) => {
+            if (focusAreas[area].count > highestCount) {
+              highestCount = focusAreas[area].count;
+              mostCommonArea = area;
+              mostCommonCategory = focusAreas[area].category;
+            }
+          });
+
+          // If no focus areas found, return default
+          if (!mostCommonArea) {
+            mostCommonCategory = "Transitions";
+            mostCommonArea = "Work on transitions";
+          }
+
+          return {
+            mostCommonArea,
+            mostCommonCategory,
+            focusAreasData: focusAreas,
+            totalFocusAreas: Object.keys(focusAreas).length,
+          };
+        };
 
         // Define the expected shape of result_json
         interface AnalysisResultJson {
@@ -90,10 +280,11 @@ const PerformanceOverview = () => {
           return {
             ...test,
             parsedPercentage: parsedResult?.percentage,
+            parsedResult: parsedResult,
           };
         });
 
-        // console.log("📊 Tests with Parsed Percentages:", testsResults);
+        console.log("📊 Tests with Parsed Percentages:", testsResults);
 
         // Get current month and year
         const now = new Date();
@@ -104,7 +295,7 @@ const PerformanceOverview = () => {
           "0"
         )}`;
 
-        // console.log(`📅 Current Month: ${currentMonthKey}`);
+        console.log(`📅 Current Month: ${currentMonthKey}`);
 
         // Filter and process current month tests
         const currentMonthTests =
@@ -116,7 +307,15 @@ const PerformanceOverview = () => {
             return testMonthKey === currentMonthKey;
           }) || [];
 
-        // console.log("📊 Current Month All Tests:", currentMonthTests);
+        console.log("📊 Current Month All Tests:", currentMonthTests);
+
+        // Calculate strongest movement and focus area from current month tests
+        const strongestMovementData =
+          calculateStrongestMovement(currentMonthTests);
+        const focusAreaData = calculateFocusArea(currentMonthTests);
+
+        console.log("🏆 Strongest Movement Analysis:", strongestMovementData);
+        console.log("🎯 Focus Area Analysis:", focusAreaData);
 
         // Filter only tests with valid percentages for current month
         const currentMonthValidTests = currentMonthTests.filter(
@@ -140,12 +339,12 @@ const PerformanceOverview = () => {
         const currentMonthTestsCount = currentMonthTests.length; // Total tests (including null percentages)
         const currentMonthValidTestsCount = currentMonthValidTests.length; // Only valid tests
 
-        // console.log(`📊 Current Month (${currentMonthKey}) Statistics:`);
-        // console.log(`  - Total Tests: ${currentMonthTestsCount}`);
-        // console.log(`  - Valid Tests: ${currentMonthValidTestsCount}`);
-        // console.log(
-          // `  - Average Score: ${currentMonthAverageScore.toFixed(1)}%`
-        // );
+        console.log(`📊 Current Month (${currentMonthKey}) Statistics:`);
+        console.log(`  - Total Tests: ${currentMonthTestsCount}`);
+        console.log(`  - Valid Tests: ${currentMonthValidTestsCount}`);
+        console.log(
+          `  - Average Score: ${currentMonthAverageScore.toFixed(1)}%`
+        );
 
         // Group ALL tests by month for comparison
         const groupTestsByMonth = (tests: any[]) => {
@@ -216,8 +415,8 @@ const PerformanceOverview = () => {
           const monthlyAverages = calculateMonthlyAverages(monthlyGroups);
           const sortedMonths = Object.keys(monthlyAverages).sort();
 
-          // console.log("📅 All Monthly Data:", monthlyAverages);
-          // console.log("📅 Sorted Months:", sortedMonths);
+          console.log("📅 All Monthly Data:", monthlyAverages);
+          console.log("📅 Sorted Months:", sortedMonths);
 
           // Find current month and previous month for comparison
           const currentMonthIndex = sortedMonths.indexOf(currentMonthKey);
@@ -228,15 +427,15 @@ const PerformanceOverview = () => {
             const currentMonthData = monthlyAverages[currentMonthKey];
             const previousMonthData = monthlyAverages[previousMonth];
 
-            // console.log(`📊 Comparison Data:`);
-            // console.log(
-            //   `  Current Month (${currentMonthKey}):`,
-            //   currentMonthData
-            // );
-            // console.log(
-            //   `  Previous Month (${previousMonth}):`,
-            //   previousMonthData
-            // );
+            console.log(`📊 Comparison Data:`);
+            console.log(
+              `  Current Month (${currentMonthKey}):`,
+              currentMonthData
+            );
+            console.log(
+              `  Previous Month (${previousMonth}):`,
+              previousMonthData
+            );
 
             // Calculate score percentage change (only if both months have valid data)
             if (
@@ -266,28 +465,29 @@ const PerformanceOverview = () => {
               scorePercentageChange = 0;
             }
 
-            // console.log(`📊 First month of data or no current month data`);
+            console.log(`📊 First month of data or no current month data`);
           }
         }
 
-        // console.log("📊 Final Current Month Analytics:");
-        // console.log(
-        //   `Current Month Average Score: ${currentMonthAverageScore.toFixed(1)}%`
-        // );
-        // console.log(`Current Month Total Tests: ${currentMonthTestsCount}`);
-        // console.log(
-        //   `Current Month Valid Tests: ${currentMonthValidTestsCount}`
-        // );
-        // console.log(
-        //   `Monthly Score Change: ${
-        //     scorePercentageChange >= 0 ? "+" : ""
-        //   }${scorePercentageChange.toFixed(1)}%`
-        // );
-        // console.log(
-        //   `Monthly Tests Count Change: ${
-        //     testsCountChange >= 0 ? "+" : ""
-        //   }${testsCountChange}`
-        // );
+        console.log("📊 Final Analytics Summary:");
+        console.log(
+          `Current Month Average Score: ${currentMonthAverageScore.toFixed(1)}%`
+        );
+        console.log(`Current Month Tests Count: ${currentMonthTestsCount}`);
+        console.log(
+          `Strongest Movement: ${strongestMovementData.strongestMovement} (${strongestMovementData.strongestMovementName})`
+        );
+        console.log(
+          `Focus Area: ${focusAreaData.mostCommonCategory} (${focusAreaData.mostCommonArea})`
+        );
+        console.log(
+          `Score Change: ${
+            scorePercentageChange >= 0 ? "+" : ""
+          }${scorePercentageChange.toFixed(1)}%`
+        );
+        console.log(
+          `Tests Change: ${testsCountChange >= 0 ? "+" : ""}${testsCountChange}`
+        );
 
         // Set state values - NOW USING CURRENT MONTH DATA ONLY
         setAverageScore(currentMonthAverageScore || 0); // Current month average
@@ -295,6 +495,14 @@ const PerformanceOverview = () => {
         setCurrentMonthTestsCount(currentMonthTestsCount); // Add this state variable
         setScorePercentageChange(Number(scorePercentageChange.toFixed(1)));
         setTestsCountChange(testsCountChange);
+
+        // Set new state values for strongest movement and focus area
+        setStrongestMovement(strongestMovementData.strongestMovement);
+        setStrongestMovementDetails(
+          strongestMovementData.strongestMovementName
+        );
+        setFocusArea(focusAreaData.mostCommonCategory);
+        setFocusAreaDetails(focusAreaData.mostCommonArea);
       } catch (error) {
         console.error("Error fetching recent tests:", error);
       } finally {
@@ -358,8 +566,8 @@ const PerformanceOverview = () => {
     },
     {
       title: "Strongest Movement",
-      value: "Trot",
-      subValue: "Extended",
+      value: strongestMovement,
+      subValue: strongestMovementDetails,
       change: "",
       positive: true,
       icon: <Award className="h-6 w-6 text-white" />,
@@ -367,8 +575,8 @@ const PerformanceOverview = () => {
     },
     {
       title: "Focus Area",
-      value: "Canter",
-      subValue: "Transitions",
+      value: focusArea,
+      subValue: focusAreaDetails,
       change: "",
       positive: false,
       icon: <Star className="h-6 w-6 text-white" />,
