@@ -532,7 +532,7 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({ videoId }) 
           </Card>
         </div>
       </div>
-      <Card className="p-4 sm:p-6">
+      <Card className="p-4 sm:p-6 mb-4">
         <h4 className="text-xl sm:text-2xl font-semibold mb-2 sm:mb-4">
           {language === 'en' ? 'Jump Analysis' : 'Resultados del Análisis'}
         </h4>
