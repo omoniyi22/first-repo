@@ -56,8 +56,7 @@ const PerformanceOverview = () => {
           )
           .eq("user_id", user.id)
           .order("created_at", { ascending: false });
-
-        console.log("🚀 ~ fetchRecentTests ~ data:", data);
+        
         if (error) {
           console.error("Error fetching recent tests:", error);
           return;
