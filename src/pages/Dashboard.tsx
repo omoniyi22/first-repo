@@ -87,6 +87,12 @@ const Dashboard = () => {
           <div className="flex flex-col sm:flex-row gap-3">
             <Button
               className="text-white bg-purple-600 hover:bg-purple-700 text-sm sm:text-base"
+              onClick={() => navigate("/analysis?view=true")}
+            >
+              {language === "en" ? "View Analysis" : "Ver análisis"}
+            </Button>
+            <Button
+              className="text-white bg-purple-600 hover:bg-purple-700 text-sm sm:text-base"
               onClick={() => navigate("/analysis")}
             >
               <Upload className="mr-2 h-4 w-4" />

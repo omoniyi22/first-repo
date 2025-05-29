@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FileText } from "lucide-react";
@@ -32,20 +31,20 @@ const RecentTests = () => {
 
       try {
         const { data, error } = await supabase
-          .from('document_analysis')
-          .select('*')
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false })
+          .from("document_analysis")
+          .select("*")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false })
           .limit(3);
 
         if (error) {
-          console.error('Error fetching recent tests:', error);
+          console.error("Error fetching recent tests:", error);
           return;
         }
 
         setTests(data || []);
       } catch (error) {
-        console.error('Error fetching recent tests:', error);
+        console.error("Error fetching recent tests:", error);
       } finally {
         setLoading(false);
       }
@@ -99,10 +98,9 @@ const RecentTests = () => {
             {language === "en" ? "No tests yet" : "Aún no hay pruebas"}
           </h3>
           <p className="text-gray-500 mb-4">
-            {language === "en" 
+            {language === "en"
               ? "Upload your first test to get started with AI analysis"
-              : "Sube tu primera prueba para comenzar con el análisis de IA"
-            }
+              : "Sube tu primera prueba para comenzar con el análisis de IA"}
           </p>
           <Button onClick={() => navigate("/analysis")}>
             {language === "en" ? "Upload Test" : "Subir Prueba"}
@@ -136,11 +134,11 @@ const RecentTests = () => {
             <div className="sm:w-48 h-32 sm:h-auto relative bg-gray-100 flex items-center justify-center">
               <FileText className="h-12 w-12 text-gray-400" />
               <div className="absolute top-2 right-2 bg-white/90 px-2 py-1 rounded text-sm font-medium">
-                {test.status === 'completed' ? (
+                {test.status === "completed" ? (
                   <span className="text-green-600">
                     {language === "en" ? "Complete" : "Completo"}
                   </span>
-                ) : test.status === 'processing' ? (
+                ) : test.status === "processing" ? (
                   <span className="text-blue-600">
                     {language === "en" ? "Processing" : "Procesando"}
                   </span>
@@ -173,25 +171,31 @@ const RecentTests = () => {
                 )}
               </p>
               <p className="text-sm text-gray-700">
-                {language === "en" ? "Discipline:" : "Disciplina:"} {test.discipline}
+                {language === "en" ? "Discipline:" : "Disciplina:"}{" "}
+                {test.discipline}
               </p>
               <div className="mt-4 flex space-x-2">
                 <Button
                   variant="outline"
                   size="sm"
                   className="text-blue-700 border-blue-200 hover:bg-blue-50 hover:text-blue-700"
-                  disabled={test.status !== 'completed'}
+                  disabled={test.status !== "completed"}
+                  onClick={() =>
+                    navigate(`/analysis?document_id=${test.id}`, {
+                      state: { documentUrl: test.document_url },
+                    })
+                  }
                 >
                   {language === "en" ? "View Analysis" : "Ver Análisis"}
                 </Button>
-                <Button
+                {/* <Button
                   variant="outline"
                   size="sm"
                   className="text-blue-700 border-blue-200 hover:bg-blue-50 hover:text-blue-700"
                   disabled={test.status !== 'completed'}
                 >
                   {language === "en" ? "Recommendations" : "Recomendaciones"}
-                </Button>
+                </Button> */}
               </div>
             </div>
           </Card>

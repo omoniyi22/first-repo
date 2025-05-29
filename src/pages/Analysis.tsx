@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -39,6 +38,9 @@ interface DocumentAnalysisItem {
 const Analysis = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const document_id = searchParams.get("document_id");
+  const view = searchParams.get("view");
   const { language, translations } = useLanguage();
   const t = translations[language];
   const { isMobile } = useViewport();
@@ -55,7 +57,7 @@ const Analysis = () => {
       completed: "Ver Análisis",
     },
   };
-  
+
   const [activeTab, setActiveTab] = useState<string>("upload");
   const [documents, setDocuments] = useState<DocumentAnalysisItem[]>([]);
   const [videos, setVideos] = useState<DocumentAnalysisItem[]>([]);
@@ -85,7 +87,7 @@ const Analysis = () => {
           .eq("id", user.id)
           .single();
 
-        if (profileError && profileError.code !== 'PGRST116') {
+        if (profileError && profileError.code !== "PGRST116") {
           console.error("Error fetching profile:", profileError);
         } else if (profileData) {
           setUserDiscipline(profileData.discipline);
@@ -130,6 +132,16 @@ const Analysis = () => {
     fetchUserData();
   }, [user, navigate, language]);
 
+  useEffect(() => {
+    // If document_id is present in the URL, set it as selected
+    if (view) {
+      view && setActiveTab("analysis-list");
+    } else if (document_id) {
+      setActiveTab("analysis-list");
+      document_id && setSelectedDocumentId(document_id);
+    }
+  }, []);
+
   const fetchDocs = async () => {
     const { data: analysisData, error } = await supabase
       .from("document_analysis")
@@ -149,7 +161,7 @@ const Analysis = () => {
       setVideos(vids);
     }
   };
-  
+
   const analysisDocument = async (newDocumentId, documentURL) => {
     setIsSpinnerLoading(true);
     const canvasImage = documentURL.includes(".pdf")
@@ -178,7 +190,7 @@ const Analysis = () => {
       console.warn("Processing failed:", err);
     }
   };
-  
+
   // Helper function to format dates
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -240,26 +252,34 @@ const Analysis = () => {
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList
               className={`mb-6 ${
-                isMobile ? "flex flex-wrap gap-1" : userDiscipline === "dressage" ? "grid grid-cols-2" : "grid grid-cols-2"
+                isMobile
+                  ? "flex flex-wrap gap-1"
+                  : userDiscipline === "dressage"
+                  ? "grid grid-cols-2"
+                  : "grid grid-cols-2"
               } w-full`}
             >
               <TabsTrigger
                 value="upload"
                 className={`${isMobile ? "flex-grow text-xs py-1 px-2" : ""}`}
               >
-                {userDiscipline === "dressage" 
-                  ? (language === "en" ? "Upload Document" : "Subir Documento")
-                  : (language === "en" ? "Upload Video" : "Subir Video")
-                }
+                {userDiscipline === "dressage"
+                  ? language === "en"
+                    ? "Upload Document"
+                    : "Subir Documento"
+                  : language === "en"
+                  ? "Upload Video"
+                  : "Subir Video"}
               </TabsTrigger>
               <TabsTrigger
                 value="analysis-list"
                 className={`${isMobile ? "flex-grow text-xs py-1 px-2" : ""}`}
               >
-                {userDiscipline === "dressage" 
-                  ? (language === "en" ? "My Documents" : "Mis Documentos") + ` (${documents.length})`
-                  : (language === "en" ? "My Videos" : "Mis Videos") + ` (${videos.length})`
-                }
+                {userDiscipline === "dressage"
+                  ? (language === "en" ? "My Documents" : "Mis Documentos") +
+                    ` (${documents.length})`
+                  : (language === "en" ? "My Videos" : "Mis Videos") +
+                    ` (${videos.length})`}
               </TabsTrigger>
             </TabsList>
 
@@ -276,9 +296,7 @@ const Analysis = () => {
                 <div className="flex justify-center items-center p-12">
                   <Loader2 className="h-8 w-8 animate-spin text-purple-700 mr-2" />
                   <span>
-                    {language === "en"
-                      ? "Loading..."
-                      : "Cargando..."}
+                    {language === "en" ? "Loading..." : "Cargando..."}
                   </span>
                 </div>
               ) : userDiscipline === "dressage" ? (
@@ -339,7 +357,8 @@ const Analysis = () => {
                                     {doc.horse_name}
                                   </td>
                                   <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
-                                    {doc.test_level || (language === "en" ? "Dressage" : "Doma")}
+                                    {doc.test_level ||
+                                      (language === "en" ? "Dressage" : "Doma")}
                                   </td>
                                   <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
                                     {formatDate(doc.document_date)}
@@ -406,143 +425,146 @@ const Analysis = () => {
                         : "Aún no has subido ningún documento para análisis"}
                     </p>
                     <Button onClick={() => setActiveTab("upload")}>
-                      {language === "en" ? "Upload Document" : "Subir Documento"}
-                    </Button>
-                  </Card>
-                )
-              ) : (
-                // Videos view for jumping users
-                videos.length > 0 ? (
-                  <div className="space-y-6">
-                    {selectedVideoId ? (
-                      <div>
-                        <Button
-                          variant="ghost"
-                          onClick={() => setSelectedVideoId(null)}
-                          className="mb-4"
-                        >
-                          ←{" "}
-                          {language === "en"
-                            ? "Back to Videos"
-                            : "Volver a Videos"}
-                        </Button>
-                        <VideoAnalysisDisplay videoId={selectedVideoId} />
-                      </div>
-                    ) : (
-                      <div className="space-y-4">
-                        <div className="overflow-x-auto">
-                          <table className="min-w-full divide-y divide-gray-200">
-                            <thead>
-                              <tr>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                  {language === "en" ? "Name" : "Nombre"}
-                                </th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                  {language === "en" ? "Horse" : "Caballo"}
-                                </th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                  {language === "en" ? "Type" : "Tipo"}
-                                </th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                  {language === "en" ? "Date" : "Fecha"}
-                                </th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                  {language === "en" ? "Status" : "Estado"}
-                                </th>
-                                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                  {language === "en" ? "Action" : "Acción"}
-                                </th>
-                              </tr>
-                            </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
-                              {videos.map((video) => (
-                                <tr key={video.id} className="hover:bg-gray-50">
-                                  <td className="px-4 py-3 whitespace-nowrap">
-                                    <span className="text-sm font-medium text-gray-900">
-                                      {video.file_name}
-                                    </span>
-                                  </td>
-                                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
-                                    {video.horse_name}
-                                  </td>
-                                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
-                                    {video.video_type && (
-                                      <>
-                                        {video.video_type === "training"
-                                          ? language === "en"
-                                            ? "Training"
-                                            : "Entrenamiento"
-                                          : language === "en"
-                                          ? "Competition"
-                                          : "Competición"}
-                                      </>
-                                    )}
-                                  </td>
-                                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
-                                    {formatDate(video.document_date)}
-                                  </td>
-                                  <td className="px-4 py-3 whitespace-nowrap">
-                                    <span
-                                      className={`px-2 inline-flex text-xs leading-5 font-medium rounded-full ${
-                                        video.status === "completed"
-                                          ? "bg-green-100 text-green-800"
-                                          : video.status === "pending"
-                                          ? "bg-yellow-100 text-yellow-800"
-                                          : video.status === "processing"
-                                          ? "bg-blue-100 text-blue-800"
-                                          : "bg-red-100 text-red-800"
-                                      }`}
-                                    >
-                                      {video.status === "completed"
-                                        ? language === "en"
-                                          ? "Completed"
-                                          : "Completado"
-                                        : video.status === "pending"
-                                        ? language === "en"
-                                          ? "Pending"
-                                          : "Pendiente"
-                                        : video.status === "processing"
-                                        ? language === "en"
-                                          ? "Processing"
-                                          : "Procesando"
-                                        : language === "en"
-                                        ? "Failed"
-                                        : "Fallido"}
-                                    </span>
-                                  </td>
-                                  <td className="px-4 py-3 whitespace-nowrap text-sm text-center">
-                                    <Button
-                                      size="sm"
-                                      variant="outline"
-                                      onClick={() => setSelectedVideoId(video.id)}
-                                      disabled={video.status !== "completed"}
-                                      className="text-blue-700 border-blue-200"
-                                    >
-                                      {language === "en"
-                                        ? "View Analysis"
-                                        : "Ver Análisis"}
-                                    </Button>
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <Card className="p-6 text-center bg-gray-50">
-                    <p className="text-gray-600 mb-4">
                       {language === "en"
-                        ? "You haven't uploaded any videos for analysis yet"
-                        : "Aún no has subido ningún video para análisis"}
-                    </p>
-                    <Button onClick={() => setActiveTab("upload")}>
-                      {language === "en" ? "Upload Video" : "Subir Video"}
+                        ? "Upload Document"
+                        : "Subir Documento"}
                     </Button>
                   </Card>
                 )
+              ) : // Videos view for jumping users
+              videos.length > 0 ? (
+                <div className="space-y-6">
+                  {selectedVideoId ? (
+                    <div>
+                      <Button
+                        variant="ghost"
+                        onClick={() => setSelectedVideoId(null)}
+                        className="mb-4"
+                      >
+                        ←{" "}
+                        {language === "en"
+                          ? "Back to Videos"
+                          : "Volver a Videos"}
+                      </Button>
+                      <VideoAnalysisDisplay videoId={selectedVideoId} />
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <div className="overflow-x-auto">
+                        <table className="min-w-full divide-y divide-gray-200">
+                          <thead>
+                            <tr>
+                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                {language === "en" ? "Name" : "Nombre"}
+                              </th>
+                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                {language === "en" ? "Horse" : "Caballo"}
+                              </th>
+                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                {language === "en" ? "Type" : "Tipo"}
+                              </th>
+                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                {language === "en" ? "Date" : "Fecha"}
+                              </th>
+                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                {language === "en" ? "Status" : "Estado"}
+                              </th>
+                              <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                {language === "en" ? "Action" : "Acción"}
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody className="bg-white divide-y divide-gray-200">
+                            {videos.map((video) => (
+                              <tr key={video.id} className="hover:bg-gray-50">
+                                <td className="px-4 py-3 whitespace-nowrap">
+                                  <span className="text-sm font-medium text-gray-900">
+                                    {video.file_name}
+                                  </span>
+                                </td>
+                                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                                  {video.horse_name}
+                                </td>
+                                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                                  {video.video_type && (
+                                    <>
+                                      {video.video_type === "training"
+                                        ? language === "en"
+                                          ? "Training"
+                                          : "Entrenamiento"
+                                        : language === "en"
+                                        ? "Competition"
+                                        : "Competición"}
+                                    </>
+                                  )}
+                                </td>
+                                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                                  {formatDate(video.document_date)}
+                                </td>
+                                <td className="px-4 py-3 whitespace-nowrap">
+                                  <span
+                                    className={`px-2 inline-flex text-xs leading-5 font-medium rounded-full ${
+                                      video.status === "completed"
+                                        ? "bg-green-100 text-green-800"
+                                        : video.status === "pending"
+                                        ? "bg-yellow-100 text-yellow-800"
+                                        : video.status === "processing"
+                                        ? "bg-blue-100 text-blue-800"
+                                        : "bg-red-100 text-red-800"
+                                    }`}
+                                  >
+                                    {video.status === "completed"
+                                      ? language === "en"
+                                        ? "Completed"
+                                        : "Completado"
+                                      : video.status === "pending"
+                                      ? language === "en"
+                                        ? "Pending"
+                                        : "Pendiente"
+                                      : video.status === "processing"
+                                      ? language === "en"
+                                        ? "Processing"
+                                        : "Procesando"
+                                      : language === "en"
+                                      ? "Failed"
+                                      : "Fallido"}
+                                  </span>
+                                </td>
+                                <td className="px-4 py-3 whitespace-nowrap text-sm text-center">
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => {
+                                      alert(video.id);
+                                      setSelectedVideoId(video.id);
+                                    }}
+                                    disabled={video.status !== "completed"}
+                                    className="text-blue-700 border-blue-200"
+                                  >
+                                    {language === "en"
+                                      ? "View Analysis"
+                                      : "Ver Análisis"}
+                                  </Button>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <Card className="p-6 text-center bg-gray-50">
+                  <p className="text-gray-600 mb-4">
+                    {language === "en"
+                      ? "You haven't uploaded any videos for analysis yet"
+                      : "Aún no has subido ningún video para análisis"}
+                  </p>
+                  <Button onClick={() => setActiveTab("upload")}>
+                    {language === "en" ? "Upload Video" : "Subir Video"}
+                  </Button>
+                </Card>
               )}
             </TabsContent>
           </Tabs>
