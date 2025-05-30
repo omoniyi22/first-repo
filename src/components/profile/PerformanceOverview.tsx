@@ -23,6 +23,7 @@ import {
   Legend,
 } from "recharts";
 import { useEffect, useState } from "react";
+import MovementRadarChart from "./MovementRadarChart";
 
 interface TestData {
   id: string;
@@ -650,15 +651,7 @@ const PerformanceOverview = () => {
     return `${sign}${change}`;
   };
 
-  // Example data for the movement radar chart
-  const movementData = [
-    { movement: "Walk", score: 7.1, fullMark: 10 },
-    { movement: "Trot", score: 6.8, fullMark: 10 },
-    { movement: "Canter", score: 6.2, fullMark: 10 },
-    { movement: "Transitions", score: 6.5, fullMark: 10 },
-    { movement: "Submission", score: 6.0, fullMark: 10 },
-    { movement: "Rider Position", score: 7.3, fullMark: 10 },
-  ];
+
 
   // Updated stats with brand color gradients
   const stats = [
@@ -843,57 +836,7 @@ const PerformanceOverview = () => {
         </Card>
 
         {/* Movement Radar Chart */}
-        <Card className="p-4 border border-gray-100">
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
-            Movement Scores
-          </h3>
-          <div className="h-80 w-full flex items-center justify-center">
-            <ResponsiveContainer className="!h-[70%] w-full sm:!h-full ">
-              <RadarChart outerRadius="70%" data={movementData}>
-                <defs>
-                  {/* Left to right linear gradient for the radar fill */}
-                  <linearGradient
-                    id="radarGradient"
-                    x1="0"
-                    y1="0"
-                    x2="1"
-                    y2="0"
-                  >
-                    <stop offset="0%" stopColor="#7658eb" stopOpacity={0.7} />
-                    <stop offset="100%" stopColor="#3d78ec" stopOpacity={0.7} />
-                  </linearGradient>
-
-                  {/* Left to right linear gradient for the radar stroke */}
-                  <linearGradient
-                    id="radarStrokeGradient"
-                    x1="0"
-                    y1="0"
-                    x2="1"
-                    y2="0"
-                  >
-                    <stop offset="0%" stopColor="#7658eb" />
-                    <stop offset="100%" stopColor="#3d78ec" />
-                  </linearGradient>
-                </defs>
-                <PolarGrid gridType="polygon" />
-                <PolarAngleAxis dataKey="movement" tick={{ fontSize: 11 }} />
-                <PolarRadiusAxis
-                  domain={[0, 10]}
-                  axisLine={false}
-                  tick={{ fontSize: 10 }}
-                />
-                <Radar
-                  name="Scores"
-                  dataKey="score"
-                  stroke="url(#radarStrokeGradient)"
-                  fill="url(#radarGradient)"
-                />
-                <Legend wrapperStyle={{ fontSize: "12px", marginTop: "5px" }} />
-                <Tooltip />
-              </RadarChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
+        <MovementRadarChart/>
       </div>
     </div>
   );

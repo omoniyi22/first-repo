@@ -831,7 +831,7 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
                         : "Documento analizado con éxito",
                     description:
                       language === "en"
-                        ? "Your document is being analyzed."
+                        ? "Your document is successfully analyzed."
                         : "Tu documento está siendo analizado.",
                   });
                   fetchDocs();

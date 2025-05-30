@@ -65,6 +65,7 @@ const Analysis = () => {
     null
   );
   const [selectedVideoId, setSelectedVideoId] = useState<string | null>(null);
+  console.log("🚀 ~ Analysis ~ selectedVideoId:", selectedVideoId);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSpinnerLoading, setIsSpinnerLoading] = useState<boolean>(false);
   const [userDiscipline, setUserDiscipline] = useState<string | null>(null);
@@ -136,11 +137,16 @@ const Analysis = () => {
     // If document_id is present in the URL, set it as selected
     if (view) {
       view && setActiveTab("analysis-list");
-    } else if (document_id) {
+    } else if (
+      (document_id && videos.length > 0) ||
+      (document_id && documents.length > 0)
+    ) {
+      documents.length > 0 && setSelectedDocumentId(document_id);
+
+      videos.length > 0 && setSelectedVideoId(document_id);
       setActiveTab("analysis-list");
-      document_id && setSelectedDocumentId(document_id);
     }
-  }, []);
+  }, [videos, documents, document_id, view]);
 
   const fetchDocs = async () => {
     const { data: analysisData, error } = await supabase
@@ -179,7 +185,7 @@ const Analysis = () => {
         {
           description:
             language === "en"
-              ? "Your document is being analyzed."
+              ? "Your document is successfully analyzed."
               : "Tu documento está siendo analizado.",
         }
       );
@@ -538,10 +544,7 @@ const Analysis = () => {
                                   <Button
                                     size="sm"
                                     variant="outline"
-                                    onClick={() => {
-                                      alert(video.id);
-                                      setSelectedVideoId(video.id);
-                                    }}
+                                    onClick={() => setSelectedVideoId(video.id)}
                                     disabled={video.status !== "completed"}
                                     className="text-blue-700 border-blue-200"
                                   >
