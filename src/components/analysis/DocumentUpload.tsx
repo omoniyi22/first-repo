@@ -99,7 +99,7 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
   const [newDocumentId, setNewDocumentId] = useState<string | null>(null);
   const [base64Image, setBase64Image] = useState<any>("");
   const [isShowSpinner, setIsShowSpinner] = useState<boolean>(false);
-  const [userDiscipline, setUserDiscipline] = useState<string>('');
+  const [userDiscipline, setUserDiscipline] = useState<string>("");
   const [isLoadingProfile, setIsLoadingProfile] = useState<boolean>(true);
 
   const form = useForm<DocumentUploadFormValues>({
@@ -128,19 +128,22 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
       try {
         setIsLoadingHorses(true);
         setIsLoadingProfile(true);
-        
+
         // Fetch user profile to get discipline
         const { data: profileData, error: profileError } = await supabase
-          .from('profiles')
-          .select('discipline')
-          .eq('id', user.id)
+          .from("profiles")
+          .select("discipline")
+          .eq("id", user.id)
           .single();
-        
-        if (profileError && profileError.code !== 'PGRST116') {
-          console.error('Error fetching profile:', profileError);
+
+        if (profileError && profileError.code !== "PGRST116") {
+          console.error("Error fetching profile:", profileError);
         } else if (profileData?.discipline) {
           setUserDiscipline(profileData.discipline);
-          form.setValue('discipline', profileData.discipline as 'dressage' | 'jumping');
+          form.setValue(
+            "discipline",
+            profileData.discipline as "dressage" | "jumping"
+          );
         }
 
         // Fetch horses from the user's profile
@@ -388,7 +391,7 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
 
       // Reset form and states
       form.reset({
-        discipline: userDiscipline as 'dressage' | 'jumping',
+        discipline: userDiscipline as "dressage" | "jumping",
         date: new Date(),
       });
       setSelectedFiles([]);
@@ -442,16 +445,16 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
             : "Seleccionar Documento (PDF, JPG, PNG)"}
         </Label>
         <div
-          className={`mt-2 border-2 border-dashed rounded-lg p-4 ${
+          className={`mt-2 rounded-lg p-4 bg-gradient-to-r ${
             selectedFiles.length > 0
-              ? "border-purple-300 bg-purple-50"
-              : "border-gray-300"
+              ? " bg-purple-50"
+              : " from-[#7857eb] to-[#3b78e8]"
           }`}
         >
           {selectedFiles.length === 0 ? (
             <div className="text-center">
-              <Upload className="mx-auto h-10 w-10 text-gray-400 mb-2" />
-              <p className="text-sm text-gray-500 mb-2">
+              <Upload className="mx-auto h-10 w-10 text-white mb-2" />
+              <p className="text-sm text-white mb-2">
                 {language === "en"
                   ? "Drag and drop your files here, or click to select"
                   : "Arrastra y suelta tus archivos aquí, o haz clic para seleccionar"}
@@ -462,7 +465,7 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
                 onClick={() =>
                   document.getElementById("document-upload")?.click()
                 }
-                className="mt-2"
+                className="mt-2 text-purple-900"
               >
                 {language === "en" ? "Browse Files" : "Explorar Archivos"}
               </Button>
@@ -537,9 +540,14 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
                 </FormLabel>
                 <FormControl>
                   <Input
-                    value={userDiscipline === 'dressage' 
-                      ? (language === 'en' ? "Dressage" : "Doma Clásica")
-                      : (language === 'en' ? "Jumping" : "Salto")
+                    value={
+                      userDiscipline === "dressage"
+                        ? language === "en"
+                          ? "Dressage"
+                          : "Doma Clásica"
+                        : language === "en"
+                        ? "Jumping"
+                        : "Salto"
                     }
                     readOnly
                     className="bg-gray-50 cursor-not-allowed"
@@ -772,11 +780,7 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
           <div className="pt-2">
             <Button
               type="submit"
-              className={`w-full ${
-                userDiscipline === "dressage"
-                  ? "bg-purple-700 hover:bg-purple-800"
-                  : "bg-blue-600 hover:bg-blue-700"
-              }`}
+              className={`w-full bg-gradient-to-r from-[#7857eb] to-[#3b78e8]`}
               disabled={!selectedFiles || isUploading || horses.length === 0}
             >
               {isUploading

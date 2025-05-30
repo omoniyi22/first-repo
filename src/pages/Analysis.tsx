@@ -261,7 +261,9 @@ const Analysis = () => {
             >
               <TabsTrigger
                 value="upload"
-                className={`${isMobile ? "flex-grow text-xs py-1 px-2" : ""}`}
+                className={`${
+                  isMobile ? "flex-grow text-xs py-1 px-2 " : ""
+                } data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#7857eb] data-[state=active]:to-[#3b78e8] data-[state=active]:text-white`}
               >
                 {userDiscipline === "dressage"
                   ? language === "en"
@@ -273,7 +275,9 @@ const Analysis = () => {
               </TabsTrigger>
               <TabsTrigger
                 value="analysis-list"
-                className={`${isMobile ? "flex-grow text-xs py-1 px-2" : ""}`}
+                className={`${
+                  isMobile ? "flex-grow text-xs py-1 px-2" : ""
+                } data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#7857eb] data-[state=active]:to-[#3b78e8] data-[state=active]:text-white`}
               >
                 {userDiscipline === "dressage"
                   ? (language === "en" ? "My Documents" : "Mis Documentos") +

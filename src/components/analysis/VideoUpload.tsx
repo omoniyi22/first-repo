@@ -411,14 +411,14 @@ const VideoUpload = ({ fetchDocs }: VideoUploadProps) => {
             : "Seleccionar Video (MP4, MOV)"}
         </Label>
         <div
-          className={`mt-2 border-2 border-dashed rounded-lg p-4 ${
-            selectedVideo ? "border-purple-300 bg-purple-50" : "border-gray-300"
+          className={`mt-2 rounded-lg p-4 bg-gradient-to-r ${
+            selectedVideo ? " bg-purple-50" : " from-[#7857eb] to-[#3b78e8]"
           }`}
         >
           {!selectedVideo ? (
-            <div className="text-center">
-              <Upload className="mx-auto h-10 w-10 text-gray-400 mb-2" />
-              <p className="text-sm text-gray-500 mb-2">
+            <div className="text-center   text-white">
+              <Upload className="mx-auto h-10 w-10 text-white mb-2" />
+              <p className="text-sm text-white mb-2">
                 {language === "en"
                   ? "Drag and drop your video here, or click to select"
                   : "Arrastra y suelta tu video aquí, o haz clic para seleccionar"}
@@ -427,7 +427,7 @@ const VideoUpload = ({ fetchDocs }: VideoUploadProps) => {
                 type="button"
                 variant="outline"
                 onClick={() => document.getElementById("video-upload")?.click()}
-                className="mt-2"
+                className="mt-2 text-purple-900"
               >
                 {language === "en" ? "Browse Files" : "Explorar Archivos"}
               </Button>
@@ -766,11 +766,7 @@ const VideoUpload = ({ fetchDocs }: VideoUploadProps) => {
           <div className="pt-2">
             <Button
               type="submit"
-              className={`w-full ${
-                discipline === "dressage"
-                  ? "bg-purple-700 hover:bg-purple-800"
-                  : "bg-blue-600 hover:bg-blue-700"
-              }`}
+              className={`w-full bg-gradient-to-r from-[#7857eb] to-[#3b78e8]`}
               disabled={!selectedVideo || isUploading || horses.length === 0}
             >
               {isUploading
