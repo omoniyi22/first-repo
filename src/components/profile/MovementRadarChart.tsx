@@ -25,10 +25,12 @@ const JumpingHeightsRadarChart = () => {
       try {
         const { data, error } = await supabase
           .from("document_analysis")
-          .select(`
+          .select(
+            `
             *,
             analysis_results(*)
-          `)
+          `
+          )
           .eq("user_id", user.id)
           .eq("discipline", "jumping")
           .order("created_at", { ascending: false });
@@ -50,17 +52,21 @@ const JumpingHeightsRadarChart = () => {
 
       // Extract jumping analyses from the data
       const jumpingAnalyses = [];
-      
-      data.forEach(doc => {
+
+      data.forEach((doc) => {
         if (doc.analysis_results && doc.analysis_results.length > 0) {
-          doc.analysis_results.forEach(result => {
-            if (result.result_json && result.result_json.en && result.result_json.en.round_summary) {
+          doc.analysis_results.forEach((result) => {
+            if (
+              result.result_json &&
+              result.result_json.en &&
+              result.result_json.en.round_summary
+            ) {
               const summary = result.result_json.en.round_summary;
               jumpingAnalyses.push({
                 test_level: doc.test_level,
                 clear_jumps: summary["Clear jumps"],
                 total_faults: summary["Total faults"],
-                document_date: doc.document_date
+                document_date: doc.document_date,
               });
             }
           });
@@ -69,18 +75,18 @@ const JumpingHeightsRadarChart = () => {
 
       // Calculate performance scores for each height
       const heightPerformance = {};
-      
-      jumpingAnalyses.forEach(analysis => {
+
+      jumpingAnalyses.forEach((analysis) => {
         if (!analysis.clear_jumps || !analysis.test_level) return;
-        
+
         const height = analysis.test_level;
         const clearMatch = analysis.clear_jumps.match(/(\d+) out of (\d+)/);
-        
+
         if (clearMatch) {
           const [, clear, total] = clearMatch;
           const clearRate = (parseInt(clear) / parseInt(total)) * 100;
           const score = Math.round(clearRate / 10); // Convert to 0-10 scale
-          
+
           if (!heightPerformance[height]) {
             heightPerformance[height] = [];
           }
@@ -90,9 +96,11 @@ const JumpingHeightsRadarChart = () => {
 
       // Calculate average scores for each height
       const avgPerformance = {};
-      Object.keys(heightPerformance).forEach(height => {
+      Object.keys(heightPerformance).forEach((height) => {
         const scores = heightPerformance[height];
-        avgPerformance[height] = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+        avgPerformance[height] = Math.round(
+          scores.reduce((a, b) => a + b, 0) / scores.length
+        );
       });
 
       // Create radar chart data with all jumping heights
@@ -104,14 +112,14 @@ const JumpingHeightsRadarChart = () => {
         { label: "1.10m", height: 1.1 },
         { label: "1.20m", height: 1.2 },
         { label: "1.30m", height: 1.3 },
-        { label: "1.40m", height: 1.4 }
+        { label: "1.40m", height: 1.4 },
       ];
 
-      const radarData = heightCategories.map(category => {
+      const radarData = heightCategories.map((category) => {
         let score = 0;
-        
+
         // Find matching performance data for this height
-        const matchingKeys = Object.keys(avgPerformance).filter(key => {
+        const matchingKeys = Object.keys(avgPerformance).filter((key) => {
           // Extract height from test_level (e.g., "1.20m (4ft)" -> 1.2)
           const heightMatch = key.match(/(\d+\.?\d*)m/);
           if (heightMatch) {
@@ -133,7 +141,7 @@ const JumpingHeightsRadarChart = () => {
             let closestScore = 0;
             let minDiff = Infinity;
 
-            knownHeights.forEach(key => {
+            knownHeights.forEach((key) => {
               const heightMatch = key.match(/(\d+\.?\d*)m/);
               if (heightMatch) {
                 const extractedHeight = parseFloat(heightMatch[1]);
@@ -149,10 +157,16 @@ const JumpingHeightsRadarChart = () => {
             // Estimate score based on difficulty
             if (category.height < closestHeight) {
               // Easier height, likely higher score
-              score = Math.min(10, closestScore + Math.round((closestHeight - category.height) * 2));
+              score = Math.min(
+                10,
+                closestScore + Math.round((closestHeight - category.height) * 2)
+              );
             } else if (category.height > closestHeight) {
               // Harder height, likely lower score
-              score = Math.max(0, closestScore - Math.round((category.height - closestHeight) * 2));
+              score = Math.max(
+                0,
+                closestScore - Math.round((category.height - closestHeight) * 2)
+              );
             } else {
               score = closestScore;
             }
@@ -162,7 +176,7 @@ const JumpingHeightsRadarChart = () => {
         return {
           height: category.label,
           score: score,
-          fullMark: 10
+          fullMark: 10,
         };
       });
 
