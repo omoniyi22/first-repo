@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -14,8 +14,10 @@ import { Button } from "@/components/ui/button";
 import { Upload, LayoutDashboard } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { SEO, getPageMetadata } from "@/lib/seo";
+import { supabase } from "@/integrations/supabase/client";
 
 const Profile = () => {
+  const [userDiscipline, setUserDiscipline] = useState<string>("");
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const { language } = useLanguage();
@@ -25,6 +27,32 @@ const Profile = () => {
     // Add noindex tag since this is a private page
     noIndex: true,
   });
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (!user) return;
+
+      try {
+        // Fetch user profile to get discipline
+        const { data: profileData, error: profileError } = await supabase
+          .from("profiles")
+          .select("discipline")
+          .eq("id", user.id)
+          .single();
+
+        if (profileError && profileError.code !== "PGRST116") {
+          console.error("Error fetching profile:", profileError);
+        } else if (profileData?.discipline) {
+          setUserDiscipline(profileData.discipline);
+        }
+      } catch (error) {
+        console.error("Error fetching horses:", error);
+      } finally {
+      }
+    };
+
+    fetchUserData();
+  }, [user, language]);
 
   // If not logged in and not loading, redirect to sign in
   useEffect(() => {
@@ -63,7 +91,15 @@ const Profile = () => {
               onClick={() => navigate("/analysis")}
             >
               <Upload className="mr-2 h-4 w-4" />
-              {language === "en" ? "Upload Test" : "Subir Prueba"}
+              {userDiscipline
+                ? userDiscipline === "dressage"
+                  ? language === "en"
+                    ? "Upload Test"
+                    : "Subir Prueba"
+                  : language === "en"
+                  ? "Upload Video"
+                  : "Subir vídeo"
+                : "Loading..."}
             </Button>
             <Button
               variant="outline"

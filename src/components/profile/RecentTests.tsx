@@ -16,6 +16,9 @@ interface TestData {
   discipline: string;
   status: string;
   document_url: string;
+  horses: {
+    photo_url: string;
+  };
 }
 
 const RecentTests = () => {
@@ -32,10 +35,12 @@ const RecentTests = () => {
       try {
         const { data, error } = await supabase
           .from("document_analysis")
-          .select("*")
+          .select("*, horses(*)")
           .eq("user_id", user.id)
           .order("created_at", { ascending: false })
           .limit(3);
+
+        console.log("🚀 ~ fetchRecentTests ~ data:", data);
 
         if (error) {
           console.error("Error fetching recent tests:", error);
@@ -132,7 +137,14 @@ const RecentTests = () => {
             className="flex flex-col sm:flex-row overflow-hidden hover:shadow-md transition-shadow"
           >
             <div className="sm:w-48 h-32 sm:h-auto relative bg-gray-100 flex items-center justify-center">
-              <FileText className="h-12 w-12 text-gray-400" />
+              <div className="w-full h-full">
+                <img
+                  src={test.horses.photo_url}
+                  alt={test.file_name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+
               <div className="absolute top-2 right-2 bg-white/90 px-2 py-1 rounded text-sm font-medium">
                 {test.status === "completed" ? (
                   <span className="text-green-600">

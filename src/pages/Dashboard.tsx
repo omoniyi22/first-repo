@@ -23,12 +23,39 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const { language } = useLanguage();
   const [isAdmin, setIsAdmin] = useState(false);
+  const [userDiscipline, setUserDiscipline] = useState<string>("");
 
   // Get dashboard SEO metadata
   const seoMetadata = getPageMetadata("dashboard", {
     // Add noindex tag since this is a private page
     noIndex: true,
   });
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (!user) return;
+
+      try {
+        // Fetch user profile to get discipline
+        const { data: profileData, error: profileError } = await supabase
+          .from("profiles")
+          .select("discipline")
+          .eq("id", user.id)
+          .single();
+
+        if (profileError && profileError.code !== "PGRST116") {
+          console.error("Error fetching profile:", profileError);
+        } else if (profileData?.discipline) {
+          setUserDiscipline(profileData.discipline);
+        }
+      } catch (error) {
+        console.error("Error fetching horses:", error);
+      } finally {
+      }
+    };
+
+    fetchUserData();
+  }, [user, language]);
 
   // Check if user is an admin
   useEffect(() => {
@@ -96,7 +123,15 @@ const Dashboard = () => {
               onClick={() => navigate("/analysis")}
             >
               <Upload className="mr-2 h-4 w-4" />
-              {language === "en" ? "Upload Test" : "Subir Prueba"}
+              {userDiscipline
+                ? userDiscipline === "dressage"
+                  ? language === "en"
+                    ? "Upload Test"
+                    : "Subir Prueba"
+                  : language === "en"
+                  ? "Upload Video"
+                  : "Subir vídeo"
+                : "Loading..."}
             </Button>
             <Button
               variant="outline"
