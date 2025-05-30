@@ -40,7 +40,6 @@ const RecentTests = () => {
           .order("created_at", { ascending: false })
           .limit(3);
 
-        console.log("🚀 ~ fetchRecentTests ~ data:", data);
 
         if (error) {
           console.error("Error fetching recent tests:", error);

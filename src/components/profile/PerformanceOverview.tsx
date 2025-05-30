@@ -50,6 +50,33 @@ const PerformanceOverview = () => {
   const [focusArea, setFocusArea] = useState("Transitions");
   const [focusAreaDetails, setFocusAreaDetails] = useState("");
   const [scoreTrendData, setScoreTrendData] = useState([]);
+  const [userDiscipline, setUserDiscipline] = useState<string>("");
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (!user) return;
+
+      try {
+        // Fetch user profile to get discipline
+        const { data: profileData, error: profileError } = await supabase
+          .from("profiles")
+          .select("discipline")
+          .eq("id", user.id)
+          .single();
+
+        if (profileError && profileError.code !== "PGRST116") {
+          console.error("Error fetching profile:", profileError);
+        } else if (profileData?.discipline) {
+          setUserDiscipline(profileData.discipline);
+        }
+      } catch (error) {
+        console.error("Error fetching horses:", error);
+      } finally {
+      }
+    };
+
+    fetchUserData();
+  }, [user]);
 
   useEffect(() => {
     const fetchRecentTests = async () => {
@@ -636,7 +663,13 @@ const PerformanceOverview = () => {
   // Updated stats with brand color gradients
   const stats = [
     {
-      title: "Average Score",
+      title: `${
+        userDiscipline
+          ? userDiscipline === "dressage"
+            ? "Average Score"
+            : "Clear Round"
+          : "Loading..."
+      }`,
       value: `${averageScore.toFixed(1)}%`,
       change: `${formatPercentageChange(scorePercentageChange)}`,
       positive: true,
@@ -644,7 +677,13 @@ const PerformanceOverview = () => {
       gradient: "bg-gradient-to-r from-[#a28bfb] to-[#7759eb]", // AI Dressage gradient
     },
     {
-      title: "Tests Analyzed",
+      title: `${
+        userDiscipline
+          ? userDiscipline === "dressage"
+            ? "Tests Analyzed"
+            : "Videos Analyzed"
+          : "Loading..."
+      }`,
       value: tests.length.toString(),
       change: `${formatCountChange(currentMonthTestsCount)}`,
       positive: true,
@@ -652,7 +691,13 @@ const PerformanceOverview = () => {
       gradient: "bg-gradient-to-r from-[#5e92fa] to-[#3d78ec]", // AI Jump gradient
     },
     {
-      title: "Strongest Movement",
+      title: `${
+        userDiscipline
+          ? userDiscipline === "dressage"
+            ? "Strongest Movement"
+            : "Average Faults per Round"
+          : "Loading..."
+      }`,
       value: strongestMovement,
       subValue: strongestMovementDetails,
       change: "",
@@ -661,7 +706,13 @@ const PerformanceOverview = () => {
       gradient: "bg-gradient-to-r from-[#f57cb5] to-[#d80669]", // Purple gradient
     },
     {
-      title: "Focus Area",
+      title: `${
+        userDiscipline
+          ? userDiscipline === "dressage"
+            ? "Focus Area"
+            : "Focus Area"
+          : "Loading..."
+      }`,
       value: focusArea,
       subValue: focusAreaDetails,
       change: "",
