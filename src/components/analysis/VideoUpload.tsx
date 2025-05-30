@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useToast } from '@/hooks/use-toast';
@@ -37,6 +36,7 @@ import { format, set } from 'date-fns';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { v4 as uuidv4 } from 'uuid';
+import { jumpingLevels } from '@/lib/formOptions';
 
 const VideoUploadFormSchema = z.object({
   discipline: z.enum(['dressage', 'jumping']),
@@ -47,6 +47,7 @@ const VideoUploadFormSchema = z.object({
   horseId: z.string({
     required_error: "Please select a horse",
   }),
+  jumpingLevel: z.string().optional(),
   notes: z.string().optional(),
   tags: z.string().optional(),
 });
@@ -258,7 +259,8 @@ const VideoUpload = ({fetchDocs}: VideoUploadProps) => {
         notes: data.notes,
         status: 'pending',
         file_name: selectedVideo.name,
-        file_type: selectedVideo.type
+        file_type: selectedVideo.type,
+        test_level: data.jumpingLevel // Add jumping level if provided
       };
       
       console.log("Saving document analysis record:", documentData);
@@ -512,6 +514,37 @@ const VideoUpload = ({fetchDocs}: VideoUploadProps) => {
               </FormItem>
             )}
           />
+
+          {/* Jumping Level - Only show for jumping discipline */}
+          {userDiscipline === 'jumping' && (
+            <FormField
+              control={form.control}
+              name="jumpingLevel"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{language === 'en' ? "Jumping Level" : "Nivel de Salto"}</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder={language === 'en' ? "Select jumping level" : "Seleccionar nivel de salto"} />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {jumpingLevels.map((level) => (
+                        <SelectItem key={level} value={level}>
+                          {level}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
           
           {/* Date Picker */}
           <FormField

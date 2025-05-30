@@ -191,7 +191,15 @@ export type Database = {
           user_id?: string
           video_type?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fk_document_analysis_horse"
+            columns: ["horse_id"]
+            isOneToOne: false
+            referencedRelation: "horses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       events: {
         Row: {
