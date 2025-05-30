@@ -847,8 +847,8 @@ const PerformanceOverview = () => {
           <h3 className="text-lg font-medium text-gray-900 mb-2">
             Movement Scores
           </h3>
-          <div className="h-80 w-full">
-            <ResponsiveContainer width="100%" height="100%">
+          <div className="h-80 w-full flex items-center justify-center">
+            <ResponsiveContainer className="!h-[70%] w-full sm:!h-full ">
               <RadarChart outerRadius="70%" data={movementData}>
                 <defs>
                   {/* Left to right linear gradient for the radar fill */}
