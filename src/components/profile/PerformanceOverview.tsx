@@ -108,7 +108,7 @@ const PerformanceOverview = () => {
           let strongestMovementType = ""; // e.g., "Trot", "Canter", "Walk"
 
           currentMonthTests.forEach((test) => {
-            const analysisResult = test.analysis_results?.[0]?.result_json;
+            const analysisResult = test.analysis_results?.[0]?.result_json.en;
             let parsedResult;
 
             if (typeof analysisResult === "string") {
@@ -213,7 +213,7 @@ const PerformanceOverview = () => {
           };
 
           currentMonthTests.forEach((test) => {
-            const analysisResult = test.analysis_results?.[0]?.result_json;
+            const analysisResult = test.analysis_results?.[0]?.result_json.en;
             let parsedResult;
 
             if (typeof analysisResult === "string") {
@@ -293,7 +293,7 @@ const PerformanceOverview = () => {
 
         // Parse all test results and extract percentages
         const testsResults = data?.map((test) => {
-          const result = test.analysis_results[0]?.result_json;
+          const result = test.analysis_results[0]?.result_json.en;
           let parsedResult;
 
           if (typeof result === "string") {
@@ -560,7 +560,7 @@ const PerformanceOverview = () => {
 
     testData.forEach((test, index) => {
       if (test.analysis_results && test.analysis_results.length > 0) {
-        const result = test.analysis_results[0].result_json;
+        const result = test.analysis_results[0].result_json.en;
         const percentage = result.percentage;
 
         // Only include tests with valid percentages (not null, not 0)
