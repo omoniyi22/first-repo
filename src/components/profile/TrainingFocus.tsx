@@ -66,7 +66,7 @@ const TrainingFocus = () => {
             ) {
               const recommendations = result.result_json.en.recommendations;
               recommendations.forEach((rec) =>
-                jumpingAnalyses.push(rec.reason)
+                jumpingAnalyses.push({ reason: rec.reason, tip: rec.tip })
               );
             }
           });
@@ -144,7 +144,11 @@ const TrainingFocus = () => {
                     {focus.priority}
                   </Badge> */}
                 {/* </div> */}
-                <p className="text-sm text-gray-600 mt-1">{focus}</p>
+                <p className="text-sm text-gray-600 mt-1">{focus.reason}</p>
+                <p className="text-sm text-gray-600 mt-1">
+                  {" "}
+                  Exercise - {focus.tip}
+                </p>
                 {/* <Button variant="link" className="text-blue-700 p-0 h-auto mt-1 text-sm font-normal">
                   <span>View exercises</span>
                   <ChevronRight size={14} className="ml-1" />
