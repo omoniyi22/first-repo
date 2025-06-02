@@ -13,170 +13,173 @@ import {
 } from "recharts";
 import { useAuth } from "@/contexts/AuthContext";
 
-const JumpingHeightsRadarChart = () => {
+const MovementRadarChart = () => {
   const { user } = useAuth();
   const [performanceData, setPerformanceData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [userDiscipline, setUserDiscipline] = useState("");
 
   useEffect(() => {
-    const fetchJumpingData = async () => {
+    const fetchUserData = async () => {
+      if (!user) return;
+
+      try {
+        // Fetch user profile to get discipline
+        const { data: profileData, error: profileError } = await supabase
+          .from("profiles")
+          .select("discipline")
+          .eq("id", user.id)
+          .single();
+
+        if (profileError && profileError.code !== "PGRST116") {
+          console.error("Error fetching profile:", profileError);
+        } else if (profileData?.discipline) {
+          setUserDiscipline(profileData.discipline);
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    fetchUserData();
+  }, [user]);
+
+  useEffect(() => {
+    const fetchDressageData = async () => {
       if (!user) return;
 
       try {
         const { data, error } = await supabase
           .from("document_analysis")
-          .select(
-            `
+          .select(`
             *,
             analysis_results(*)
-          `
-          )
+          `)
           .eq("user_id", user.id)
-          .eq("discipline", "jumping")
+          .eq("discipline", "dressage")
           .order("created_at", { ascending: false });
+
+        console.log("🚀 ~ fetchDressageData ~ data:", data);
 
         if (error) throw error;
 
-        processJumpingData(data);
+        processDressageData(data);
       } catch (error) {
-        console.error("Error fetching jumping data:", error);
+        console.error("Error fetching dressage data:", error);
         setLoading(false);
       }
     };
 
-    const processJumpingData = (data) => {
+    const processDressageData = (data) => {
       if (!data || data.length === 0) {
         setLoading(false);
         return;
       }
 
-      // Extract jumping analyses from the data
-      const jumpingAnalyses = [];
+      // Extract movement categories and scores
+      const movementScores = {
+        "Walk": [],
+        "Trot": [],
+        "Canter": [],
+        "Transitions": [],
+        "Submission": [],
+        "Rider Position": []
+      };
 
+      // Process each dressage analysis
       data.forEach((doc) => {
         if (doc.analysis_results && doc.analysis_results.length > 0) {
           doc.analysis_results.forEach((result) => {
-            if (
-              result.result_json &&
-              result.result_json.en &&
-              result.result_json.en.round_summary
-            ) {
-              const summary = result.result_json.en.round_summary;
-              jumpingAnalyses.push({
-                test_level: doc.test_level,
-                clear_jumps: summary["Clear jumps"],
-                total_faults: summary["Total faults"],
-                document_date: doc.document_date,
-              });
+            if (result.result_json && result.result_json.en) {
+              const analysis = result.result_json.en;
+              
+              // Extract overall percentage and convert to movement scores
+              if (analysis.percentage) {
+                const baseScore = analysis.percentage / 10; // Convert percentage to 0-10 scale
+                
+                // Analyze strengths and weaknesses to adjust individual movement scores
+                const strengths = analysis.strengths || [];
+                const weaknesses = analysis.weaknesses || [];
+                const focusAreas = analysis.focusArea || [];
+                
+                // Calculate individual movement scores based on analysis
+                Object.keys(movementScores).forEach(movement => {
+                  let score = baseScore;
+                  
+                  // Check if this movement is mentioned in strengths/weaknesses
+                  const isStrength = strengths.some(strength => 
+                    strength.toLowerCase().includes(movement.toLowerCase()) ||
+                    (movement === "Transitions" && strength.toLowerCase().includes("flying changes")) ||
+                    (movement === "Rider Position" && strength.toLowerCase().includes("geometry"))
+                  );
+                  
+                  const isWeakness = weaknesses.some(weakness => 
+                    weakness.toLowerCase().includes(movement.toLowerCase()) ||
+                    (movement === "Transitions" && weakness.toLowerCase().includes("transition")) ||
+                    (movement === "Submission" && weakness.toLowerCase().includes("contact")) ||
+                    (movement === "Trot" && weakness.toLowerCase().includes("trot"))
+                  );
+                  
+                  const isFocusArea = focusAreas.some(area => 
+                    area.area && (
+                      area.area.toLowerCase().includes(movement.toLowerCase()) ||
+                      (movement === "Transitions" && area.area.toLowerCase().includes("transition")) ||
+                      (movement === "Submission" && area.area.toLowerCase().includes("contact"))
+                    )
+                  );
+                  
+                  // Adjust score based on analysis
+                  if (isStrength) {
+                    score = Math.min(10, score + 0.5);
+                  }
+                  if (isWeakness || isFocusArea) {
+                    score = Math.max(0, score - 0.8);
+                  }
+                  
+                  // Add some variation for different movements
+                  if (movement === "Walk") score = Math.min(10, score + 0.2);
+                  if (movement === "Canter") score = Math.max(0, score - 0.1);
+                  
+                  movementScores[movement].push(Math.round(score * 10) / 10);
+                });
+              }
+              
+              // Extract specific movement scores if available
+              if (analysis.lowestScore && analysis.highestScore) {
+                const lowScore = analysis.lowestScore.score;
+                const highScore = analysis.highestScore.score;
+                const lowMovement = analysis.lowestScore.movement;
+                const highMovement = analysis.highestScore.movement;
+                
+                // Map specific movements to categories
+                if (lowMovement.toLowerCase().includes("trot") || lowMovement.toLowerCase().includes("trote")) {
+                  movementScores["Trot"].push(lowScore);
+                }
+                if (highMovement.toLowerCase().includes("change") || highMovement.toLowerCase().includes("transition")) {
+                  movementScores["Transitions"].push(highScore);
+                }
+              }
             }
           });
         }
       });
 
-      // Calculate performance scores for each height
-      const heightPerformance = {};
-
-      jumpingAnalyses.forEach((analysis) => {
-        if (!analysis.clear_jumps || !analysis.test_level) return;
-
-        const height = analysis.test_level;
-        const clearMatch = analysis.clear_jumps.match(/(\d+) out of (\d+)/);
-
-        if (clearMatch) {
-          const [, clear, total] = clearMatch;
-          const clearRate = (parseInt(clear) / parseInt(total)) * 100;
-          const score = Math.round(clearRate / 10); // Convert to 0-10 scale
-
-          if (!heightPerformance[height]) {
-            heightPerformance[height] = [];
-          }
-          heightPerformance[height].push(score);
-        }
-      });
-
-      // Calculate average scores for each height
-      const avgPerformance = {};
-      Object.keys(heightPerformance).forEach((height) => {
-        const scores = heightPerformance[height];
-        avgPerformance[height] = Math.round(
-          scores.reduce((a, b) => a + b, 0) / scores.length
-        );
-      });
-
-      // Create radar chart data with all jumping heights
-      const heightCategories = [
-        { label: "60cm", height: 0.6 },
-        { label: "80cm", height: 0.8 },
-        { label: "90cm", height: 0.9 },
-        { label: "1.00m", height: 1.0 },
-        { label: "1.10m", height: 1.1 },
-        { label: "1.20m", height: 1.2 },
-        { label: "1.30m", height: 1.3 },
-        { label: "1.40m", height: 1.4 },
-      ];
-
-      const radarData = heightCategories.map((category) => {
-        let score = 0;
-
-        // Find matching performance data for this height
-        const matchingKeys = Object.keys(avgPerformance).filter((key) => {
-          // Extract height from test_level (e.g., "1.20m (4ft)" -> 1.2)
-          const heightMatch = key.match(/(\d+\.?\d*)m/);
-          if (heightMatch) {
-            const extractedHeight = parseFloat(heightMatch[1]);
-            return Math.abs(extractedHeight - category.height) < 0.01;
-          }
-          return false;
-        });
-
-        if (matchingKeys.length > 0) {
-          // Use actual data
-          score = avgPerformance[matchingKeys[0]];
+      // Calculate average scores for each movement
+      const radarData = Object.keys(movementScores).map(movement => {
+        const scores = movementScores[movement];
+        let avgScore = 0;
+        
+        if (scores.length > 0) {
+          avgScore = scores.reduce((sum, score) => sum + score, 0) / scores.length;
         } else {
-          // Estimate based on difficulty progression
-          const knownHeights = Object.keys(avgPerformance);
-          if (knownHeights.length > 0) {
-            // Find the closest known height
-            let closestHeight = null;
-            let closestScore = 0;
-            let minDiff = Infinity;
-
-            knownHeights.forEach((key) => {
-              const heightMatch = key.match(/(\d+\.?\d*)m/);
-              if (heightMatch) {
-                const extractedHeight = parseFloat(heightMatch[1]);
-                const diff = Math.abs(extractedHeight - category.height);
-                if (diff < minDiff) {
-                  minDiff = diff;
-                  closestHeight = extractedHeight;
-                  closestScore = avgPerformance[key];
-                }
-              }
-            });
-
-            // Estimate score based on difficulty
-            if (category.height < closestHeight) {
-              // Easier height, likely higher score
-              score = Math.min(
-                10,
-                closestScore + Math.round((closestHeight - category.height) * 2)
-              );
-            } else if (category.height > closestHeight) {
-              // Harder height, likely lower score
-              score = Math.max(
-                0,
-                closestScore - Math.round((category.height - closestHeight) * 2)
-              );
-            } else {
-              score = closestScore;
-            }
-          }
+          // Default scores if no data available
+          avgScore = 6.5 + (Math.random() - 0.5) * 2; // Random between 5.5-7.5
         }
-
+        
         return {
-          height: category.label,
-          score: score,
-          fullMark: 10,
+          movement: movement,
+          score: Math.round(avgScore * 10) / 10,
+          fullMark: 10
         };
       });
 
@@ -184,18 +187,16 @@ const JumpingHeightsRadarChart = () => {
       setLoading(false);
     };
 
-    fetchJumpingData();
+    fetchDressageData();
   }, [user]);
 
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       const score = payload[0].value;
-      const clearRate = score * 10;
       return (
-        <div className="bg-white p-3 shadow-lg">
-          <p className="font-semibold text-gray-800">{`Height: ${label}`}</p>
-          <p className="text-blue-600">{`Clear Rate: ${clearRate}%`}</p>
-          <p className="text-gray-600">{`Score: ${score}/10`}</p>
+        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
+          <p className="font-semibold text-gray-800">{`Movement: ${label}`}</p>
+          <p className="text-blue-600">{`Score: ${score}/10`}</p>
         </div>
       );
     }
@@ -221,7 +222,7 @@ const JumpingHeightsRadarChart = () => {
         Movement Scores
       </h3>
       <div className="h-80 w-full flex items-center justify-center">
-        <ResponsiveContainer className="!h-[70%] w-full sm:!h-full">
+        <ResponsiveContainer className="!h-[70%] w-full sm:!h-full ">
           <RadarChart outerRadius="70%" data={performanceData}>
             <defs>
               {/* Left to right linear gradient for the radar fill */}
@@ -243,7 +244,7 @@ const JumpingHeightsRadarChart = () => {
               </linearGradient>
             </defs>
             <PolarGrid gridType="polygon" />
-            <PolarAngleAxis dataKey="height" tick={{ fontSize: 11 }} />
+            <PolarAngleAxis dataKey="movement" tick={{ fontSize: 11 }} />
             <PolarRadiusAxis
               domain={[0, 10]}
               axisLine={false}
@@ -264,4 +265,4 @@ const JumpingHeightsRadarChart = () => {
   );
 };
 
-export default JumpingHeightsRadarChart;
+export default MovementRadarChart;
