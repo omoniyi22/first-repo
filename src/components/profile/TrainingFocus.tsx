@@ -21,10 +21,11 @@ const TrainingFocus = () => {
   const { user } = useAuth();
 
   useEffect(() => {
-    const fetchJumpingData = async () => {
+    const fetchDressageData = async () => {
       if (!user) return;
 
       try {
+        setLoading(true);
         const { data, error } = await supabase
           .from("document_analysis")
           .select(
@@ -34,18 +35,18 @@ const TrainingFocus = () => {
           `
           )
           .eq("user_id", user.id)
-          .eq("discipline", "jumping")
+          .eq("discipline", "dressage")
           .order("created_at", { ascending: false });
 
+        console.log("🚀 ~ fetchDressageData ~ data:", data);
         if (error) throw error;
 
         processRecommendationData(data);
       } catch (error) {
-        console.error("Error fetching jumping data:", error);
+        console.error("Error fetching dressage data:", error);
         setLoading(false);
       }
     };
-    fetchJumpingData();
 
     const processRecommendationData = (data) => {
       if (!data || data.length === 0) {
@@ -53,53 +54,81 @@ const TrainingFocus = () => {
         return;
       }
 
-      // Extract jumping analyses from the data
-      const jumpingAnalyses = [];
+      // Extract dressage recommendations from the data
+      const dressageRecommendations = [];
 
       data.forEach((doc) => {
         if (doc.analysis_results && doc.analysis_results.length > 0) {
           doc.analysis_results.forEach((result) => {
-            if (
-              result.result_json &&
-              result.result_json.en &&
-              result.result_json.en.round_summary
-            ) {
-              const recommendations = result.result_json.en.recommendations;
-              recommendations.forEach((rec) =>
-                jumpingAnalyses.push({ reason: rec.reason, tip: rec.tip })
-              );
+            if (result.result_json && result.result_json.en) {
+              const analysis = result.result_json.en;
+
+              // Get recommendations
+              if (
+                analysis.recommendations &&
+                analysis.recommendations.length > 0
+              ) {
+                analysis.recommendations.forEach((rec) => {
+                  dressageRecommendations.push({
+                    reason: rec.reason,
+                    tip: rec.tip,
+                    priority: "medium", // Default priority
+                  });
+                });
+              }
+
+              // Get focus areas
+              if (analysis.focusArea && analysis.focusArea.length > 0) {
+                analysis.focusArea.forEach((focus) => {
+                  dressageRecommendations.push({
+                    reason: `Focus on ${focus.area}`,
+                    tip:
+                      focus.tip.Exercise ||
+                      focus.tip.quickFix ||
+                      "Practice specific exercises",
+                    priority: "high", // Focus areas are high priority
+                  });
+                });
+              }
+
+              // Add weaknesses as training focus
+              if (analysis.weaknesses && analysis.weaknesses.length > 0) {
+                analysis.weaknesses.forEach((weakness) => {
+                  dressageRecommendations.push({
+                    reason: `Address: ${weakness}`,
+                    tip: "Work on consistency and relaxation exercises",
+                    priority: "high",
+                  });
+                });
+              }
             }
           });
         }
       });
 
-      setTrainingFocus(jumpingAnalyses);
+      // Remove duplicates based on similar reasons
+      const uniqueRecommendations = dressageRecommendations.filter(
+        (rec, index, self) =>
+          index ===
+          self.findIndex(
+            (r) =>
+              r.reason
+                .toLowerCase()
+                .includes(rec.reason.toLowerCase().split(":")[0]) ||
+              rec.reason
+                .toLowerCase()
+                .includes(r.reason.toLowerCase().split(":")[0])
+          )
+      );
+
+      setTrainingFocus(uniqueRecommendations);
+      setLoading(false);
     };
-  }, []);
 
-  // Example training focuses - in a real app, these would come from your backend
-  // const trainingFocus = [
-  //   {
-  //     id: 1,
-  //     movement: "Canter Transitions",
-  //     description: "Work on smoothness in and out of canter",
-  //     priority: "high",
-  //   },
-  //   {
-  //     id: 2,
-  //     movement: "Half Pass",
-  //     description: "Improve bend and crossing of legs",
-  //     priority: "medium",
-  //   },
-  //   {
-  //     id: 3,
-  //     movement: "Extended Trot",
-  //     description: "Develop more suspension and ground cover",
-  //     priority: "medium",
-  //   },
-  // ];
+    fetchDressageData();
+  }, [user]);
 
-  const getPriorityColor = (priority: string) => {
+  const getPriorityColor = (priority) => {
     switch (priority) {
       case "high":
         return "bg-red-100 text-red-800";
@@ -109,6 +138,34 @@ const TrainingFocus = () => {
         return "bg-blue-100 text-blue-800";
     }
   };
+
+  const getPriorityLabel = (priority) => {
+    switch (priority) {
+      case "high":
+        return "High";
+      case "medium":
+        return "Medium";
+      default:
+        return "Low";
+    }
+  };
+
+  if (loading) {
+    return (
+      <div>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-serif font-semibold text-gray-900">
+            Training Focus
+          </h2>
+        </div>
+        <Card className="border border-gray-100 p-4">
+          <div className="text-center py-8 text-gray-500">
+            Loading training recommendations...
+          </div>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -127,35 +184,57 @@ const TrainingFocus = () => {
 
       <Card className="border border-gray-100 p-4">
         <div className="space-y-4">
-          {trainingFocus.slice(0, 5).map((focus, index) => (
-            <div
-              key={index}
-              className="flex items-start pb-3 border-b border-gray-100 last:border-none last:pb-0"
-            >
-              <div className="bg-blue-100 text-blue-700 p-1.5 rounded mr-3">
-                <Activity size={18} />
-              </div>
-              <div className="flex-1">
-                {/* <div className="flex items-center justify-between"> */}
-                {/* <h3 className="font-medium text-gray-900">
-                    {focus.movement}
-                  </h3> */}
-                {/* <Badge className={getPriorityColor(focus.priority)}>
-                    {focus.priority}
-                  </Badge> */}
-                {/* </div> */}
-                <p className="text-sm text-gray-600 mt-1">{focus.reason}</p>
-                <p className="text-sm text-gray-600 mt-1">
-                  {" "}
-                  Exercise - {focus.tip}
-                </p>
-                {/* <Button variant="link" className="text-blue-700 p-0 h-auto mt-1 text-sm font-normal">
-                  <span>View exercises</span>
-                  <ChevronRight size={14} className="ml-1" />
-                </Button> */}
-              </div>
+          {trainingFocus.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              <Activity className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+              <p>No training recommendations available.</p>
+              <p className="text-sm">
+                Upload a dressage test to get personalized training focus.
+              </p>
             </div>
-          ))}
+          ) : (
+            trainingFocus.slice(0, 3).map((focus, index) => (
+              <div
+                key={index}
+                className="flex items-start pb-3 border-b border-gray-100 last:border-none last:pb-0"
+              >
+                <div className="bg-blue-100 text-blue-700 p-1.5 rounded mr-3 flex-shrink-0">
+                  <Activity size={18} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-gray-900 mb-1">
+                        {focus.reason}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        <span className="font-medium">
+                          <span className="font-semibold">Exercise:</span>
+                        </span>{" "}
+                        {focus.tip}
+                      </p>
+                    </div>
+                    {/* <Badge
+                      className={`${getPriorityColor(
+                        focus.priority
+                      )} ml-2 flex-shrink-0`}
+                    >
+                      {getPriorityLabel(focus.priority)}
+                    </Badge> */}
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+
+          {/* {trainingFocus.length > 5 && (
+            <div className="text-center pt-2">
+              <Button variant="link" className="text-blue-700 text-sm">
+                View all {trainingFocus.length} recommendations
+                <ChevronRight size={14} className="ml-1" />
+              </Button>
+            </div>
+          )} */}
         </div>
       </Card>
 
