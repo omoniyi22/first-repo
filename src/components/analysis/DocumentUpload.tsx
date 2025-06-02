@@ -37,6 +37,7 @@ import {
 import {
   Calendar as CalendarIcon,
   Upload,
+  CloudUpload,
   File,
   X,
   Loader2,
@@ -453,7 +454,7 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
         >
           {selectedFiles.length === 0 ? (
             <div className="text-center">
-              <Upload className="mx-auto h-10 w-10 text-white mb-2" />
+              <CloudUpload className="mx-auto h-10 w-10 text-white mb-2" />
               <p className="text-sm text-white mb-2">
                 {language === "en"
                   ? "Drag and drop your files here, or click to select"

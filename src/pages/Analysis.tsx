@@ -5,7 +5,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import { CloudUpload, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -267,10 +267,11 @@ const Analysis = () => {
             >
               <TabsTrigger
                 value="upload"
-                className={`${
+                className={`flex justify-center items-center gap-2 ${
                   isMobile ? "flex-grow text-xs py-1 px-2 " : ""
                 } data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#7857eb] data-[state=active]:to-[#3b78e8] data-[state=active]:text-white`}
               >
+                <CloudUpload className="h-4 w-4 text-white" />
                 {userDiscipline === "dressage"
                   ? language === "en"
                     ? "Upload Document"
@@ -281,15 +282,22 @@ const Analysis = () => {
               </TabsTrigger>
               <TabsTrigger
                 value="analysis-list"
-                className={`${
+                className={`flex justify-center items-center gap-2 ${
                   isMobile ? "flex-grow text-xs py-1 px-2" : ""
                 } data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#7857eb] data-[state=active]:to-[#3b78e8] data-[state=active]:text-white`}
               >
                 {userDiscipline === "dressage"
-                  ? (language === "en" ? "My Documents" : "Mis Documentos") +
-                    ` (${documents.length})`
-                  : (language === "en" ? "My Videos" : "Mis Videos") +
-                    ` (${videos.length})`}
+                  ? language === "en"
+                    ? "My Documents"
+                    : "Mis Documentos"
+                  : language === "en"
+                  ? "My Videos"
+                  : "Mis Videos"}
+                <span className="h-4 w-4 bg-gradient-to-r from-[#7857eb] to-[#3b78e8] rounded-full text-white flex items-center justify-center text-xs">
+                  {userDiscipline === "dressage"
+                    ? documents.length
+                    : videos.length}
+                </span>
               </TabsTrigger>
             </TabsList>
 
