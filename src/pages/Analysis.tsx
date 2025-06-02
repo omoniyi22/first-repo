@@ -65,7 +65,6 @@ const Analysis = () => {
     null
   );
   const [selectedVideoId, setSelectedVideoId] = useState<string | null>(null);
-  console.log("🚀 ~ Analysis ~ selectedVideoId:", selectedVideoId);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSpinnerLoading, setIsSpinnerLoading] = useState<boolean>(false);
   const [userDiscipline, setUserDiscipline] = useState<string | null>(null);

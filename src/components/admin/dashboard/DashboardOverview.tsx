@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   ActivityIcon,
@@ -6,7 +5,7 @@ import {
   FileText,
   Video,
   TrendingUp,
-  Calendar
+  Calendar,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,7 +18,7 @@ const DashboardOverview = () => {
     totalUsers: 0,
     documentsAnalyzed: 0,
     videosAnalyzed: 0,
-    activeSubscriptions: 0
+    activeSubscriptions: 0,
   });
 
   const [isLoading, setIsLoading] = useState(true);
@@ -30,25 +29,29 @@ const DashboardOverview = () => {
       try {
         // Fetch user count
         const { count: userCount, error: userError } = await supabase
-          .from('profiles')
-          .select('*', { count: 'exact', head: true });
+          .from("profiles")
+          .select("*", { count: "exact", head: true });
 
         // Fetch document analysis count
-        const { count: docCount, error: docError } = await supabase
-          .from('document_analysis')
-          .select('*', { count: 'exact', head: true });
-          
-        // In a real app, you would fetch video analysis and subscription counts similarly
-        // For now we'll use dummy data
+        const { data: allDocs, error: testError } = await supabase
+          .from("document_analysis")
+          .select("*");
+
+        const videoCount = allDocs.filter((doc) =>
+          doc.file_type.startsWith("video")
+        ).length;
+        const docsCount = allDocs.filter((doc) =>
+          doc.file_type.startsWith("application")
+        ).length;
 
         setStats({
           totalUsers: userCount || 0,
-          documentsAnalyzed: docCount || 0,
-          videosAnalyzed: 12, // Dummy data
-          activeSubscriptions: 8 // Dummy data
+          documentsAnalyzed: docsCount || 0,
+          videosAnalyzed: videoCount || 0,
+          activeSubscriptions: 0, // Dummy data
         });
       } catch (error) {
-        console.error('Failed to fetch dashboard stats:', error);
+        console.error("Failed to fetch dashboard stats:", error);
       } finally {
         setIsLoading(false);
       }
@@ -60,45 +63,51 @@ const DashboardOverview = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Dashboard Overview</h1>
-        <p className="text-gray-500 mt-1">Welcome to the AI Equestrian Admin Panel</p>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+          Dashboard Overview
+        </h1>
+        <p className="text-gray-500 mt-1">
+          Welcome to the AI Equestrian Admin Panel
+        </p>
       </div>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatsCard 
-          title="Total Users" 
-          value={stats.totalUsers} 
+        <StatsCard
+          title="Total Users"
+          value={stats.totalUsers}
           icon={<Users className="h-5 w-5 text-purple-600" />}
-          trend="+12%" 
-          isLoading={isLoading} 
+          trend="+12%"
+          isLoading={isLoading}
         />
-        <StatsCard 
-          title="Documents Analyzed" 
-          value={stats.documentsAnalyzed} 
+        <StatsCard
+          title="Documents Analyzed"
+          value={stats.documentsAnalyzed}
           icon={<FileText className="h-5 w-5 text-blue-600" />}
-          trend="+5%" 
-          isLoading={isLoading} 
+          trend="+5%"
+          isLoading={isLoading}
         />
-        <StatsCard 
-          title="Videos Analyzed" 
-          value={stats.videosAnalyzed} 
+        <StatsCard
+          title="Videos Analyzed"
+          value={stats.videosAnalyzed}
           icon={<Video className="h-5 w-5 text-green-600" />}
-          trend="+18%" 
-          isLoading={isLoading} 
+          trend="+18%"
+          isLoading={isLoading}
         />
-        <StatsCard 
-          title="Active Subscriptions" 
-          value={stats.activeSubscriptions} 
+        <StatsCard
+          title="Active Subscriptions"
+          value={stats.activeSubscriptions}
           icon={<TrendingUp className="h-5 w-5 text-amber-600" />}
-          trend="+3%" 
-          isLoading={isLoading} 
+          trend="+3%"
+          isLoading={isLoading}
         />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-lg font-medium">Usage Analytics</CardTitle>
+            <CardTitle className="text-lg font-medium">
+              Usage Analytics
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <UsageChart />
@@ -107,7 +116,7 @@ const DashboardOverview = () => {
 
         <RecentActivityCard />
       </div>
-      
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card className="lg:col-span-2">
           <CardHeader className="pb-2">
@@ -123,21 +132,29 @@ const DashboardOverview = () => {
               <div className="flex justify-between items-center py-2 border-b">
                 <div>
                   <p className="font-medium">New AI Training Techniques</p>
-                  <p className="text-xs text-gray-500">Scheduled for May 10, 2025</p>
+                  <p className="text-xs text-gray-500">
+                    Scheduled for May 10, 2025
+                  </p>
                 </div>
-                <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">Jumping</span>
+                <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                  Jumping
+                </span>
               </div>
               <div className="flex justify-between items-center py-2 border-b">
                 <div>
                   <p className="font-medium">Competition Preparation Guide</p>
-                  <p className="text-xs text-gray-500">Scheduled for May 15, 2025</p>
+                  <p className="text-xs text-gray-500">
+                    Scheduled for May 15, 2025
+                  </p>
                 </div>
-                <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full">Dressage</span>
+                <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full">
+                  Dressage
+                </span>
               </div>
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-lg font-medium">
