@@ -1,253 +1,191 @@
 import { useEffect, useState } from "react";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Activity, ChevronRight } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import TrainingFocusForm from "./TrainingFocusForm";
-import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
+import DashboardHeader from "@/components/dashboard/DashboardHeader";
+import DashboardStats from "@/components/dashboard/DashboardStats";
+import RecentVideos from "@/components/dashboard/RecentVideos";
 import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import { User, Upload, Settings } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { SEO, getPageMetadata } from "@/lib/seo";
+import { supabase } from "@/integrations/supabase/client";
+import PerformanceOverview from "@/components/profile/PerformanceOverview";
+import Horses from "@/components/profile/Horses";
+import RecentTests from "@/components/profile/RecentTests";
+import Goals from "@/components/profile/Goals";
+import TrainingFocus from "@/components/profile/TrainingFocus";
+import UpcomingEvents from "@/components/profile/UpcomingEvents";
 
-const TrainingFocus = () => {
-  const [showEditFocusForm, setShowEditFocusForm] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [trainingFocus, setTrainingFocus] = useState([]);
+const Dashboard = () => {
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+  const { language } = useLanguage();
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [userDiscipline, setUserDiscipline] = useState<string>("");
 
-  const { user } = useAuth();
+  // Get dashboard SEO metadata
+  const seoMetadata = getPageMetadata("dashboard", {
+    // Add noindex tag since this is a private page
+    noIndex: true,
+  });
 
   useEffect(() => {
-    const fetchDressageData = async () => {
+    const fetchUserData = async () => {
       if (!user) return;
 
       try {
-        setLoading(true);
-        const { data, error } = await supabase
-          .from("document_analysis")
-          .select(
-            `
-            *,
-            analysis_results(*)
-          `
-          )
-          .eq("user_id", user.id)
-          .eq("discipline", "dressage")
-          .order("created_at", { ascending: false });
+        // Fetch user profile to get discipline
+        const { data: profileData, error: profileError } = await supabase
+          .from("profiles")
+          .select("discipline")
+          .eq("id", user.id)
+          .single();
 
-        console.log("🚀 ~ fetchDressageData ~ data:", data);
-        if (error) throw error;
-
-        processRecommendationData(data);
-      } catch (error) {
-        console.error("Error fetching dressage data:", error);
-        setLoading(false);
-      }
-    };
-
-    const processRecommendationData = (data) => {
-      if (!data || data.length === 0) {
-        setLoading(false);
-        return;
-      }
-
-      // Extract dressage recommendations from the data
-      const dressageRecommendations = [];
-
-      data.forEach((doc) => {
-        if (doc.analysis_results && doc.analysis_results.length > 0) {
-          doc.analysis_results.forEach((result) => {
-            if (result.result_json && result.result_json.en) {
-              const analysis = result.result_json.en;
-
-              // Get recommendations
-              if (
-                analysis.recommendations &&
-                analysis.recommendations.length > 0
-              ) {
-                analysis.recommendations.forEach((rec) => {
-                  dressageRecommendations.push({
-                    reason: rec.reason,
-                    tip: rec.tip,
-                    priority: "medium", // Default priority
-                  });
-                });
-              }
-
-              // Get focus areas
-              if (analysis.focusArea && analysis.focusArea.length > 0) {
-                analysis.focusArea.forEach((focus) => {
-                  dressageRecommendations.push({
-                    reason: `Focus on ${focus.area}`,
-                    tip:
-                      focus.tip.Exercise ||
-                      focus.tip.quickFix ||
-                      "Practice specific exercises",
-                    priority: "high", // Focus areas are high priority
-                  });
-                });
-              }
-
-              // Add weaknesses as training focus
-              if (analysis.weaknesses && analysis.weaknesses.length > 0) {
-                analysis.weaknesses.forEach((weakness) => {
-                  dressageRecommendations.push({
-                    reason: `Address: ${weakness}`,
-                    tip: "Work on consistency and relaxation exercises",
-                    priority: "high",
-                  });
-                });
-              }
-            }
-          });
+        if (profileError && profileError.code !== "PGRST116") {
+          console.error("Error fetching profile:", profileError);
+        } else if (profileData?.discipline) {
+          setUserDiscipline(profileData.discipline);
         }
-      });
-
-      // Remove duplicates based on similar reasons
-      const uniqueRecommendations = dressageRecommendations.filter(
-        (rec, index, self) =>
-          index ===
-          self.findIndex(
-            (r) =>
-              r.reason
-                .toLowerCase()
-                .includes(rec.reason.toLowerCase().split(":")[0]) ||
-              rec.reason
-                .toLowerCase()
-                .includes(r.reason.toLowerCase().split(":")[0])
-          )
-      );
-
-      setTrainingFocus(uniqueRecommendations);
-      setLoading(false);
+      } catch (error) {
+        console.error("Error fetching horses:", error);
+      } finally {
+      }
     };
 
-    fetchDressageData();
+    fetchUserData();
+  }, [user, language]);
+
+  // Check if user is an admin
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      if (!user) return;
+
+      try {
+        // Call the Supabase function to check if the user is an admin
+        const { data, error } = await supabase.rpc("is_admin", {
+          user_uuid: user.id,
+        });
+
+        if (error) {
+          console.error("Failed to check admin status:", error);
+          return;
+        }
+
+        setIsAdmin(!!data);
+      } catch (error) {
+        console.error("Error checking admin status:", error);
+      }
+    };
+
+    checkAdminStatus();
   }, [user]);
 
-  const getPriorityColor = (priority) => {
-    switch (priority) {
-      case "high":
-        return "bg-red-100 text-red-800";
-      case "medium":
-        return "bg-amber-100 text-amber-800";
-      default:
-        return "bg-blue-100 text-blue-800";
+  // If not logged in and not loading, redirect to sign in
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate("/sign-in");
     }
-  };
+  }, [user, loading, navigate]);
 
-  const getPriorityLabel = (priority) => {
-    switch (priority) {
-      case "high":
-        return "High Priority";
-      case "medium":
-        return "Medium Priority";
-      default:
-        return "Low Priority";
-    }
-  };
+  // Scroll to top on page load
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
+  // Show nothing while checking auth status
   if (loading) {
-    return (
-      <div>
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-serif font-semibold text-gray-900">
-            Training Focus
-          </h2>
-        </div>
-        <Card className="border border-gray-100 p-4">
-          <div className="text-center py-8 text-gray-500">
-            Loading training recommendations...
-          </div>
-        </Card>
-      </div>
-    );
+    return null;
+  }
+
+  // Only render the dashboard if we have a user
+  if (!user) {
+    return null;
   }
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-serif font-semibold text-gray-900">
-          Training Focus
-        </h2>
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => setShowEditFocusForm(true)}
-        >
-          Edit
-        </Button>
-      </div>
+    <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white">
+      <SEO {...seoMetadata} />
+      <Navbar />
+      <main className="container mx-auto px-4 pt-20 sm:pt-24 pb-12 sm:pb-16 text-gray-800">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0 mb-6 sm:mb-8">
+          <DashboardHeader />
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Button
+              className="text-white bg-purple-600 hover:bg-purple-700 text-sm sm:text-base"
+              onClick={() => navigate("/analysis?view=true")}
+            >
+              {language === "en" ? "View Analysis" : "Ver análisis"}
+            </Button>
+            <Button
+              className="text-white bg-purple-600 hover:bg-purple-700 text-sm sm:text-base"
+              onClick={() => navigate("/analysis")}
+            >
+              <Upload className="mr-2 h-4 w-4" />
+              {userDiscipline
+                ? userDiscipline === "dressage"
+                  ? language === "en"
+                    ? "Upload Test"
+                    : "Subir Prueba"
+                  : language === "en"
+                  ? "Upload Video"
+                  : "Subir vídeo"
+                : "Loading..."}
+            </Button>
+            <Button
+              variant="outline"
+              className="text-purple-700 border-purple-200 hover:bg-purple-50 hover:text-purple-700 text-sm sm:text-base"
+              onClick={() => navigate("/profile-setup")}
+            >
+              <User className="mr-2 h-4 w-4" />
+              {language === "en" ? "View Profile" : "Ver Perfil"}
+            </Button>
 
-      <Card className="border border-gray-100 p-4">
-        <div className="space-y-4">
-          {trainingFocus.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              <Activity className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-              <p>No training recommendations available.</p>
-              <p className="text-sm">
-                Upload a dressage test to get personalized training focus.
-              </p>
-            </div>
-          ) : (
-            trainingFocus.slice(0, 3).map((focus, index) => (
-              <div
-                key={index}
-                className="flex items-start pb-3 border-b border-gray-100 last:border-none last:pb-0"
+            {isAdmin && (
+              <Button
+                variant="outline"
+                className="text-blue-700 border-blue-200 hover:bg-blue-50 hover:text-blue-700 text-sm sm:text-base"
+                onClick={() => navigate("/admin")}
               >
-                <div className="bg-blue-100 text-blue-700 p-1.5 rounded mr-3 flex-shrink-0">
-                  <Activity size={18} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between mb-2">
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900 mb-1">
-                        {focus.reason}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        <span className="font-medium">Exercise:</span>{" "}
-                        {focus.tip}
-                      </p>
-                    </div>
-                    {/* <Badge className={`${getPriorityColor(focus.priority)} ml-2 flex-shrink-0`}>
-                      {getPriorityLabel(focus.priority)}
-                    </Badge> */}
-                  </div>
-                </div>
-              </div>
-            ))
-          )}
-
-          {/* {trainingFocus.length > 5 && (
-            <div className="text-center pt-2">
-              <Button variant="link" className="text-blue-700 text-sm">
-                View all {trainingFocus.length} recommendations
-                <ChevronRight size={14} className="ml-1" />
+                <Settings className="mr-2 h-4 w-4" />
+                Admin Panel
               </Button>
-            </div>
-          )} */}
+            )}
+          </div>
         </div>
-      </Card>
 
-      {/* Edit Training Focus Dialog */}
-      <Dialog open={showEditFocusForm} onOpenChange={setShowEditFocusForm}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-serif">
-              Edit Training Focus
-            </DialogTitle>
-          </DialogHeader>
-          <TrainingFocusForm
-            onComplete={() => setShowEditFocusForm(false)}
-            initialFocus={trainingFocus}
-          />
-        </DialogContent>
-      </Dialog>
+        {/* Performance Overview */}
+        <div className="mt-6 sm:mt-8">
+          <PerformanceOverview />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+          {/* Goals Section */}
+          <Goals />
+
+          {/* Training Focus Section */}
+          <TrainingFocus />
+        </div>
+
+        {/* Main content layout - two columns for desktop, single column for mobile */}
+        <div className="mt-4 grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+          {/* Main column - 2/3 width on desktop */}
+          <div className="lg:col-span-2 space-y-6 sm:space-y-8">
+            {/* Recent Tests Section */}
+            <RecentTests />
+          </div>
+
+          {/* Side column - 1/3 width on desktop */}
+          <div className="space-y-6 sm:space-y-8">
+            {/* Upcoming Events Section */}
+            <UpcomingEvents />
+          </div>
+        </div>
+      </main>
+      <Footer />
     </div>
   );
 };
 
-export default TrainingFocus;
+export default Dashboard;
