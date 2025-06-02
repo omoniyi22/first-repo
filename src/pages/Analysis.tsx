@@ -233,7 +233,7 @@ const Analysis = () => {
                   ? "Please set your primary discipline in your profile to access the analysis features."
                   : "Por favor establece tu disciplina principal en tu perfil para acceder a las funciones de análisis."}
               </p>
-              <Button onClick={() => navigate("/profile-setup")}>
+              <Button onClick={() => navigate("/profile")}>
                 {language === "en" ? "Go to Profile" : "Ir al Perfil"}
               </Button>
             </Card>

@@ -17,36 +17,8 @@ const TrainingFocus = () => {
   const [showEditFocusForm, setShowEditFocusForm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [trainingFocus, setTrainingFocus] = useState([]);
-  const [userDiscipline, setUserDiscipline] = useState<string>("");
-  console.log("🚀 ~ TrainingFocus ~ userDiscipline:", userDiscipline);
 
   const { user } = useAuth();
-
-  useEffect(() => {
-    const fetchUserData = async () => {
-      if (!user) return;
-
-      try {
-        // Fetch user profile to get discipline
-        const { data: profileData, error: profileError } = await supabase
-          .from("profiles")
-          .select("discipline")
-          .eq("id", user.id)
-          .single();
-
-        if (profileError && profileError.code !== "PGRST116") {
-          console.error("Error fetching profile:", profileError);
-        } else if (profileData?.discipline) {
-          setUserDiscipline(profileData.discipline);
-        }
-      } catch (error) {
-        console.error("Error fetching horses:", error);
-      } finally {
-      }
-    };
-
-    fetchUserData();
-  }, [user]);
 
   useEffect(() => {
     const fetchJumpingData = async () => {
@@ -73,7 +45,7 @@ const TrainingFocus = () => {
         setLoading(false);
       }
     };
-    userDiscipline && fetchJumpingData();
+    fetchJumpingData();
 
     const processRecommendationData = (data) => {
       if (!data || data.length === 0) {
@@ -84,50 +56,26 @@ const TrainingFocus = () => {
       // Extract jumping analyses from the data
       const jumpingAnalyses = [];
 
-      if (userDiscipline == "dressage") {
-        data.forEach((doc) => {
-          if (doc.analysis_results && doc.analysis_results.length > 0) {
-            doc.analysis_results.forEach((result) => {
-              if (
-                result.result_json &&
-                result.result_json.en &&
-                result.result_json.en.round_summary
-              ) {
-                const recommendations = result.result_json.en.recommendations;
-                recommendations.forEach((rec) =>
-                  jumpingAnalyses.push({ reason: rec.reason, tip: rec.tip })
-                );
-              }
-            });
-          }
-        });
-      } else {
-        data.forEach((doc) => {
-          if (doc.analysis_results && doc.analysis_results.length > 0) {
-            doc.analysis_results.forEach((result) => {
-              if (
-                result.result_json &&
-                result.result_json.en &&
-                result.result_json.en.round_summary
-              ) {
-                const recommendations = result.result_json.en.recommendations;
-                console.log(
-                  "🚀 ~ doc.analysis_results.forEach ~ recommendations:",
-                  recommendations
-                );
-
-                recommendations.forEach((rec) =>
-                  jumpingAnalyses.push({ reason: rec.reason, tip: rec.tip })
-                );
-              }
-            });
-          }
-        });
-      }
+      data.forEach((doc) => {
+        if (doc.analysis_results && doc.analysis_results.length > 0) {
+          doc.analysis_results.forEach((result) => {
+            if (
+              result.result_json &&
+              result.result_json.en &&
+              result.result_json.en.round_summary
+            ) {
+              const recommendations = result.result_json.en.recommendations;
+              recommendations.forEach((rec) =>
+                jumpingAnalyses.push({ reason: rec.reason, tip: rec.tip })
+              );
+            }
+          });
+        }
+      });
 
       setTrainingFocus(jumpingAnalyses);
     };
-  }, [userDiscipline]);
+  }, []);
 
   // Example training focuses - in a real app, these would come from your backend
   // const trainingFocus = [
@@ -198,8 +146,8 @@ const TrainingFocus = () => {
                 {/* </div> */}
                 <p className="text-sm text-gray-600 mt-1">{focus.reason}</p>
                 <p className="text-sm text-gray-600 mt-1">
-                  <span className="font-semibold ">Exercise - </span>{" "}
-                  {focus.tip}
+                  {" "}
+                  Exercise - {focus.tip}
                 </p>
                 {/* <Button variant="link" className="text-blue-700 p-0 h-auto mt-1 text-sm font-normal">
                   <span>View exercises</span>
