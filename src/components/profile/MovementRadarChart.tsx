@@ -59,7 +59,6 @@ const MovementRadarChart = () => {
           .eq("discipline", "dressage")
           .order("created_at", { ascending: false });
 
-        console.log("🚀 ~ fetchDressageData ~ data:", data);
 
         if (error) throw error;
 

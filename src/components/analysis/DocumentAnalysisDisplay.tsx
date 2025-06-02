@@ -1,13 +1,23 @@
-
-import React, { useState, useEffect } from 'react';
-import { Card } from '@/components/ui/card';
+import React, { useState, useEffect } from "react";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useLanguage } from '@/contexts/LanguageContext';
-import { Loader2 } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
-import { toast } from 'sonner';
+import { useLanguage } from "@/contexts/LanguageContext";
+import {
+  ArrowDown,
+  FileText,
+  Lightbulb,
+  Loader2,
+  LocateFixed,
+  MessageCircle,
+  TrendingDown,
+  TrendingUp,
+  Trophy,
+} from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
+import { Button } from "../ui/button";
 
 // Define proper types for the analysis data
 interface MovementScore {
@@ -46,7 +56,7 @@ interface AnalysisResultData {
     jumpTypes?: string[];
     commonErrors?: string[];
     personalInsight?: string;
-  },
+  };
   es: {
     scores?: MovementScore[];
     totalScore?: number;
@@ -66,7 +76,7 @@ interface AnalysisResultData {
     jumpTypes?: string[];
     commonErrors?: string[];
     personalInsight?: string;
-  },
+  };
 }
 
 interface DocumentAnalysis {
@@ -89,48 +99,51 @@ interface DocumentAnalysisDisplayProps {
   documentId: string;
 }
 
-const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({ documentId }) => {
+const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
+  documentId,
+}) => {
   const { language } = useLanguage();
   const { user } = useAuth();
   const [analysis, setAnalysis] = useState<DocumentAnalysis | null>(null);
   const [resultData, setResultData] = useState<AnalysisResultData | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   useEffect(() => {
     const fetchAnalysis = async () => {
       if (!user) return;
-      
+
       try {
         setIsLoading(true);
-        
+
         // Fetch the document analysis from Supabase
         const { data: documentData, error: documentError } = await supabase
-          .from('document_analysis')
-          .select('*')
-          .eq('id', documentId)
-          .eq('user_id', user.id)
+          .from("document_analysis")
+          .select("*")
+          .eq("id", documentId)
+          .eq("user_id", user.id)
           .single();
-        
+
         if (documentError) throw documentError;
-        
+
         if (documentData) {
           setAnalysis(documentData as DocumentAnalysis);
-          
+
           // Fetch analysis results if document status is 'completed'
-          if (documentData.status === 'completed') {
+          if (documentData.status === "completed") {
             const { data: resultData, error: resultError } = await supabase
-              .from('analysis_results')
-              .select('result_json')
-              .eq('document_id', documentId)
+              .from("analysis_results")
+              .select("result_json")
+              .eq("document_id", documentId)
               .single();
-              
-              console.log("analysis result data =>", resultData);
+
             if (resultError) {
-              console.warn('Could not fetch analysis results:', resultError);
+              console.warn("Could not fetch analysis results:", resultError);
             } else if (resultData) {
               // Use actual result data from the database
-              setResultData(resultData.result_json as unknown as AnalysisResultData);
+              setResultData(
+                resultData.result_json as unknown as AnalysisResultData
+              );
             } else {
               // Fall back to mock data if no results
             }
@@ -139,23 +152,27 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({ docum
             setResultData(null);
           }
         } else {
-          setError(language === 'en' ? 'Document not found' : 'Documento no encontrado');
+          setError(
+            language === "en" ? "Document not found" : "Documento no encontrado"
+          );
         }
-        
+
         setIsLoading(false);
       } catch (err: any) {
-        console.error('Error fetching analysis:', err);
+        console.error("Error fetching analysis:", err);
         setError(err.message);
         setIsLoading(false);
-        toast.error(language === 'en' 
-          ? 'Failed to load document analysis' 
-          : 'No se pudo cargar el análisis del documento');
+        toast.error(
+          language === "en"
+            ? "Failed to load document analysis"
+            : "No se pudo cargar el análisis del documento"
+        );
       }
     };
-    
+
     fetchAnalysis();
   }, [documentId, user, language]);
-  
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-8">
@@ -163,42 +180,59 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({ docum
       </div>
     );
   }
-  
+
   if (error || !analysis) {
     return (
       <Card className="p-4 bg-red-50 text-red-800 text-center">
-        <p>{error || (language === 'en' ? 'Analysis not available' : 'Análisis no disponible')}</p>
+        <p>
+          {error ||
+            (language === "en"
+              ? "Analysis not available"
+              : "Análisis no disponible")}
+        </p>
       </Card>
     );
   }
-  
+
   // Document exists but is not completed
-  if (analysis.status !== 'completed') {
+  if (analysis.status !== "completed") {
     return (
       <Card className="p-6 bg-white">
         <div className="text-center">
           <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-primary" />
           <h3 className="text-lg font-medium mb-2">
-            {analysis.status === 'pending' 
-              ? (language === 'en' ? "Analysis Pending" : "Análisis Pendiente") 
-              : (language === 'en' ? "Processing Document" : "Procesando Documento")}
+            {analysis.status === "pending"
+              ? language === "en"
+                ? "Analysis Pending"
+                : "Análisis Pendiente"
+              : language === "en"
+              ? "Processing Document"
+              : "Procesando Documento"}
           </h3>
           <p className="text-gray-500">
-            {analysis.status === 'pending'
-              ? (language === 'en' ? "Your document is in queue for analysis." : "Tu documento está en cola para análisis.")
-              : (language === 'en' ? "We're analyzing your document. This may take several minutes." : "Estamos analizando tu documento. Esto puede tomar varios minutos.")}
+            {analysis.status === "pending"
+              ? language === "en"
+                ? "Your document is in queue for analysis."
+                : "Tu documento está en cola para análisis."
+              : language === "en"
+              ? "We're analyzing your document. This may take several minutes."
+              : "Estamos analizando tu documento. Esto puede tomar varios minutos."}
           </p>
           <div className="mt-4 p-4 bg-gray-100 rounded text-left">
             <h4 className="font-medium mb-1">{analysis.file_name}</h4>
             <p className="text-sm text-gray-700">
-              {analysis.discipline === 'dressage' 
-                ? (language === 'en' ? "Dressage" : "Doma") 
-                : (language === 'en' ? "Jumping" : "Salto")}
+              {analysis.discipline === "dressage"
+                ? language === "en"
+                  ? "Dressage"
+                  : "Doma"
+                : language === "en"
+                ? "Jumping"
+                : "Salto"}
               {" - "}
               {analysis.horse_name}
             </p>
             <p className="text-sm text-gray-700 mt-1">
-              {language === 'en' ? "Uploaded on: " : "Subido el: "}
+              {language === "en" ? "Uploaded on: " : "Subido el: "}
               {new Date(analysis.created_at).toLocaleString()}
             </p>
           </div>
@@ -206,94 +240,176 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({ docum
       </Card>
     );
   }
-  
+
   if (!resultData) {
     return (
       <Card className="p-4 bg-yellow-50 text-yellow-800 text-center">
-        <p>{language === 'en' ? 'Results not available yet' : 'Resultados aún no disponibles'}</p>
+        <p>
+          {language === "en"
+            ? "Results not available yet"
+            : "Resultados aún no disponibles"}
+        </p>
       </Card>
     );
   }
 
   return (
     <div className="space-y-6 sm:space-y-8">
-      <Card className="p-4 sm:p-6">
-        <h3 className="text-xl sm:text-2xl font-semibold mb-2 sm:mb-4">
-          {language === 'en' ? 'Analysis Results' : 'Resultados del Análisis'}
-        </h3>
-        {resultData[language].percentage ? (
-          <p className="text-lg">
-            {language === 'en' ? `Total Score:` : `Puntuación Total:`}&nbsp; 
-            <span className="font-semibold">{resultData[language].percentage}%</span>
-          </p>
-        ) : (
-          <p>{language === 'en' ? 'Score not available' : 'Puntuación no disponible'}</p>
-        )}
-      </Card>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-        <Card className="p-4 sm:p-6">
-          <h4 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
-            {language === 'en' ? 'Highest Score' : 'Fortalezas'}
-          </h4>
-          <div>
-            <b className="text-lg">{language === 'en' ? resultData.en['highestScore'].score : resultData.es['highestScore'].score}</b>
-            &nbsp;at <b>{language === 'en' ? resultData.en['highestScore'].movement : resultData.es['highestScore'].movement}</b>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+        {/* Total Score Card */}
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br to-[#3C78EB] from-[#7658EB] p-6 text-white shadow-lg">
+          <div className="absolute top-4 right-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
+              <FileText className="h-6 w-6 text-white" />
+            </div>
           </div>
-        </Card>
-
-        <Card className="p-4 sm:p-6">
-          <h4 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
-            {language === 'en' ? 'Lowest Score' : 'Debilidades'}
-          </h4>
-          <div>
-            <b className="text-lg">{language === 'en' ? resultData.en['lowestScore'].score : resultData.es['lowestScore'].score}</b>
-            &nbsp;at <b>{language === 'en' ? resultData.en['lowestScore'].movement : resultData.es['lowestScore'].movement}</b>
+          <div className="space-y-2">
+            <h3 className="text-lg font-medium opacity-90">
+              {language === "en" ? "Total Score" : "Puntuación Total"}
+            </h3>
+            {resultData[language].percentage ? (
+              <p className="text-4xl font-bold text-white">
+                {resultData[language].percentage.toFixed(2)}%
+              </p>
+            ) : (
+              <p className="text-lg">
+                {language === "en"
+                  ? "Score not available"
+                  : "Puntuación no disponible"}
+              </p>
+            )}
           </div>
-        </Card>
+        </div>
+
+        {/* Highest Score Card */}
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#3AD55A] to-[#00AE23] p-6 text-white shadow-lg">
+          <div className="absolute top-4 right-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
+              <TrendingUp className="h-6 w-6 text-white" />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <h3 className="text-lg font-medium opacity-90 ">
+              {language === "en" ? "Highest Score" : "Fortalezas"}
+            </h3>
+            <div className="space-y-1">
+              <p className="text-4xl font-bold text-white">
+                {language === "en"
+                  ? resultData.en["highestScore"].score
+                  : resultData.es["highestScore"].score}
+              </p>
+              <p className="text-sm opacity-80 text-white">
+                at{" "}
+                <span className="font-medium">
+                  {language === "en"
+                    ? resultData.en["highestScore"].movement
+                    : resultData.es["highestScore"].movement}
+                </span>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Lowest Score Card */}
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#FFA071] to-[#EC6624] p-6 text-white shadow-lg">
+          <div className="absolute top-4 right-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
+              <TrendingDown className="h-6 w-6 text-white" />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <h3 className="text-lg font-medium opacity-90">
+              {language === "en" ? "Lowest Score" : "Debilidades"}
+            </h3>
+            <div className="space-y-1">
+              <p className="text-4xl font-bold text-white">
+                {language === "en"
+                  ? resultData.en["lowestScore"].score
+                  : resultData.es["lowestScore"].score}
+              </p>
+              <p className="text-sm opacity-80 text-white">
+                at{" "}
+                <span className="font-medium">
+                  {language === "en"
+                    ? resultData.en["lowestScore"].movement
+                    : resultData.es["lowestScore"].movement}
+                </span>
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
-      
+
       <Card className="p-4 sm:p-6">
-        <h4 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
-          {language === 'en' ? 'Personalized Insight' : 'Debilidades'}
-        </h4>
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
+          <h4 className="text-lg sm:text-xl font-semibold">
+            {language === "en" ? "Personalized Insight" : "Debilidades"}
+          </h4>
+
+          <img
+            src="/lovable-uploads/1000010999.png"
+            alt="Horse and rider jumping over competition obstacle"
+            className="w-16 h-16 object-cover object-center"
+          />
+        </div>
         <div>
-          <p>{language === 'en' ? resultData.en['personalInsight'] : resultData.es['personalInsight'] }</p>
+          <p>
+            {language === "en"
+              ? resultData.en["personalInsight"]
+              : resultData.es["personalInsight"]}
+          </p>
         </div>
       </Card>
-      
+
       {resultData.en.scores && resultData.en.scores.length > 0 && (
         <Card className="p-4 sm:p-6 overflow-hidden">
           <h4 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
-            {language === 'en' ? 'Movement Scores' : 'Puntuaciones de Movimiento'}
+            {language === "en"
+              ? "Movement Scores"
+              : "Puntuaciones de Movimiento"}
           </h4>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead>
                 <tr>
-                  <th className="py-2 px-3 text-left text-sm font-medium text-gray-500">{language === 'en' ? 'Movement' : 'Movimiento'}</th>
-                  <th className="py-2 px-3 text-left text-sm font-medium text-gray-500">{language === 'en' ? 'Score' : 'Puntuación'}</th>
-                  <th className="py-2 px-3 text-left text-sm font-medium text-gray-500">{language === 'en' ? 'Max' : 'Máx'}</th>
-                  <th className="py-2 px-3 text-left text-sm font-medium text-gray-500">{language === 'en' ? 'Comment' : 'Comentario'}</th>
+                  <th className="py-2 px-3 text-left text-sm font-medium text-gray-500">
+                    {language === "en" ? "Movement" : "Movimiento"}
+                  </th>
+                  <th className="py-2 px-3 text-left text-sm font-medium text-gray-500">
+                    {language === "en" ? "Score" : "Puntuación"}
+                  </th>
+                  <th className="py-2 px-3 text-left text-sm font-medium text-gray-500">
+                    {language === "en" ? "Max" : "Máx"}
+                  </th>
+                  <th className="py-2 px-3 text-left text-sm font-medium text-gray-500">
+                    {language === "en" ? "Comment" : "Comentario"}
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {resultData[language].scores.map((score, index) => (
-                  <tr key={index} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                  <tr
+                    key={index}
+                    className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}
+                  >
                     <td className="py-2 px-3 text-sm">{score.movement}</td>
-                    <td className="py-2 px-3 text-sm"> 
+                    <td className="py-2 px-3 text-sm">
                       {Object.entries(score)
-                        .filter(([key]) => key.startsWith('judge'))
+                        .filter(([key]) => key.startsWith("judge"))
                         .map(([key, value]) => (
-                          <div key={key}>{key.replace('judge', '')}: {value || "-"}</div>
+                          <div key={key}>
+                            {key.replace("judge", "")}: {value || "-"}
+                          </div>
                         ))}
                     </td>
                     <td className="py-2 px-3 text-sm">{score.maxScore}</td>
                     <td className="py-2 px-3 text-sm">
                       {Object.entries(score)
-                        .filter(([key]) => key.startsWith('comment'))
+                        .filter(([key]) => key.startsWith("comment"))
                         .map(([key, value]) => (
-                          <div key={key}>{key.replace('comment', '')}: {value || '-'}</div>
+                          <div key={key}>
+                            {key.replace("comment", "")}: {value || "-"}
+                          </div>
                         ))}
                     </td>
                   </tr>
@@ -304,78 +420,126 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({ docum
         </Card>
       )}
 
-      {resultData[language].faults && resultData[language].faults.length > 0 && (
-        <Card className="p-4 sm:p-6 overflow-hidden">
-          <h4 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
-            {language === 'en' ? 'Jumping Faults' : 'Faltas de Salto'}
-          </h4>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead>
-                <tr>
-                  <th className="py-2 px-3 text-left text-sm font-medium text-gray-500">{language === 'en' ? 'Jump' : 'Salto'}</th>
-                  <th className="py-2 px-3 text-left text-sm font-medium text-gray-500">{language === 'en' ? 'Faults' : 'Faltas'}</th>
-                  <th className="py-2 px-3 text-left text-sm font-medium text-gray-500">{language === 'en' ? 'Type' : 'Tipo'}</th>
-                  <th className="py-2 px-3 text-left text-sm font-medium text-gray-500">{language === 'en' ? 'Description' : 'Descripción'}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {resultData[language].faults.map((fault, index) => (
-                  <tr key={index} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                    <td className="py-2 px-3 text-sm">{fault.jumpNumber || fault.jump || '-'}</td>
-                    <td className="py-2 px-3 text-sm">{fault.faults || '-'}</td>
-                    <td className="py-2 px-3 text-sm">{fault.faultType || '-'}</td>
-                    <td className="py-2 px-3 text-sm">{fault.description || '-'}</td>
+      {resultData[language].faults &&
+        resultData[language].faults.length > 0 && (
+          <Card className="p-4 sm:p-6 overflow-hidden">
+            <h4 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
+              {language === "en" ? "Jumping Faults" : "Faltas de Salto"}
+            </h4>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead>
+                  <tr>
+                    <th className="py-2 px-3 text-left text-sm font-medium text-gray-500">
+                      {language === "en" ? "Jump" : "Salto"}
+                    </th>
+                    <th className="py-2 px-3 text-left text-sm font-medium text-gray-500">
+                      {language === "en" ? "Faults" : "Faltas"}
+                    </th>
+                    <th className="py-2 px-3 text-left text-sm font-medium text-gray-500">
+                      {language === "en" ? "Type" : "Tipo"}
+                    </th>
+                    <th className="py-2 px-3 text-left text-sm font-medium text-gray-500">
+                      {language === "en" ? "Description" : "Descripción"}
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </Card>
-      )}
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {resultData[language].faults.map((fault, index) => (
+                    <tr
+                      key={index}
+                      className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}
+                    >
+                      <td className="py-2 px-3 text-sm">
+                        {fault.jumpNumber || fault.jump || "-"}
+                      </td>
+                      <td className="py-2 px-3 text-sm">
+                        {fault.faults || "-"}
+                      </td>
+                      <td className="py-2 px-3 text-sm">
+                        {fault.faultType || "-"}
+                      </td>
+                      <td className="py-2 px-3 text-sm">
+                        {fault.description || "-"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-        <Card className="p-4 sm:p-6">
-          <h4 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
-            {language === 'en' ? 'Strengths' : 'Fortalezas'}
-          </h4>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 ">
+        <Card className="p-4 sm:p-6 bg-[#E6FFEB] border-0">
+          <div className="flex items-center justify-between mb-3 sm:mb-4">
+            <h4 className="text-lg sm:text-xl font-semibold">
+              {language === "en" ? "Strengths" : "Fortalezas"}
+            </h4>
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/50 backdrop-blur-sm">
+              <Trophy className="h-6 w-6 text-[#4d975b]" />
+            </div>
+          </div>
           <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
             {resultData[language]?.strengths?.map((strength, index) => (
-              <li key={index} className="text-sm sm:text-base">{strength}</li>
+              <li key={index} className="text-sm sm:text-base">
+                {strength}
+              </li>
             ))}
           </ul>
         </Card>
 
-        <Card className="p-4 sm:p-6">
-          <h4 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
-            {language === 'en' ? 'Weaknesses' : 'Debilidades'}
-          </h4>
+        <Card className="p-4 sm:p-6 bg-[#FFEAE0] border-0">
+          <div className="flex items-center justify-between mb-3 sm:mb-4">
+            <h4 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
+              {language === "en" ? "Weaknesses" : "Debilidades"}
+            </h4>
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/50 backdrop-blur-sm">
+              <ArrowDown className="h-6 w-6 text-[#975c41]" />
+            </div>
+          </div>
           <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
             {resultData[language]?.weaknesses?.map((weakness, index) => (
-              <li key={index} className="text-sm sm:text-base">{weakness}</li>
+              <li key={index} className="text-sm sm:text-base">
+                {weakness}
+              </li>
             ))}
           </ul>
         </Card>
       </div>
 
-      {resultData[language]['focusArea'] && (
+      {resultData[language]["focusArea"] && (
         <Card className="p-4 sm:p-6">
-          <h4 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
-            {language === 'en'
-              ? `Your Top Focus Area${resultData[language]['focusArea'].length > 1 ? 's' : ''} (${resultData[language]['focusArea'].length})`
-              : `Tus áreas principales (${resultData[language]['focusArea'].length})`}
-          </h4>
+          <div className="flex items-center justify-between mb-3 sm:mb-4">
+            <h4 className="text-lg sm:text-xl font-semibold">
+              {language === "en"
+                ? `Your Top Focus Area${
+                    resultData[language]["focusArea"].length > 1 ? "s" : ""
+                  } `
+                : `Tus áreas principales `}
+            </h4>
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#F1F5F9] backdrop-blur-sm">
+              <LocateFixed className="h-6 w-6 text-[#7658EB]" />
+            </div>
+          </div>
           <ol className="pl-6">
-            {resultData[language]['focusArea'].map((item, index) => (
-              <li key={index} className='list-decimal font-semibold'>
-                <div className="text-lg font-semibold py-2">{item.area}</div>
+            {resultData[language]["focusArea"].map((item, index) => (
+              <li key={index} className="list-none font-semibold">
+                <div className="flex items-center space-x-2 mb-2">
+                  <span className="!w-8 !h-8 flex justify-center items-center rounded-full bg-gradient-to-r from-[#7658EB] to-[#3C78EB] text-white">
+                    {index + 1}
+                  </span>
+                  <p className="text-lg font-semibold py-2">{item.area}</p>
+                </div>
                 <ul className="pl-4">
                   <li className="list-disc py-1 font-normal">
-                    <b>{language === 'en' ? 'Quick Fix:' : 'Solución rápida:'}</b>
+                    <b>
+                      {language === "en" ? "Quick Fix: " : "Solución rápida:"}
+                    </b>
                     <span>{item.tip.quickFix}</span>
                   </li>
                   <li className="list-disc py-1 font-normal">
-                    <b>{language === 'en' ? 'Exercise:' : 'Ejercicio:'}</b>
+                    <b>{language === "en" ? "Exercise: " : "Ejercicio:"}</b>
                     <span>{item.tip.Exercise}</span>
                   </li>
                 </ul>
@@ -385,32 +549,68 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({ docum
         </Card>
       )}
       <Card className="p-4 sm:p-6">
-        <h4 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
-          {language === 'en' ? 'Recommendations' : 'Recomendaciones'}
-        </h4>
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
+          <h4 className="text-lg sm:text-xl font-semibold">
+            {language === "en" ? "Recommendations" : "Recomendaciones"}
+          </h4>
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#F1F5F9] backdrop-blur-sm">
+            <Lightbulb className="h-6 w-6 text-[#7658EB]" />
+          </div>
+        </div>
         <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
-          {resultData[language]?.recommendations?.map((recommendation, index) => (
-            <li key={index} className="text-sm sm:text-base">
-              {recommendation['tip']}<br/>
-              <b>{language === 'en' ? 'To improve:' : 'Para mejorar:'}</b> {recommendation['reason']}
-            </li>
-          )) || "No Recommendations!"}
+          {resultData[language]?.recommendations?.map(
+            (recommendation, index) => (
+              <li key={index} className="text-sm sm:text-base">
+                {recommendation["tip"]}
+                <br />
+                <b>
+                  {language === "en" ? "To improve:" : "Para mejorar:"}
+                </b>{" "}
+                {recommendation["reason"]}
+              </li>
+            )
+          ) || "No Recommendations!"}
         </ul>
       </Card>
 
       <Card className="p-4 sm:p-6">
-        <h4 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
-          {language === 'en' ? 'Judge Comments' : 'Comentarios del Juez'}
-        </h4>
-        <ul className="text-sm sm:text-base">
-            {Object.entries(resultData[language].generalComments)
-            .filter(([_, comment]) => !!comment && comment.trim() !== '')
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
+          <h4 className="text-lg sm:text-xl font-semibold">
+            {language === "en" ? "Judge Comments" : "Comentarios del Juez"}
+          </h4>
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#F1F5F9] backdrop-blur-sm">
+            <MessageCircle className="h-6 w-6 text-[#7658EB]" />
+          </div>
+        </div>
+        <ul className="text-sm sm:text-base space-y-2">
+          {Object.entries(resultData[language].generalComments)
+            .filter(([_, comment]) => !!comment && comment.trim() !== "")
             .map(([judge, comment], index) => (
-              <li key={index} className="text-sm sm:text-base">
-                <strong>{judge.replace('judge', '')}:</strong> {comment}
+              <li
+                key={index}
+                className="text-sm sm:text-base bg-[#F1F5F9] p-5 rounded-[15px]"
+              >
+                <strong>{judge.replace("judge", "")}:</strong> {comment}
               </li>
             ))}
         </ul>
+      </Card>
+
+      <Card className="p-4 sm:p-6 border-0">
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
+          <Button className="bg-[#67C15E] hover:bg-[#67C15E]">
+            Send Results to Coach
+            <MessageCircle className="h-10 w-10 text-white" />
+          </Button>
+          <div className="flex items-center space-x-2">
+            <p className="">Powered by</p>
+            <img
+              src="/lovable-uploads/1000010999.png"
+              alt="Horse and rider jumping over competition obstacle"
+              className="w-16 h-16 object-cover object-center"
+            />
+          </div>
+        </div>
       </Card>
     </div>
   );
