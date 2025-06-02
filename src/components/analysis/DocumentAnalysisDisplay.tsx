@@ -289,23 +289,34 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
             </div>
           </div>
           <div className="space-y-2">
-            <h3 className="text-lg font-medium opacity-90 ">
-              {language === "en" ? "Highest Score" : "Fortalezas"}
-            </h3>
-            <div className="space-y-1">
-              <p className="text-4xl font-bold text-white">
+            <div className="flex">
+              <h4 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
+                {language === "en" ? "Highest Score - " : "Fortalezas - "}
+              </h4>
+              <span className="text-lg p-[3px] font-semibold">
                 {language === "en"
                   ? resultData.en["highestScore"].score
                   : resultData.es["highestScore"].score}
-              </p>
-              <p className="text-sm opacity-80 text-white">
-                at{" "}
-                <span className="font-medium">
-                  {language === "en"
-                    ? resultData.en["highestScore"].movement
-                    : resultData.es["highestScore"].movement}
-                </span>
-              </p>
+              </span>
+            </div>
+            <div className="space-y-1">
+              <b>
+                {(language === "en"
+                  ? resultData.en["highestScore"].movement
+                  : resultData.es["highestScore"].movement) instanceof Array
+                  ? (language === "en"
+                      ? resultData.en["highestScore"].movement
+                      : resultData.es["highestScore"].movement
+                    ).map((line, index) => (
+                      <span key={index}>
+                        - {line}
+                        <br />
+                      </span>
+                    ))
+                  : language === "en"
+                  ? resultData.en["highestScore"].movement
+                  : resultData.es["highestScore"].movement}
+              </b>
             </div>
           </div>
         </div>
@@ -318,23 +329,34 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
             </div>
           </div>
           <div className="space-y-2">
-            <h3 className="text-lg font-medium opacity-90">
-              {language === "en" ? "Lowest Score" : "Debilidades"}
-            </h3>
-            <div className="space-y-1">
-              <p className="text-4xl font-bold text-white">
+            <div className="flex">
+              <h4 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
+                {language === "en" ? "Lowest Score - " : "Debilidades - "}
+              </h4>
+              <span className="text-lg p-[3px] font-semibold">
                 {language === "en"
                   ? resultData.en["lowestScore"].score
                   : resultData.es["lowestScore"].score}
-              </p>
-              <p className="text-sm opacity-80 text-white">
-                at{" "}
-                <span className="font-medium">
-                  {language === "en"
-                    ? resultData.en["lowestScore"].movement
-                    : resultData.es["lowestScore"].movement}
-                </span>
-              </p>
+              </span>
+            </div>
+            <div className="space-y-1">
+              <b>
+                {(language === "en"
+                  ? resultData.en["lowestScore"].movement
+                  : resultData.es["lowestScore"].movement) instanceof Array
+                  ? (language === "en"
+                      ? resultData.en["lowestScore"].movement
+                      : resultData.es["lowestScore"].movement
+                    ).map((line, index) => (
+                      <span key={index}>
+                        - {line}
+                        <br />
+                      </span>
+                    ))
+                  : language === "en"
+                  ? resultData.en["lowestScore"].movement
+                  : resultData.es["lowestScore"].movement}
+              </b>
             </div>
           </div>
         </div>
