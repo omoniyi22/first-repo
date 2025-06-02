@@ -87,7 +87,7 @@ serve(async (req)=>{
       You should get the name of horse from document like Frapp, Varadero, Pagasus, Han, Lolo and so on.
       You can get that in the first part of PDF, normally it is next of the rider name.
       Each movement is evaluated by several judges.
-      Extract JSON with movement, score, comments, patterns and percentage.
+      Extract JSON with movement, all the highest and lowest scores, comments, patterns and percentage.
       Every individual movement should include all judge's score and comment.
       JSON format should be like follow.
       All formats must be followed like an example and if there are no contents, fill the field with null.
@@ -96,28 +96,6 @@ serve(async (req)=>{
         "en": {
           "percentage": 68.5,
           "horse": "Han",
-          "scores": [
-            {
-              "movement": "Halt at X",
-              "judgeA": 6,
-              "judgeB": 6,
-              "judgeC": 6,
-              "maxScore": 10,
-              "commentA": "Slightly unbalanced",
-              "commentB": "Slightly unbalanced",
-              "commentC": "Slightly unbalanced"
-            },
-            {
-              "movement": "Halt at X",
-              "judgeA": 6,
-              "judgeB": 6,
-              "judgeC": 6,
-              "maxScore": 10,
-              "commentA": "Slightly unbalanced",
-              "commentB": "Slightly unbalanced",
-              "commentC": "Slightly unbalanced"
-            }
-          ],
           "strengths": [
             "Good rhythm",
             "Nice energy throughout",
@@ -164,19 +142,22 @@ serve(async (req)=>{
           ],
           "highestScore": {
             "score": 8,
-            "movement": "Halt at X"
+            "movement": ["Halt at X", "Halt at Y"]
           },
           "lowestScore": {
             "score": 6,
-            "movement": "Halt at X"
+            "movement": ["Halt at X", "Halt at Y"]
           },
           "personalInsight": "You seem to be a rider who excels at precise technical elements, especially halts and geometry. However, if you focus more on relaxation and expression during transitions and medium gaits, you could significantly improve your overall performance."
         },
         "es": {...}        
       }
       Percentage, strengths (at least 2 strengths), weaknesses (at least 2 weaknesses), recommendations, focus area and personal insight(Your personal thoughts) must be required in results.
+      And also you should extract the highest and lowest scores and extract all movements of that.
+      If percentage is null, you should calculate percentage with each judges' scores, max scores and coefficiente. Percentage can be a simple average of all judges' scores relative to their max scores (normally 10). This average must fall between the lowest and highest individual scores. However, accuracy in representation and extraction is the top priority
       At least 3 Recommendations are needed and all recommendations should be deep, meaningful, useful, correct and in detail (More specific exercise recommendations as well such as: "Try shoulder - in exercises" rather than just "focus on relaxtion").
       I need the results with both Spanish and English - (en, es).
+      And only return the full JSON not truncated without any comment like "Here is the analyzed result of the document.".
       And should choose professional riding words like "flying changes" instead of "changes of leg" and your personal insight content pattern should be written to the person like "You seem to be ... if you ..." with 3-5 sentences and must be richful and helpful for riders.
       In other words, riders can get the attractive recommendations, focus area and personal insight from your analysis - you should make them to love this tool.
     `;

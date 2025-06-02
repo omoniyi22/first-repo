@@ -233,22 +233,59 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({ docum
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         <Card className="p-4 sm:p-6">
-          <h4 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
-            {language === 'en' ? 'Highest Score' : 'Fortalezas'}
-          </h4>
+          <div className="flex">
+            <h4 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
+              {language === 'en' ? 'Highest Score - ' : 'Fortalezas - '}
+            </h4>
+            <span className="text-lg p-[3px] font-semibold">{language === 'en' ? resultData.en['highestScore'].score : resultData.es['highestScore'].score}</span>
+          </div>
           <div>
-            <b className="text-lg">{language === 'en' ? resultData.en['highestScore'].score : resultData.es['highestScore'].score}</b>
-            &nbsp;at <b>{language === 'en' ? resultData.en['highestScore'].movement : resultData.es['highestScore'].movement}</b>
+            <b>
+              {
+                (language === 'en'
+                  ? resultData.en['highestScore'].movement
+                  : resultData.es['highestScore'].movement
+                ) instanceof Array
+                  ? (
+                    (language === 'en' ? resultData.en['highestScore'].movement : resultData.es['highestScore'].movement)
+                      .map((line, index) => <span key={index}>- {line}<br /></span>)
+                  )
+                  : (
+                    language === 'en'
+                      ? resultData.en['highestScore'].movement
+                      : resultData.es['highestScore'].movement
+                  )
+              }
+            </b>
           </div>
         </Card>
 
         <Card className="p-4 sm:p-6">
-          <h4 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
-            {language === 'en' ? 'Lowest Score' : 'Debilidades'}
-          </h4>
+          <div className="flex">
+            <h4 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
+              {language === 'en' ? 'Lowest Score - ' : 'Debilidades - '}
+            </h4>
+            <span className="text-lg p-[3px] font-semibold">{language === 'en' ? resultData.en['lowestScore'].score : resultData.es['lowestScore'].score}</span>
+          </div>
+          
           <div>
-            <b className="text-lg">{language === 'en' ? resultData.en['lowestScore'].score : resultData.es['lowestScore'].score}</b>
-            &nbsp;at <b>{language === 'en' ? resultData.en['lowestScore'].movement : resultData.es['lowestScore'].movement}</b>
+            <b>
+              {
+                (language === 'en'
+                  ? resultData.en['lowestScore'].movement
+                  : resultData.es['lowestScore'].movement
+                ) instanceof Array
+                  ? (
+                    (language === 'en' ? resultData.en['lowestScore'].movement : resultData.es['lowestScore'].movement)
+                      .map((line, index) => <span key={index}>- {line}<br /></span>)
+                  )
+                  : (
+                    language === 'en'
+                      ? resultData.en['lowestScore'].movement
+                      : resultData.es['lowestScore'].movement
+                  )
+              }
+            </b>
           </div>
         </Card>
       </div>
