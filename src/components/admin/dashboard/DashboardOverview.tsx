@@ -16,9 +16,12 @@ import UsageChart from "@/components/admin/dashboard/UsageChart";
 const DashboardOverview = () => {
   const [stats, setStats] = useState({
     totalUsers: 0,
-    documentsAnalyzed: 0,
-    videosAnalyzed: 0,
+    totalVideosAnalyzed: 0,
+    totalDocumentsAnalyzed: 0,
+    currentMonthVideosPercentageFormatted: "0%",
     activeSubscriptions: 0,
+    currentMonthUsersPercentageFormatted: "0%",
+    currentMonthDocumentsAnalyzed: "0%",
   });
 
   const [isLoading, setIsLoading] = useState(true);
@@ -28,27 +31,38 @@ const DashboardOverview = () => {
       setIsLoading(true);
       try {
         // Fetch user count
-        const { count: userCount, error: userError } = await supabase
+        const { data: allUser, error: userError } = await supabase
           .from("profiles")
-          .select("*", { count: "exact", head: true });
+          .select("*");
+
+        const usersData = getCurrentMonthUsersWithPercentage(allUser);
 
         // Fetch document analysis count
-        const { data: allDocs, error: testError } = await supabase
+        const { data: allDocs, error: docsError } = await supabase
           .from("document_analysis")
           .select("*");
 
         const videoCount = allDocs.filter((doc) =>
           doc.file_type.startsWith("video")
-        ).length;
+        );
+
+        const videoData = getCurrentMonthUsersWithPercentage(videoCount);
+
         const docsCount = allDocs.filter((doc) =>
           doc.file_type.startsWith("application")
-        ).length;
+        );
+        const docsData = getCurrentMonthUsersWithPercentage(docsCount);
 
         setStats({
-          totalUsers: userCount || 0,
-          documentsAnalyzed: docsCount || 0,
-          videosAnalyzed: videoCount || 0,
-          activeSubscriptions: 0, // Dummy data
+          totalUsers: usersData.totalEntries || 0,
+          currentMonthUsersPercentageFormatted:
+            usersData.percentageFormatted || "0%",
+          totalDocumentsAnalyzed: docsData.totalEntries || 0,
+          currentMonthDocumentsAnalyzed: docsData.percentageFormatted || "0%",
+          totalVideosAnalyzed: videoData.totalEntries || 0,
+          currentMonthVideosPercentageFormatted:
+            videoData.percentageFormatted || "0%",
+          activeSubscriptions: 0,
         });
       } catch (error) {
         console.error("Failed to fetch dashboard stats:", error);
@@ -59,6 +73,31 @@ const DashboardOverview = () => {
 
     fetchData();
   }, []);
+  const getCurrentMonthUsersWithPercentage = (allUsers) => {
+    // Filter current month users
+    const currentMonthEntries = allUsers.filter((user) => {
+      const now = new Date();
+      const userCreatedAt = new Date(user.created_at);
+      return (
+        userCreatedAt.getFullYear() === now.getFullYear() &&
+        userCreatedAt.getMonth() === now.getMonth()
+      );
+    });
+
+    // Calculate percentage
+    const totalEntries = allUsers.length;
+    const currentMonthCount = currentMonthEntries.length;
+    const percentage =
+      totalEntries > 0 ? (currentMonthCount / totalEntries) * 100 : 0;
+
+    return {
+      currentMonthEntries,
+      currentMonthCount,
+      totalEntries,
+      percentage: Math.round(percentage * 100) / 100, // Round to 2 decimal places
+      percentageFormatted: `${Math.round(percentage * 100) / 100}%`,
+    };
+  };
 
   return (
     <div className="space-y-6">
@@ -76,28 +115,28 @@ const DashboardOverview = () => {
           title="Total Users"
           value={stats.totalUsers}
           icon={<Users className="h-5 w-5 text-purple-600" />}
-          trend="+12%"
+          trend={stats.currentMonthUsersPercentageFormatted}
           isLoading={isLoading}
         />
         <StatsCard
           title="Documents Analyzed"
-          value={stats.documentsAnalyzed}
+          value={stats.totalDocumentsAnalyzed}
           icon={<FileText className="h-5 w-5 text-blue-600" />}
-          trend="+5%"
+          trend={stats.currentMonthDocumentsAnalyzed}
           isLoading={isLoading}
         />
         <StatsCard
           title="Videos Analyzed"
-          value={stats.videosAnalyzed}
+          value={stats.totalVideosAnalyzed}
           icon={<Video className="h-5 w-5 text-green-600" />}
-          trend="+18%"
+          trend={stats.currentMonthVideosPercentageFormatted}
           isLoading={isLoading}
         />
         <StatsCard
           title="Active Subscriptions"
           value={stats.activeSubscriptions}
           icon={<TrendingUp className="h-5 w-5 text-amber-600" />}
-          trend="+3%"
+          trend="0%"
           isLoading={isLoading}
         />
       </div>
