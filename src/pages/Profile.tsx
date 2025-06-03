@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
@@ -8,7 +7,7 @@ import PerformanceOverview from "@/components/dashboard/PerformanceOverview";
 import RecentTests from "@/components/dashboard/RecentTests";
 import UpcomingEvents from "@/components/profile/UpcomingEvents";
 import Horses from "@/components/profile/Horses";
-import Goals from "@/components/dashboard/Goals";
+import Goals from "@/components/profile/Goals";
 import TrainingFocus from "@/components/dashboard/TrainingFocus";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
