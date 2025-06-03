@@ -108,17 +108,20 @@ const PerformanceOverview = () => {
           let strongestMovementType = ""; // e.g., "Trot", "Canter", "Walk"
 
           currentMonthTests.forEach((test) => {
-            const analysisResult = test.analysis_results?.[0]?.result_json.en;
+            const analysisResult = test.analysis_results?.[0]?.result_json;
             let parsedResult;
 
+            // Handle the case where result_json might be a string or an object
             if (typeof analysisResult === "string") {
               try {
                 parsedResult = JSON.parse(analysisResult);
               } catch {
                 return;
               }
+            } else if (analysisResult && typeof analysisResult === "object" && analysisResult.en) {
+              parsedResult = analysisResult.en;
             } else {
-              parsedResult = analysisResult;
+              parsedResult = {};
             }
 
             // Use the pre-calculated highest score from analysis
@@ -213,17 +216,20 @@ const PerformanceOverview = () => {
           };
 
           currentMonthTests.forEach((test) => {
-            const analysisResult = test.analysis_results?.[0]?.result_json.en;
+            const analysisResult = test.analysis_results?.[0]?.result_json;
             let parsedResult;
 
+            // Handle the case where result_json might be a string or an object
             if (typeof analysisResult === "string") {
               try {
                 parsedResult = JSON.parse(analysisResult);
               } catch {
                 return;
               }
+            } else if (analysisResult && typeof analysisResult === "object" && analysisResult.en) {
+              parsedResult = analysisResult.en;
             } else {
-              parsedResult = analysisResult;
+              parsedResult = {};
             }
 
             if (parsedResult?.focusArea) {
@@ -293,17 +299,20 @@ const PerformanceOverview = () => {
 
         // Parse all test results and extract percentages
         const testsResults = data?.map((test) => {
-          const result = test.analysis_results[0]?.result_json.en;
+          const result = test.analysis_results[0]?.result_json;
           let parsedResult;
 
+          // Handle the case where result_json might be a string or an object
           if (typeof result === "string") {
             try {
-              parsedResult = JSON.parse(result) as AnalysisResultJson;
+              parsedResult = JSON.parse(result);
             } catch {
               parsedResult = {};
             }
+          } else if (result && typeof result === "object" && result.en) {
+            parsedResult = result.en;
           } else {
-            parsedResult = result as AnalysisResultJson;
+            parsedResult = {};
           }
 
           return {
@@ -560,7 +569,7 @@ const PerformanceOverview = () => {
 
     testData.forEach((test, index) => {
       if (test.analysis_results && test.analysis_results.length > 0) {
-        const result = test.analysis_results[0].result_json.en;
+        const result = test.analysis_results[0].result_json;
         const percentage = result.percentage;
 
         // Only include tests with valid percentages (not null, not 0)

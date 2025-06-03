@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
@@ -189,7 +190,7 @@ const MovementRadarChart = () => {
     fetchDressageData();
   }, [user]);
 
-  const CustomTooltip = ({ active, payload, label }) => {
+  const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: any; label?: string }) => {
     if (active && payload && payload.length) {
       const score = payload[0].value;
       return (
