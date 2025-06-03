@@ -273,7 +273,7 @@ const Analysis = () => {
                   isMobile ? "flex-grow text-xs py-1 px-2 " : ""
                 } data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#7857eb] data-[state=active]:to-[#3b78e8] data-[state=active]:text-white`}
               >
-                <CloudUpload className="h-4 w-4 text-white" />
+                <CloudUpload className="h-4 w-4 text-inherit" />
                 {userDiscipline === "dressage"
                   ? language === "en"
                     ? "Upload Document"

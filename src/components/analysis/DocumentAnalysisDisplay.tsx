@@ -365,7 +365,9 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
       <Card className="p-4 sm:p-6">
         <div className="flex items-center justify-between mb-3 sm:mb-4">
           <h4 className="text-lg sm:text-xl font-semibold">
-            {language === "en" ? "Personalised Insight" : "Perspectiva personalizada"}
+            {language === "en"
+              ? "Personalised Insight"
+              : "Perspectiva personalizada"}
           </h4>
 
           <img
@@ -644,6 +646,12 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
             Send Results to Coach
             <MessageCircle className="h-10 w-10 text-white" />
           </Button>
+
+          <Button className="bg-[#c9c9c9] hover:bg-[#c9c9c9] flex flex-col items-center p-8">
+            <MessageCircle className="h-10 w-10 text-white" />
+            Get Your Ride-Along Podcast
+          </Button>
+
           <div className="flex items-center space-x-2">
             <p className="">Powered by</p>
             <img

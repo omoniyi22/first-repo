@@ -31,9 +31,10 @@ const DashboardOverview = () => {
       setIsLoading(true);
       try {
         // Fetch user count
-        const { data: allUser, error: userError } = await supabase
-          .from("profiles")
-          .select("*");
+        // const { data: allUser, error: userError } = await supabase
+        //   .from("profiles")
+        //   .select("*");
+        const allUser = await fetchUsers();
 
         const usersData = getCurrentMonthUsersWithPercentage(allUser);
 
@@ -73,6 +74,34 @@ const DashboardOverview = () => {
 
     fetchData();
   }, []);
+
+  const fetchUsers = async () => {
+    try {
+      console.log("Fetching users via Edge Function...");
+
+      // Call the Edge Function to get users
+      const { data, error } = await supabase.functions.invoke(
+        "get-admin-users"
+      );
+
+      if (error) {
+        console.error("Error calling Edge Function:", error);
+        throw error;
+      }
+
+      if (!data || !data.users || data.users.length === 0) {
+        console.warn("No users found via Edge Function");
+      }
+
+      // Process the user data
+      const fetchedUsers = data.users.filter((user) => user.role != "admin");
+
+      return fetchedUsers;
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
+  };
+
   const getCurrentMonthUsersWithPercentage = (allUsers) => {
     // Filter current month users
     const currentMonthEntries = allUsers.filter((user) => {

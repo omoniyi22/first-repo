@@ -1,9 +1,8 @@
-
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { Calendar, Mail, MoreVertical, Shield, UserIcon } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { useState, useEffect, useCallback, useRef } from "react";
+import { Calendar, Mail, MoreVertical, Shield, UserIcon } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,7 +10,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from "@/components/ui/dropdown-menu";
 import {
   Table,
   TableBody,
@@ -19,11 +18,17 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { User } from '@/components/admin/users/UserManagement';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import UserDetailsForm from '@/components/admin/users/UserDetailsForm';
-import { Skeleton } from '@/components/ui/skeleton';
+} from "@/components/ui/table";
+import { User } from "@/components/admin/users/UserManagement";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import UserDetailsForm from "@/components/admin/users/UserDetailsForm";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface UsersListProps {
   users: User[];
@@ -44,29 +49,32 @@ const UsersList = ({ users, onUpdateUser, loading }: UsersListProps) => {
   }, []);
 
   const handleEditUser = useCallback((user: User) => {
-    console.log('Opening edit dialog for user:', user.id);
+    console.log("Opening edit dialog for user:", user.id);
     if (isMountedRef.current) {
       // Set the selected user first
       setSelectedUser(user);
       // Then open the dialog with a slight delay to ensure React has updated the state
       setTimeout(() => {
         if (isMountedRef.current) {
-          console.log('Setting dialog open to true');
+          console.log("Setting dialog open to true");
           setDialogOpen(true);
         }
       }, 50);
     }
   }, []);
 
-  const handleSaveUser = useCallback((userData: Partial<User>) => {
-    if (selectedUser) {
-      onUpdateUser(selectedUser.id, userData);
-      handleCloseDialog();
-    }
-  }, [selectedUser, onUpdateUser]);
-  
+  const handleSaveUser = useCallback(
+    (userData: Partial<User>) => {
+      if (selectedUser) {
+        onUpdateUser(selectedUser.id, userData);
+        handleCloseDialog();
+      }
+    },
+    [selectedUser, onUpdateUser]
+  );
+
   const handleCloseDialog = useCallback(() => {
-    console.log('Closing dialog');
+    console.log("Closing dialog");
     if (isMountedRef.current) {
       setDialogOpen(false);
     }
@@ -78,7 +86,7 @@ const UsersList = ({ users, onUpdateUser, loading }: UsersListProps) => {
       const timer = setTimeout(() => {
         if (isMountedRef.current) {
           setSelectedUser(null);
-          console.log('Selected user cleared');
+          console.log("Selected user cleared");
         }
       }, 300);
       return () => clearTimeout(timer);
@@ -86,17 +94,17 @@ const UsersList = ({ users, onUpdateUser, loading }: UsersListProps) => {
   }, [dialogOpen, selectedUser]);
 
   const formatDate = (dateString: string | null) => {
-    if (!dateString) return 'Never';
+    if (!dateString) return "Never";
     try {
       return formatDistanceToNow(new Date(dateString), { addSuffix: true });
     } catch (e) {
-      return 'Invalid date';
+      return "Invalid date";
     }
   };
 
   // Debug user effect
   useEffect(() => {
-    console.log('Current state - selectedUser:', selectedUser?.id, 'dialogOpen:', dialogOpen);
+    // console.log('Current state - selectedUser:', selectedUser?.id, 'dialogOpen:', dialogOpen);
   }, [selectedUser, dialogOpen]);
 
   return (
@@ -109,7 +117,9 @@ const UsersList = ({ users, onUpdateUser, loading }: UsersListProps) => {
               <TableHead className="hidden md:table-cell">Email</TableHead>
               <TableHead>Role</TableHead>
               <TableHead className="hidden md:table-cell">Region</TableHead>
-              <TableHead className="hidden md:table-cell">Last Sign In</TableHead>
+              <TableHead className="hidden md:table-cell">
+                Last Sign In
+              </TableHead>
               <TableHead className="hidden md:table-cell">Status</TableHead>
               <TableHead className="w-[50px]"></TableHead>
             </TableRow>
@@ -117,37 +127,42 @@ const UsersList = ({ users, onUpdateUser, loading }: UsersListProps) => {
           <TableBody>
             {loading ? (
               // Loading skeleton
-              Array(5).fill(0).map((_, idx) => (
-                <TableRow key={`skeleton-${idx}`}>
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <Skeleton className="h-10 w-10 rounded-full" />
-                      <Skeleton className="h-4 w-[150px]" />
-                    </div>
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell">
-                    <Skeleton className="h-4 w-[180px]" />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className="h-5 w-16" />
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell">
-                    <Skeleton className="h-4 w-20" />
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell">
-                    <Skeleton className="h-4 w-28" />
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell">
-                    <Skeleton className="h-5 w-16" />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className="h-8 w-8" />
-                  </TableCell>
-                </TableRow>
-              ))
+              Array(5)
+                .fill(0)
+                .map((_, idx) => (
+                  <TableRow key={`skeleton-${idx}`}>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <Skeleton className="h-10 w-10 rounded-full" />
+                        <Skeleton className="h-4 w-[150px]" />
+                      </div>
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      <Skeleton className="h-4 w-[180px]" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-5 w-16" />
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      <Skeleton className="h-4 w-20" />
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      <Skeleton className="h-4 w-28" />
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      <Skeleton className="h-5 w-16" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-8 w-8" />
+                    </TableCell>
+                  </TableRow>
+                ))
             ) : users.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8 text-gray-500">
+                <TableCell
+                  colSpan={7}
+                  className="text-center py-8 text-gray-500"
+                >
                   No users found
                 </TableCell>
               </TableRow>
@@ -161,7 +176,7 @@ const UsersList = ({ users, onUpdateUser, loading }: UsersListProps) => {
                       </div>
                       <div>
                         <div className="font-medium">
-                          {user.user_metadata.full_name || 'Unnamed User'}
+                          {user.user_metadata.full_name || "Unnamed User"}
                         </div>
                         <div className="text-xs text-gray-500 md:hidden">
                           {user.email}
@@ -178,22 +193,24 @@ const UsersList = ({ users, onUpdateUser, loading }: UsersListProps) => {
                   <TableCell>
                     <div className="flex items-center">
                       <Badge
-                        variant={user.role === 'admin' ? 'outline' : 'secondary'}
+                        variant={
+                          user.role === "admin" ? "outline" : "secondary"
+                        }
                         className={
-                          user.role === 'admin'
-                            ? 'border-purple-200 bg-purple-50 text-purple-900'
-                            : ''
+                          user.role === "admin"
+                            ? "border-purple-200 bg-purple-50 text-purple-900"
+                            : ""
                         }
                       >
-                        {user.role === 'admin' && (
+                        {user.role === "admin" && (
                           <Shield className="mr-1 h-3 w-3" />
                         )}
-                        {user.role || 'User'}
+                        {user.role || "User"}
                       </Badge>
                     </div>
                   </TableCell>
                   <TableCell className="hidden md:table-cell">
-                    {user.region || 'Unknown'}
+                    {user.region || "Unknown"}
                   </TableCell>
                   <TableCell className="hidden md:table-cell">
                     <div className="flex items-center text-sm">
@@ -203,14 +220,14 @@ const UsersList = ({ users, onUpdateUser, loading }: UsersListProps) => {
                   </TableCell>
                   <TableCell className="hidden md:table-cell">
                     <Badge
-                      variant={user.is_active ? 'default' : 'secondary'}
+                      variant={user.is_active ? "default" : "secondary"}
                       className={
                         user.is_active
-                          ? 'bg-green-100 text-green-800 hover:bg-green-100'
-                          : 'bg-gray-100 text-gray-800 hover:bg-gray-100'
+                          ? "bg-green-100 text-green-800 hover:bg-green-100"
+                          : "bg-gray-100 text-gray-800 hover:bg-gray-100"
                       }
                     >
-                      {user.is_active ? 'Active' : 'Inactive'}
+                      {user.is_active ? "Active" : "Inactive"}
                     </Badge>
                   </TableCell>
                   <TableCell>
@@ -224,15 +241,17 @@ const UsersList = ({ users, onUpdateUser, loading }: UsersListProps) => {
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem 
-                          onClick={() => handleEditUser(user)}
-                        >
+                        <DropdownMenuItem onClick={() => handleEditUser(user)}>
                           Edit user
                         </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          onClick={() => onUpdateUser(user.id, { is_active: !user.is_active })}
+                        <DropdownMenuItem
+                          onClick={() =>
+                            onUpdateUser(user.id, {
+                              is_active: !user.is_active,
+                            })
+                          }
                         >
-                          {user.is_active ? 'Deactivate' : 'Activate'}
+                          {user.is_active ? "Deactivate" : "Activate"}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -245,8 +264,8 @@ const UsersList = ({ users, onUpdateUser, loading }: UsersListProps) => {
       </div>
 
       {/* Controlled Dialog component with debugging */}
-      <Dialog 
-        open={dialogOpen} 
+      <Dialog
+        open={dialogOpen}
         onOpenChange={(open) => {
           console.log("Dialog open state changed to:", open);
           if (!open) {
@@ -254,7 +273,7 @@ const UsersList = ({ users, onUpdateUser, loading }: UsersListProps) => {
           }
         }}
       >
-        <DialogContent 
+        <DialogContent
           className="sm:max-w-[425px]"
           onInteractOutside={(e) => {
             // Prevent close on outside click
@@ -270,7 +289,8 @@ const UsersList = ({ users, onUpdateUser, loading }: UsersListProps) => {
           <DialogHeader>
             <DialogTitle>Edit User</DialogTitle>
             <DialogDescription>
-              Make changes to the user account here. Click save when you're done.
+              Make changes to the user account here. Click save when you're
+              done.
             </DialogDescription>
           </DialogHeader>
           {selectedUser && (

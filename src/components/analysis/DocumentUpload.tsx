@@ -468,7 +468,7 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
                 onClick={() =>
                   document.getElementById("document-upload")?.click()
                 }
-                className="mt-2 text-purple-900"
+                className="mt-2 text-purple-900 hover:bg-purple-900"
               >
                 {language === "en" ? "Browse Files" : "Explorar Archivos"}
               </Button>
