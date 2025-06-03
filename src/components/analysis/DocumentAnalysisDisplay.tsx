@@ -365,7 +365,7 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
       <Card className="p-4 sm:p-6">
         <div className="flex items-center justify-between mb-3 sm:mb-4">
           <h4 className="text-lg sm:text-xl font-semibold">
-            {language === "en" ? "Personalized Insight" : "Debilidades"}
+            {language === "en" ? "Personalised Insight" : "Perspectiva personalizada"}
           </h4>
 
           <img

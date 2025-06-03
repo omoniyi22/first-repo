@@ -544,8 +544,8 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
       <Card className="my-4 p-4 sm:p-6">
         <h3 className="text-xl sm:text-2xl font-semibold mb-2 sm:mb-4">
           {language === "en"
-            ? "Personalized Insight"
-            : "Resultados del Análisis"}
+            ? "Personalised Insight"
+            : "Perspectiva personalizada"}
         </h3>
         <div>
           <p className="py-1">{analysisResult[language].personalInsight}</p>
