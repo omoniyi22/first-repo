@@ -177,17 +177,20 @@ const Analysis = () => {
         body: { documentId: newDocumentId, base64Image: canvasImage },
       });
 
-      toast(
-        language === "en"
-          ? "Document is analyzed successfully"
-          : "Documento analizado con éxito",
-        {
-          description:
-            language === "en"
-              ? "Go to My Documents to view the analysis."
-              : "Vaya a Mis documentos para ver el análisis.",
-        }
-      );
+      // toast(
+      //   language === "en"
+      //     ? "Document is analyzed successfully"
+      //     : "Documento analizado con éxito",
+      //   {
+      //     description:
+      //       language === "en"
+      //         ? "Go to My Documents to view the analysis."
+      //         : "Vaya a Mis documentos para ver el análisis.",
+      //   }
+      // );
+
+      navigate(`/analysis?document_id=${newDocumentId}`);
+
       fetchDocs();
       setIsSpinnerLoading(false);
     } catch (err) {

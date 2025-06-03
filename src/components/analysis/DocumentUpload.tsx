@@ -56,6 +56,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { fetchPdfAsBase64 } from "@/utils/pdfUtils";
 import { convertImagesToPDF, imageToBase64PDF } from "@/utils/img2pdf";
 import * as jsPDF from "jspdf";
+import { useNavigate } from "react-router-dom";
 
 const DocumentUploadFormSchema = z.object({
   discipline: z.enum(["dressage", "jumping"]),
@@ -90,6 +91,7 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
   const { toast } = useToast();
   const { language, translations } = useLanguage();
   const t = translations[language];
+  const navigate = useNavigate();
 
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
@@ -825,16 +827,19 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
                     },
                   });
 
-                  toast({
-                    title:
-                      language === "en"
-                        ? "Document is analyzed successfully"
-                        : "Documento analizado con éxito",
-                    description:
-                      language === "en"
-                        ? "Go to My Documents to view the analysis."
-                        : "Vaya a Mis documentos para ver el análisis.",
-                  });
+                  // toast({
+                  //   title:
+                  //     language === "en"
+                  //       ? "Document is analyzed successfully"
+                  //       : "Documento analizado con éxito",
+                  //   description:
+                  //     language === "en"
+                  //       ? "Go to My Documents to view the analysis."
+                  //       : "Vaya a Mis documentos para ver el análisis.",
+                  // });
+
+                  navigate(`/analysis?document_id=${newDocumentId}`);
+
                   fetchDocs();
                   setIsShowSpinner(false);
                 } catch (err) {
