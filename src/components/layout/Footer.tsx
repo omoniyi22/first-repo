@@ -46,7 +46,10 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/contact" className="text-white hover:underline">
+                <Link
+                  to="mailto:info@aiequestrian.com"
+                  className="text-white hover:underline"
+                >
                   Contact
                 </Link>
               </li>
