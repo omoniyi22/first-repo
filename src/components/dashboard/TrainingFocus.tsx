@@ -9,9 +9,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import TrainingFocusForm from "./TrainingFocusForm";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import TrainingFocusForm from "./TrainingFocusForm";
 
 const TrainingFocus = () => {
   const [showEditFocusForm, setShowEditFocusForm] = useState(false);
@@ -38,7 +38,6 @@ const TrainingFocus = () => {
           .eq("discipline", "dressage")
           .order("created_at", { ascending: false });
 
-        console.log("🚀 ~ fetchDressageData ~ data:", data);
         if (error) throw error;
 
         processRecommendationData(data);

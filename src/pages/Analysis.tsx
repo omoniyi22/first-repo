@@ -184,8 +184,8 @@ const Analysis = () => {
         {
           description:
             language === "en"
-              ? "Your document is successfully analyzed."
-              : "Tu documento está siendo analizado.",
+              ? "Go to My Documents to view the analysis."
+              : "Vaya a Mis documentos para ver el análisis.",
         }
       );
       fetchDocs();

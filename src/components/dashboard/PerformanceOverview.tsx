@@ -23,7 +23,7 @@ import {
   Legend,
 } from "recharts";
 import { useEffect, useState } from "react";
-import MovementRadarChart from "./MovementRadarChart";
+import MovementRadarChart from "../profile/MovementRadarChart";
 
 interface TestData {
   id: string;
@@ -293,7 +293,18 @@ const PerformanceOverview = () => {
 
         // Parse all test results and extract percentages
         const testsResults = data?.map((test) => {
-          const result = test.analysis_results[0]?.result_json.en;
+          let result: any = undefined;
+          const resultJson = test.analysis_results[0]?.result_json;
+          if (resultJson && typeof resultJson === "object" && "en" in resultJson) {
+            result = (resultJson as any).en;
+          } else if (typeof resultJson === "string") {
+            try {
+              const parsed = JSON.parse(resultJson);
+              result = parsed?.en ?? parsed;
+            } catch {
+              result = undefined;
+            }
+          }
           let parsedResult;
 
           if (typeof result === "string") {
@@ -560,8 +571,19 @@ const PerformanceOverview = () => {
 
     testData.forEach((test, index) => {
       if (test.analysis_results && test.analysis_results.length > 0) {
-        const result = test.analysis_results[0].result_json.en;
-        const percentage = result.percentage;
+        const resultJson = test.analysis_results[0]?.result_json;
+        let result: any = undefined;
+        if (resultJson && typeof resultJson === "object" && "en" in resultJson) {
+          result = (resultJson as any).en;
+        } else if (typeof resultJson === "string") {
+          try {
+            const parsed = JSON.parse(resultJson);
+            result = parsed?.en ?? parsed;
+          } catch {
+            result = undefined;
+          }
+        }
+        const percentage = result?.percentage;
 
         // Only include tests with valid percentages (not null, not 0)
         if (percentage !== null && percentage !== undefined && percentage > 0) {
@@ -650,8 +672,6 @@ const PerformanceOverview = () => {
     const sign = change >= 0 ? "+" : "";
     return `${sign}${change}`;
   };
-
-
 
   // Updated stats with brand color gradients
   const stats = [
@@ -836,7 +856,7 @@ const PerformanceOverview = () => {
         </Card>
 
         {/* Movement Radar Chart */}
-        <MovementRadarChart/>
+        <MovementRadarChart />
       </div>
     </div>
   );

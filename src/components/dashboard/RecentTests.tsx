@@ -27,6 +27,32 @@ const RecentTests = () => {
   const { language } = useLanguage();
   const [tests, setTests] = useState<TestData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userDiscipline, setUserDiscipline] = useState("");
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (!user) return;
+
+      try {
+        // Fetch user profile to get discipline
+        const { data: profileData, error: profileError } = await supabase
+          .from("profiles")
+          .select("discipline")
+          .eq("id", user.id)
+          .single();
+
+        if (profileError && profileError.code !== "PGRST116") {
+          console.error("Error fetching profile:", profileError);
+        } else if (profileData?.discipline) {
+          setUserDiscipline(profileData.discipline);
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    fetchUserData();
+  }, [user]);
 
   useEffect(() => {
     const fetchRecentTests = async () => {
@@ -37,9 +63,9 @@ const RecentTests = () => {
           .from("document_analysis")
           .select("*, horses(*)")
           .eq("user_id", user.id)
+          .eq("discipline", userDiscipline || "dressage")
           .order("created_at", { ascending: false })
           .limit(3);
-
 
         if (error) {
           console.error("Error fetching recent tests:", error);
@@ -55,7 +81,7 @@ const RecentTests = () => {
     };
 
     fetchRecentTests();
-  }, [user]);
+  }, [user, userDiscipline]);
 
   if (loading) {
     return (
@@ -86,28 +112,56 @@ const RecentTests = () => {
       <div>
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-serif font-semibold text-gray-900">
-            {language === "en" ? "Recent Tests" : "Pruebas Recientes"}
+            {userDiscipline === "dressage"
+              ? language === "en"
+                ? "Recent Tests"
+                : "Pruebas Recientes"
+              : language === "en"
+              ? "Recent Videos"
+              : "Videos recientes"}
           </h2>
           <Button
             variant="link"
             className="text-blue-700"
             onClick={() => navigate("/analysis")}
           >
-            {language === "en" ? "Upload Test" : "Subir Prueba"}
+            {userDiscipline === "dressage"
+              ? language === "en"
+                ? "Upload Test"
+                : "Subir Prueba"
+              : language === "en"
+              ? "Upload Video"
+              : "Subir vídeo"}
           </Button>
         </div>
         <Card className="p-8 text-center">
           <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">
-            {language === "en" ? "No tests yet" : "Aún no hay pruebas"}
+            {userDiscipline === "dressage"
+              ? language === "en"
+                ? "No tests yet"
+                : "Aún no hay pruebas"
+              : language === "en"
+              ? "No videos yet"
+              : "Aún no hay vídeos"}
           </h3>
           <p className="text-gray-500 mb-4">
-            {language === "en"
-              ? "Upload your first test to get started with AI analysis"
-              : "Sube tu primera prueba para comenzar con el análisis de IA"}
+            {userDiscipline === "dressage"
+              ? language === "en"
+                ? "Upload your first test to get started with AI analysis"
+                : "Sube tu primera prueba para comenzar con el análisis de IA"
+              : language === "en"
+              ? "Upload your first video to get started with AI analysis"
+              : "Sube tu primer video para comenzar con el análisis de IA"}
           </p>
           <Button onClick={() => navigate("/analysis")}>
-            {language === "en" ? "Upload Test" : "Subir Prueba"}
+            {userDiscipline === "dressage"
+              ? language === "en"
+                ? "Upload Test"
+                : "Subir Prueba"
+              : language === "en"
+              ? "Upload Video"
+              : "Subir vídeo"}
           </Button>
         </Card>
       </div>

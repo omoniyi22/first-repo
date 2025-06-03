@@ -3,20 +3,17 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
-import DashboardStats from "@/components/dashboard/DashboardStats";
-import RecentVideos from "@/components/dashboard/RecentVideos";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { User, Upload, Settings } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { SEO, getPageMetadata } from "@/lib/seo";
 import { supabase } from "@/integrations/supabase/client";
-import PerformanceOverview from "@/components/profile/PerformanceOverview";
-import Horses from "@/components/profile/Horses";
-import RecentTests from "@/components/profile/RecentTests";
-import Goals from "@/components/profile/Goals";
-import TrainingFocus from "@/components/profile/TrainingFocus";
-import UpcomingEvents from "@/components/profile/UpcomingEvents";
+import UpcomingEvents from "@/components/dashboard/UpcomingEvents";
+import PerformanceOverview from "@/components/dashboard/PerformanceOverview";
+import Goals from "@/components/dashboard/Goals";
+import TrainingFocus from "@/components/dashboard/TrainingFocus";
+import RecentTests from "@/components/dashboard/RecentTests";
 
 const Dashboard = () => {
   const { user, loading } = useAuth();

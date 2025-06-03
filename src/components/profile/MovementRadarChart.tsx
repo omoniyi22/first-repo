@@ -51,14 +51,15 @@ const MovementRadarChart = () => {
       try {
         const { data, error } = await supabase
           .from("document_analysis")
-          .select(`
+          .select(
+            `
             *,
             analysis_results(*)
-          `)
+          `
+          )
           .eq("user_id", user.id)
           .eq("discipline", "dressage")
           .order("created_at", { ascending: false });
-
 
         if (error) throw error;
 
@@ -77,12 +78,12 @@ const MovementRadarChart = () => {
 
       // Extract movement categories and scores
       const movementScores = {
-        "Walk": [],
-        "Trot": [],
-        "Canter": [],
-        "Transitions": [],
-        "Submission": [],
-        "Rider Position": []
+        Walk: [],
+        Trot: [],
+        Canter: [],
+        Transitions: [],
+        Submission: [],
+        "Rider Position": [],
       };
 
       // Process each dressage analysis
@@ -91,42 +92,53 @@ const MovementRadarChart = () => {
           doc.analysis_results.forEach((result) => {
             if (result.result_json && result.result_json.en) {
               const analysis = result.result_json.en;
-              
+
               // Extract overall percentage and convert to movement scores
               if (analysis.percentage) {
                 const baseScore = analysis.percentage / 10; // Convert percentage to 0-10 scale
-                
+
                 // Analyze strengths and weaknesses to adjust individual movement scores
                 const strengths = analysis.strengths || [];
                 const weaknesses = analysis.weaknesses || [];
                 const focusAreas = analysis.focusArea || [];
-                
+
                 // Calculate individual movement scores based on analysis
-                Object.keys(movementScores).forEach(movement => {
+                Object.keys(movementScores).forEach((movement) => {
                   let score = baseScore;
-                  
+
                   // Check if this movement is mentioned in strengths/weaknesses
-                  const isStrength = strengths.some(strength => 
-                    strength.toLowerCase().includes(movement.toLowerCase()) ||
-                    (movement === "Transitions" && strength.toLowerCase().includes("flying changes")) ||
-                    (movement === "Rider Position" && strength.toLowerCase().includes("geometry"))
+                  const isStrength = strengths.some(
+                    (strength) =>
+                      strength.toLowerCase().includes(movement.toLowerCase()) ||
+                      (movement === "Transitions" &&
+                        strength.toLowerCase().includes("flying changes")) ||
+                      (movement === "Rider Position" &&
+                        strength.toLowerCase().includes("geometry"))
                   );
-                  
-                  const isWeakness = weaknesses.some(weakness => 
-                    weakness.toLowerCase().includes(movement.toLowerCase()) ||
-                    (movement === "Transitions" && weakness.toLowerCase().includes("transition")) ||
-                    (movement === "Submission" && weakness.toLowerCase().includes("contact")) ||
-                    (movement === "Trot" && weakness.toLowerCase().includes("trot"))
+
+                  const isWeakness = weaknesses.some(
+                    (weakness) =>
+                      weakness.toLowerCase().includes(movement.toLowerCase()) ||
+                      (movement === "Transitions" &&
+                        weakness.toLowerCase().includes("transition")) ||
+                      (movement === "Submission" &&
+                        weakness.toLowerCase().includes("contact")) ||
+                      (movement === "Trot" &&
+                        weakness.toLowerCase().includes("trot"))
                   );
-                  
-                  const isFocusArea = focusAreas.some(area => 
-                    area.area && (
-                      area.area.toLowerCase().includes(movement.toLowerCase()) ||
-                      (movement === "Transitions" && area.area.toLowerCase().includes("transition")) ||
-                      (movement === "Submission" && area.area.toLowerCase().includes("contact"))
-                    )
+
+                  const isFocusArea = focusAreas.some(
+                    (area) =>
+                      area.area &&
+                      (area.area
+                        .toLowerCase()
+                        .includes(movement.toLowerCase()) ||
+                        (movement === "Transitions" &&
+                          area.area.toLowerCase().includes("transition")) ||
+                        (movement === "Submission" &&
+                          area.area.toLowerCase().includes("contact")))
                   );
-                  
+
                   // Adjust score based on analysis
                   if (isStrength) {
                     score = Math.min(10, score + 0.5);
@@ -134,27 +146,33 @@ const MovementRadarChart = () => {
                   if (isWeakness || isFocusArea) {
                     score = Math.max(0, score - 0.8);
                   }
-                  
+
                   // Add some variation for different movements
                   if (movement === "Walk") score = Math.min(10, score + 0.2);
                   if (movement === "Canter") score = Math.max(0, score - 0.1);
-                  
+
                   movementScores[movement].push(Math.round(score * 10) / 10);
                 });
               }
-              
+
               // Extract specific movement scores if available
               if (analysis.lowestScore && analysis.highestScore) {
                 const lowScore = analysis.lowestScore.score;
                 const highScore = analysis.highestScore.score;
                 const lowMovement = analysis.lowestScore.movement;
                 const highMovement = analysis.highestScore.movement;
-                
+
                 // Map specific movements to categories
-                if (lowMovement.toLowerCase().includes("trot") || lowMovement.toLowerCase().includes("trote")) {
+                if (
+                  lowMovement.toLowerCase().includes("trot") ||
+                  lowMovement.toLowerCase().includes("trote")
+                ) {
                   movementScores["Trot"].push(lowScore);
                 }
-                if (highMovement.toLowerCase().includes("change") || highMovement.toLowerCase().includes("transition")) {
+                if (
+                  highMovement.toLowerCase().includes("change") ||
+                  highMovement.toLowerCase().includes("transition")
+                ) {
                   movementScores["Transitions"].push(highScore);
                 }
               }
@@ -164,21 +182,22 @@ const MovementRadarChart = () => {
       });
 
       // Calculate average scores for each movement
-      const radarData = Object.keys(movementScores).map(movement => {
+      const radarData = Object.keys(movementScores).map((movement) => {
         const scores = movementScores[movement];
         let avgScore = 0;
-        
+
         if (scores.length > 0) {
-          avgScore = scores.reduce((sum, score) => sum + score, 0) / scores.length;
+          avgScore =
+            scores.reduce((sum, score) => sum + score, 0) / scores.length;
         } else {
           // Default scores if no data available
           avgScore = 6.5 + (Math.random() - 0.5) * 2; // Random between 5.5-7.5
         }
-        
+
         return {
           movement: movement,
           score: Math.round(avgScore * 10) / 10,
-          fullMark: 10
+          fullMark: 10,
         };
       });
 
@@ -189,7 +208,15 @@ const MovementRadarChart = () => {
     fetchDressageData();
   }, [user]);
 
-  const CustomTooltip = ({ active, payload, label }) => {
+  const CustomTooltip = ({
+    active,
+    payload,
+    label,
+  }: {
+    active?: boolean;
+    payload?: any;
+    label?: string;
+  }) => {
     if (active && payload && payload.length) {
       const score = payload[0].value;
       return (
