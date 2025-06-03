@@ -76,6 +76,8 @@ const MovementRadarChart = () => {
         return;
       }
 
+      // console.log("🏇 Processing dressage data from", data.length, "documents");
+
       // Extract movement categories and scores
       const movementScores = {
         Walk: [],
@@ -86,21 +88,162 @@ const MovementRadarChart = () => {
         "Rider Position": [],
       };
 
+      // Helper function to categorize movements from array
+      const categorizeMovementArray = (
+        movements,
+        score,
+        targetCategory = null
+      ) => {
+        if (!Array.isArray(movements)) {
+          console.warn("Movement is not an array:", movements);
+          // Fallback for single movement
+          if (movements) {
+            categorizeMovementSingle(movements, score, targetCategory);
+          }
+          return;
+        }
+
+        // console.log(
+        //   `🔍 Categorizing movement array:`,
+        //   movements,
+        //   `Score: ${score}`
+        // );
+
+        movements.forEach((movement) => {
+          categorizeMovementSingle(movement, score, targetCategory);
+        });
+      };
+
+      // Helper function to categorize a single movement
+      const categorizeMovementSingle = (
+        movement,
+        score,
+        targetCategory = null
+      ) => {
+        if (!movement) return;
+
+        const movementLower = movement.toLowerCase();
+        // console.log(
+        //   `  - Processing movement: "${movement}" with score: ${score}`
+        // );
+
+        // Define movement categories with keywords
+        const categoryMap = {
+          Walk: ["walk", "paso", "step", "free walk", "paso libre"],
+          Trot: [
+            "trot",
+            "trote",
+            "passage",
+            "piaffe",
+            "medium trot",
+            "trote medio",
+          ],
+          Canter: [
+            "canter",
+            "galope",
+            "change",
+            "cambio",
+            "flying",
+            "pirouette",
+            "pirueta",
+          ],
+          Transitions: [
+            "transition",
+            "transicion",
+            "halt",
+            "parada",
+            "start",
+            "partir",
+            "entrada",
+            "entry",
+            "salute",
+            "saludo",
+            "immobility",
+            "inmovilidad",
+          ],
+          Submission: [
+            "contact",
+            "contacto",
+            "submission",
+            "sumision",
+            "acceptance",
+            "mouth",
+            "boca",
+            "bit",
+            "bocado",
+            "relaxation",
+            "relajacion",
+          ],
+          "Rider Position": [
+            "geometry",
+            "geometria",
+            "accuracy",
+            "precision",
+            "circle",
+            "circulo",
+            "serpentine",
+            "serpentina",
+            "figure",
+            "figura",
+            "position",
+            "posicion",
+          ],
+        };
+
+        // If targetCategory is specified, only add to that category
+        if (targetCategory && movementScores[targetCategory]) {
+          movementScores[targetCategory].push(score);
+          // console.log(`    ✅ Added to ${targetCategory}: ${score}`);
+          return;
+        }
+
+        // Find matching category
+        let categorized = false;
+        for (const [category, keywords] of Object.entries(categoryMap)) {
+          if (keywords.some((keyword) => movementLower.includes(keyword))) {
+            movementScores[category].push(score);
+            // console.log(`    ✅ Added to ${category}: ${score}`);
+            categorized = true;
+            break;
+          }
+        }
+
+        // If no category found, try to infer from context
+        if (!categorized) {
+          // Default to Rider Position for geometry-related movements
+          movementScores["Rider Position"].push(score);
+          // console.log(`    ⚠️ Added to Rider Position (default): ${score}`);
+        }
+      };
+
       // Process each dressage analysis
-      data.forEach((doc) => {
+      data.forEach((doc, docIndex) => {
+        // console.log(`📄 Processing document ${docIndex + 1}:`, doc.file_name);
+
         if (doc.analysis_results && doc.analysis_results.length > 0) {
-          doc.analysis_results.forEach((result) => {
+          doc.analysis_results.forEach((result, resultIndex) => {
             if (result.result_json && result.result_json.en) {
               const analysis = result.result_json.en;
+              // console.log(`  📊 Processing analysis result ${resultIndex + 1}`);
 
               // Extract overall percentage and convert to movement scores
               if (analysis.percentage) {
                 const baseScore = analysis.percentage / 10; // Convert percentage to 0-10 scale
+                // console.log(
+                //   `  📈 Base score from percentage: ${baseScore} (${analysis.percentage}%)`
+                // );
 
                 // Analyze strengths and weaknesses to adjust individual movement scores
                 const strengths = analysis.strengths || [];
                 const weaknesses = analysis.weaknesses || [];
                 const focusAreas = analysis.focusArea || [];
+
+                // console.log("  💪 Strengths:", strengths);
+                // console.log("  ⚠️ Weaknesses:", weaknesses);
+                // console.log(
+                //   "  🎯 Focus areas:",
+                //   focusAreas.map((f) => f.area)
+                // );
 
                 // Calculate individual movement scores based on analysis
                 Object.keys(movementScores).forEach((movement) => {
@@ -155,31 +298,82 @@ const MovementRadarChart = () => {
                 });
               }
 
-              // Extract specific movement scores if available
+              // FIXED: Extract specific movement scores if available (handling arrays)
               if (analysis.lowestScore && analysis.highestScore) {
                 const lowScore = analysis.lowestScore.score;
                 const highScore = analysis.highestScore.score;
-                const lowMovement = analysis.lowestScore.movement;
-                const highMovement = analysis.highestScore.movement;
 
-                // Map specific movements to categories
-                if (
-                  lowMovement.toLowerCase().includes("trot") ||
-                  lowMovement.toLowerCase().includes("trote")
-                ) {
-                  movementScores["Trot"].push(lowScore);
+                const lowMovements = analysis.lowestScore.movement; // Array of strings
+                const highMovements = analysis.highestScore.movement; // Array of strings
+
+                // console.log(
+                //   "  📉 Lowest score movements:",
+                //   lowMovements,
+                //   "Score:",
+                //   lowScore
+                // );
+                // console.log(
+                //   "  📈 Highest score movements:",
+                //   highMovements,
+                //   "Score:",
+                //   highScore
+                // );
+
+                // Process lowest scoring movements
+                categorizeMovementArray(lowMovements, lowScore);
+
+                // Process highest scoring movements
+                categorizeMovementArray(highMovements, highScore);
+
+                // Additional specific mappings for common patterns
+                if (Array.isArray(lowMovements)) {
+                  lowMovements.forEach((movement) => {
+                    const movementLower = movement.toLowerCase();
+                    if (
+                      movementLower.includes("trot") ||
+                      movementLower.includes("trote")
+                    ) {
+                      movementScores["Trot"].push(lowScore);
+                    }
+                    if (
+                      movementLower.includes("shoulder") ||
+                      movementLower.includes("espalda")
+                    ) {
+                      movementScores["Submission"].push(lowScore); // Lateral work often relates to submission
+                    }
+                  });
                 }
-                if (
-                  highMovement.toLowerCase().includes("change") ||
-                  highMovement.toLowerCase().includes("transition")
-                ) {
-                  movementScores["Transitions"].push(highScore);
+
+                if (Array.isArray(highMovements)) {
+                  highMovements.forEach((movement) => {
+                    const movementLower = movement.toLowerCase();
+                    if (
+                      movementLower.includes("change") ||
+                      movementLower.includes("cambio")
+                    ) {
+                      movementScores["Transitions"].push(highScore);
+                    }
+                    if (
+                      movementLower.includes("serpentine") ||
+                      movementLower.includes("serpentina")
+                    ) {
+                      movementScores["Rider Position"].push(highScore);
+                    }
+                    if (
+                      movementLower.includes("circle") ||
+                      movementLower.includes("circulo")
+                    ) {
+                      movementScores["Rider Position"].push(highScore);
+                    }
+                  });
                 }
               }
             }
           });
         }
       });
+
+      // console.log("📊 Final movement scores before averaging:", movementScores);
 
       // Calculate average scores for each movement
       const radarData = Object.keys(movementScores).map((movement) => {
@@ -189,9 +383,17 @@ const MovementRadarChart = () => {
         if (scores.length > 0) {
           avgScore =
             scores.reduce((sum, score) => sum + score, 0) / scores.length;
+          // console.log(
+          //   `📈 ${movement}: ${
+          //     scores.length
+          //   } scores, average: ${avgScore.toFixed(2)}`
+          // );
         } else {
           // Default scores if no data available
           avgScore = 6.5 + (Math.random() - 0.5) * 2; // Random between 5.5-7.5
+          // console.log(
+          //   `📈 ${movement}: No data, using default: ${avgScore.toFixed(2)}`
+          // );
         }
 
         return {
@@ -200,6 +402,8 @@ const MovementRadarChart = () => {
           fullMark: 10,
         };
       });
+
+      // console.log("🎯 Final radar data:", radarData);
 
       setPerformanceData(radarData);
       setLoading(false);

@@ -107,14 +107,25 @@ const PerformanceOverview = () => {
           let strongestMovement = "";
           let strongestMovementType = ""; // e.g., "Trot", "Canter", "Walk"
 
-          currentMonthTests.forEach((test) => {
-            const analysisResult = test.analysis_results?.[0]?.result_json.en;
+          // console.log(
+          //   "🏆 Calculating strongest movement from",
+          //   currentMonthTests.length,
+          //   "tests"
+          // );
+
+          currentMonthTests.forEach((test, testIndex) => {
+            // console.log(`🔍 Processing test ${testIndex + 1}:`, test.file_name);
+
+            const analysisResult = test.analysis_results?.[0]?.result_json?.en;
             let parsedResult;
 
             if (typeof analysisResult === "string") {
               try {
                 parsedResult = JSON.parse(analysisResult);
               } catch {
+                // console.log(
+                //   `❌ Failed to parse analysis result for test ${testIndex + 1}`
+                // );
                 return;
               }
             } else {
@@ -124,38 +135,25 @@ const PerformanceOverview = () => {
             // Use the pre-calculated highest score from analysis
             if (parsedResult?.highestScore) {
               const score = parsedResult.highestScore.score;
-              const movement = parsedResult.highestScore.movement;
+              const movements = parsedResult.highestScore.movement; // This is an array!
+
+              // console.log(
+              //   `📊 Highest score in test: ${score}, movements:`,
+              //   movements
+              // );
 
               if (score > overallHighestScore) {
                 overallHighestScore = score;
-                strongestMovement = movement;
+                strongestMovement = Array.isArray(movements)
+                  ? movements[0]
+                  : movements; // Take first movement as primary
 
-                // Determine movement type based on movement name
-                const movementLower = movement.toLowerCase();
-                if (
-                  movementLower.includes("trote") ||
-                  movementLower.includes("trot")
-                ) {
-                  strongestMovementType = "Trot";
-                } else if (
-                  movementLower.includes("galope") ||
-                  movementLower.includes("canter") ||
-                  movementLower.includes("cambio")
-                ) {
-                  strongestMovementType = "Canter";
-                } else if (
-                  movementLower.includes("paso") ||
-                  movementLower.includes("walk")
-                ) {
-                  strongestMovementType = "Walk";
-                } else if (
-                  movementLower.includes("passage") ||
-                  movementLower.includes("piaffe")
-                ) {
-                  strongestMovementType = "Passage";
-                } else {
-                  strongestMovementType = "Extended"; // Default for other movements
-                }
+                // Determine movement type based on ALL movement names in the array
+                strongestMovementType = categorizeMovementArray(movements);
+
+                // console.log(
+                //   `🏆 New strongest movement: ${strongestMovementType} (${strongestMovement}) with score ${score}`
+                // );
               }
             }
 
@@ -190,12 +188,136 @@ const PerformanceOverview = () => {
             }
           });
 
+          // console.log("🏆 Final strongest movement analysis:", {
+          //   type: strongestMovementType || "Trot",
+          //   name: strongestMovement,
+          //   score: overallHighestScore,
+          // });
+
           return {
             strongestMovement: strongestMovementType || "Trot", // Default to Trot if nothing found
             strongestMovementName: strongestMovement,
             overallHighestScore,
             movementAverages: movementScores,
           };
+        };
+
+        // Helper function to categorize an array of movements
+        const categorizeMovementArray = (movements) => {
+          if (!Array.isArray(movements)) {
+            // Fallback for single movement (shouldn't happen based on your data)
+            return categorizeSingleMovement(movements);
+          }
+
+          // console.log("🔍 Categorizing movement array:", movements);
+
+          // Count occurrences of each category
+          const categoryScores = {
+            Trot: 0,
+            Canter: 0,
+            Walk: 0,
+            Transitions: 0,
+            Extended: 0,
+            Collection: 0,
+            Lateral: 0,
+            Passage: 0,
+          };
+
+          movements.forEach((movement) => {
+            const category = categorizeSingleMovement(movement);
+            categoryScores[category]++;
+            // console.log(`  - "${movement}" → ${category}`);
+          });
+
+          // Find the most common category
+          let dominantCategory = "Extended"; // Default
+          let maxCount = 0;
+
+          Object.entries(categoryScores).forEach(([category, count]) => {
+            if (count > maxCount) {
+              maxCount = count;
+              dominantCategory = category;
+            }
+          });
+
+          // console.log("📊 Category scores:", categoryScores);
+          // console.log("🏆 Dominant category:", dominantCategory);
+
+          return dominantCategory;
+        };
+
+        // Helper function to categorize a single movement
+        const categorizeSingleMovement = (movement) => {
+          if (!movement) return "Extended";
+
+          const movementLower = movement.toLowerCase();
+
+          // Define keywords for each category
+          const categories = {
+            Trot: ["trote", "trot"],
+            Canter: ["galope", "canter", "cambio", "change", "flying"],
+            Walk: ["paso", "walk", "step"],
+            Passage: ["passage", "piaffe"],
+            Transitions: [
+              "transition",
+              "transicion",
+              "halt",
+              "parada",
+              "start",
+              "partir",
+              "entrada",
+              "entry",
+            ],
+            Extended: [
+              "extended",
+              "extendido",
+              "medium",
+              "medio",
+              "largo",
+              "long",
+            ],
+            Collection: [
+              "collected",
+              "reunido",
+              "pirouette",
+              "pirueta",
+              "reunion",
+            ],
+            Lateral: [
+              "shoulder",
+              "espalda",
+              "travers",
+              "renvers",
+              "leg yield",
+              "cesion",
+              "serpentin",
+              "grupa",
+            ],
+          };
+
+          // Find matching category
+          for (const [category, keywords] of Object.entries(categories)) {
+            if (keywords.some((keyword) => movementLower.includes(keyword))) {
+              return category;
+            }
+          }
+
+          // Special cases for complex movement names
+          if (
+            movementLower.includes("circle") ||
+            movementLower.includes("circulo")
+          ) {
+            return "Extended"; // Circles are usually basic movements
+          }
+
+          if (
+            movementLower.includes("serpentine") ||
+            movementLower.includes("serpentina")
+          ) {
+            return "Extended"; // Serpentines are considered extended movements
+          }
+
+          return "Extended"; // Default fallback
         };
 
         // Helper function to calculate most common focus area
@@ -295,7 +417,11 @@ const PerformanceOverview = () => {
         const testsResults = data?.map((test) => {
           let result: any = undefined;
           const resultJson = test.analysis_results[0]?.result_json;
-          if (resultJson && typeof resultJson === "object" && "en" in resultJson) {
+          if (
+            resultJson &&
+            typeof resultJson === "object" &&
+            "en" in resultJson
+          ) {
             result = (resultJson as any).en;
           } else if (typeof resultJson === "string") {
             try {
@@ -573,7 +699,11 @@ const PerformanceOverview = () => {
       if (test.analysis_results && test.analysis_results.length > 0) {
         const resultJson = test.analysis_results[0]?.result_json;
         let result: any = undefined;
-        if (resultJson && typeof resultJson === "object" && "en" in resultJson) {
+        if (
+          resultJson &&
+          typeof resultJson === "object" &&
+          "en" in resultJson
+        ) {
           result = (resultJson as any).en;
         } else if (typeof resultJson === "string") {
           try {
