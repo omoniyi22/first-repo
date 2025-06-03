@@ -570,7 +570,22 @@ const PerformanceOverview = () => {
     testData.forEach((test, index) => {
       if (test.analysis_results && test.analysis_results.length > 0) {
         const result = test.analysis_results[0].result_json;
-        const percentage = result.percentage;
+        let parsedResult;
+
+        // Handle the case where result_json might be a string or an object
+        if (typeof result === "string") {
+          try {
+            parsedResult = JSON.parse(result);
+          } catch {
+            return;
+          }
+        } else if (result && typeof result === "object" && result.en) {
+          parsedResult = result.en;
+        } else {
+          parsedResult = {};
+        }
+
+        const percentage = parsedResult?.percentage;
 
         // Only include tests with valid percentages (not null, not 0)
         if (percentage !== null && percentage !== undefined && percentage > 0) {
@@ -659,8 +674,6 @@ const PerformanceOverview = () => {
     const sign = change >= 0 ? "+" : "";
     return `${sign}${change}`;
   };
-
-
 
   // Updated stats with brand color gradients
   const stats = [
