@@ -224,7 +224,7 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
           </Select>
         </div>
 
-        <div className="space-y-2">
+        {/* <div className="space-y-2">
           <Label htmlFor="competition-level">Competition Level</Label>
           <Select value={level} onValueChange={setLevel}>
             <SelectTrigger id="competition-level">
@@ -238,7 +238,7 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
               ))}
             </SelectContent>
           </Select>
-        </div>
+        </div> */}
 
         <div className="space-y-2">
           <Label htmlFor="jumping-level">Jumping Level</Label>

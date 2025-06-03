@@ -272,7 +272,7 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
                 {resultData[language].percentage.toFixed(2)}%
               </p>
             ) : (
-              <p className="text-lg">
+              <p className="text-lg text-white">
                 {language === "en"
                   ? "Score not available"
                   : "Puntuación no disponible"}
@@ -589,32 +589,27 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
                   {language === "en" ? "To improve:" : "Para mejorar:"}
                 </b>{" "}
                 {recommendation["setup"]}
-                <br/>
-                <b>
-                  {language === "en" ? "Method:" : ":"}
-                </b><br/>
+                <br />
+                <b>{language === "en" ? "Method:" : ":"}</b>
+                <br />
                 {recommendation["method"].map((method, key) => (
                   <p key={key}>- {method}</p>
                 ))}
-                <b>
-                  {language === "en" ? "Key Points:" : ":"}
-                </b><br/>
+                <b>{language === "en" ? "Key Points:" : ":"}</b>
+                <br />
                 {recommendation["keyPoints"].map((point, key) => (
                   <p key={key}>- {point}</p>
                 ))}
-              <b>
-                {language === "en" ? "Watch For:" : ":"}
-              </b>{" "}
-                <span>{recommendation["watchFor"]}</span><br/>
-              <b>
-                {language === "en" ? "Goal:" : ":"}
-              </b>{" "}
-              <span>{recommendation["goal"]}</span><br/>
-              <b>
-                {language === "en" ? "Quick Fix:" : ":"}
-              </b>{" "}
-              <span>{recommendation["quickFix"]}</span><br/>
-            </li>
+                <b>{language === "en" ? "Watch For:" : ":"}</b>{" "}
+                <span>{recommendation["watchFor"]}</span>
+                <br />
+                <b>{language === "en" ? "Goal:" : ":"}</b>{" "}
+                <span>{recommendation["goal"]}</span>
+                <br />
+                <b>{language === "en" ? "Quick Fix:" : ":"}</b>{" "}
+                <span>{recommendation["quickFix"]}</span>
+                <br />
+              </li>
             )
           ) || "No Recommendations!"}
         </ul>
