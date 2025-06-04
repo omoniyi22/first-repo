@@ -655,12 +655,12 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
             Get Your Ride-Along Podcast
           </Button>
 
-          <div className="flex items-center space-x-2">
+          <div className="space-x-2 flex flex-col items-center p-8">
             <p className="">Powered by</p>
             <img
               src="/lovable-uploads/1000010999.png"
               alt="Horse and rider jumping over competition obstacle"
-              className="w-16 h-16 object-cover object-center"
+              className="w-14 h-14 object-cover object-center"
             />
           </div>
         </div>
