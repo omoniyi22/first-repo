@@ -1,9 +1,9 @@
-
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   Navigate,
+  useLocation,
 } from "react-router-dom";
 import Analytics from "@/components/layout/Analytics";
 import { Toaster } from "@/components/ui/toaster";
@@ -53,83 +53,95 @@ import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
 
 // In a real app, this should be loaded from your backend
 import { HelmetProvider } from "react-helmet-async";
+import WhatsAppButton from "./components/home/WhatsAppButton";
 
 function App() {
+  const location = useLocation();
+  const hideWhatsAppOnPaths = [
+    "/dashboard",
+    "/profile-setup",
+    "/profile-questionnaire",
+    "/jump-profile-setup",
+    "/analysis",
+    "/admin",
+  ];
+
+  const isPublicPage = !hideWhatsAppOnPaths.some((path) =>
+    location.pathname.startsWith(path)
+  );
   return (
     <HelmetProvider>
       <ThemeProvider attribute="class" defaultTheme="light">
         <LanguageProvider>
           <AuthProvider>
             <SubscriptionProvider>
-              <Router>
-                <Analytics />
-                <Routes>
-                  {/* Public routes */}
-                  <Route path="/" element={<Index />} />
-                  <Route path="/about" element={<About />} />
-                  <Route path="/sign-in" element={<SignIn />} />
-                  <Route path="/sign-up" element={<SignUp />} />
-                  <Route path="/reset-password" element={<ResetPassword />} />
-                  <Route path="/blog" element={<Blog />} />
-                  <Route path="/blog/:slug" element={<BlogPost />} />
-                  <Route path="/pricing" element={<Pricing />} />
-                  <Route path="/events" element={<Events />} />
-                  <Route path="/terms" element={<TermsOfService />} />
-                  <Route path="/privacy" element={<Privacy />} />
-                  <Route path="/how-it-works" element={<HowItWorks />} />
+              {/* <Router> */}
+              <Analytics />
+              <Routes>
+                {/* Public routes */}
+                <Route path="/" element={<Index />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/sign-in" element={<SignIn />} />
+                <Route path="/sign-up" element={<SignUp />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/blog" element={<Blog />} />
+                <Route path="/blog/:slug" element={<BlogPost />} />
+                <Route path="/pricing" element={<Pricing />} />
+                <Route path="/events" element={<Events />} />
+                <Route path="/terms" element={<TermsOfService />} />
+                <Route path="/privacy" element={<Privacy />} />
+                <Route path="/how-it-works" element={<HowItWorks />} />
 
-                  {/* Discipline-specific routes */}
-                  <Route path="/dressage" element={<Dressage />} />
-                  <Route path="/jumping" element={<Jumping />} />
-                  <Route
-                    path="/dressage/how-it-works"
-                    element={<DressageHowItWorks />}
-                  />
-                  <Route
-                    path="/jumping/how-it-works"
-                    element={<JumpingHowItWorks />}
-                  />
-                  <Route
-                    path="/equestrian/about"
-                    element={<EquestrianAbout />}
-                  />
-                  <Route path="/dressage/about" element={<DressageAbout />} />
-                  <Route path="/jumping/about" element={<JumpingAbout />} />
+                {/* Discipline-specific routes */}
+                <Route path="/dressage" element={<Dressage />} />
+                <Route path="/jumping" element={<Jumping />} />
+                <Route
+                  path="/dressage/how-it-works"
+                  element={<DressageHowItWorks />}
+                />
+                <Route
+                  path="/jumping/how-it-works"
+                  element={<JumpingHowItWorks />}
+                />
+                <Route path="/equestrian/about" element={<EquestrianAbout />} />
+                <Route path="/dressage/about" element={<DressageAbout />} />
+                <Route path="/jumping/about" element={<JumpingAbout />} />
 
-                  {/* Protected user routes */}
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/profile-setup" element={<Profile />} />
+                {/* Protected user routes */}
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/profile-setup" element={<Profile />} />
 
+                <Route
+                  path="/profile-questionnaire"
+                  element={<ProfileQuestionnaire />}
+                />
+                <Route
+                  path="/jump-profile-setup"
+                  element={<JumpProfileSetup />}
+                />
+                <Route path="/analysis" element={<Analysis />} />
+
+                {/* Admin routes */}
+                <Route path="/admin" element={<Admin />}>
                   <Route
-                    path="/profile-questionnaire"
-                    element={<ProfileQuestionnaire />}
+                    index
+                    element={<Navigate to="/admin/dashboard" replace />}
                   />
-                  <Route
-                    path="/jump-profile-setup"
-                    element={<JumpProfileSetup />}
-                  />
-                  <Route path="/analysis" element={<Analysis />} />
+                  <Route path="dashboard" element={<AdminDashboard />} />
+                  <Route path="blog" element={<AdminBlog />} />
+                  <Route path="users" element={<AdminUsers />} />
+                  <Route path="content" element={<AdminContent />} />
+                  <Route path="media" element={<AdminMedia />} />
+                  <Route path="settings" element={<AdminSettings />} />
+                </Route>
 
-                  {/* Admin routes */}
-                  <Route path="/admin" element={<Admin />}>
-                    <Route
-                      index
-                      element={<Navigate to="/admin/dashboard" replace />}
-                    />
-                    <Route path="dashboard" element={<AdminDashboard />} />
-                    <Route path="blog" element={<AdminBlog />} />
-                    <Route path="users" element={<AdminUsers />} />
-                    <Route path="content" element={<AdminContent />} />
-                    <Route path="media" element={<AdminMedia />} />
-                    <Route path="settings" element={<AdminSettings />} />
-                  </Route>
-
-                  {/* 404 page */}
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-                <Toaster />
-                <SonnerToaster />
-              </Router>
+                {/* 404 page */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+              {isPublicPage && <WhatsAppButton />}
+              <Toaster />
+              <SonnerToaster />
+              {/* </Router> */}
             </SubscriptionProvider>
           </AuthProvider>
         </LanguageProvider>
