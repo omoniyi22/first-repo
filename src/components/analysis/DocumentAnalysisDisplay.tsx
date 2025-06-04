@@ -3,8 +3,10 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { RiWhatsappFill } from "react-icons/ri";
 import {
   ArrowDown,
+  CloudUpload,
   FileText,
   Lightbulb,
   Loader2,
@@ -642,13 +644,14 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
 
       <Card className="p-4 sm:p-6 border-0">
         <div className="flex items-center justify-between mb-3 sm:mb-4">
-          <Button className="bg-[#67C15E] hover:bg-[#67C15E]">
+          <Button className="bg-[#67C15E] hover:bg-[#67C15E] flex flex-col items-center p-8">
+            {/* <MessageCircle className="h-10 w-10 text-white" /> */}
+            <RiWhatsappFill className="!h-7 !w-7 text-white" size={50} />
             Send Results to Coach
-            <MessageCircle className="h-10 w-10 text-white" />
           </Button>
 
           <Button className="bg-[#c9c9c9] hover:bg-[#c9c9c9] flex flex-col items-center p-8">
-            <MessageCircle className="h-10 w-10 text-white" />
+            <CloudUpload className="!h-7 !w-7 text-white" />
             Get Your Ride-Along Podcast
           </Button>
 
