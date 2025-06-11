@@ -53,7 +53,8 @@ import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
 
 // In a real app, this should be loaded from your backend
 import { HelmetProvider } from "react-helmet-async";
-import WhatsAppButton from "./components/home/WhatsAppButton";
+//import WhatsAppButton from "./components/home/WhatsAppButton";
+import TawktoWidget from "./components/Tawkto";
 
 function App() {
   const location = useLocation();
@@ -70,6 +71,7 @@ function App() {
     location.pathname.startsWith(path)
   );
   return (
+    <>
     <HelmetProvider>
       <ThemeProvider attribute="class" defaultTheme="light">
         <LanguageProvider>
@@ -138,7 +140,7 @@ function App() {
                 {/* 404 page */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
-              {isPublicPage && <WhatsAppButton />}
+              {isPublicPage && <TawktoWidget/>}
               <Toaster />
               <SonnerToaster />
               {/* </Router> */}
@@ -147,6 +149,7 @@ function App() {
         </LanguageProvider>
       </ThemeProvider>
     </HelmetProvider>
+    </>
   );
 }
 
