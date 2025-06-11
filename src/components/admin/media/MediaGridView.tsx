@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import {
   MoreHorizontal,
@@ -28,7 +29,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-import { MediaItem } from "./MediaLibrary";
+import { MediaItem } from "@/services/mediaService";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 interface MediaGridViewProps {
@@ -94,13 +95,23 @@ const MediaGridView = ({ items, onDelete, onSelect }: MediaGridViewProps) => {
     }
   };
 
-  // Format video duration
-  const formatDuration = (seconds?: number): string => {
-    if (!seconds) return "0:00";
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  const formatFileSize = (bytes: number): string => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
+
+  if (items.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <ImageIcon className="h-16 w-16 mx-auto text-gray-300 mb-4" />
+        <h3 className="text-lg font-medium text-gray-900 mb-2">No media files yet</h3>
+        <p className="text-gray-500 mb-4">Upload your first image to get started</p>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -108,11 +119,11 @@ const MediaGridView = ({ items, onDelete, onSelect }: MediaGridViewProps) => {
         {items.map((item) => (
           <div
             key={item.id}
-            className="group relative border rounded-md overflow-hidden bg-gray-50 flex flex-col cursor-pointer hover:border-primary"
+            className="group relative border rounded-md overflow-hidden bg-gray-50 flex flex-col cursor-pointer hover:border-primary transition-colors"
             onClick={() => handleItemClick(item)}
           >
             <div className="h-32 overflow-hidden bg-white flex items-center justify-center">
-              {item.type === "image" ? (
+              {item.file_type === "image" ? (
                 brokenImages.has(item.id) ? (
                   <div className="w-full h-full flex items-center justify-center bg-gray-100">
                     <ImageIcon className="h-8 w-8 text-gray-400" />
@@ -127,7 +138,7 @@ const MediaGridView = ({ items, onDelete, onSelect }: MediaGridViewProps) => {
                 )
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
-                  {getFileIcon(item.type)}
+                  {getFileIcon(item.file_type)}
                 </div>
               )}
             </div>
@@ -138,17 +149,20 @@ const MediaGridView = ({ items, onDelete, onSelect }: MediaGridViewProps) => {
                   {item.name}
                 </p>
                 <p className="text-xs text-gray-500">
-                  {new Date(item.uploadedAt).toLocaleDateString("en-GB", {
+                  {new Date(item.created_at).toLocaleDateString("en-GB", {
                     day: "2-digit",
                     month: "2-digit",
                     year: "2-digit",
                   })}
                 </p>
+                <p className="text-xs text-gray-400">
+                  {formatFileSize(item.file_size)}
+                </p>
               </div>
 
               <div className="flex justify-between items-center mt-2">
                 <span className="text-xs text-gray-500">
-                  {item.type.charAt(0).toUpperCase() + item.type.slice(1)}
+                  {item.file_type.charAt(0).toUpperCase() + item.file_type.slice(1)}
                 </span>
 
                 <DropdownMenu>
@@ -156,8 +170,8 @@ const MediaGridView = ({ items, onDelete, onSelect }: MediaGridViewProps) => {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-6 w-6"
-                      onClick={(e) => e.stopPropagation()} // Prevent triggering item selection
+                      className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={(e) => e.stopPropagation()}
                     >
                       <MoreHorizontal className="h-3.5 w-3.5" />
                       <span className="sr-only">Actions</span>
@@ -230,7 +244,7 @@ const MediaGridView = ({ items, onDelete, onSelect }: MediaGridViewProps) => {
         <DialogContent className="max-w-4xl">
           <div className="flex flex-col space-y-4">
             <div className="flex-1 flex items-center justify-center min-h-[300px] bg-gray-100 rounded-md">
-              {previewItem?.type === "image" ? (
+              {previewItem?.file_type === "image" ? (
                 brokenImages.has(previewItem.id) ? (
                   <div className="text-center p-6">
                     <ImageIcon className="h-16 w-16 mx-auto text-gray-400 mb-4" />
@@ -249,34 +263,17 @@ const MediaGridView = ({ items, onDelete, onSelect }: MediaGridViewProps) => {
                     onError={() => handleImageError(previewItem.id)}
                   />
                 )
-              ) : previewItem?.type === "video" ? (
-                <div className="text-center p-6">
-                  <FileVideo className="h-16 w-16 mx-auto text-purple-500 mb-4" />
-                  <p className="text-lg font-medium">Video Preview</p>
-                  <p className="text-gray-500">
-                    Duration: {formatDuration(previewItem.duration)}
-                  </p>
-                  <Button className="mt-4" asChild>
-                    <a
-                      href={previewItem.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Open Video
-                    </a>
-                  </Button>
-                </div>
               ) : (
                 <div className="text-center p-6">
                   <FileText className="h-16 w-16 mx-auto text-amber-500 mb-4" />
-                  <p className="text-lg font-medium">Document Preview</p>
+                  <p className="text-lg font-medium">File Preview</p>
                   <Button className="mt-4" asChild>
                     <a
                       href={previewItem?.url || "#"}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      Open Document
+                      Open File
                     </a>
                   </Button>
                 </div>
@@ -287,12 +284,9 @@ const MediaGridView = ({ items, onDelete, onSelect }: MediaGridViewProps) => {
               <div>
                 <p className="font-medium">{previewItem?.name}</p>
                 <p className="text-sm text-gray-500">
-                  {previewItem?.type === "image" && previewItem?.dimensions
-                    ? `${previewItem.dimensions.width} × ${previewItem.dimensions.height}`
-                    : previewItem?.type
-                    ? previewItem.type.charAt(0).toUpperCase() +
-                      previewItem.type.slice(1)
-                    : ""}
+                  {previewItem?.width && previewItem?.height
+                    ? `${previewItem.width} × ${previewItem.height}px`
+                    : formatFileSize(previewItem?.file_size || 0)}
                 </p>
               </div>
 

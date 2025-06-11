@@ -306,6 +306,51 @@ export type Database = {
         }
         Relationships: []
       }
+      media_items: {
+        Row: {
+          cloudinary_id: string | null
+          created_at: string
+          file_size: number
+          file_type: string
+          height: number | null
+          id: string
+          name: string
+          original_name: string
+          updated_at: string
+          url: string
+          user_id: string
+          width: number | null
+        }
+        Insert: {
+          cloudinary_id?: string | null
+          created_at?: string
+          file_size: number
+          file_type: string
+          height?: number | null
+          id?: string
+          name: string
+          original_name: string
+          updated_at?: string
+          url: string
+          user_id: string
+          width?: number | null
+        }
+        Update: {
+          cloudinary_id?: string | null
+          created_at?: string
+          file_size?: number
+          file_type?: string
+          height?: number | null
+          id?: string
+          name?: string
+          original_name?: string
+          updated_at?: string
+          url?: string
+          user_id?: string
+          width?: number | null
+        }
+        Relationships: []
+      }
       newsletter_subscribers: {
         Row: {
           created_at: string

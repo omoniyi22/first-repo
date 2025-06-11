@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import {
   MoreHorizontal,
@@ -28,7 +29,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-import { MediaItem } from "./MediaLibrary";
+import { MediaItem } from "@/services/mediaService";
 import {
   Table,
   TableBody,
@@ -104,6 +105,16 @@ const MediaListView = ({
     }
   };
 
+  if (items.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <ImageIcon className="h-16 w-16 mx-auto text-gray-300 mb-4" />
+        <h3 className="text-lg font-medium text-gray-900 mb-2">No media files yet</h3>
+        <p className="text-gray-500">Upload your first image to get started</p>
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="rounded-md border">
@@ -113,6 +124,7 @@ const MediaListView = ({
               <TableHead className="w-[300px]">Name</TableHead>
               <TableHead>Type</TableHead>
               <TableHead>Size</TableHead>
+              <TableHead>Dimensions</TableHead>
               <TableHead>Date</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
@@ -125,20 +137,43 @@ const MediaListView = ({
                 onClick={() => handleItemClick(item)}
               >
                 <TableCell>
-                  <div className="flex items-center gap-2">
-                    {getFileIcon(item.type)}
-                    <span className="font-medium">{item.name}</span>
+                  <div className="flex items-center gap-3">
+                    <div className="flex-shrink-0">
+                      {item.file_type === "image" && !brokenImages.has(item.id) ? (
+                        <img
+                          src={item.url}
+                          alt={item.name}
+                          className="h-10 w-10 rounded object-cover"
+                          onError={() => handleImageError(item.id)}
+                        />
+                      ) : (
+                        <div className="h-10 w-10 rounded bg-gray-100 flex items-center justify-center">
+                          {getFileIcon(item.file_type)}
+                        </div>
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium text-gray-900 truncate">{item.name}</p>
+                      <p className="text-sm text-gray-500 truncate">{item.original_name}</p>
+                    </div>
                   </div>
                 </TableCell>
                 <TableCell>
-                  {item.type.charAt(0).toUpperCase() + item.type.slice(1)}
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                    {item.file_type.charAt(0).toUpperCase() + item.file_type.slice(1)}
+                  </span>
                 </TableCell>
-                <TableCell>{formatFileSize(item.size)}</TableCell>
+                <TableCell>{formatFileSize(item.file_size)}</TableCell>
                 <TableCell>
-                  {new Date(item.uploadedAt).toLocaleDateString("en-GB", {
+                  {item.width && item.height ? `${item.width} × ${item.height}px` : '-'}
+                </TableCell>
+                <TableCell>
+                  {new Date(item.created_at).toLocaleDateString("en-GB", {
                     day: "2-digit",
                     month: "2-digit",
                     year: "2-digit",
+                    hour: "2-digit",
+                    minute: "2-digit"
                   })}
                 </TableCell>
                 <TableCell className="text-right space-x-2">
