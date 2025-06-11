@@ -24,8 +24,7 @@ export const MediaBucket = ({ bucketId, onInitialized }: MediaBucketProps) => {
         console.log(`Initializing bucket: ${bucketId} (attempt ${retryCount + 1})`);
         setIsLoading(true);
         
-        // First check if we can access the bucket info - we'll still try
-        // but less critical now that we have Cloudinary
+        // First check if we can access the bucket info
         const bucketInfo = await getStorageBucketInfo(bucketId);
         
         if (bucketInfo.success) {
@@ -60,11 +59,7 @@ export const MediaBucket = ({ bucketId, onInitialized }: MediaBucketProps) => {
           // Remove the key from localStorage to indicate bucket is not available
           localStorage.removeItem(`bucket_available_${bucketId}`);
           
-          // Now we'll try to use Cloudinary anyway
-          console.log("Will use Cloudinary for image storage");
-          
-          // No need to show toast since we have Cloudinary as primary storage
-          if (onInitialized) onInitialized(true);
+          if (onInitialized) onInitialized(false);
         }
       } catch (err) {
         console.error('Error initializing media bucket:', err);
@@ -73,11 +68,8 @@ export const MediaBucket = ({ bucketId, onInitialized }: MediaBucketProps) => {
         // Remove the key from localStorage to indicate bucket is not available
         localStorage.removeItem(`bucket_available_${bucketId}`);
         
-        // Since we have Cloudinary, we can still function without Supabase storage
-        console.log("Will use Cloudinary for image storage (after error)");
         if (onInitialized) {
-          // We're still initialized since we have Cloudinary
-          onInitialized(true);
+          onInitialized(false);
         }
       } finally {
         setIsLoading(false);

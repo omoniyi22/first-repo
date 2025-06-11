@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { uploadToCloudinary } from "./cloudinaryService";
+import { uploadImage } from "@/lib/storage";
 
 export interface MediaItem {
   id: string;
@@ -11,7 +11,6 @@ export interface MediaItem {
   file_size: number;
   width?: number;
   height?: number;
-  cloudinary_id?: string;
   created_at: string;
   updated_at: string;
   user_id: string;
@@ -25,7 +24,6 @@ export interface CreateMediaItem {
   file_size: number;
   width?: number;
   height?: number;
-  cloudinary_id?: string;
 }
 
 // Get all media items for the current user
@@ -101,14 +99,19 @@ export const deleteMediaItem = async (id: string): Promise<void> => {
 // Upload files and create media items
 export const uploadMediaFiles = async (files: File[]): Promise<MediaItem[]> => {
   const results: MediaItem[] = [];
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
   
   for (const file of files) {
     try {
-      // Upload to Cloudinary
-      const cloudinaryResult = await uploadToCloudinary(file);
+      // Upload to Supabase Storage
+      const result = await uploadImage(file, user.id);
       
-      if (!cloudinaryResult.success) {
-        console.error(`Failed to upload ${file.name} to Cloudinary:`, cloudinaryResult.error);
+      if (!result.success) {
+        console.error(`Failed to upload ${file.name}:`, result.error);
         continue;
       }
       
@@ -116,12 +119,11 @@ export const uploadMediaFiles = async (files: File[]): Promise<MediaItem[]> => {
       const mediaItem = await createMediaItem({
         name: file.name,
         original_name: file.name,
-        url: cloudinaryResult.url!,
+        url: result.publicUrl!,
         file_type: file.type.startsWith('image/') ? 'image' : 'file',
         file_size: file.size,
-        width: cloudinaryResult.width,
-        height: cloudinaryResult.height,
-        cloudinary_id: cloudinaryResult.publicId
+        width: result.width,
+        height: result.height
       });
       
       results.push(mediaItem);
