@@ -19,7 +19,6 @@ export interface MediaItem {
     width?: number;
     height?: number;
   };
-  cloudinaryId?: string;
   duration?: number; // Add duration for video files
 }
 

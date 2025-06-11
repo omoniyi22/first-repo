@@ -3,9 +3,8 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Upload, File, X } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
-import { generateFileHash } from "@/lib/storage";
+import { generateFileHash, uploadImage } from "@/lib/storage";
 import { MediaItem } from "./MediaLibrary";
-import { uploadToCloudinary } from "@/services/cloudinaryService";
 
 interface MediaUploadFormProps {
   onComplete: (mediaItems: MediaItem[]) => void;
@@ -94,27 +93,26 @@ const MediaUploadForm = ({ onComplete, onCancel, bucketId = "profiles" }: MediaU
         const fileId = `hash_${fileHash}`;
         
         try {
-          console.log(`Uploading file: ${file.name} to Cloudinary`);
+          console.log(`Uploading file: ${file.name}`);
           
-          // Upload directly to Cloudinary
-          const result = await uploadToCloudinary(file);
+          // Upload using storage service
+          const result = await uploadImage(file);
           
-          if (result.success && result.url) {
-            console.log(`File uploaded successfully to Cloudinary: ${result.url}`);
+          if (result.success && result.publicUrl) {
+            console.log(`File uploaded successfully: ${result.publicUrl}`);
             
             // Create a MediaItem from the uploaded file
             const mediaItem: MediaItem = {
               id: fileId,
               name: file.name,
-              url: result.url,
+              url: result.publicUrl,
               type: "image",
               size: file.size,
               uploadedAt: new Date().toISOString(),
               dimensions: {
                 width: result.width,
                 height: result.height
-              },
-              cloudinaryId: result.publicId
+              }
             };
             
             uploadedItems.push(mediaItem);
