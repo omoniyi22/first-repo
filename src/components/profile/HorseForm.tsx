@@ -323,7 +323,7 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
           </div>
         )}
 
-        <MediaSelector value={photoUrl || ""} onChange={handleImageSelect} />
+        <MediaSelector value={photoUrl || ""} onChange={handleImageSelect}  />
       </div>
 
       <div className="space-y-2">
