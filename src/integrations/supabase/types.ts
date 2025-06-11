@@ -308,6 +308,7 @@ export type Database = {
       }
       media_items: {
         Row: {
+          cloudinary_id: string | null
           created_at: string
           file_size: number
           file_type: string
@@ -321,6 +322,7 @@ export type Database = {
           width: number | null
         }
         Insert: {
+          cloudinary_id?: string | null
           created_at?: string
           file_size: number
           file_type: string
@@ -334,6 +336,7 @@ export type Database = {
           width?: number | null
         }
         Update: {
+          cloudinary_id?: string | null
           created_at?: string
           file_size?: number
           file_type?: string
