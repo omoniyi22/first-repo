@@ -3,8 +3,8 @@ import { supabase } from '@/integrations/supabase/client';
 
 /**
  * Uploads an image to Supabase storage
-git  */
-export const uploadImage = async (file: File, userId: string): Promise<{
+ */
+export const uploadImage = async (file: File): Promise<{
   success: boolean;
   publicUrl?: string;
   width?: number;
@@ -13,7 +13,7 @@ export const uploadImage = async (file: File, userId: string): Promise<{
 }> => {
   try {
     const fileHash = await generateFileHash(file);
-    const filePath = `users/${userId}/media/${fileHash}-${file.name}`;
+    const filePath = `uploads/${fileHash}-${file.name}`;
 
     const { data, error } = await supabase.storage
       .from('profiles')
