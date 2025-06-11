@@ -1,6 +1,53 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { uploadToCloudinary } from '@/services/cloudinaryService';
+
+/**
+ * Uploads an image to Supabase storage
+ */
+export const uploadImage = async (file: File): Promise<{
+  success: boolean;
+  publicUrl?: string;
+  width?: number;
+  height?: number;
+  error?: string;
+}> => {
+  try {
+    const fileHash = await generateFileHash(file);
+    const filePath = `uploads/${fileHash}-${file.name}`;
+
+    const { data, error } = await supabase.storage
+      .from('profiles')
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: true
+      });
+
+    if (error) {
+      console.error('Storage upload failed:', error);
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('profiles')
+      .getPublicUrl(filePath);
+
+    return {
+      success: true,
+      publicUrl,
+      width: undefined,  // These could be added by processing the image
+      height: undefined  // before upload if needed
+    };
+  } catch (error) {
+    console.error('Error uploading to storage:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    };
+  }
+};
 
 /**
  * Tests the Supabase storage functionality
@@ -266,7 +313,7 @@ export const optimizeImageForSEO = async (
 };
 
 /**
- * Uploads an image with SEO optimization to Cloudinary
+ * Uploads an image with SEO optimization
  */
 export const uploadOptimizedImage = async (
   file: File, 
@@ -282,7 +329,6 @@ export const uploadOptimizedImage = async (
   success: boolean;
   data?: {
     publicUrl: string;
-    cloudinaryId?: string;
     width?: number;
     height?: number;
   };
@@ -297,24 +343,7 @@ export const uploadOptimizedImage = async (
       fileIdToUse = await generateFileHash(file);
     }
     
-    // Try Cloudinary first
-    console.log("Attempting to upload to Cloudinary...");
-    const cloudinaryResult = await uploadToCloudinary(file);
-    
-    if (cloudinaryResult.success && cloudinaryResult.url) {
-      console.log("Successfully uploaded to Cloudinary:", cloudinaryResult.url);
-      return {
-        success: true,
-        data: {
-          publicUrl: cloudinaryResult.url,
-          cloudinaryId: cloudinaryResult.publicId,
-          width: cloudinaryResult.width,
-          height: cloudinaryResult.height
-        }
-      };
-    }
-    
-    console.log("Cloudinary upload failed, falling back to other storage options...");
+    // Upload to Supabase storage
     
     // Check if Supabase bucket exists and is available
     const bucketAvailable = localStorage.getItem(`bucket_available_${bucketId}`) === 'true';

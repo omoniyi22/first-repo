@@ -8,7 +8,20 @@ import { useToast } from '@/hooks/use-toast';
 import MediaGridView from './MediaGridView';
 import MediaListView from './MediaListView';
 import MediaUploadForm from './MediaUploadForm';
-import { getUserMediaItems, deleteMediaItem, uploadMediaFiles, MediaItem } from '@/services/mediaService';
+
+export interface MediaItem {
+  id: string;
+  name: string;
+  url: string;
+  type: string;
+  size: number;
+  uploadedAt: string;
+  dimensions?: {
+    width?: number;
+    height?: number;
+  };
+  duration?: number; // Add duration for video files
+}
 
 interface MediaLibraryProps {
   // Define any props here
