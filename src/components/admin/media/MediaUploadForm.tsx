@@ -1,9 +1,10 @@
-
-import { useState, useRef } from "react";
+import { useState, useCallback, ChangeEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, File, X, Loader2 } from "lucide-react";
-import { uploadImage } from "@/lib/storage";
+import { Upload, File, X } from "lucide-react";
+import { v4 as uuidv4 } from "uuid";
+import { generateFileHash, uploadImage } from "@/lib/storage";
+import { MediaItem } from "./MediaLibrary";
 
 interface MediaUploadFormProps {
   onComplete: (files: File[]) => Promise<void>;
@@ -89,16 +90,85 @@ const MediaUploadForm = ({ onComplete, onCancel }: MediaUploadFormProps) => {
     setIsUploading(true);
     setUploadProgress(0);
     
+    const uploadedItems: MediaItem[] = [];
+    let successCount = 0;
+    
     try {
-      await onComplete(files);
+      for (let i = 0; i < selectedFiles.length; i++) {
+        const file = selectedFiles[i];
+        
+        // Generate file hash for deduplication
+        const fileHash = await generateFileHash(file);
+        const fileId = `hash_${fileHash}`;
+        
+        try {
+          console.log(`Uploading file: ${file.name}`);
+          
+          // Upload using storage service
+          const result = await uploadImage(file);
+          
+          if (result.success && result.publicUrl) {
+            console.log(`File uploaded successfully: ${result.publicUrl}`);
+            
+            // Create a MediaItem from the uploaded file
+            const mediaItem: MediaItem = {
+              id: fileId,
+              name: file.name,
+              url: result.publicUrl,
+              type: "image",
+              size: file.size,
+              uploadedAt: new Date().toISOString(),
+              dimensions: {
+                width: result.width,
+                height: result.height
+              }
+            };
+            
+            uploadedItems.push(mediaItem);
+            successCount++;
+          } else {
+            console.error("Upload failed for file", file.name, result.error);
+            toast({
+              title: "Upload Failed",
+              description: `Failed to upload ${file.name}. ${result.error || "Unknown error"}`,
+              variant: "destructive"
+            });
+          }
+        } catch (error) {
+          console.error("Error uploading file:", file.name, error);
+          toast({
+            title: "Upload Error",
+            description: `Error uploading ${file.name}. Please try again.`,
+            variant: "destructive"
+          });
+        }
+        
+        // Update progress
+        setUploadProgress(Math.round(((i + 1) / selectedFiles.length) * 100));
+      }
       
-      toast({
-        title: "Upload Complete",
-        description: `${files.length} files uploaded successfully.`,
-      });
+      if (successCount === 0) {
+        toast({
+          title: "Upload Failed",
+          description: "All file uploads failed. Please try again.",
+          variant: "destructive"
+        });
+      } else if (successCount < selectedFiles.length) {
+        toast({
+          title: "Partial Upload Success",
+          description: `${successCount} of ${selectedFiles.length} files uploaded successfully.`,
+        });
+      } else {
+        toast({
+          title: "Upload Complete",
+          description: `${successCount} files uploaded successfully.`,
+        });
+      }
       
-      // Reset form
-      setFiles([]);
+      // Call onComplete with the uploaded items
+      if (uploadedItems.length > 0) {
+        onComplete(uploadedItems);
+      }
     } catch (error) {
       console.error('Upload error:', error);
       toast({
@@ -107,6 +177,7 @@ const MediaUploadForm = ({ onComplete, onCancel }: MediaUploadFormProps) => {
         variant: "destructive"
       });
     } finally {
+      clearInterval(progressInterval);
       setIsUploading(false);
       setUploadProgress(0);
     }
