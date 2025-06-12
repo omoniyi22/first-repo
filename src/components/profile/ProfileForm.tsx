@@ -5,6 +5,7 @@ import { regions } from '@/lib/formOptions';
 
 interface ProfileFormProps {
   displayName: string;
+  setDisplayName: (value: string) => void;
   riderCategory: string;
   setRiderCategory: (value: string) => void;
   stableAffiliation: string;
@@ -19,6 +20,7 @@ interface ProfileFormProps {
 
 const ProfileForm: React.FC<ProfileFormProps> = ({
   displayName,
+  setDisplayName,
   riderCategory,
   setRiderCategory,
   stableAffiliation,
@@ -33,11 +35,24 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
   return (
     <div className="flex-1">
       <h1 className="text-3xl font-serif font-semibold text-gray-900 mb-4">
-        Welcome, {displayName}
+        Welcome to Your Profile
       </h1>
       
       {/* Form Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Display Name */}
+        <div className="space-y-2">
+          <label htmlFor="display-name" className="text-sm font-medium text-gray-700">
+            Display Name
+          </label>
+          <Input 
+            id="display-name" 
+            value={displayName} 
+            onChange={(e) => setDisplayName(e.target.value)} 
+            placeholder="Enter your display name"
+          />
+        </div>
+
         {/* Discipline */}
         <div className="space-y-2">
           <label htmlFor="discipline" className="text-sm font-medium text-gray-700">

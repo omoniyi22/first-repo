@@ -11,6 +11,7 @@ import ProfileActions from './ProfileActions';
 // Define a type for our profile data
 interface ProfileData {
   id: string;
+  display_name?: string | null;
   rider_category: string | null;
   stable_affiliation: string | null;
   coach_name: string | null;
@@ -25,6 +26,7 @@ const ProfileHeader = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [profilePic, setProfilePic] = useState<string | null>(null);
+  const [displayName, setDisplayName] = useState('');
   const [riderCategory, setRiderCategory] = useState('Adult Amateur');
   const [stableAffiliation, setStableAffiliation] = useState('');
   const [coachName, setCoachName] = useState('');
@@ -32,10 +34,6 @@ const ProfileHeader = () => {
   const [discipline, setDiscipline] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  
-  const displayName = user?.user_metadata?.full_name || 
-                      user?.email?.split('@')[0] || 
-                      'Rider';
   
   // Fetch profile data on component mount
   useEffect(() => {
@@ -69,12 +67,16 @@ const ProfileHeader = () => {
         
         if (profile) {
           // Set state with data from Supabase
+          setDisplayName(profile.display_name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || '');
           setRiderCategory(profile.rider_category || 'Adult Amateur');
           setStableAffiliation(profile.stable_affiliation || '');
           setCoachName(profile.coach_name || '');
           setRegion(profile.region || '');
           setDiscipline(profile.discipline || '');
           setProfilePic(profile.profile_picture_url);
+        } else {
+          // Set default display name from user metadata if no profile exists
+          setDisplayName(user?.user_metadata?.full_name || user?.email?.split('@')[0] || '');
         }
       } catch (error) {
         console.error('Error in profile data fetch:', error);
@@ -102,6 +104,7 @@ const ProfileHeader = () => {
       // Prepare profile data
       const profileData: ProfileData = {
         id: user.id,
+        display_name: displayName,
         rider_category: riderCategory,
         stable_affiliation: stableAffiliation,
         coach_name: coachName,
@@ -161,6 +164,7 @@ const ProfileHeader = () => {
         {/* Profile Form */}
         <ProfileForm
           displayName={displayName}
+          setDisplayName={setDisplayName}
           riderCategory={riderCategory}
           setRiderCategory={setRiderCategory}
           stableAffiliation={stableAffiliation}
