@@ -128,7 +128,9 @@ const Dashboard = () => {
                   : language === "en"
                   ? "Upload Video"
                   : "Subir vídeo"
-                : "Loading..."}
+                : language === "en"
+                ? "Upload Test"
+                : "Subir Prueba"}
             </Button>
             <Button
               variant="outline"

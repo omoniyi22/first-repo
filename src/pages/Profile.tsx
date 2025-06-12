@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
@@ -100,7 +99,9 @@ const Profile = () => {
                   : language === "en"
                   ? "Upload Video"
                   : "Subir vídeo"
-                : "Loading..."}
+                : language === "en"
+                ? "Upload Test"
+                : "Subir Prueba"}
             </Button>
             <Button
               variant="outline"
