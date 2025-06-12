@@ -1,273 +1,186 @@
-import { useState, useCallback, ChangeEvent } from "react";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
-import { Upload, File, X } from "lucide-react";
-import { v4 as uuidv4 } from "uuid";
-import { generateFileHash, uploadImage } from "@/lib/storage";
-import { MediaItem } from "./MediaLibrary";
+
+import { useState, useRef } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Progress } from '@/components/ui/progress';
+import { X, Upload, Loader2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+import { v4 as uuidv4 } from 'uuid';
 
 interface MediaUploadFormProps {
-  onComplete: (files: File[]) => Promise<void>;
+  onComplete: (files: File[]) => void;
   onCancel: () => void;
-  bucketId?: string; // Keep for compatibility but not used
+  bucketId: string;
 }
 
-const MediaUploadForm = ({ onComplete, onCancel }: MediaUploadFormProps) => {
-  const [files, setFiles] = useState<File[]>([]);
+const MediaUploadForm: React.FC<MediaUploadFormProps> = ({ 
+  onComplete, 
+  onCancel, 
+  bucketId 
+}) => {
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const dropZoneRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  const { user } = useAuth();
 
-  // Handle file input change
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const selectedFiles = Array.from(e.target.files);
-      // Only accept images
-      const imageFiles = selectedFiles.filter(file => 
-        file.type.startsWith('image/')
-      );
-      
-      if (imageFiles.length !== selectedFiles.length) {
-        toast({
-          title: "Invalid Files",
-          description: "Only image files are allowed.",
-          variant: "destructive"
-        });
-      }
-      
-      setFiles(imageFiles);
-    }
+  const handleFileSelection = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
+    setSelectedFiles(files);
   };
 
-  // Handle drop event
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      const droppedFiles = Array.from(e.dataTransfer.files);
-      // Only accept images
-      const imageFiles = droppedFiles.filter(file => 
-        file.type.startsWith('image/')
-      );
-      
-      if (imageFiles.length !== droppedFiles.length) {
-        toast({
-          title: "Invalid Files",
-          description: "Only image files are allowed.",
-          variant: "destructive"
-        });
-      }
-      
-      setFiles(imageFiles);
-    }
+  const removeFile = (index: number) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
   };
 
-  // Highlight drop zone on drag over
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (dropZoneRef.current) {
-      dropZoneRef.current.classList.add('border-primary');
-    }
-  };
+  const uploadFiles = async () => {
+    if (!user || selectedFiles.length === 0) return;
 
-  // Remove highlight on drag leave
-  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (dropZoneRef.current) {
-      dropZoneRef.current.classList.remove('border-primary');
-    }
-  };
-
-  // Handle form submission
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (files.length === 0) return;
-    
     setIsUploading(true);
     setUploadProgress(0);
-    
-    const uploadedItems: MediaItem[] = [];
-    let successCount = 0;
-    
+
     try {
+      const uploadedFiles: File[] = [];
+      
       for (let i = 0; i < selectedFiles.length; i++) {
         const file = selectedFiles[i];
-        
-        // Generate file hash for deduplication
-        const fileHash = await generateFileHash(file);
-        const fileId = `hash_${fileHash}`;
-        
-        try {
-          console.log(`Uploading file: ${file.name}`);
-          
-          // Upload using storage service
-          const result = await uploadImage(file);
-          
-          if (result.success && result.publicUrl) {
-            console.log(`File uploaded successfully: ${result.publicUrl}`);
-            
-            // Create a MediaItem from the uploaded file
-            const mediaItem: MediaItem = {
-              id: fileId,
-              name: file.name,
-              url: result.publicUrl,
-              type: "image",
-              size: file.size,
-              uploadedAt: new Date().toISOString(),
-              dimensions: {
-                width: result.width,
-                height: result.height
-              }
-            };
-            
-            uploadedItems.push(mediaItem);
-            successCount++;
-          } else {
-            console.error("Upload failed for file", file.name, result.error);
-            toast({
-              title: "Upload Failed",
-              description: `Failed to upload ${file.name}. ${result.error || "Unknown error"}`,
-              variant: "destructive"
-            });
-          }
-        } catch (error) {
-          console.error("Error uploading file:", file.name, error);
-          toast({
-            title: "Upload Error",
-            description: `Error uploading ${file.name}. Please try again.`,
-            variant: "destructive"
-          });
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${uuidv4()}.${fileExt}`;
+        const filePath = `${user.id}/${fileName}`;
+
+        // Upload file to Supabase Storage
+        const { error: uploadError } = await supabase.storage
+          .from(bucketId)
+          .upload(filePath, file);
+
+        if (uploadError) {
+          console.error('Upload error:', uploadError);
+          continue;
         }
-        
+
+        // Get public URL
+        const { data: { publicUrl } } = supabase.storage
+          .from(bucketId)
+          .getPublicUrl(filePath);
+
+        // Save media item to database
+        const { error: dbError } = await supabase
+          .from('media_items')
+          .insert({
+            user_id: user.id,
+            name: fileName,
+            original_name: file.name,
+            url: publicUrl,
+            file_type: file.type,
+            file_size: file.size,
+            width: null,
+            height: null
+          });
+
+        if (dbError) {
+          console.error('Database error:', dbError);
+        } else {
+          uploadedFiles.push(file);
+        }
+
         // Update progress
-        setUploadProgress(Math.round(((i + 1) / selectedFiles.length) * 100));
+        setUploadProgress(((i + 1) / selectedFiles.length) * 100);
       }
-      
-      if (successCount === 0) {
-        toast({
-          title: "Upload Failed",
-          description: "All file uploads failed. Please try again.",
-          variant: "destructive"
-        });
-      } else if (successCount < selectedFiles.length) {
-        toast({
-          title: "Partial Upload Success",
-          description: `${successCount} of ${selectedFiles.length} files uploaded successfully.`,
-        });
-      } else {
-        toast({
-          title: "Upload Complete",
-          description: `${successCount} files uploaded successfully.`,
-        });
-      }
-      
-      // Call onComplete with the uploaded items
-      if (uploadedItems.length > 0) {
-        onComplete(uploadedItems);
-      }
+
+      onComplete(uploadedFiles);
     } catch (error) {
-      console.error('Upload error:', error);
+      console.error('Error uploading files:', error);
       toast({
         title: "Upload Failed",
-        description: "There was an error uploading your files.",
-        variant: "destructive"
+        description: "Failed to upload some files.",
+        variant: "destructive",
       });
     } finally {
-      clearInterval(progressInterval);
       setIsUploading(false);
       setUploadProgress(0);
     }
   };
 
-  // Remove file from selection
-  const removeFile = (index: number) => {
-    setFiles(prev => prev.filter((_, i) => i !== index));
+  const formatFileSize = (bytes: number): string => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div 
-        ref={dropZoneRef}
-        className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center transition-colors hover:border-primary"
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-      >
-        <label className="cursor-pointer block">
-          <input 
-            type="file" 
-            multiple 
-            accept="image/*" 
-            onChange={handleFileChange}
-            className="hidden" 
-            disabled={isUploading}
-          />
-          <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-          <p className="text-sm text-gray-600 font-medium">Click to browse or drag and drop</p>
-          <p className="text-xs text-gray-500 mt-1">PNG, JPG, GIF up to 10MB</p>
-        </label>
+    <div className="space-y-4">
+      {/* File Input */}
+      <div>
+        <Input
+          ref={fileInputRef}
+          type="file"
+          multiple
+          accept="image/*,video/*"
+          onChange={handleFileSelection}
+          className="hidden"
+        />
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => fileInputRef.current?.click()}
+          className="w-full"
+          disabled={isUploading}
+        >
+          <Upload className="mr-2 h-4 w-4" />
+          Select Files
+        </Button>
       </div>
-      
-      {files.length > 0 && (
+
+      {/* Selected Files List */}
+      {selectedFiles.length > 0 && (
         <div className="space-y-2">
-          <p className="text-sm font-medium">Selected files ({files.length}):</p>
-          <div className="max-h-32 overflow-y-auto">
-            {files.map((file, index) => (
-              <div key={index} className="flex justify-between items-center py-2 px-3 hover:bg-gray-50 rounded border">
+          <h4 className="font-medium">Selected Files:</h4>
+          <div className="max-h-40 overflow-y-auto space-y-2">
+            {selectedFiles.map((file, index) => (
+              <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">
-                    {file.name}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    {(file.size / 1024).toFixed(1)} KB
-                  </p>
+                  <p className="text-sm font-medium truncate">{file.name}</p>
+                  <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
                 </div>
-                <Button 
-                  type="button" 
-                  variant="ghost" 
-                  size="sm"
-                  className="h-8 w-8 p-0 text-gray-400 hover:text-red-600"
-                  onClick={() => removeFile(index)}
-                  disabled={isUploading}
-                >
-                  <X className="h-4 w-4" />
-                </Button>
+                {!isUploading && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => removeFile(index)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                )}
               </div>
             ))}
           </div>
         </div>
       )}
-      
+
+      {/* Upload Progress */}
       {isUploading && (
         <div className="space-y-2">
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div 
-              className="bg-primary h-2 rounded-full transition-all duration-300" 
-              style={{ width: `${uploadProgress}%` }}
-            ></div>
+          <div className="flex items-center space-x-2">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            <span className="text-sm">Uploading...</span>
           </div>
-          <p className="text-sm text-center text-gray-500">
-            Uploading... {uploadProgress}%
-          </p>
+          <Progress value={uploadProgress} className="w-full" />
         </div>
       )}
-      
-      <div className="flex justify-end space-x-3 pt-4">
-        <Button 
-          type="button" 
-          variant="outline" 
-          onClick={onCancel}
-          disabled={isUploading}
-        >
-          Cancel
-        </Button>
-        <Button 
-          type="submit"
-          disabled={files.length === 0 || isUploading}
+
+      {/* Action Buttons */}
+      <div className="flex space-x-2">
+        <Button
+          type="button"
+          onClick={uploadFiles}
+          disabled={selectedFiles.length === 0 || isUploading}
+          className="flex-1"
         >
           {isUploading ? (
             <>
@@ -275,14 +188,19 @@ const MediaUploadForm = ({ onComplete, onCancel }: MediaUploadFormProps) => {
               Uploading...
             </>
           ) : (
-            <>
-              <Upload className="mr-2 h-4 w-4" />
-              Upload {files.length > 0 ? `${files.length} file${files.length > 1 ? 's' : ''}` : ''}
-            </>
+            `Upload ${selectedFiles.length} file${selectedFiles.length !== 1 ? 's' : ''}`
           )}
         </Button>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onCancel}
+          disabled={isUploading}
+        >
+          Cancel
+        </Button>
       </div>
-    </form>
+    </div>
   );
 };
 

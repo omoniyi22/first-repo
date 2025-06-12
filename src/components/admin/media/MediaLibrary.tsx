@@ -5,6 +5,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Grid2X2, List, Plus, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import MediaGridView from './MediaGridView';
 import MediaListView from './MediaListView';
 import MediaUploadForm from './MediaUploadForm';
@@ -13,14 +15,15 @@ export interface MediaItem {
   id: string;
   name: string;
   url: string;
-  type: string;
-  size: number;
-  uploadedAt: string;
-  dimensions?: {
-    width?: number;
-    height?: number;
-  };
-  duration?: number; // Add duration for video files
+  original_name: string;
+  file_type: string;
+  file_size: number;
+  created_at: string;
+  updated_at: string;
+  user_id: string;
+  width?: number;
+  height?: number;
+  cloudinary_id?: string | null;
 }
 
 interface MediaLibraryProps {
@@ -33,13 +36,23 @@ const MediaLibrary: React.FC<MediaLibraryProps> = () => {
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   // Load media items from database
   const loadMediaItems = async () => {
+    if (!user) return;
+    
     try {
       setIsLoading(true);
-      const items = await getUserMediaItems();
-      setMediaItems(items);
+      const { data, error } = await supabase
+        .from('media_items')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      
+      setMediaItems(data || []);
     } catch (error) {
       console.error('Error loading media items:', error);
       toast({
@@ -54,27 +67,17 @@ const MediaLibrary: React.FC<MediaLibraryProps> = () => {
 
   useEffect(() => {
     loadMediaItems();
-  }, []);
+  }, [user]);
 
   const handleUploadComplete = async (files: File[]) => {
     try {
-      const newItems = await uploadMediaFiles(files);
+      // Refresh the media items list after upload
+      await loadMediaItems();
       
-      if (newItems.length > 0) {
-        setMediaItems(prevItems => [...newItems, ...prevItems]);
-        toast({
-          title: "Upload Successful",
-          description: `Successfully uploaded ${newItems.length} file(s) to your media library.`,
-        });
-      }
-      
-      if (newItems.length < files.length) {
-        toast({
-          title: "Some uploads failed",
-          description: `${files.length - newItems.length} file(s) could not be uploaded.`,
-          variant: "destructive",
-        });
-      }
+      toast({
+        title: "Upload Successful",
+        description: `Successfully uploaded ${files.length} file(s) to your media library.`,
+      });
     } catch (error) {
       console.error('Error uploading files:', error);
       toast({
@@ -89,7 +92,13 @@ const MediaLibrary: React.FC<MediaLibraryProps> = () => {
 
   const handleDeleteMedia = async (id: string) => {
     try {
-      await deleteMediaItem(id);
+      const { error } = await supabase
+        .from('media_items')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
       setMediaItems(prevItems => prevItems.filter(item => item.id !== id));
       toast({
         title: "Media Deleted",
