@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -20,6 +20,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
+import { callPodcastScript, fillTemplate, formatScriptWithStyles } from "@/utils/podcastUtils";
 
 // Define proper types for the analysis data
 interface MovementScore {
@@ -110,8 +111,10 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
   const [resultData, setResultData] = useState<AnalysisResultData | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [analysisData, setAnalysisData] = useState<any>(null);
 
   useEffect(() => {
+    
     const fetchAnalysis = async () => {
       if (!user) return;
 
@@ -174,6 +177,143 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
 
     fetchAnalysis();
   }, [documentId, user, language]);
+
+  useEffect(() => {
+    console.log(user, analysis);
+    const fetchHorse = async () => {
+      if (analysis) {
+        const horse_id = analysis.horse_id;
+        const { data, error } = await supabase
+          .from('horses')
+          .select('*')
+          .eq('id', horse_id)
+          .single();
+
+        if (error) {
+          console.error('Error fetching horse:', error);
+        } else {
+          setAnalysisData({
+            rider_name: user.user_metadata.full_name,
+            discipline: analysis.discipline,
+            experience_level: analysis.test_level,
+            goals: "Improve overall harmony and contact, reduce tension in horse",
+            horse_name: data['name'],
+            horse_age: data['age'],
+            horse_breed: data['breed'],
+            horse_level: data['dressage_level'],
+            overall_score: resultData['en']['percentage'].toFixed(3),
+            best_movement: resultData['en']['highestScore']['movement'].join(", "),
+            best_score: resultData['en']['highestScore']['score'],
+            worst_movement: resultData['en']['lowestScore']['movement'].join(", "),
+            worst_score: resultData['en']['lowestScore']['score'],
+            score_trend: "Stable with potential for improvement",
+            strength_1: resultData['en']['strengths'][0] || "",
+            strength_2: resultData['en']['strengths'][1] || "",
+            strength_3: resultData['en']['strengths'][2] || "",
+            weakness_1: resultData['en']['weaknesses'][0] || "",
+            weakness_2: resultData['en']['weaknesses'][1] || "",
+            weakness_3: resultData['en']['weaknesses'][2] || "",
+            judge_comment_a: resultData['en']['generalComments']?.['judgeA'] || "",
+            judge_comment_b: resultData['en']['generalComments']?.['judgeB'] || "",
+            judge_comment_c: resultData['en']['generalComments']?.['judgeC'] || "",
+            primary_recommendation: "Establishing consistent, elastic connection",
+            quick_fix_1: resultData['en']['recommendations'][0]?.['quickFix'] || "",
+            exercise_1: resultData['en']['recommendations'][0]?.['exercise'] || "",
+            key_points_1: resultData['en']['recommendations'][0]?.['keyPoints']?.join("; ") || "",
+            goal_1: resultData['en']['recommendations'][0]?.['goal'] || "",
+            secondary_recommendation: "Clean, balanced transitions at precise markers",
+            quick_fix_2: resultData['en']['recommendations'][1]?.['quickFix'] || "",
+            exercise_2: resultData['en']['recommendations'][1]?.['exercise'] || "",
+            key_points_2: resultData['en']['recommendations'][1]?.['keyPoints']?.join("; ") || "",
+            goal_2: resultData['en']['recommendations'][1]?.['goal'] || "",
+            current_season: "Summer",
+            upcoming_events: "National Eventing Championship",
+            training_phase: "Preparation"
+          });
+
+          console.log('Horse data:', data);
+        }
+      }
+    };
+    fetchHorse();
+  }, [user, analysis, resultData])
+
+  const getPromptForTTS = async () => {
+    setIsLoading(true);
+
+    const filePath = `${user.id}_${analysis.id}/final_podcast_with_music.mp3`;
+    const { data } = supabase
+      .storage
+      .from('analysis')
+      .getPublicUrl(filePath);
+
+    if (!data?.publicUrl) {
+      console.error("Failed to get public URL");
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const initialCheck = await fetch(data.publicUrl, { method: 'HEAD' });
+
+      if (initialCheck.ok) {
+        window.open(data.publicUrl, '_blank');
+        setIsLoading(false);
+        return;
+      }
+
+      // Generate prompt and call podcast script
+      const prompt = fillTemplate(analysisData);
+      const res = await callPodcastScript(prompt);
+      const rawdata = res.result;
+      const result_tts = formatScriptWithStyles(rawdata, 2);
+      console.log("res", result_tts);
+
+      // Fire-and-forget request
+      fetch("https://6703-45-153-229-59.ngrok-free.app/generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          scriptText: result_tts,
+          userId: user.id,
+          analysisId: analysis.id
+        })
+      });
+
+      // Begin polling
+      const checkInterval = 5000; // 5 seconds
+      const timeout = 10 * 60 * 1000; // 10 minutes
+      const startTime = Date.now();
+
+      const intervalId = setInterval(async () => {
+        const elapsed = Date.now() - startTime;
+        if (elapsed > timeout) {
+          clearInterval(intervalId);
+          setIsLoading(false);
+          console.error("File not available after 10 minutes.");
+          alert("Please analyse again later");
+          return;
+        }
+
+        try {
+          const response = await fetch(data.publicUrl, { method: 'HEAD' });
+          if (response.ok) {
+            clearInterval(intervalId);
+            window.open(data.publicUrl, '_blank');
+            setIsLoading(false);
+          }
+        } catch (error) {
+          console.error("Error checking file availability:", error);
+        }
+      }, checkInterval);
+    } catch (err) {
+      setIsLoading(false);
+      console.error('Error checking or generating file:', err);
+    }
+  };
+
 
   if (isLoading) {
     return (
@@ -601,14 +741,9 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
                 ))}
                 <b>{language === "en" ? "Key Points:" : ":"}</b>
                 <br />
-                {recommendation["keyPoints"] &&
-                typeof recommendation["keyPoints"] === "string" ? (
-                  <p> - {recommendation["keyPoints"]}</p>
-                ) : (
-                  recommendation["keyPoints"].map((point, key) => (
-                    <p key={key}>- {point}</p>
-                  ))
-                )}
+                {recommendation["keyPoints"].map((point, key) => (
+                  <p key={key}>- {point}</p>
+                ))}
                 <b>{language === "en" ? "Watch For:" : ":"}</b>{" "}
                 <span>{recommendation["watchFor"]}</span>
                 <br />
@@ -655,7 +790,10 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
             Send Results to Coach
           </Button>
 
-          <Button className="bg-[#c9c9c9] hover:bg-[#c9c9c9] flex flex-col items-center p-8">
+          <Button
+            className="bg-[#c9c9c9] hover:bg-[#c9c9c9] flex flex-col items-center p-8"
+            onClick={async () => {await getPromptForTTS();}}
+          >
             <CloudUpload className="!h-7 !w-7 text-white" />
             Get Your Ride-Along Podcast
           </Button>
