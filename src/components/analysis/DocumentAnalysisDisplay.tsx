@@ -20,7 +20,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
-import { callPodcastScript, fillTemplate, formatScriptWithStyles } from "@/utils/podcastUtils";
+import {
+  callPodcastScript,
+  fillTemplate,
+  formatScriptWithStyles,
+} from "@/utils/podcastUtils";
 
 // Define proper types for the analysis data
 interface MovementScore {
@@ -114,7 +118,6 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
   const [analysisData, setAnalysisData] = useState<any>(null);
 
   useEffect(() => {
-    
     const fetchAnalysis = async () => {
       if (!user) return;
 
@@ -184,68 +187,83 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
       if (analysis) {
         const horse_id = analysis.horse_id;
         const { data, error } = await supabase
-          .from('horses')
-          .select('*')
-          .eq('id', horse_id)
+          .from("horses")
+          .select("*")
+          .eq("id", horse_id)
           .single();
 
         if (error) {
-          console.error('Error fetching horse:', error);
+          console.error("Error fetching horse:", error);
         } else {
           setAnalysisData({
             rider_name: user.user_metadata.full_name,
             discipline: analysis.discipline,
             experience_level: analysis.test_level,
-            goals: "Improve overall harmony and contact, reduce tension in horse",
-            horse_name: data['name'],
-            horse_age: data['age'],
-            horse_breed: data['breed'],
-            horse_level: data['dressage_level'],
-            overall_score: resultData['en']['percentage'].toFixed(3),
-            best_movement: resultData['en']['highestScore']['movement'].join(", "),
-            best_score: resultData['en']['highestScore']['score'],
-            worst_movement: resultData['en']['lowestScore']['movement'].join(", "),
-            worst_score: resultData['en']['lowestScore']['score'],
+            goals:
+              "Improve overall harmony and contact, reduce tension in horse",
+            horse_name: data["name"],
+            horse_age: data["age"],
+            horse_breed: data["breed"],
+            horse_level: data["dressage_level"],
+            overall_score: resultData["en"]["percentage"].toFixed(3),
+            best_movement:
+              resultData["en"]["highestScore"]["movement"].join(", "),
+            best_score: resultData["en"]["highestScore"]["score"],
+            worst_movement:
+              resultData["en"]["lowestScore"]["movement"].join(", "),
+            worst_score: resultData["en"]["lowestScore"]["score"],
             score_trend: "Stable with potential for improvement",
-            strength_1: resultData['en']['strengths'][0] || "",
-            strength_2: resultData['en']['strengths'][1] || "",
-            strength_3: resultData['en']['strengths'][2] || "",
-            weakness_1: resultData['en']['weaknesses'][0] || "",
-            weakness_2: resultData['en']['weaknesses'][1] || "",
-            weakness_3: resultData['en']['weaknesses'][2] || "",
-            judge_comment_a: resultData['en']['generalComments']?.['judgeA'] || "",
-            judge_comment_b: resultData['en']['generalComments']?.['judgeB'] || "",
-            judge_comment_c: resultData['en']['generalComments']?.['judgeC'] || "",
-            primary_recommendation: "Establishing consistent, elastic connection",
-            quick_fix_1: resultData['en']['recommendations'][0]?.['quickFix'] || "",
-            exercise_1: resultData['en']['recommendations'][0]?.['exercise'] || "",
-            key_points_1: resultData['en']['recommendations'][0]?.['keyPoints']?.join("; ") || "",
-            goal_1: resultData['en']['recommendations'][0]?.['goal'] || "",
-            secondary_recommendation: "Clean, balanced transitions at precise markers",
-            quick_fix_2: resultData['en']['recommendations'][1]?.['quickFix'] || "",
-            exercise_2: resultData['en']['recommendations'][1]?.['exercise'] || "",
-            key_points_2: resultData['en']['recommendations'][1]?.['keyPoints']?.join("; ") || "",
-            goal_2: resultData['en']['recommendations'][1]?.['goal'] || "",
+            strength_1: resultData["en"]["strengths"][0] || "",
+            strength_2: resultData["en"]["strengths"][1] || "",
+            strength_3: resultData["en"]["strengths"][2] || "",
+            weakness_1: resultData["en"]["weaknesses"][0] || "",
+            weakness_2: resultData["en"]["weaknesses"][1] || "",
+            weakness_3: resultData["en"]["weaknesses"][2] || "",
+            judge_comment_a:
+              resultData["en"]["generalComments"]?.["judgeA"] || "",
+            judge_comment_b:
+              resultData["en"]["generalComments"]?.["judgeB"] || "",
+            judge_comment_c:
+              resultData["en"]["generalComments"]?.["judgeC"] || "",
+            primary_recommendation:
+              "Establishing consistent, elastic connection",
+            quick_fix_1:
+              resultData["en"]["recommendations"][0]?.["quickFix"] || "",
+            exercise_1:
+              resultData["en"]["recommendations"][0]?.["exercise"] || "",
+            key_points_1:
+              resultData["en"]["recommendations"][0]?.["keyPoints"]?.join(
+                "; "
+              ) || "",
+            goal_1: resultData["en"]["recommendations"][0]?.["goal"] || "",
+            secondary_recommendation:
+              "Clean, balanced transitions at precise markers",
+            quick_fix_2:
+              resultData["en"]["recommendations"][1]?.["quickFix"] || "",
+            exercise_2:
+              resultData["en"]["recommendations"][1]?.["exercise"] || "",
+            key_points_2:
+              resultData["en"]["recommendations"][1]?.["keyPoints"]?.join(
+                "; "
+              ) || "",
+            goal_2: resultData["en"]["recommendations"][1]?.["goal"] || "",
             current_season: "Summer",
             upcoming_events: "National Eventing Championship",
-            training_phase: "Preparation"
+            training_phase: "Preparation",
           });
 
-          console.log('Horse data:', data);
+          console.log("Horse data:", data);
         }
       }
     };
     fetchHorse();
-  }, [user, analysis, resultData])
+  }, [user, analysis, resultData]);
 
   const getPromptForTTS = async () => {
     setIsLoading(true);
 
     const filePath = `${user.id}_${analysis.id}/final_podcast_with_music.mp3`;
-    const { data } = supabase
-      .storage
-      .from('analysis')
-      .getPublicUrl(filePath);
+    const { data } = supabase.storage.from("analysis").getPublicUrl(filePath);
 
     if (!data?.publicUrl) {
       console.error("Failed to get public URL");
@@ -254,10 +272,10 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
     }
 
     try {
-      const initialCheck = await fetch(data.publicUrl, { method: 'HEAD' });
+      const initialCheck = await fetch(data.publicUrl, { method: "HEAD" });
 
       if (initialCheck.ok) {
-        window.open(data.publicUrl, '_blank');
+        window.open(data.publicUrl, "_blank");
         setIsLoading(false);
         return;
       }
@@ -273,13 +291,13 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
       fetch("https://6703-45-153-229-59.ngrok-free.app/generate", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           scriptText: result_tts,
           userId: user.id,
-          analysisId: analysis.id
-        })
+          analysisId: analysis.id,
+        }),
       });
 
       // Begin polling
@@ -298,10 +316,10 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
         }
 
         try {
-          const response = await fetch(data.publicUrl, { method: 'HEAD' });
+          const response = await fetch(data.publicUrl, { method: "HEAD" });
           if (response.ok) {
             clearInterval(intervalId);
-            window.open(data.publicUrl, '_blank');
+            window.open(data.publicUrl, "_blank");
             setIsLoading(false);
           }
         } catch (error) {
@@ -310,10 +328,9 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
       }, checkInterval);
     } catch (err) {
       setIsLoading(false);
-      console.error('Error checking or generating file:', err);
+      console.error("Error checking or generating file:", err);
     }
   };
-
 
   if (isLoading) {
     return (
@@ -723,11 +740,11 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
             <Lightbulb className="h-6 w-6 text-[#7658EB]" />
           </div>
         </div>
-        <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
+        <ul className="pl-5 space-y-1 sm:space-y-2">
           {resultData[language]?.recommendations?.map(
             (recommendation, index) => (
               <li key={index} className="text-sm sm:text-base">
-                {recommendation["exercise"]} - {recommendation["goal"]}
+                <b>{recommendation["exercise"]} </b> - {recommendation["goal"]}
                 <br />
                 <b>
                   {language === "en" ? "To improve:" : "Para mejorar:"}
@@ -736,18 +753,24 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
                 <br />
                 <b>{language === "en" ? "Method:" : ":"}</b>
                 <br />
-                {recommendation["method"].map((method, key) => (
-                  <p key={key}>- {method}</p>
-                ))}
+                <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
+                  {recommendation["method"].map((method, key) => (
+                    <li key={key}>{method}</li>
+                  ))}
+                </ul>
                 <b>{language === "en" ? "Key Points:" : ":"}</b>
                 <br />
-                {recommendation["keyPoints"] && 
+                {recommendation["keyPoints"] &&
                 typeof recommendation["keyPoins"] === "string" ? (
-                  <p> - {recommendation["keyPoints"]}</p>
-                  ): (
-                  recommendation['keyPoints'].map((point, key) => (
-                    <p key={key}>- {point}</p>
-                  ))
+                  <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
+                    <li>{recommendation["keyPoints"]}</li>
+                  </ul>
+                ) : (
+                  <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
+                    {recommendation["keyPoints"].map((point, key) => (
+                      <li key={key}>{point}</li>
+                    ))}
+                  </ul>
                 )}
                 <b>{language === "en" ? "Watch For:" : ":"}</b>{" "}
                 <span>{recommendation["watchFor"]}</span>
@@ -797,7 +820,9 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
 
           <Button
             className="bg-[#c9c9c9] hover:bg-[#c9c9c9] flex flex-col items-center p-8"
-            onClick={async () => {await getPromptForTTS();}}
+            onClick={async () => {
+              await getPromptForTTS();
+            }}
           >
             <CloudUpload className="!h-7 !w-7 text-white" />
             Get Your Ride-Along Podcast
