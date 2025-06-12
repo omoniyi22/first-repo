@@ -38,7 +38,7 @@ export const goalsService = {
       throw error;
     }
 
-    return data || [];
+    return (data || []) as Goal[];
   },
 
   // Create a new goal
@@ -63,7 +63,7 @@ export const goalsService = {
       throw error;
     }
 
-    return data;
+    return data as Goal;
   },
 
   // Update an existing goal
@@ -80,7 +80,7 @@ export const goalsService = {
       throw error;
     }
 
-    return data;
+    return data as Goal;
   },
 
   // Delete a goal
