@@ -1,8 +1,9 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Edit } from "lucide-react";
+import { Edit, Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -11,66 +12,76 @@ import {
 } from "@/components/ui/dialog";
 import GoalsForm from "./GoalsForm";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
+import { goalsService, Goal } from "@/services/goalsService";
 
 const Goals = () => {
   const [showEditGoalsForm, setShowEditGoalsForm] = useState(false);
+  const [goals, setGoals] = useState<Goal[]>([]);
+  const [loading, setLoading] = useState(true);
   const { language, translations } = useLanguage();
+  const { user } = useAuth();
+  const { toast } = useToast();
   const t = translations[language];
 
-  // Example goals - in a real app, these would come from your backend
-  const goals = {
-    shortTerm: [
-      {
-        id: 1,
-        text:
-          language === "en"
-            ? "Improve half-pass accuracy"
-            : "Mejorar la precisión del paso lateral",
-        progress: 65,
-        targetDate: "2023-08-15",
-      },
-      {
-        id: 2,
-        text:
-          language === "en"
-            ? "Score 67%+ at next show"
-            : "Puntuación 67%+ en el próximo concurso",
-        progress: 40,
-        targetDate: "2023-07-22",
-      },
-    ],
-    mediumTerm: [
-      {
-        id: 3,
-        text:
-          language === "en"
-            ? "Move up to Third Level"
-            : "Ascender al Tercer Nivel",
-        progress: 30,
-        targetDate: "2023-12-10",
-      },
-      {
-        id: 4,
-        text:
-          language === "en"
-            ? "Master flying changes"
-            : "Dominar cambios al aire",
-        progress: 50,
-        targetDate: "2023-10-05",
-      },
-    ],
-    longTerm: [
-      {
-        id: 5,
-        text:
-          language === "en"
-            ? "Qualify for Regional Championships"
-            : "Clasificar para los Campeonatos Regionales",
-        progress: 25,
-        targetDate: "2024-05-20",
-      },
-    ],
+  // Fetch goals from backend
+  useEffect(() => {
+    const fetchGoals = async () => {
+      if (!user) return;
+      
+      try {
+        setLoading(true);
+        const userGoals = await goalsService.getUserGoals();
+        setGoals(userGoals);
+      } catch (error) {
+        console.error('Error fetching goals:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load goals. Please try again.",
+          variant: "destructive"
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchGoals();
+  }, [user, toast]);
+
+  // Group goals by type
+  const groupedGoals = {
+    shortTerm: goals.filter(goal => goal.goal_type === 'short-term'),
+    mediumTerm: goals.filter(goal => goal.goal_type === 'medium-term'),
+    longTerm: goals.filter(goal => goal.goal_type === 'long-term')
   };
+
+  const handleGoalsUpdate = async () => {
+    try {
+      const userGoals = await goalsService.getUserGoals();
+      setGoals(userGoals);
+      setShowEditGoalsForm(false);
+      toast({
+        title: "Success",
+        description: "Goals updated successfully!",
+      });
+    } catch (error) {
+      console.error('Error updating goals:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update goals. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center p-8">
+        <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -96,29 +107,35 @@ const Goals = () => {
               {t["short-term"]}
             </h3>
             <div className="space-y-3">
-              {goals.shortTerm.map((goal) => (
-                <div key={goal.id}>
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="text-sm font-medium text-gray-900">
-                      {goal.text}
-                    </span>
-                    <span className="text-xs text-gray-600">
-                      {goal.progress}%
-                    </span>
+              {groupedGoals.shortTerm.length === 0 ? (
+                <p className="text-sm text-gray-500 italic">
+                  {language === "en" ? "No short-term goals set" : "No hay objetivos a corto plazo establecidos"}
+                </p>
+              ) : (
+                groupedGoals.shortTerm.map((goal) => (
+                  <div key={goal.id}>
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-sm font-medium text-gray-900">
+                        {goal.goal_text}
+                      </span>
+                      <span className="text-xs text-gray-600">
+                        {goal.progress}%
+                      </span>
+                    </div>
+                    <div className="flex space-x-2 items-center">
+                      <Progress value={goal.progress} className="h-2" />
+                      <span className="text-xs text-gray-600 whitespace-nowrap">
+                        {t["by"]}{" "}
+                        {new Date(goal.target_date).toLocaleDateString("en-GB", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "2-digit",
+                        })}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex space-x-2 items-center">
-                    <Progress value={goal.progress} className="h-2" />
-                    <span className="text-xs text-gray-600 whitespace-nowrap">
-                      {t["by"]}{" "}
-                      {new Date(goal.targetDate).toLocaleDateString("en-GB", {
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "2-digit",
-                      })}
-                    </span>
-                  </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
 
@@ -128,29 +145,35 @@ const Goals = () => {
               {t["medium-term"]}
             </h3>
             <div className="space-y-3">
-              {goals.mediumTerm.map((goal) => (
-                <div key={goal.id}>
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="text-sm font-medium text-gray-900">
-                      {goal.text}
-                    </span>
-                    <span className="text-xs text-gray-600">
-                      {goal.progress}%
-                    </span>
+              {groupedGoals.mediumTerm.length === 0 ? (
+                <p className="text-sm text-gray-500 italic">
+                  {language === "en" ? "No medium-term goals set" : "No hay objetivos a medio plazo establecidos"}
+                </p>
+              ) : (
+                groupedGoals.mediumTerm.map((goal) => (
+                  <div key={goal.id}>
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-sm font-medium text-gray-900">
+                        {goal.goal_text}
+                      </span>
+                      <span className="text-xs text-gray-600">
+                        {goal.progress}%
+                      </span>
+                    </div>
+                    <div className="flex space-x-2 items-center">
+                      <Progress value={goal.progress} className="h-2" />
+                      <span className="text-xs text-gray-600 whitespace-nowrap">
+                        {t["by"]}{" "}
+                        {new Date(goal.target_date).toLocaleDateString("en-GB", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "2-digit",
+                        })}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex space-x-2 items-center">
-                    <Progress value={goal.progress} className="h-2" />
-                    <span className="text-xs text-gray-600 whitespace-nowrap">
-                      {t["by"]}{" "}
-                      {new Date(goal.targetDate).toLocaleDateString("en-GB", {
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "2-digit",
-                      })}
-                    </span>
-                  </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
 
@@ -160,29 +183,35 @@ const Goals = () => {
               {t["long-term"]}
             </h3>
             <div className="space-y-3">
-              {goals.longTerm.map((goal) => (
-                <div key={goal.id}>
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="text-sm font-medium text-gray-900">
-                      {goal.text}
-                    </span>
-                    <span className="text-xs text-gray-600">
-                      {goal.progress}%
-                    </span>
+              {groupedGoals.longTerm.length === 0 ? (
+                <p className="text-sm text-gray-500 italic">
+                  {language === "en" ? "No long-term goals set" : "No hay objetivos a largo plazo establecidos"}
+                </p>
+              ) : (
+                groupedGoals.longTerm.map((goal) => (
+                  <div key={goal.id}>
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-sm font-medium text-gray-900">
+                        {goal.goal_text}
+                      </span>
+                      <span className="text-xs text-gray-600">
+                        {goal.progress}%
+                      </span>
+                    </div>
+                    <div className="flex space-x-2 items-center">
+                      <Progress value={goal.progress} className="h-2" />
+                      <span className="text-xs text-gray-600 whitespace-nowrap">
+                        {t["by"]}{" "}
+                        {new Date(goal.target_date).toLocaleDateString("en-GB", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "2-digit",
+                        })}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex space-x-2 items-center">
-                    <Progress value={goal.progress} className="h-2" />
-                    <span className="text-xs text-gray-600 whitespace-nowrap">
-                      {t["by"]}{" "}
-                      {new Date(goal.targetDate).toLocaleDateString("en-GB", {
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "2-digit",
-                      })}
-                    </span>
-                  </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
         </div>
@@ -197,7 +226,7 @@ const Goals = () => {
             </DialogTitle>
           </DialogHeader>
           <GoalsForm
-            onComplete={() => setShowEditGoalsForm(false)}
+            onComplete={handleGoalsUpdate}
             initialGoals={goals}
           />
         </DialogContent>

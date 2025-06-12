@@ -246,6 +246,39 @@ export type Database = {
         }
         Relationships: []
       }
+      goals: {
+        Row: {
+          created_at: string
+          goal_text: string
+          goal_type: string
+          id: string
+          progress: number
+          target_date: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          goal_text: string
+          goal_type: string
+          id?: string
+          progress?: number
+          target_date: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          goal_text?: string
+          goal_type?: string
+          id?: string
+          progress?: number
+          target_date?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       horses: {
         Row: {
           age: number

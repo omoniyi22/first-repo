@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,102 +13,216 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-
-interface Goal {
-  id: number;
-  text: string;
-  progress: number;
-  targetDate: string;
-}
-
-interface GoalsData {
-  shortTerm: Goal[];
-  mediumTerm: Goal[];
-  longTerm: Goal[];
-}
+import { goalsService, Goal } from "@/services/goalsService";
+import { useToast } from "@/hooks/use-toast";
 
 interface GoalsFormProps {
   onComplete: () => void;
-  initialGoals: GoalsData;
+  initialGoals: Goal[];
 }
 
 const GoalsForm = ({ onComplete, initialGoals }: GoalsFormProps) => {
-  const [goals, setGoals] = useState<GoalsData>(initialGoals);
+  const [goals, setGoals] = useState<Goal[]>(initialGoals);
   const [activeTab, setActiveTab] = useState("short");
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
-  const handleAddGoal = (term: keyof GoalsData) => {
-    const newGoal = {
-      id: Date.now(),
-      text: "",
-      progress: 0,
-      targetDate: new Date().toISOString().split("T")[0],
-    };
-
-    setGoals({
-      ...goals,
-      [term]: [...goals[term], newGoal],
-    });
+  // Group goals by type
+  const groupedGoals = {
+    shortTerm: goals.filter(goal => goal.goal_type === 'short-term'),
+    mediumTerm: goals.filter(goal => goal.goal_type === 'medium-term'),
+    longTerm: goals.filter(goal => goal.goal_type === 'long-term')
   };
 
-  const handleRemoveGoal = (term: keyof GoalsData, id: number) => {
-    setGoals({
-      ...goals,
-      [term]: goals[term].filter((goal) => goal.id !== id),
-    });
+  const handleAddGoal = async (goalType: 'short-term' | 'medium-term' | 'long-term') => {
+    try {
+      const newGoal = await goalsService.createGoal({
+        goal_text: "",
+        goal_type: goalType,
+        progress: 0,
+        target_date: new Date().toISOString().split("T")[0],
+      });
+
+      setGoals([...goals, newGoal]);
+      toast({
+        title: "Success",
+        description: "New goal added successfully!",
+      });
+    } catch (error) {
+      console.error('Error adding goal:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add goal. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
-  const handleGoalTextChange = (
-    term: keyof GoalsData,
-    id: number,
-    text: string
-  ) => {
-    setGoals({
-      ...goals,
-      [term]: goals[term].map((goal) =>
-        goal.id === id ? { ...goal, text } : goal
-      ),
-    });
+  const handleRemoveGoal = async (goalId: string) => {
+    try {
+      await goalsService.deleteGoal(goalId);
+      setGoals(goals.filter(goal => goal.id !== goalId));
+      toast({
+        title: "Success",
+        description: "Goal deleted successfully!",
+      });
+    } catch (error) {
+      console.error('Error deleting goal:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete goal. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
-  const handleProgressChange = (
-    term: keyof GoalsData,
-    id: number,
-    progress: string
-  ) => {
+  const handleGoalTextChange = async (goalId: string, text: string) => {
+    // Update local state immediately for better UX
+    setGoals(goals.map(goal => 
+      goal.id === goalId ? { ...goal, goal_text: text } : goal
+    ));
+
+    try {
+      await goalsService.updateGoal(goalId, { goal_text: text });
+    } catch (error) {
+      console.error('Error updating goal text:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update goal. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleProgressChange = async (goalId: string, progress: string) => {
     const progressValue = Math.min(100, Math.max(0, parseInt(progress) || 0));
-    setGoals({
-      ...goals,
-      [term]: goals[term].map((goal) =>
-        goal.id === id ? { ...goal, progress: progressValue } : goal
-      ),
-    });
+    
+    // Update local state immediately for better UX
+    setGoals(goals.map(goal => 
+      goal.id === goalId ? { ...goal, progress: progressValue } : goal
+    ));
+
+    try {
+      await goalsService.updateGoal(goalId, { progress: progressValue });
+    } catch (error) {
+      console.error('Error updating goal progress:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update progress. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
-  const handleDateChange = (
-    term: keyof GoalsData,
-    id: number,
-    date: Date | undefined
-  ) => {
+  const handleDateChange = async (goalId: string, date: Date | undefined) => {
     if (!date) return;
 
-    setGoals({
-      ...goals,
-      [term]: goals[term].map((goal) =>
-        goal.id === id
-          ? { ...goal, targetDate: date.toISOString().split("T")[0] }
-          : goal
-      ),
-    });
+    const dateString = date.toISOString().split("T")[0];
+    
+    // Update local state immediately for better UX
+    setGoals(goals.map(goal => 
+      goal.id === goalId ? { ...goal, target_date: dateString } : goal
+    ));
+
+    try {
+      await goalsService.updateGoal(goalId, { target_date: dateString });
+    } catch (error) {
+      console.error('Error updating goal date:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update date. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Here you would typically save the goals data to your backend
-    console.log(goals);
-
-    // After saving, close the form
     onComplete();
   };
+
+  const renderGoalInputs = (goalsList: Goal[], goalType: 'short-term' | 'medium-term' | 'long-term') => (
+    <>
+      {goalsList.map((goal, index) => (
+        <div key={goal.id} className="grid grid-cols-12 gap-2 items-start">
+          <div className="col-span-5">
+            <Label htmlFor={`${goalType}-goal-${index}`} className="text-xs mb-1 block">
+              Goal
+            </Label>
+            <Input
+              id={`${goalType}-goal-${index}`}
+              value={goal.goal_text}
+              onChange={(e) => handleGoalTextChange(goal.id, e.target.value)}
+              placeholder="Enter goal"
+            />
+          </div>
+          <div className="col-span-2">
+            <Label htmlFor={`${goalType}-progress-${index}`} className="text-xs mb-1 block">
+              Progress %
+            </Label>
+            <Input
+              id={`${goalType}-progress-${index}`}
+              type="number"
+              min="0"
+              max="100"
+              value={goal.progress}
+              onChange={(e) => handleProgressChange(goal.id, e.target.value)}
+            />
+          </div>
+          <div className="col-span-4">
+            <Label className="text-xs mb-1 block">Target Date</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "justify-start text-left font-normal w-auto",
+                    !goal.target_date && "text-muted-foreground"
+                  )}
+                  size="sm"
+                >
+                  <CalendarIcon className="mr-1 h-3 w-3" />
+                  {goal.target_date ? (
+                    format(new Date(goal.target_date), "MM/dd/yyyy")
+                  ) : (
+                    <span>Pick a date</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={goal.target_date ? new Date(goal.target_date) : undefined}
+                  onSelect={(date) => handleDateChange(goal.id, date)}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+          <div className="col-span-1 pt-6">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={() => handleRemoveGoal(goal.id)}
+              className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"
+            >
+              <Trash2 size={16} />
+            </Button>
+          </div>
+        </div>
+      ))}
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        onClick={() => handleAddGoal(goalType)}
+        className="flex items-center gap-1 mt-2"
+      >
+        <Plus size={16} /> Add Goal
+      </Button>
+    </>
+  );
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -119,288 +234,15 @@ const GoalsForm = ({ onComplete, initialGoals }: GoalsFormProps) => {
         </TabsList>
 
         <TabsContent value="short" className="space-y-2">
-          {goals.shortTerm.map((goal, index) => (
-            <div key={goal.id} className="grid grid-cols-12 gap-2 items-start">
-              <div className="col-span-5">
-                <Label
-                  htmlFor={`short-goal-${index}`}
-                  className="text-xs mb-1 block"
-                >
-                  Goal
-                </Label>
-                <Input
-                  id={`short-goal-${index}`}
-                  value={goal.text}
-                  onChange={(e) =>
-                    handleGoalTextChange("shortTerm", goal.id, e.target.value)
-                  }
-                  placeholder="Enter goal"
-                />
-              </div>
-              <div className="col-span-2">
-                <Label
-                  htmlFor={`short-progress-${index}`}
-                  className="text-xs mb-1 block"
-                >
-                  Progress %
-                </Label>
-                <Input
-                  id={`short-progress-${index}`}
-                  type="number"
-                  min="0"
-                  max="100"
-                  value={goal.progress}
-                  onChange={(e) =>
-                    handleProgressChange("shortTerm", goal.id, e.target.value)
-                  }
-                />
-              </div>
-              <div className="col-span-4">
-                <Label className="text-xs mb-1 block">Target Date</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "justify-start text-left font-normal w-auto",
-                        !goal.targetDate && "text-muted-foreground"
-                      )}
-                      size="sm"
-                    >
-                      <CalendarIcon className="mr-1 h-3 w-3" />
-                      {goal.targetDate ? (
-                        format(new Date(goal.targetDate), "MM/dd/yyyy")
-                      ) : (
-                        <span>Pick a date</span>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={
-                        goal.targetDate ? new Date(goal.targetDate) : undefined
-                      }
-                      onSelect={(date) =>
-                        handleDateChange("shortTerm", goal.id, date)
-                      }
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-              <div className="col-span-1 pt-6">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleRemoveGoal("shortTerm", goal.id)}
-                  className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"
-                >
-                  <Trash2 size={16} />
-                </Button>
-              </div>
-            </div>
-          ))}
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => handleAddGoal("shortTerm")}
-            className="flex items-center gap-1 mt-2"
-          >
-            <Plus size={16} /> Add Goal
-          </Button>
+          {renderGoalInputs(groupedGoals.shortTerm, 'short-term')}
         </TabsContent>
 
         <TabsContent value="medium" className="space-y-4">
-          {goals.mediumTerm.map((goal, index) => (
-            <div key={goal.id} className="grid grid-cols-12 gap-3 items-start">
-              <div className="col-span-5">
-                <Label
-                  htmlFor={`medium-goal-${index}`}
-                  className="text-xs mb-1 block"
-                >
-                  Goal
-                </Label>
-                <Input
-                  id={`medium-goal-${index}`}
-                  value={goal.text}
-                  onChange={(e) =>
-                    handleGoalTextChange("mediumTerm", goal.id, e.target.value)
-                  }
-                  placeholder="Enter goal"
-                />
-              </div>
-              <div className="col-span-2">
-                <Label
-                  htmlFor={`medium-progress-${index}`}
-                  className="text-xs mb-1 block"
-                >
-                  Progress %
-                </Label>
-                <Input
-                  id={`medium-progress-${index}`}
-                  type="number"
-                  min="0"
-                  max="100"
-                  value={goal.progress}
-                  onChange={(e) =>
-                    handleProgressChange("mediumTerm", goal.id, e.target.value)
-                  }
-                />
-              </div>
-              <div className="col-span-4">
-                <Label className="text-xs mb-1 block">Target Date</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full justify-start text-left font-normal",
-                        !goal.targetDate && "text-muted-foreground"
-                      )}
-                      size="sm"
-                    >
-                      <CalendarIcon className="mr-1 h-3 w-3" />
-                      {goal.targetDate ? (
-                        format(new Date(goal.targetDate), "MM/dd/yyyy")
-                      ) : (
-                        <span>Pick a date</span>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={
-                        goal.targetDate ? new Date(goal.targetDate) : undefined
-                      }
-                      onSelect={(date) =>
-                        handleDateChange("mediumTerm", goal.id, date)
-                      }
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-              <div className="col-span-1 pt-6">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleRemoveGoal("mediumTerm", goal.id)}
-                  className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"
-                >
-                  <Trash2 size={16} />
-                </Button>
-              </div>
-            </div>
-          ))}
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => handleAddGoal("mediumTerm")}
-            className="flex items-center gap-1 mt-2"
-          >
-            <Plus size={16} /> Add Goal
-          </Button>
+          {renderGoalInputs(groupedGoals.mediumTerm, 'medium-term')}
         </TabsContent>
 
         <TabsContent value="long" className="space-y-4">
-          {goals.longTerm.map((goal, index) => (
-            <div key={goal.id} className="grid grid-cols-12 gap-3 items-start">
-              <div className="col-span-5">
-                <Label
-                  htmlFor={`long-goal-${index}`}
-                  className="text-xs mb-1 block"
-                >
-                  Goal
-                </Label>
-                <Input
-                  id={`long-goal-${index}`}
-                  value={goal.text}
-                  onChange={(e) =>
-                    handleGoalTextChange("longTerm", goal.id, e.target.value)
-                  }
-                  placeholder="Enter goal"
-                />
-              </div>
-              <div className="col-span-2">
-                <Label
-                  htmlFor={`long-progress-${index}`}
-                  className="text-xs mb-1 block"
-                >
-                  Progress %
-                </Label>
-                <Input
-                  id={`long-progress-${index}`}
-                  type="number"
-                  min="0"
-                  max="100"
-                  value={goal.progress}
-                  onChange={(e) =>
-                    handleProgressChange("longTerm", goal.id, e.target.value)
-                  }
-                />
-              </div>
-              <div className="col-span-4">
-                <Label className="text-xs mb-1 block">Target Date</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full justify-start text-left font-normal",
-                        !goal.targetDate && "text-muted-foreground"
-                      )}
-                      size="sm"
-                    >
-                      <CalendarIcon className="mr-1 h-3 w-3" />
-                      {goal.targetDate ? (
-                        format(new Date(goal.targetDate), "MM/dd/yyyy")
-                      ) : (
-                        <span>Pick a date</span>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={
-                        goal.targetDate ? new Date(goal.targetDate) : undefined
-                      }
-                      onSelect={(date) =>
-                        handleDateChange("longTerm", goal.id, date)
-                      }
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-              <div className="col-span-1 pt-6">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleRemoveGoal("longTerm", goal.id)}
-                  className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"
-                >
-                  <Trash2 size={16} />
-                </Button>
-              </div>
-            </div>
-          ))}
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => handleAddGoal("longTerm")}
-            className="flex items-center gap-1 mt-2"
-          >
-            <Plus size={16} /> Add Goal
-          </Button>
+          {renderGoalInputs(groupedGoals.longTerm, 'long-term')}
         </TabsContent>
       </Tabs>
 
@@ -408,7 +250,9 @@ const GoalsForm = ({ onComplete, initialGoals }: GoalsFormProps) => {
         <Button type="button" variant="outline" onClick={onComplete}>
           Cancel
         </Button>
-        <Button type="submit">Save Goals</Button>
+        <Button type="submit" disabled={loading}>
+          {loading ? "Saving..." : "Save Goals"}
+        </Button>
       </div>
     </form>
   );
