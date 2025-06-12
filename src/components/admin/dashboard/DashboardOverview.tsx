@@ -30,10 +30,7 @@ const DashboardOverview = () => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        // Fetch user count
-        // const { data: allUser, error: userError } = await supabase
-        //   .from("profiles")
-        //   .select("*");
+     
         const allUser = await fetchUsers();
 
         const usersData = getCurrentMonthUsersWithPercentage(allUser);
