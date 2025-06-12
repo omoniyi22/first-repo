@@ -136,8 +136,8 @@ const AuthForm = () => {
         if (error) throw error;
 
         toast({
-          title: "Account created successfully!",
-          description: "Welcome to AI Dressage Trainer. Check your email for verification instructions.",
+          title: "Welcome to AI Dressage Trainer!",
+          description: "Please check your email and click the confirmation link to verify your account.",
         });
 
         // Fix: Check if user exists and navigate to dashboard
