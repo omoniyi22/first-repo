@@ -5,7 +5,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CloudUpload, Loader2 } from "lucide-react";
+import { CloudUpload, Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -65,8 +65,10 @@ const Analysis = () => {
     null
   );
   const [selectedVideoId, setSelectedVideoId] = useState<string | null>(null);
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSpinnerLoading, setIsSpinnerLoading] = useState<boolean>(false);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [userDiscipline, setUserDiscipline] = useState<string | null>(null);
 
   useEffect(() => {
@@ -177,18 +179,6 @@ const Analysis = () => {
         body: { documentId: newDocumentId, base64Image: canvasImage },
       });
 
-      // toast(
-      //   language === "en"
-      //     ? "Document is analyzed successfully"
-      //     : "Documento analizado con éxito",
-      //   {
-      //     description:
-      //       language === "en"
-      //         ? "Go to My Documents to view the analysis."
-      //         : "Vaya a Mis documentos para ver el análisis.",
-      //   }
-      // );
-
       navigate(`/analysis?document_id=${newDocumentId}`);
 
       fetchDocs();
@@ -196,6 +186,68 @@ const Analysis = () => {
     } catch (err) {
       setIsSpinnerLoading(false);
       console.warn("Processing failed:", err);
+    }
+  };
+
+  const handleSelectItem = (itemId: string) => {
+    setSelectedItems(prev => 
+      prev.includes(itemId) 
+        ? prev.filter(id => id !== itemId)
+        : [...prev, itemId]
+    );
+  };
+
+  const handleSelectAll = () => {
+    const currentItems = userDiscipline === "dressage" ? documents : videos;
+    if (selectedItems.length === currentItems.length) {
+      setSelectedItems([]);
+    } else {
+      setSelectedItems(currentItems.map(item => item.id));
+    }
+  };
+
+  const handleDeleteSelected = async () => {
+    if (selectedItems.length === 0) return;
+
+    setIsDeleting(true);
+    try {
+      // Delete from analysis_results first (if exists)
+      const { error: resultsError } = await supabase
+        .from("analysis_results")
+        .delete()
+        .in("document_id", selectedItems);
+
+      if (resultsError) {
+        console.warn("Error deleting analysis results:", resultsError);
+      }
+
+      // Delete from document_analysis
+      const { error: analysisError } = await supabase
+        .from("document_analysis")
+        .delete()
+        .in("id", selectedItems);
+
+      if (analysisError) {
+        throw analysisError;
+      }
+
+      toast.success(
+        language === "en"
+          ? `Successfully deleted ${selectedItems.length} item(s)`
+          : `Se eliminaron ${selectedItems.length} elemento(s) exitosamente`
+      );
+
+      setSelectedItems([]);
+      fetchDocs();
+    } catch (error) {
+      console.error("Error deleting items:", error);
+      toast.error(
+        language === "en"
+          ? "Failed to delete selected items"
+          : "No se pudieron eliminar los elementos seleccionados"
+      );
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -341,10 +393,58 @@ const Analysis = () => {
                       </div>
                     ) : (
                       <div className="space-y-4">
+                        {/* Selection and Delete Controls */}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-4">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={handleSelectAll}
+                            >
+                              {selectedItems.length === documents.length
+                                ? language === "en"
+                                  ? "Deselect All"
+                                  : "Deseleccionar Todo"
+                                : language === "en"
+                                ? "Select All"
+                                : "Seleccionar Todo"}
+                            </Button>
+                            {selectedItems.length > 0 && (
+                              <span className="text-sm text-gray-600">
+                                {selectedItems.length}{" "}
+                                {language === "en" ? "selected" : "seleccionados"}
+                              </span>
+                            )}
+                          </div>
+                          {selectedItems.length > 0 && (
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={handleDeleteSelected}
+                              disabled={isDeleting}
+                            >
+                              {isDeleting ? (
+                                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                              ) : (
+                                <Trash2 className="h-4 w-4 mr-2" />
+                              )}
+                              {language === "en" ? "Delete Selected" : "Eliminar Seleccionados"}
+                            </Button>
+                          )}
+                        </div>
+
                         <div className="overflow-x-auto">
                           <table className="min-w-full divide-y divide-gray-200">
                             <thead>
                               <tr>
+                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                  <input
+                                    type="checkbox"
+                                    checked={selectedItems.length === documents.length && documents.length > 0}
+                                    onChange={handleSelectAll}
+                                    className="rounded"
+                                  />
+                                </th>
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                   {language === "en" ? "Name" : "Nombre"}
                                 </th>
@@ -368,6 +468,14 @@ const Analysis = () => {
                             <tbody className="bg-white divide-y divide-gray-200">
                               {documents.map((doc) => (
                                 <tr key={doc.id} className="hover:bg-gray-50">
+                                  <td className="px-4 py-3 whitespace-nowrap">
+                                    <input
+                                      type="checkbox"
+                                      checked={selectedItems.includes(doc.id)}
+                                      onChange={() => handleSelectItem(doc.id)}
+                                      className="rounded"
+                                    />
+                                  </td>
                                   <td className="px-4 py-3 whitespace-nowrap">
                                     <span className="text-sm font-medium text-gray-900">
                                       {doc.file_name}
@@ -470,10 +578,58 @@ const Analysis = () => {
                     </div>
                   ) : (
                     <div className="space-y-4">
+                      {/* Selection and Delete Controls */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleSelectAll}
+                          >
+                            {selectedItems.length === videos.length
+                              ? language === "en"
+                                ? "Deselect All"
+                                : "Deseleccionar Todo"
+                              : language === "en"
+                              ? "Select All"
+                              : "Seleccionar Todo"}
+                          </Button>
+                          {selectedItems.length > 0 && (
+                            <span className="text-sm text-gray-600">
+                              {selectedItems.length}{" "}
+                              {language === "en" ? "selected" : "seleccionados"}
+                            </span>
+                          )}
+                        </div>
+                        {selectedItems.length > 0 && (
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={handleDeleteSelected}
+                            disabled={isDeleting}
+                          >
+                            {isDeleting ? (
+                              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                            ) : (
+                              <Trash2 className="h-4 w-4 mr-2" />
+                            )}
+                            {language === "en" ? "Delete Selected" : "Eliminar Seleccionados"}
+                          </Button>
+                        )}
+                      </div>
+
                       <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-gray-200">
                           <thead>
                             <tr>
+                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <input
+                                  type="checkbox"
+                                  checked={selectedItems.length === videos.length && videos.length > 0}
+                                  onChange={handleSelectAll}
+                                  className="rounded"
+                                />
+                              </th>
                               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 {language === "en" ? "Name" : "Nombre"}
                               </th>
@@ -497,6 +653,14 @@ const Analysis = () => {
                           <tbody className="bg-white divide-y divide-gray-200">
                             {videos.map((video) => (
                               <tr key={video.id} className="hover:bg-gray-50">
+                                <td className="px-4 py-3 whitespace-nowrap">
+                                  <input
+                                    type="checkbox"
+                                    checked={selectedItems.includes(video.id)}
+                                    onChange={() => handleSelectItem(video.id)}
+                                    className="rounded"
+                                  />
+                                </td>
                                 <td className="px-4 py-3 whitespace-nowrap">
                                   <span className="text-sm font-medium text-gray-900">
                                     {video.file_name}
