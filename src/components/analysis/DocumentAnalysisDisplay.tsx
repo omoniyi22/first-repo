@@ -741,9 +741,14 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
                 ))}
                 <b>{language === "en" ? "Key Points:" : ":"}</b>
                 <br />
-                {recommendation["keyPoints"].map((point, key) => (
-                  <p key={key}>- {point}</p>
-                ))}
+                {recommendation["keyPoints"] && 
+                typeof recommendation["keyPoins"] === "string" ? (
+                  <p> - {recommendation["keyPoints"]}</p>
+                  ): (
+                  recommendation['keyPoints'].map((point, key) => (
+                    <p key={key}>- {point}</p>
+                  ))
+                )}
                 <b>{language === "en" ? "Watch For:" : ":"}</b>{" "}
                 <span>{recommendation["watchFor"]}</span>
                 <br />
