@@ -423,7 +423,7 @@ const MediaSelector = ({
     window.open(url, "_blank");
   };
 
-  // Handle file uploads
+  // Handle file uploads - don't auto-select the first uploaded image
   const handleUploadComplete = async (files: File[]) => {
     try {
       const userFolder = getUserFolder();
@@ -523,13 +523,7 @@ const MediaSelector = ({
       // Switch back to browse view
       setIsUploadView(false);
 
-      // Auto-select first uploaded image
-      if (newItems.length > 0) {
-        onChange(newItems[0].url);
-        if (onImageSelect) {
-          onImageSelect(newItems[0]);
-        }
-      }
+      // Don't auto-select uploaded images - let user manually select
 
       let message = `Successfully uploaded ${newItems.length} file(s)`;
       if (failedUploads.length > 0) {

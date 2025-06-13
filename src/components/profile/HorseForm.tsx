@@ -161,9 +161,10 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
     }
   };
 
-  // Handle image selection from media library
+  // Handle image selection from media library - only update photoUrl, don't auto-save
   const handleImageSelect = (imageUrl: string) => {
     setPhotoUrl(imageUrl);
+    // Don't auto-save here, let the user submit the form when they're ready
   };
 
   return (
@@ -308,22 +309,10 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
 
       <div className="space-y-2">
         <Label htmlFor="horse-photo">Horse Photo</Label>
-        {/* {photoUrl && (
-          <div className="mb-4 w-full max-w-[300px]">
-            <AspectRatio
-              ratio={4 / 3}
-              className="bg-muted rounded-md overflow-hidden"
-            >
-              <img
-                src={photoUrl}
-                alt={horseName || "Horse"}
-                className="w-full h-full object-cover"
-              />
-            </AspectRatio>
-          </div>
-        )} */}
-
-        <MediaSelector value={photoUrl || ""} onChange={handleImageSelect}  />
+        <MediaSelector 
+          value={photoUrl || ""} 
+          onChange={handleImageSelect}
+        />
       </div>
 
       <div className="space-y-2">
