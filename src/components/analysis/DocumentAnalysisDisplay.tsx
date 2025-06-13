@@ -811,7 +811,7 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
       </Card>
 
       <Card className="p-4 sm:p-6 border-0">
-        <div className="flex items-center justify-between mb-3 sm:mb-4">
+        <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-4 mb-3 sm:mb-4">
           <Button className="bg-[#67C15E] hover:bg-[#67C15E] flex flex-col items-center p-8">
             {/* <MessageCircle className="h-10 w-10 text-white" /> */}
             <RiWhatsappFill className="!h-7 !w-7 text-white" size={50} />
@@ -828,8 +828,8 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
             Get Your Ride-Along Podcast
           </Button>
 
-          <div className="space-x-2 flex flex-col items-center p-8">
-            <p className="">Powered by</p>
+          <div className="space-x-2 flex flex-col items-center">
+            <p className="text-center">Powered by</p>
             <img
               src="/lovable-uploads/1000010999.png"
               alt="Horse and rider jumping over competition obstacle"
