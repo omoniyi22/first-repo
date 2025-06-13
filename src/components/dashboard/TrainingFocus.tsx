@@ -9,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import TrainingFocusForm from "./TrainingFocusForm";
@@ -213,42 +214,30 @@ const TrainingFocus = () => {
                         {focus.tip}
                       </p>
                     </div>
-                    {/* <Badge
-                      className={`${getPriorityColor(
-                        focus.priority
-                      )} ml-2 flex-shrink-0`}
-                    >
-                      {getPriorityLabel(focus.priority)}
-                    </Badge> */}
                   </div>
                 </div>
               </div>
             ))
           )}
-
-          {/* {trainingFocus.length > 5 && (
-            <div className="text-center pt-2">
-              <Button variant="link" className="text-blue-700 text-sm">
-                View all {trainingFocus.length} recommendations
-                <ChevronRight size={14} className="ml-1" />
-              </Button>
-            </div>
-          )} */}
         </div>
       </Card>
 
       {/* Edit Training Focus Dialog */}
       <Dialog open={showEditFocusForm} onOpenChange={setShowEditFocusForm}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md max-h-[95vh] overflow-hidden">
           <DialogHeader>
             <DialogTitle className="text-xl font-serif">
               Edit Training Focus
             </DialogTitle>
           </DialogHeader>
-          <TrainingFocusForm
-            onComplete={() => setShowEditFocusForm(false)}
-            initialFocus={trainingFocus}
-          />
+          <ScrollArea className="max-h-[80vh] pr-4">
+            <div className="py-2">
+              <TrainingFocusForm
+                onComplete={() => setShowEditFocusForm(false)}
+                initialFocus={trainingFocus}
+              />
+            </div>
+          </ScrollArea>
         </DialogContent>
       </Dialog>
     </div>
