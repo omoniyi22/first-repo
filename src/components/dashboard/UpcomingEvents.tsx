@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -152,7 +151,7 @@ const UpcomingEvents = () => {
         description: "Your event has been deleted successfully",
         variant: "default",
       });
-      
+
       // Refresh events list
       const userId = user?.id;
       if (userId) {
@@ -160,11 +159,14 @@ const UpcomingEvents = () => {
         const eventsData = await fetchEvents(userId);
         const upcomingEvents = eventsData
           .filter((event) => new Date(event.eventDate) >= new Date(today))
-          .sort((a, b) => new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime())
+          .sort(
+            (a, b) =>
+              new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime()
+          )
           .slice(0, 4);
         setEvents(upcomingEvents);
       }
-      
+
       setShowDeleteDialog(false);
       setSelectedEvent(null);
     } catch (error) {
@@ -230,7 +232,7 @@ const UpcomingEvents = () => {
                           <img
                             src={
                               getImagePath(event.imageUrl) ||
-                              getDefaultImage(event.discipline)
+                              "/public/lovable-uploads/placeholder-image.png"
                             }
                             alt={event.title}
                             className="w-full h-full object-cover"
@@ -332,13 +334,14 @@ const UpcomingEvents = () => {
       <Dialog open={showEditEventForm} onOpenChange={setShowEditEventForm}>
         <DialogContent className="sm:max-w-md max-h-[95vh] overflow-hidden">
           <DialogHeader>
-            <DialogTitle className="text-xl font-serif">
-              Edit Event
-            </DialogTitle>
+            <DialogTitle className="text-xl font-serif">Edit Event</DialogTitle>
           </DialogHeader>
           <ScrollArea className="max-h-[80vh] pr-4">
             <div className="py-2">
-              <EventForm onComplete={handleFormComplete} event={selectedEvent} />
+              <EventForm
+                onComplete={handleFormComplete}
+                event={selectedEvent}
+              />
             </div>
           </ScrollArea>
         </DialogContent>
@@ -350,7 +353,8 @@ const UpcomingEvents = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Event</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{selectedEvent?.title}"? This action cannot be undone.
+              Are you sure you want to delete "{selectedEvent?.title}"? This
+              action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
