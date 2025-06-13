@@ -192,7 +192,7 @@ const RecentTests = () => {
             <div className="sm:w-48 h-32 sm:h-auto relative bg-gray-100 flex items-center justify-center">
               <div className="w-full h-full">
                 <img
-                  src={test.horses.photo_url}
+                  src={test.horses.photo_url || '/lovable-uploads/moke-image.png' }
                   alt={test.file_name}
                   className="w-full h-full object-cover"
                 />
