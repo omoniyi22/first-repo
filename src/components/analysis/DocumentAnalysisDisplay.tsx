@@ -740,47 +740,58 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
             <Lightbulb className="h-6 w-6 text-[#7658EB]" />
           </div>
         </div>
-        <ul className="pl-5 space-y-1 sm:space-y-2">
+        <ul className="space-y-2 sm:space-y-5">
           {resultData[language]?.recommendations?.map(
             (recommendation, index) => (
-              <li key={index} className="text-sm sm:text-base">
-                <b>{recommendation["exercise"]} </b> - {recommendation["goal"]}
-                <br />
-                <b>
-                  {language === "en" ? "To improve:" : "Para mejorar:"}
-                </b>{" "}
-                {recommendation["setup"]}
-                <br />
-                <b>{language === "en" ? "Method:" : ":"}</b>
-                <br />
-                <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
-                  {recommendation["method"].map((method, key) => (
-                    <li key={key}>{method}</li>
-                  ))}
-                </ul>
-                <b>{language === "en" ? "Key Points:" : ":"}</b>
-                <br />
-                {recommendation["keyPoints"] &&
-                typeof recommendation["keyPoins"] === "string" ? (
+              <li
+                key={index}
+                className="text-sm sm:text-base bg-[#f1f5f9] p-2 md:p-5 rounded-lg flex gap-2 md:gap-5"
+              >
+                <img
+                  src="/lovable-uploads/1000010999.png"
+                  alt="Horse and rider jumping over competition obstacle"
+                  className="w-8 h-8 object-cover object-center"
+                />
+                <div className="">
+                  <b>{recommendation["exercise"]} </b> -{" "}
+                  {recommendation["goal"]}
+                  <br />
+                  <b>
+                    {language === "en" ? "To improve:" : "Para mejorar:"}
+                  </b>{" "}
+                  {recommendation["setup"]}
+                  <br />
+                  <b>{language === "en" ? "Method:" : ":"}</b>
+                  <br />
                   <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
-                    <li>{recommendation["keyPoints"]}</li>
-                  </ul>
-                ) : (
-                  <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
-                    {recommendation["keyPoints"].map((point, key) => (
-                      <li key={key}>{point}</li>
+                    {recommendation["method"].map((method, key) => (
+                      <li key={key}>{method}</li>
                     ))}
                   </ul>
-                )}
-                <b>{language === "en" ? "Watch For:" : ":"}</b>{" "}
-                <span>{recommendation["watchFor"]}</span>
-                <br />
-                <b>{language === "en" ? "Goal:" : ":"}</b>{" "}
-                <span>{recommendation["goal"]}</span>
-                <br />
-                <b>{language === "en" ? "Quick Fix:" : ":"}</b>{" "}
-                <span>{recommendation["quickFix"]}</span>
-                <br />
+                  <b>{language === "en" ? "Key Points:" : ":"}</b>
+                  <br />
+                  {recommendation["keyPoints"] &&
+                  typeof recommendation["keyPoins"] === "string" ? (
+                    <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
+                      <li>{recommendation["keyPoints"]}</li>
+                    </ul>
+                  ) : (
+                    <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
+                      {recommendation["keyPoints"].map((point, key) => (
+                        <li key={key}>{point}</li>
+                      ))}
+                    </ul>
+                  )}
+                  <b>{language === "en" ? "Watch For:" : ":"}</b>{" "}
+                  <span>{recommendation["watchFor"]}</span>
+                  <br />
+                  <b>{language === "en" ? "Goal:" : ":"}</b>{" "}
+                  <span>{recommendation["goal"]}</span>
+                  <br />
+                  <b>{language === "en" ? "Quick Fix:" : ":"}</b>{" "}
+                  <span>{recommendation["quickFix"]}</span>
+                  <br />
+                </div>
               </li>
             )
           ) || "No Recommendations!"}
