@@ -88,10 +88,6 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
               .eq("document_id", videoId)
               .single();
 
-            console.log(
-              "🚀 ~ fetchAnalysis ~ resultData:",
-              resultData.result_json
-            );
             setAnalysisResult(resultData.result_json);
           }
           // Properly decode the URL to ensure it works correctly
