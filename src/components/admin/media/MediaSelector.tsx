@@ -361,6 +361,11 @@ const MediaSelector = ({
 
   // Handle dialog open/close
   const handleOpenChange = (open: boolean) => {
+    // Prevent closing dialog during upload
+    if (!open && isUploadView) {
+      return;
+    }
+    
     setIsDialogOpen(open);
     if (open) {
       // Reset the state when opening
@@ -701,7 +706,6 @@ const MediaSelector = ({
     const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
       if (files.length === 0) return;
-
       setIsUploading(true);
 
       // Simulate upload progress

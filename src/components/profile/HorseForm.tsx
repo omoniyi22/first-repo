@@ -308,7 +308,7 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
 
       <div className="space-y-2">
         <Label htmlFor="horse-photo">Horse Photo</Label>
-        {photoUrl && (
+        {/* {photoUrl && (
           <div className="mb-4 w-full max-w-[300px]">
             <AspectRatio
               ratio={4 / 3}
@@ -321,7 +321,7 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
               />
             </AspectRatio>
           </div>
-        )}
+        )} */}
 
         <MediaSelector value={photoUrl || ""} onChange={handleImageSelect}  />
       </div>
