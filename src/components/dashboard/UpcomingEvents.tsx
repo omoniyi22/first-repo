@@ -232,7 +232,7 @@ const UpcomingEvents = () => {
                           <img
                             src={
                               getImagePath(event.imageUrl) ||
-                              "/public/lovable-uploads/placeholder-image.png"
+                              "/lovable-uploads/fc2e6814-c8fd-4b8e-934f-1b2204e75264.png"
                             }
                             alt={event.title}
                             className="w-full h-full object-cover"
