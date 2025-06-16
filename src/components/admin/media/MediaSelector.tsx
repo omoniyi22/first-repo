@@ -635,6 +635,7 @@ const MediaSelector = ({
 
     // Handle file input change
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      e.preventDefault();
       if (e.target.files && e.target.files.length > 0) {
         const selectedFiles = Array.from(e.target.files);
         // Only accept images
@@ -699,6 +700,7 @@ const MediaSelector = ({
     // Handle form submission
     const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
+      console.log("clicked submit")
       if (files.length === 0) return;
       setIsUploading(true);
 
@@ -732,7 +734,7 @@ const MediaSelector = ({
     };
 
     return (
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="space-y-4">
         <div
           ref={dropZoneRef}
           className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center transition-colors"
@@ -809,7 +811,7 @@ const MediaSelector = ({
           >
             Cancel
           </Button>
-          <Button type="submit" disabled={files.length === 0 || isUploading}>
+          <Button type="button" onClick={handleSubmit} disabled={files.length === 0 || isUploading}>
             {isUploading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -820,7 +822,7 @@ const MediaSelector = ({
             )}
           </Button>
         </div>
-      </form>
+      </div>
     );
   };
 
