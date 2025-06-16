@@ -43,6 +43,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { v4 as uuidv4 } from "uuid";
 import { jumpingLevels } from "@/lib/formOptions";
+import { useNavigate } from "react-router-dom";
 
 const VideoUploadFormSchema = z.object({
   discipline: z.enum(["dressage", "jumping"]),
@@ -69,6 +70,7 @@ const VideoUpload = ({ fetchDocs }: VideoUploadProps) => {
   const { toast } = useToast();
   const { language, translations } = useLanguage();
   const t = translations[language];
+  const navigate = useNavigate();
 
   const [selectedVideo, setSelectedVideo] = useState<File | null>(null);
   const [videoPreviewUrl, setVideoPreviewUrl] = useState<string | null>(null);
@@ -342,11 +344,13 @@ const VideoUpload = ({ fetchDocs }: VideoUploadProps) => {
           // Continue anyway as the video is saved
         } else {
           console.log("Analysis function triggered successfully");
+          navigate(`/analysis?document_id=${videoAnalysisData[0].id}`);
         }
       } catch (functionCallError) {
         console.error("Error calling function:", functionCallError);
         // Continue as video is saved
       }
+
       fetchDocs();
       setUploadProgress(100);
 
