@@ -17,6 +17,7 @@ interface ProfileData {
   coach_name: string | null;
   region: string | null;
   discipline: string | null;
+  governing_body: string | null;
   profile_picture_url: string | null;
   created_at?: string | null;
   updated_at?: string | null;
@@ -32,6 +33,7 @@ const ProfileHeader = () => {
   const [coachName, setCoachName] = useState('');
   const [region, setRegion] = useState('');
   const [discipline, setDiscipline] = useState('');
+  const [governingBody, setGoverningBody] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   
@@ -73,6 +75,7 @@ const ProfileHeader = () => {
           setCoachName(profile.coach_name || '');
           setRegion(profile.region || '');
           setDiscipline(profile.discipline || '');
+          setGoverningBody(profile.governing_body || '');
           setProfilePic(profile.profile_picture_url);
         } else {
           // Set default display name from user metadata if no profile exists
@@ -110,6 +113,7 @@ const ProfileHeader = () => {
         coach_name: coachName,
         region: region,
         discipline: discipline,
+        governing_body: governingBody,
         profile_picture_url: profilePic,
         updated_at: new Date().toISOString()
       };
@@ -175,6 +179,8 @@ const ProfileHeader = () => {
           setRegion={setRegion}
           discipline={discipline}
           setDiscipline={setDiscipline}
+          governingBody={governingBody}
+          setGoverningBody={setGoverningBody}
         />
       </div>
       

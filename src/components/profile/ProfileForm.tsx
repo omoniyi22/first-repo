@@ -1,3 +1,4 @@
+
 import {
   Select,
   SelectContent,
@@ -10,7 +11,7 @@ import {
   countries as countriesList,
   getGoverningBodyByCountry,
 } from "@/data/countriesData";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 interface ProfileFormProps {
   displayName: string;
@@ -25,7 +26,6 @@ interface ProfileFormProps {
   setRegion: (value: string) => void;
   discipline: string;
   setDiscipline: (value: string) => void;
-  // ADD THESE NEW PROPS
   governingBody: string;
   setGoverningBody: (value: string) => void;
 }
@@ -43,10 +43,9 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
   setRegion,
   discipline,
   setDiscipline,
-  // NEW PROPS
+  governingBody,
+  setGoverningBody,
 }) => {
-  const [governingBody, setGoverningBody] = useState<any>([]);
-
   // AUTO-UPDATE GOVERNING BODY WHEN COUNTRY CHANGES
   useEffect(() => {
     if (region) {
@@ -161,7 +160,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
           </Select>
         </div>
 
-        {/* Governing Body - FIXED */}
+        {/* Governing Body */}
         <div className="space-y-2">
           <label
             htmlFor="governing-body"
