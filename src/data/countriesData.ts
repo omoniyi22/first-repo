@@ -390,7 +390,6 @@ const countries = getCountriesList();
 
 // Get governing body for UK
 const ukGoverningBody = getGoverningBodyByCountry('United Kingdom');
-console.log("🚀 ~ ukGoverningBody:", ukGoverningBody)
 
 // Get all UK levels
 const ukLevels = getLevelsByCountry('United Kingdom');

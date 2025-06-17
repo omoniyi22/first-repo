@@ -50,7 +50,8 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { dressageLevels } from "@/lib/formOptions";
+import { getLevelsByCountry } from "@/data/countriesData";
+
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { fetchPdfAsBase64 } from "@/utils/pdfUtils";
@@ -75,7 +76,7 @@ type DocumentUploadFormValues = z.infer<typeof DocumentUploadFormSchema>;
 
 const jumpingCompetitionTypes = [
   "Show Jumping",
-  "Derby",
+  "Derby", 
   "Grand Prix",
   "Power & Speed",
   "Table A",
@@ -86,6 +87,7 @@ const jumpingCompetitionTypes = [
 interface DocumentUploadProps {
   fetchDocs?: () => void;
 }
+
 const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -93,17 +95,23 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
   const t = translations[language];
   const navigate = useNavigate();
 
+  // File and upload states
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [isUploading, setIsUploading] = useState<boolean>(false);
+  
+  // Data states
   const [horses, setHorses] = useState<any[]>([]);
   const [isLoadingHorses, setIsLoadingHorses] = useState<boolean>(true);
+  const [userProfile, setUserProfile] = useState<any>(null);
+  const [isLoadingProfile, setIsLoadingProfile] = useState<boolean>(true);
+  const [dressageLevels, setDressageLevels] = useState<any[]>([]);
+  
+  // Modal and processing states
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [newDocumentId, setNewDocumentId] = useState<string | null>(null);
   const [base64Image, setBase64Image] = useState<any>("");
   const [isShowSpinner, setIsShowSpinner] = useState<boolean>(false);
-  const [userDiscipline, setUserDiscipline] = useState<string>("");
-  const [isLoadingProfile, setIsLoadingProfile] = useState<boolean>(true);
 
   const form = useForm<DocumentUploadFormValues>({
     resolver: zodResolver(DocumentUploadFormSchema),
@@ -115,15 +123,7 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
 
   const discipline = form.watch("discipline");
 
-  useEffect(() => {
-    // Reset form fields when discipline changes
-    if (discipline === "dressage") {
-      form.setValue("competitionType", undefined);
-    } else {
-      form.setValue("testLevel", undefined);
-    }
-  }, [discipline, form]);
-
+  // FIXED: Load user profile and set up form properly
   useEffect(() => {
     const fetchUserData = async () => {
       if (!user) return;
@@ -132,41 +132,47 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
         setIsLoadingHorses(true);
         setIsLoadingProfile(true);
 
-        // Fetch user profile to get discipline
+        // Fetch user profile with country and governing body
         const { data: profileData, error: profileError } = await supabase
           .from("profiles")
-          .select("discipline")
+          .select("discipline, region, governing_body")
           .eq("id", user.id)
           .single();
 
         if (profileError && profileError.code !== "PGRST116") {
           console.error("Error fetching profile:", profileError);
-        } else if (profileData?.discipline) {
-          setUserDiscipline(profileData.discipline);
-          form.setValue(
-            "discipline",
-            profileData.discipline as "dressage" | "jumping"
-          );
+        } else if (profileData) {
+          setUserProfile(profileData);
+          
+          // Set discipline in form
+          if (profileData.discipline) {
+            form.setValue("discipline", profileData.discipline as "dressage" | "jumping");
+          }
+
+          // FIXED: Load levels based on user's country, not governing body
+          if (profileData.region) {
+            const levels = getLevelsByCountry(profileData.region);
+            setDressageLevels(levels || []);
+          } else {
+            console.warn("No country found in user profile");
+            setDressageLevels([]);
+          }
         }
 
-        // Fetch horses from the user's profile
-        const { data: horsesData, error } = await supabase
+        // Fetch horses
+        const { data: horsesData, error: horsesError } = await supabase
           .from("horses")
           .select("id, name, breed, age")
           .eq("user_id", user.id)
           .order("name");
 
-        if (error) {
-          console.error("Error fetching horses:", error);
+        if (horsesError) {
+          console.error("Error fetching horses:", horsesError);
           toast({
-            title:
-              language === "en"
-                ? "Error loading horses"
-                : "Error al cargar caballos",
-            description:
-              language === "en"
-                ? "Could not load your horses. Please try again."
-                : "No se pudieron cargar tus caballos. Inténtalo de nuevo.",
+            title: language === "en" ? "Error loading horses" : "Error al cargar caballos",
+            description: language === "en" 
+              ? "Could not load your horses. Please try again."
+              : "No se pudieron cargar tus caballos. Inténtalo de nuevo.",
             variant: "destructive",
           });
           setHorses([]);
@@ -174,8 +180,9 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
           setHorses(horsesData || []);
         }
       } catch (error) {
-        console.error("Error fetching horses:", error);
+        console.error("Error fetching user data:", error);
         setHorses([]);
+        setDressageLevels([]);
       } finally {
         setIsLoadingHorses(false);
         setIsLoadingProfile(false);
@@ -184,6 +191,15 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
 
     fetchUserData();
   }, [user, language, toast, form]);
+
+  // Reset form fields when discipline changes
+  useEffect(() => {
+    if (discipline === "dressage") {
+      form.setValue("competitionType", undefined);
+    } else {
+      form.setValue("testLevel", undefined);
+    }
+  }, [discipline, form]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -220,14 +236,10 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
 
       if (hasInvalidFiles) {
         toast({
-          title:
-            language === "en"
-              ? "Invalid file type"
-              : "Tipo de archivo no válido",
-          description:
-            language === "en"
-              ? "Please upload only PDF, JPG, PNG or WebP files."
-              : "Por favor sube solo archivos PDF, JPG, PNG o WebP.",
+          title: language === "en" ? "Invalid file type" : "Tipo de archivo no válido",
+          description: language === "en"
+            ? "Please upload only PDF, JPG, PNG or WebP files."
+            : "Por favor sube solo archivos PDF, JPG, PNG o WebP.",
           variant: "destructive",
         });
       }
@@ -241,9 +253,7 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
   const removeSelectedFile = () => {
     setSelectedFiles([]);
     // Reset file input
-    const fileInput = document.getElementById(
-      "document-upload"
-    ) as HTMLInputElement;
+    const fileInput = document.getElementById("document-upload") as HTMLInputElement;
     if (fileInput) {
       fileInput.value = "";
     }
@@ -252,12 +262,33 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
   const onSubmit = async (data: DocumentUploadFormValues) => {
     if (selectedFiles.length === 0 || !user) {
       toast({
-        title:
-          language === "en" ? "Missing information" : "Información faltante",
-        description:
-          language === "en"
-            ? "Please select at least one file and fill in all required fields."
-            : "Por favor selecciona al menos un archivo y completa todos los campos requeridos.",
+        title: language === "en" ? "Missing information" : "Información faltante",
+        description: language === "en"
+          ? "Please select at least one file and fill in all required fields."
+          : "Por favor selecciona al menos un archivo y completa todos los campos requeridos.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // FIXED: Validate required fields based on discipline
+    if (data.discipline === "dressage" && !data.testLevel) {
+      toast({
+        title: language === "en" ? "Missing test level" : "Falta nivel de prueba",
+        description: language === "en"
+          ? "Please select a test level for dressage."
+          : "Por favor selecciona un nivel de prueba para doma clásica.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (data.discipline === "jumping" && !data.competitionType) {
+      toast({
+        title: language === "en" ? "Missing competition type" : "Falta tipo de competición",
+        description: language === "en"
+          ? "Please select a competition type for jumping."
+          : "Por favor selecciona un tipo de competición para salto.",
         variant: "destructive",
       });
       return;
@@ -282,10 +313,7 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
       if (data.discipline === "dressage" && data.testLevel) {
         filePrefix = `${data.testLevel}_${formattedDate}`;
       } else if (data.discipline === "jumping" && data.competitionType) {
-        filePrefix = `${data.competitionType.replace(
-          /\s+/g,
-          "-"
-        )}_${formattedDate}`;
+        filePrefix = `${data.competitionType.replace(/\s+/g, "-")}_${formattedDate}`;
       } else {
         // Fallback if no test level or competition type is selected
         filePrefix = `${data.discipline}_${formattedDate}`;
@@ -295,15 +323,11 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
       filePrefix = filePrefix.replace(/[^a-zA-Z0-9\-_]/g, "-");
 
       // Check if we're dealing with a single PDF or multiple images
-      const isPDF = selectedFiles.some(
-        (file) => file.type === "application/pdf"
-      );
+      const isPDF = selectedFiles.some((file) => file.type === "application/pdf");
 
       if (isPDF) {
         // Use the PDF directly with custom filename
-        const pdfFile = selectedFiles.find(
-          (file) => file.type === "application/pdf"
-        )!;
+        const pdfFile = selectedFiles.find((file) => file.type === "application/pdf")!;
         const originalExtension = pdfFile.name.split(".").pop();
         fileName = `${filePrefix}.${originalExtension}`;
         fileBlob = pdfFile;
@@ -360,7 +384,7 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
         displayFileName = `${filePrefix}_combined (${selectedFiles.length} images).pdf`;
       }
 
-      // Insert document metadata into the database
+      // FIXED: Insert document metadata with proper data
       const { data: documentData, error: documentError } = await supabase
         .from("document_analysis")
         .insert({
@@ -369,14 +393,16 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
           horse_name: horseName,
           discipline: data.discipline,
           test_level: data.discipline === "dressage" ? data.testLevel : null,
-          competition_type:
-            data.discipline === "jumping" ? data.competitionType : null,
+          competition_type: data.discipline === "jumping" ? data.competitionType : null,
           document_date: data.date.toISOString(),
           document_url: publicUrlData.publicUrl,
           file_name: displayFileName,
           file_type: fileType,
           notes: data.notes || null,
           status: "pending",
+          // ADDED: Store user's country and governing body for analysis
+          user_country: userProfile?.region || null,
+          user_governing_body: userProfile?.governing_body || null,
         })
         .select();
 
@@ -394,7 +420,7 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
 
       // Reset form and states
       form.reset({
-        discipline: userDiscipline as "dressage" | "jumping",
+        discipline: userProfile?.discipline as "dressage" | "jumping" || "dressage",
         date: new Date(),
       });
       setSelectedFiles([]);
@@ -410,8 +436,7 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
 
       toast({
         title: language === "en" ? "Upload failed" : "Error al subir",
-        description:
-          error?.message ||
+        description: error?.message ||
           (language === "en"
             ? "There was an error uploading your files. Please try again."
             : "Hubo un error al subir tus archivos. Por favor intenta de nuevo."),
@@ -428,6 +453,27 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
       <Card className="p-6 bg-white shadow-sm border border-gray-100 rounded-lg">
         <div className="flex justify-center items-center h-32">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-700"></div>
+        </div>
+      </Card>
+    );
+  }
+
+  // ADDED: Show error if user has no country set up
+  if (!userProfile?.region) {
+    return (
+      <Card className="p-6 bg-white shadow-sm border border-gray-100 rounded-lg">
+        <div className="text-center py-8">
+          <h2 className="text-xl font-semibold mb-4 text-red-600">
+            {language === "en" ? "Profile Setup Required" : "Configuración de Perfil Requerida"}
+          </h2>
+          <p className="text-gray-600 mb-4">
+            {language === "en" 
+              ? "Please complete your profile setup by selecting your country before uploading documents."
+              : "Por favor completa la configuración de tu perfil seleccionando tu país antes de subir documentos."}
+          </p>
+          <Button onClick={() => navigate('/profile-setup')}>
+            {language === "en" ? "Go to Profile" : "Ir al Perfil"}
+          </Button>
         </div>
       </Card>
     );
@@ -465,9 +511,7 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() =>
-                  document.getElementById("document-upload")?.click()
-                }
+                onClick={() => document.getElementById("document-upload")?.click()}
                 className="mt-2 text-purple-900 hover:bg-purple-900"
               >
                 {language === "en" ? "Browse Files" : "Explorar Archivos"}
@@ -500,24 +544,17 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
               </div>
               <div className="max-h-40 overflow-y-auto border rounded-md p-2">
                 {selectedFiles.map((file, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between py-1"
-                  >
+                  <div key={index} className="flex items-center justify-between py-1">
                     <div className="flex items-center">
                       <File className="h-4 w-4 text-purple-500 mr-2" />
-                      <p className="text-xs truncate max-w-[200px]">
-                        {file.name}
-                      </p>
+                      <p className="text-xs truncate max-w-[200px]">{file.name}</p>
                     </div>
                     <Button
                       type="button"
                       variant="ghost"
                       size="sm"
                       onClick={() => {
-                        setSelectedFiles((prev) =>
-                          prev.filter((_, i) => i !== index)
-                        );
+                        setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
                       }}
                     >
                       <X className="h-3 w-3" />
@@ -532,7 +569,19 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          {/* Discipline Selector - Read Only */}
+          {/* FIXED: Country Display (Read-only) */}
+          <div className="space-y-2">
+            <Label className="text-sm font-medium text-gray-700">
+              {language === "en" ? "Country" : "País"}
+            </Label>
+            <Input
+              value={userProfile?.region || ""}
+              readOnly
+              className="bg-gray-50 cursor-not-allowed"
+            />
+          </div>
+
+          {/* FIXED: Discipline Display (Read-only) */}
           <FormField
             control={form.control}
             name="discipline"
@@ -544,13 +593,9 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
                 <FormControl>
                   <Input
                     value={
-                      userDiscipline === "dressage"
-                        ? language === "en"
-                          ? "Dressage"
-                          : "Doma Clásica"
-                        : language === "en"
-                        ? "Jumping"
-                        : "Salto"
+                      userProfile?.discipline === "dressage"
+                        ? language === "en" ? "Dressage" : "Doma Clásica"
+                        : language === "en" ? "Jumping" : "Salto"
                     }
                     readOnly
                     className="bg-gray-50 cursor-not-allowed"
@@ -561,8 +606,8 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
             )}
           />
 
-          {/* Test Level (Dressage only) */}
-          {userDiscipline === "dressage" && (
+          {/* FIXED: Test Level (Dressage only) with proper levels */}
+          {userProfile?.discipline === "dressage" && (
             <FormField
               control={form.control}
               name="testLevel"
@@ -571,10 +616,7 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
                   <FormLabel>
                     {language === "en" ? "Test Level" : "Nivel de Prueba"}
                   </FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue
@@ -587,11 +629,19 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {dressageLevels.map((level) => (
-                        <SelectItem key={level} value={level}>
-                          {level}
+                      {dressageLevels.length > 0 ? (
+                        dressageLevels.map((level) => (
+                          <SelectItem key={level.name} value={level.name}>
+                            {level.name} ({level.category})
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="no-levels" disabled>
+                          {language === "en"
+                            ? "No levels available for your country"
+                            : "No hay niveles disponibles para tu país"}
                         </SelectItem>
-                      ))}
+                      )}
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -601,21 +651,16 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
           )}
 
           {/* Competition Type (Jumping only) */}
-          {userDiscipline === "jumping" && (
+          {userProfile?.discipline === "jumping" && (
             <FormField
               control={form.control}
               name="competitionType"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
-                    {language === "en"
-                      ? "Competition Type"
-                      : "Tipo de Competición"}
+                    {language === "en" ? "Competition Type" : "Tipo de Competición"}
                   </FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue
@@ -784,7 +829,7 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
             <Button
               type="submit"
               className={`w-full bg-gradient-to-r from-[#7857eb] to-[#3b78e8]`}
-              disabled={!selectedFiles || isUploading || horses.length === 0}
+              disabled={!selectedFiles || isUploading || horses.length === 0 || dressageLevels.length === 0}
             >
               {isUploading
                 ? language === "en"
@@ -797,6 +842,8 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
           </div>
         </form>
       </Form>
+
+      {/* Confirmation Modal */}
       <Dialog open={showConfirmModal} onOpenChange={setShowConfirmModal}>
         <DialogContent>
           <DialogHeader>
@@ -807,8 +854,8 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
             </DialogTitle>
             <DialogDescription>
               {language === "en"
-                ? "Your document was uploaded. Would you like to proceed with AI analysis now?"
-                : "Tu documento fue subido. ¿Quieres continuar con el análisis de IA ahora?"}
+                ? "Your document was uploaded successfully. Would you like to proceed with AI analysis now? The analysis will be tailored to your country's dressage system."
+                : "Tu documento fue subido exitosamente. ¿Quieres continuar con el análisis de IA ahora? El análisis será adaptado al sistema de doma de tu país."}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="flex justify-end gap-2">
@@ -824,43 +871,60 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
                     body: {
                       documentId: newDocumentId,
                       base64Image: base64Image,
+                      userCountry: userProfile?.region,
+                      userGoverningBody: userProfile?.governing_body,
                     },
                   });
 
-                  // toast({
-                  //   title:
-                  //     language === "en"
-                  //       ? "Document is analyzed successfully"
-                  //       : "Documento analizado con éxito",
-                  //   description:
-                  //     language === "en"
-                  //       ? "Go to My Documents to view the analysis."
-                  //       : "Vaya a Mis documentos para ver el análisis.",
-                  // });
-
                   navigate(`/analysis?document_id=${newDocumentId}`);
-
-                  fetchDocs();
+                  fetchDocs && fetchDocs();
                   setIsShowSpinner(false);
                 } catch (err) {
                   console.warn("Processing failed:", err);
+                  toast({
+                    title: language === "en" ? "Analysis failed" : "Análisis falló",
+                    description: language === "en"
+                      ? "There was an error processing your document. Please try again."
+                      : "Hubo un error procesando tu documento. Por favor intenta de nuevo.",
+                    variant: "destructive",
+                  });
                   setIsShowSpinner(false);
                 }
               }}
+              disabled={isShowSpinner}
               className={
-                userDiscipline === "dressage"
+                userProfile?.discipline === "dressage"
                   ? "bg-purple-700 hover:bg-purple-800"
                   : "bg-blue-600 hover:bg-blue-700"
               }
             >
-              {language === "en" ? "Yes, analyze" : "Sí, analizar"}
+              {isShowSpinner ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {language === "en" ? "Processing..." : "Procesando..."}
+                </>
+              ) : (
+                language === "en" ? "Yes, analyze" : "Sí, analizar"
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Loading Spinner Overlay */}
       {isShowSpinner && (
-        <div className="fixed top-0 right-0 w-screen h-full flex justify-center items-center p-12">
-          <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg flex flex-col items-center">
+            <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
+            <p className="text-lg font-medium">
+              {language === "en" ? "Analyzing your document..." : "Analizando tu documento..."}
+            </p>
+            <p className="text-sm text-gray-500 mt-2">
+              {language === "en" 
+                ? "This may take a few moments"
+                : "Esto puede tomar unos momentos"}
+            </p>
+          </div>
         </div>
       )}
     </Card>
