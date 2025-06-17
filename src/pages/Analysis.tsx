@@ -190,9 +190,9 @@ const Analysis = () => {
   };
 
   const handleSelectItem = (itemId: string) => {
-    setSelectedItems(prev => 
-      prev.includes(itemId) 
-        ? prev.filter(id => id !== itemId)
+    setSelectedItems((prev) =>
+      prev.includes(itemId)
+        ? prev.filter((id) => id !== itemId)
         : [...prev, itemId]
     );
   };
@@ -202,7 +202,7 @@ const Analysis = () => {
     if (selectedItems.length === currentItems.length) {
       setSelectedItems([]);
     } else {
-      setSelectedItems(currentItems.map(item => item.id));
+      setSelectedItems(currentItems.map((item) => item.id));
     }
   };
 
@@ -210,8 +210,28 @@ const Analysis = () => {
     if (selectedItems.length === 0) return;
 
     setIsDeleting(true);
+
     try {
-      // Delete from analysis_results first (if exists)
+      // 1. Get document URLs for file deletion
+      const { data: analysisRows, error: analysisRowsError } = await supabase
+        .from("document_analysis")
+        .select("id, document_url")
+        .in("id", selectedItems);
+
+      if (analysisRowsError) {
+        throw new Error(
+          `Failed to fetch documents: ${analysisRowsError.message}`
+        );
+      }
+
+      if (!analysisRows || analysisRows.length === 0) {
+        throw new Error("No documents found to delete");
+      }
+
+      // 2. Delete files from storage first
+      await deleteFilesFromStorage(analysisRows);
+
+      // 3. Delete from analysis_results table (if exists)
       const { error: resultsError } = await supabase
         .from("analysis_results")
         .delete()
@@ -219,37 +239,109 @@ const Analysis = () => {
 
       if (resultsError) {
         console.warn("Error deleting analysis results:", resultsError);
+        // Don't throw here, continue with document deletion
       }
 
-      // Delete from document_analysis
+      // 4. Delete from document_analysis table
       const { error: analysisError } = await supabase
         .from("document_analysis")
         .delete()
         .in("id", selectedItems);
 
       if (analysisError) {
-        throw analysisError;
+        throw new Error(
+          `Failed to delete documents from database: ${analysisError.message}`
+        );
       }
 
+      // Success feedback
       toast.success(
         language === "en"
           ? `Successfully deleted ${selectedItems.length} item(s)`
           : `Se eliminaron ${selectedItems.length} elemento(s) exitosamente`
       );
 
+      // Reset state
       setSelectedItems([]);
       fetchDocs();
     } catch (error) {
       console.error("Error deleting items:", error);
+
+      // Better error messaging
+      const errorMessage = error.message || "Unknown error occurred";
       toast.error(
         language === "en"
-          ? "Failed to delete selected items"
-          : "No se pudieron eliminar los elementos seleccionados"
+          ? `Failed to delete selected items: ${errorMessage}`
+          : `No se pudieron eliminar los elementos seleccionados: ${errorMessage}`
       );
     } finally {
       setIsDeleting(false);
     }
   };
+
+  const deleteFilesFromStorage = async (analysisRows) => {
+    try {
+      if (!analysisRows || analysisRows.length === 0) {
+        console.warn("No analysis rows provided");
+        return;
+      }
+
+      // Extract file paths from URLs
+      const filePaths = analysisRows
+        .map((row) => {
+          if (!row.document_url) {
+            console.warn("Row missing document_url:", row);
+            return null;
+          }
+
+          const url = row.document_url;
+          // Extract path after '/storage/v1/object/public/analysis/'
+          const pathMatch = url.match(
+            /\/storage\/v1\/object\/public\/analysis\/(.+)/
+          );
+
+          if (!pathMatch) {
+            console.warn("Could not extract path from URL:", url);
+            return null;
+          }
+
+          return pathMatch[1];
+        })
+        .filter(Boolean); // Remove any null values
+
+      if (filePaths.length === 0) {
+        console.warn("No valid file paths found");
+        return;
+      }
+
+      // Delete files from storage
+      const { data, error } = await supabase.storage
+        .from("analysis")
+        .remove(filePaths);
+
+      if (error) {
+        console.error("Error deleting files from storage:", error);
+        throw new Error(`Storage deletion failed: ${error.message}`);
+      }
+
+      console.log("Files deleted successfully from storage:", data.length);
+
+      // ADDED: Check if all files were deleted successfully
+      if (data) {
+        const failedDeletions = data.filter((result: any) => result.error);
+        if (failedDeletions.length > 0) {
+          console.warn("Some files failed to delete:", failedDeletions);
+        }
+      }
+
+      return data;
+    } catch (error) {
+      console.error("Failed to delete files from storage:", error);
+      throw error; // Re-throw to be caught by parent function
+    }
+  };
+
+  // Usage
 
   // Helper function to format dates
   const formatDate = (dateString: string) => {
@@ -412,7 +504,9 @@ const Analysis = () => {
                             {selectedItems.length > 0 && (
                               <span className="text-sm text-gray-600">
                                 {selectedItems.length}{" "}
-                                {language === "en" ? "selected" : "seleccionados"}
+                                {language === "en"
+                                  ? "selected"
+                                  : "seleccionados"}
                               </span>
                             )}
                           </div>
@@ -428,7 +522,9 @@ const Analysis = () => {
                               ) : (
                                 <Trash2 className="h-4 w-4 mr-2" />
                               )}
-                              {language === "en" ? "Delete Selected" : "Eliminar Seleccionados"}
+                              {language === "en"
+                                ? "Delete Selected"
+                                : "Eliminar Seleccionados"}
                             </Button>
                           )}
                         </div>
@@ -440,7 +536,10 @@ const Analysis = () => {
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                   <input
                                     type="checkbox"
-                                    checked={selectedItems.length === documents.length && documents.length > 0}
+                                    checked={
+                                      selectedItems.length ===
+                                        documents.length && documents.length > 0
+                                    }
                                     onChange={handleSelectAll}
                                     className="rounded"
                                   />
@@ -613,7 +712,9 @@ const Analysis = () => {
                             ) : (
                               <Trash2 className="h-4 w-4 mr-2" />
                             )}
-                            {language === "en" ? "Delete Selected" : "Eliminar Seleccionados"}
+                            {language === "en"
+                              ? "Delete Selected"
+                              : "Eliminar Seleccionados"}
                           </Button>
                         )}
                       </div>
@@ -625,7 +726,10 @@ const Analysis = () => {
                               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 <input
                                   type="checkbox"
-                                  checked={selectedItems.length === videos.length && videos.length > 0}
+                                  checked={
+                                    selectedItems.length === videos.length &&
+                                    videos.length > 0
+                                  }
                                   onChange={handleSelectAll}
                                   className="rounded"
                                 />

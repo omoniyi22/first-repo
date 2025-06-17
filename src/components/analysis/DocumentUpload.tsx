@@ -76,7 +76,7 @@ type DocumentUploadFormValues = z.infer<typeof DocumentUploadFormSchema>;
 
 const jumpingCompetitionTypes = [
   "Show Jumping",
-  "Derby", 
+  "Derby",
   "Grand Prix",
   "Power & Speed",
   "Table A",
@@ -99,14 +99,14 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [isUploading, setIsUploading] = useState<boolean>(false);
-  
+
   // Data states
   const [horses, setHorses] = useState<any[]>([]);
   const [isLoadingHorses, setIsLoadingHorses] = useState<boolean>(true);
   const [userProfile, setUserProfile] = useState<any>(null);
   const [isLoadingProfile, setIsLoadingProfile] = useState<boolean>(true);
   const [dressageLevels, setDressageLevels] = useState<any[]>([]);
-  
+
   // Modal and processing states
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [newDocumentId, setNewDocumentId] = useState<string | null>(null);
@@ -143,10 +143,13 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
           console.error("Error fetching profile:", profileError);
         } else if (profileData) {
           setUserProfile(profileData);
-          
+
           // Set discipline in form
           if (profileData.discipline) {
-            form.setValue("discipline", profileData.discipline as "dressage" | "jumping");
+            form.setValue(
+              "discipline",
+              profileData.discipline as "dressage" | "jumping"
+            );
           }
 
           // FIXED: Load levels based on user's country, not governing body
@@ -169,10 +172,14 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
         if (horsesError) {
           console.error("Error fetching horses:", horsesError);
           toast({
-            title: language === "en" ? "Error loading horses" : "Error al cargar caballos",
-            description: language === "en" 
-              ? "Could not load your horses. Please try again."
-              : "No se pudieron cargar tus caballos. Inténtalo de nuevo.",
+            title:
+              language === "en"
+                ? "Error loading horses"
+                : "Error al cargar caballos",
+            description:
+              language === "en"
+                ? "Could not load your horses. Please try again."
+                : "No se pudieron cargar tus caballos. Inténtalo de nuevo.",
             variant: "destructive",
           });
           setHorses([]);
@@ -236,10 +243,14 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
 
       if (hasInvalidFiles) {
         toast({
-          title: language === "en" ? "Invalid file type" : "Tipo de archivo no válido",
-          description: language === "en"
-            ? "Please upload only PDF, JPG, PNG or WebP files."
-            : "Por favor sube solo archivos PDF, JPG, PNG o WebP.",
+          title:
+            language === "en"
+              ? "Invalid file type"
+              : "Tipo de archivo no válido",
+          description:
+            language === "en"
+              ? "Please upload only PDF, JPG, PNG or WebP files."
+              : "Por favor sube solo archivos PDF, JPG, PNG o WebP.",
           variant: "destructive",
         });
       }
@@ -253,7 +264,9 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
   const removeSelectedFile = () => {
     setSelectedFiles([]);
     // Reset file input
-    const fileInput = document.getElementById("document-upload") as HTMLInputElement;
+    const fileInput = document.getElementById(
+      "document-upload"
+    ) as HTMLInputElement;
     if (fileInput) {
       fileInput.value = "";
     }
@@ -262,10 +275,12 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
   const onSubmit = async (data: DocumentUploadFormValues) => {
     if (selectedFiles.length === 0 || !user) {
       toast({
-        title: language === "en" ? "Missing information" : "Información faltante",
-        description: language === "en"
-          ? "Please select at least one file and fill in all required fields."
-          : "Por favor selecciona al menos un archivo y completa todos los campos requeridos.",
+        title:
+          language === "en" ? "Missing information" : "Información faltante",
+        description:
+          language === "en"
+            ? "Please select at least one file and fill in all required fields."
+            : "Por favor selecciona al menos un archivo y completa todos los campos requeridos.",
         variant: "destructive",
       });
       return;
@@ -274,10 +289,12 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
     // FIXED: Validate required fields based on discipline
     if (data.discipline === "dressage" && !data.testLevel) {
       toast({
-        title: language === "en" ? "Missing test level" : "Falta nivel de prueba",
-        description: language === "en"
-          ? "Please select a test level for dressage."
-          : "Por favor selecciona un nivel de prueba para doma clásica.",
+        title:
+          language === "en" ? "Missing test level" : "Falta nivel de prueba",
+        description:
+          language === "en"
+            ? "Please select a test level for dressage."
+            : "Por favor selecciona un nivel de prueba para doma clásica.",
         variant: "destructive",
       });
       return;
@@ -285,10 +302,14 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
 
     if (data.discipline === "jumping" && !data.competitionType) {
       toast({
-        title: language === "en" ? "Missing competition type" : "Falta tipo de competición",
-        description: language === "en"
-          ? "Please select a competition type for jumping."
-          : "Por favor selecciona un tipo de competición para salto.",
+        title:
+          language === "en"
+            ? "Missing competition type"
+            : "Falta tipo de competición",
+        description:
+          language === "en"
+            ? "Please select a competition type for jumping."
+            : "Por favor selecciona un tipo de competición para salto.",
         variant: "destructive",
       });
       return;
@@ -311,23 +332,30 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
       // Create filename prefix based on discipline
       let filePrefix = "";
       if (data.discipline === "dressage" && data.testLevel) {
-        filePrefix = `${data.testLevel}_${formattedDate}`;
+        filePrefix = `${data.testLevel}_${formattedDate}_${Date.now()}`;
       } else if (data.discipline === "jumping" && data.competitionType) {
-        filePrefix = `${data.competitionType.replace(/\s+/g, "-")}_${formattedDate}`;
+        filePrefix = `${data.competitionType.replace(
+          /\s+/g,
+          "-"
+        )}_${formattedDate}_${Date.now()}`;
       } else {
         // Fallback if no test level or competition type is selected
-        filePrefix = `${data.discipline}_${formattedDate}`;
+        filePrefix = `${data.discipline}_${formattedDate}_${Date.now()}`;
       }
 
       // Clean the prefix to make it filename-safe
       filePrefix = filePrefix.replace(/[^a-zA-Z0-9\-_]/g, "-");
 
       // Check if we're dealing with a single PDF or multiple images
-      const isPDF = selectedFiles.some((file) => file.type === "application/pdf");
+      const isPDF = selectedFiles.some(
+        (file) => file.type === "application/pdf"
+      );
 
       if (isPDF) {
         // Use the PDF directly with custom filename
-        const pdfFile = selectedFiles.find((file) => file.type === "application/pdf")!;
+        const pdfFile = selectedFiles.find(
+          (file) => file.type === "application/pdf"
+        )!;
         const originalExtension = pdfFile.name.split(".").pop();
         fileName = `${filePrefix}.${originalExtension}`;
         fileBlob = pdfFile;
@@ -393,7 +421,8 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
           horse_name: horseName,
           discipline: data.discipline,
           test_level: data.discipline === "dressage" ? data.testLevel : null,
-          competition_type: data.discipline === "jumping" ? data.competitionType : null,
+          competition_type:
+            data.discipline === "jumping" ? data.competitionType : null,
           document_date: data.date.toISOString(),
           document_url: publicUrlData.publicUrl,
           file_name: displayFileName,
@@ -420,7 +449,8 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
 
       // Reset form and states
       form.reset({
-        discipline: userProfile?.discipline as "dressage" | "jumping" || "dressage",
+        discipline:
+          (userProfile?.discipline as "dressage" | "jumping") || "dressage",
         date: new Date(),
       });
       setSelectedFiles([]);
@@ -436,7 +466,8 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
 
       toast({
         title: language === "en" ? "Upload failed" : "Error al subir",
-        description: error?.message ||
+        description:
+          error?.message ||
           (language === "en"
             ? "There was an error uploading your files. Please try again."
             : "Hubo un error al subir tus archivos. Por favor intenta de nuevo."),
@@ -464,14 +495,16 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
       <Card className="p-6 bg-white shadow-sm border border-gray-100 rounded-lg">
         <div className="text-center py-8">
           <h2 className="text-xl font-semibold mb-4 text-red-600">
-            {language === "en" ? "Profile Setup Required" : "Configuración de Perfil Requerida"}
+            {language === "en"
+              ? "Profile Setup Required"
+              : "Configuración de Perfil Requerida"}
           </h2>
           <p className="text-gray-600 mb-4">
-            {language === "en" 
+            {language === "en"
               ? "Please complete your profile setup by selecting your country before uploading documents."
               : "Por favor completa la configuración de tu perfil seleccionando tu país antes de subir documentos."}
           </p>
-          <Button onClick={() => navigate('/profile-setup')}>
+          <Button onClick={() => navigate("/profile-setup")}>
             {language === "en" ? "Go to Profile" : "Ir al Perfil"}
           </Button>
         </div>
@@ -511,7 +544,9 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => document.getElementById("document-upload")?.click()}
+                onClick={() =>
+                  document.getElementById("document-upload")?.click()
+                }
                 className="mt-2 text-purple-900 hover:bg-purple-900"
               >
                 {language === "en" ? "Browse Files" : "Explorar Archivos"}
@@ -544,17 +579,24 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
               </div>
               <div className="max-h-40 overflow-y-auto border rounded-md p-2">
                 {selectedFiles.map((file, index) => (
-                  <div key={index} className="flex items-center justify-between py-1">
+                  <div
+                    key={index}
+                    className="flex items-center justify-between py-1"
+                  >
                     <div className="flex items-center">
                       <File className="h-4 w-4 text-purple-500 mr-2" />
-                      <p className="text-xs truncate max-w-[200px]">{file.name}</p>
+                      <p className="text-xs truncate max-w-[200px]">
+                        {file.name}
+                      </p>
                     </div>
                     <Button
                       type="button"
                       variant="ghost"
                       size="sm"
                       onClick={() => {
-                        setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+                        setSelectedFiles((prev) =>
+                          prev.filter((_, i) => i !== index)
+                        );
                       }}
                     >
                       <X className="h-3 w-3" />
@@ -594,8 +636,12 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
                   <Input
                     value={
                       userProfile?.discipline === "dressage"
-                        ? language === "en" ? "Dressage" : "Doma Clásica"
-                        : language === "en" ? "Jumping" : "Salto"
+                        ? language === "en"
+                          ? "Dressage"
+                          : "Doma Clásica"
+                        : language === "en"
+                        ? "Jumping"
+                        : "Salto"
                     }
                     readOnly
                     className="bg-gray-50 cursor-not-allowed"
@@ -616,7 +662,10 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
                   <FormLabel>
                     {language === "en" ? "Test Level" : "Nivel de Prueba"}
                   </FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue
@@ -658,9 +707,14 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
-                    {language === "en" ? "Competition Type" : "Tipo de Competición"}
+                    {language === "en"
+                      ? "Competition Type"
+                      : "Tipo de Competición"}
                   </FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue
@@ -829,7 +883,12 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
             <Button
               type="submit"
               className={`w-full bg-gradient-to-r from-[#7857eb] to-[#3b78e8]`}
-              disabled={!selectedFiles || isUploading || horses.length === 0 || dressageLevels.length === 0}
+              disabled={
+                !selectedFiles ||
+                isUploading ||
+                horses.length === 0 ||
+                dressageLevels.length === 0
+              }
             >
               {isUploading
                 ? language === "en"
@@ -882,10 +941,12 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
                 } catch (err) {
                   console.warn("Processing failed:", err);
                   toast({
-                    title: language === "en" ? "Analysis failed" : "Análisis falló",
-                    description: language === "en"
-                      ? "There was an error processing your document. Please try again."
-                      : "Hubo un error procesando tu documento. Por favor intenta de nuevo.",
+                    title:
+                      language === "en" ? "Analysis failed" : "Análisis falló",
+                    description:
+                      language === "en"
+                        ? "There was an error processing your document. Please try again."
+                        : "Hubo un error procesando tu documento. Por favor intenta de nuevo.",
                     variant: "destructive",
                   });
                   setIsShowSpinner(false);
@@ -903,8 +964,10 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   {language === "en" ? "Processing..." : "Procesando..."}
                 </>
+              ) : language === "en" ? (
+                "Yes, analyze"
               ) : (
-                language === "en" ? "Yes, analyze" : "Sí, analizar"
+                "Sí, analizar"
               )}
             </Button>
           </DialogFooter>
@@ -917,10 +980,12 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
           <div className="bg-white p-6 rounded-lg flex flex-col items-center">
             <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
             <p className="text-lg font-medium">
-              {language === "en" ? "Analyzing your document..." : "Analizando tu documento..."}
+              {language === "en"
+                ? "Analyzing your document..."
+                : "Analizando tu documento..."}
             </p>
             <p className="text-sm text-gray-500 mt-2">
-              {language === "en" 
+              {language === "en"
                 ? "This may take a few moments"
                 : "Esto puede tomar unos momentos"}
             </p>

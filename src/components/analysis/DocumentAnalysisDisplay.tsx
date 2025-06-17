@@ -182,7 +182,6 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
   }, [documentId, user, language]);
 
   useEffect(() => {
-    console.log(user, analysis);
     const fetchHorse = async () => {
       if (analysis) {
         const horse_id = analysis.horse_id;
@@ -252,7 +251,6 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
             training_phase: "Preparation",
           });
 
-          console.log("Horse data:", data);
         }
       }
     };
@@ -285,7 +283,6 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
       const res = await callPodcastScript(prompt);
       const rawdata = res.result;
       const result_tts = formatScriptWithStyles(rawdata, 2);
-      console.log("res", result_tts);
 
       // Fire-and-forget request
       fetch("https://6703-45-153-229-59.ngrok-free.app/generate", {
