@@ -491,6 +491,7 @@ export type Database = {
           created_at: string | null
           discipline: string | null
           display_name: string | null
+          governing_body: string | null
           id: string
           profile_picture_url: string | null
           region: string | null
@@ -503,6 +504,7 @@ export type Database = {
           created_at?: string | null
           discipline?: string | null
           display_name?: string | null
+          governing_body?: string | null
           id: string
           profile_picture_url?: string | null
           region?: string | null
@@ -515,6 +517,7 @@ export type Database = {
           created_at?: string | null
           discipline?: string | null
           display_name?: string | null
+          governing_body?: string | null
           id?: string
           profile_picture_url?: string | null
           region?: string | null
