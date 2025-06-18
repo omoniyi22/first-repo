@@ -1,8 +1,13 @@
 import { supabase } from "@/integrations/supabase/client";
 
-const promptTemplate = `
-You are an expert equestrian podcast scriptwriter. I need a **fully personalized 30-minute ride-along podcast script** for my equestrian coaching company, **AI Equestrian**, with the tagline:  
+const promptInstruction = `
+🎧 This script must feel like a real-time **equestrian coach** is speaking **live** to the rider — not like a narrator reading a prewritten podcast. Use **first-person coach tone**, real-time prompts, and physical riding instructions. Never summarize. Always coach in the moment.
+
+
+I need a **fully personalized 30-minute ride-along podcast script** for my equestrian coaching company, **AI Equestrian**, with the tagline:  
 **"Riding INtelligence, Redefined."**
+
+The most important is that script must be ride-along so that rider can listen to while riding a horse.
 
 ---
 Session Context:
@@ -30,6 +35,35 @@ Judge Feedback to Address:
 - {judge_comment_a}
 - {judge_comment_b}
 
+⏸️ **Natural Pauses for Rider Timing**:
+Include natural pauses in the script where the rider needs time to perform an action.  
+After each instruction that requires physical movement, change, or focus shift, insert a **pause marker in square brackets** to simulate the live timing of a real coaching session:
+
+- [pause 2s] – brief transitions or resets  
+- [pause 5s] – basic movement execution (e.g. asking for trot, walk)  
+- [pause 10s] – longer actions or full patterns (e.g. half-pass or a full circle)
+
+Use these pauses **at the end of sentences**, never in the middle.  
+Do **not explain the pause** — just insert it directly as part of the coaching rhythm.
+
+💬 Example:  
+“Ask Varadero to stretch through the poll and lengthen the stride. [pause 5s]”
+
+This helps the rider follow your instructions live and maintain a realistic tempo during the ride.
+
+
+Script Requirements:
+● Use {rider_name} and {horse_name} throughout for personalization
+● Include specific timing cues for exercises during the 30-minute session
+● Reference their actual scores and movements
+● Provide step-by-step guidance they can follow while riding
+● Include motivation based on their progress trend: {score_trend}
+● End with "Remember - this is AI Equestrian, where we're 'Riding Intelligence,
+Redefined.'"
+● Use encouraging but technically accurate language
+● Include pauses for transitions between exercises
+● Reference their upcoming goals: {upcoming_events}
+
 ---
 
 ---
@@ -43,6 +77,8 @@ Judge Feedback to Address:
 - Be instructional yet conversational in the middle
 - Use gentle corrections and encouragement throughout
 - End with motivation and next steps
+- Use phrasing like: “That’s something to be proud of,” “We’re building on a solid foundation,” “You and {horse_name} have come a long way.”
+
 
 ---
 
@@ -98,23 +134,77 @@ Environmental Context:
 - Upcoming Competitions: {upcoming_events}
 - Training Phase: {training_phase}
 
+In each section, if section title contains 'opening', 'welcome' or 'thrilled', you should insert [style:energetic] in front of content.
+So make sure all content format is [style:energetic]<content>[pause _s]
+if section title contains "training focus", "instruction" or "let's start", insert [style:instructional].
+if section title contains "correction", "cue", "focus" or "encouraging", insert [style:coaching].
+if section title contains "metal game", "confidence", "visualize" or "belief", insert [style:motivational].
+if section title contains "wrap-up", "summary", "excellent work" or "remember", insert [style:inspirational].
+otherwise insert [style:instructional]
+Just return the **full ride-along podcast script only**, with style and pause duration.
+[style] and [pause] should be matched so that all contents are inside of them.
+
 ---
+`
+
+const promptPart1 = `
+
+Generate the first half of a 30-minute equestrian ride-along podcast script. 
+
+Include ONLY the following sections from the structure:
+1. Opening (~1000–1200 words)
+2. Performance Review (~2080–2280 words)
+3. Training Focus 1 (~2080–2280 words)
+
+Use the structure, tone, and personalization data provided below. 
+End this part of the script **mid-session**, just after completing Training Focus 1, with a natural riding transition like:
+
+"Take a breath and give {horse_name} a pat. We're going to shift gears now and move into our next focus..."
+
+Do **not** add conclusions or summaries — this is not the end of the ride.
+
+[Insert the full instructions and personalization data here]
 
 🕒 **SCRIPT STRUCTURE AND DURATION (MUST MATCH TIMING)**:
-Please write a full script aligned to these exact durations, using approximately **130–140 words per minute** for speech:
+Please write a full script aligned to these exact durations:
 
-1. **Opening (3 minutes / ~ 780 - 840 words)**  
+1. **Opening (~ 500 words)**  
+    Start with a **friendly greeting** using the rider's name.  
+    Congratulate them warmly on their recent test score ({overall_score}%).  
+    Clearly **state the goal of today's session**, based on their analysis:  
+    - Focus 1: {primary_recommendation}  
+    - Focus 2: {secondary_recommendation}  
+    Include a short comment on the **weather/season** ({current_season}) or an upcoming event ({upcoming_events}) to ground the session in context.  
+    End this section by **inviting the rider to begin the session**, encouraging them to settle into the saddle and connect with their horse.
+    Use a **conversational, warm coaching tone** — as if you're an expert trainer riding beside them, motivating them gently.
+    After the introduction, transition smoothly into a walk and warm-up instructions using their horse’s name ({horse_name}).
    - Personal welcome to {rider_name}  
    - Overview of today's session  
    - Intention setting based on {goals} and {upcoming_events}
+   - Speak exactly like a real coach would while riding alongside — present-tense, direct coaching, with warm authority  
+   - Use physical cues: “take a deep breath”, “let your reins stretch”, “move into shoulder-in now”
+   - Avoid narrator phrases like “today we will work on…” — instead say “Alright, let’s warm up with...”
+   - 🗣️ Use coaching tone: calm, direct, grounded. Avoid overly dramatic exclamations. Speak like a seasoned instructor guiding the ride.
 
-2. **Performance Review (8 minutes / ~ 2080 - 2280 words)**  
+
+2. **Performance Review (~ 1500 words)**  
    - Celebrate {strength_1}, {strength_2}, and {strength_3}  
    - Analyze {overall_score} and movement scores  
    - Discuss {score_trend}  
    - Reflect on {judge_comment_a}, {judge_comment_b}, and {judge_comment_c}
+   - Use a **warm, coaching tone** — speak as a supportive instructor guiding {rider_name} through insight and encouragement.  
+   - Begin by acknowledging {rider_name} and {horse_name}’s biggest wins from the test. Use warm, encouraging phrases like ‘Let’s start with what went well’ or ‘You’ve earned some praise here…  
+   - Specifically highlight {best_movement} and the {best_score}, explaining what this shows about {horse_name} and {rider_name}'s development.  
+   - Address the lower score on {worst_movement} ({worst_score}) gently and constructively: frame this as *an opportunity for improvement*, not a failure.  
+   - Reflect on {judge_comment_a}, {judge_comment_b}, and {judge_comment_c} in an emotionally intelligent way — emphasize *what the judge wants to see* and *how close the rider already is*.  
+   - Speak conversationally, as if coaching {rider_name} while riding:  
+   - Use cues like “Let’s take a moment,” “Feel that engagement,” “Notice how {horse_name} responds…”  
+   - Include brief physical riding prompts: “Soften your hands,” “Half-halt and breathe,” “Pat {horse_name} when they soften.”  
+   - Always tie observations to {score_trend} and {upcoming_events}.  
+   - End the section by **reinforcing the rider's growth** and confidence heading into the next training segment.  
+   - 🗣️ Use coaching tone: calm, direct, grounded. Avoid overly dramatic exclamations. Speak like a seasoned instructor guiding the ride.
 
-3. **Training Focus 1: {primary_recommendation} (8 minutes /  ~ 2080 - 2280 words)**  
+3. **Training Focus 1: {primary_recommendation} (~ 1500 words)**  
    - Quick Fix: {quick_fix_1}  
    - Real-time riding instructions for {exercise_1}  
    - Emphasize {key_points_1}  
@@ -122,7 +212,64 @@ Please write a full script aligned to these exact durations, using approximately
    - Include time cues (e.g., “for the next 2 minutes, we’ll...”)  
    - Use name: “Okay {rider_name}, now ask {horse_name} to...”
 
-4. **Training Focus 2: {secondary_recommendation} (8 minutes /  ~ 2080 - 2280 words)**  
+  
+   ***********
+    🗣️ SCRIPT STYLE REQUIREMENT FOR TRAINING FOCUS:
+    - Use a **natural, calm, instructional tone** — similar to a real-life equestrian coach guiding a rider through movements
+    - Avoid robotic repetition (don’t repeat the rider's name too often)
+    - Use **structured flow**, e.g.:
+      - 2 minutes of walk/stretching
+      - 2 minutes of shoulder-in to half-pass transitions
+      - 1 minute of visualization or reset
+    - Include **realistic time cues**: “Spend about 2 minutes here…”
+    - Give **step-by-step practical instructions**, as if the rider is actively moving while listening
+    - Use coaching language like:
+      - “Feel how…”  
+      - “Notice when…”  
+      - “Let’s go back to that movement now…”  
+      - “That’s okay, reset and try again…”  
+    - Avoid exaggerated praise. Instead, give constructive, professional feedback:  
+      - “Good correction.”  
+      - “Now that’s what we’re looking for.”  
+      - “This time, let’s refine it a little more.”
+   **********
+   📌 **ADDITIONAL REQUIREMENTS**:
+- The voice must sound like a seasoned equestrian coach, not a podcast narrator or AI assistant
+- Do not include explanation-style or summary phrases. Always speak in active coaching style.
+- Script should sound natural and flowing for a voiceover or AI narrator
+- Include transitions and rider-focused motivational language
+- Use {rider_name} and {horse_name} frequently
+- Keep language professional, instructional, and emotionally supportive
+
+---
+
+🚫 DO NOT summarize or introduce the script. Just return the **full ride-along podcast script only**, with style and pause duration.
+[style] and [pause] should be matched so that all contents are inside of them.
+`
+
+  const promptPart2 = `
+
+  Continue the 30-minute equestrian ride-along podcast script. 
+
+Start naturally by picking up from the last section, as if the coach and rider are still mid-ride.
+
+Include ONLY the following sections:
+4. Training Focus 2 (~1500 words)
+5. Mental Game (~320 words)
+6. Wrap-Up (~160 words)
+
+Pick up with a natural transition like:
+"Okay {rider_name}, now let’s refocus and get into our second key area: {secondary_recommendation}..."
+
+Maintain the same coaching tone, language style, and pacing. End with the final line:
+**“Remember – this is AI Equestrian, where we're 'Riding INtelligence, Redefined.’”**
+
+Do not repeat the opening or prior instructions. Just continue smoothly as a second half.
+
+[Insert the same personalization data and structure below]
+   
+
+4. **Training Focus 2: {secondary_recommendation} (~ 1500 words)**  
    - Quick Fix: {quick_fix_2}  
    - Real-time guided practice for {exercise_2}  
    - Focus on {key_points_2}  
@@ -130,32 +277,55 @@ Please write a full script aligned to these exact durations, using approximately
    - Include transitional language and corrections  
    - Reinforce improvement from Focus 1 to Focus 2
 
-5. **Mental Game (2 minutes / ~ 520 - 560 words)**  
+   ***********
+    🗣️ SCRIPT STYLE REQUIREMENT FOR TRAINING FOCUS:
+    - Use a **natural, calm, instructional tone** — similar to a real-life equestrian coach guiding a rider through movements
+    - Avoid robotic repetition (don’t repeat the rider's name too often)
+    - Use **structured flow**, e.g.:
+      - 2 minutes of walk/stretching
+      - 2 minutes of shoulder-in to half-pass transitions
+      - 1 minute of visualization or reset
+    - Include **realistic time cues**: “Spend about 2 minutes here…”
+    - Give **step-by-step practical instructions**, as if the rider is actively moving while listening
+    - Use coaching language like:
+      - “Feel how…”  
+      - “Notice when…”  
+      - “Let’s go back to that movement now…”  
+      - “That’s okay, reset and try again…”  
+    - Avoid exaggerated praise. Instead, give constructive, professional feedback:  
+      - “Good correction.”  
+      - “Now that’s what we’re looking for.”  
+      - “This time, let’s refine it a little more.”
+   **********
+
+5. **Mental Game (~ 350 words)**  
    - Visualization exercise based on {goals}  
    - Positive reinforcement of current progress  
    - Re-center confidence with gentle focus cues
+   - 🗣️ Use coaching tone: calm, direct, grounded. Avoid overly dramatic exclamations. Speak like a seasoned instructor guiding the ride.
 
-6. **Wrap-Up (1 minute / ~ 260 - 280 words)**  
+6. **Wrap-Up (~ 160 words)**  
    - Summary of today's work  
    - Encourage progress before {upcoming_events}  
    - Preview next ride’s focus  
    - End with the tagline:  
      **“Remember – this is AI Equestrian, where we're 'Riding INtelligence, Redefined.'”**
+   - 🗣️ Use coaching tone: calm, direct, grounded. Avoid overly dramatic exclamations. Speak like a seasoned instructor guiding the ride.
 
 ---
 
 📌 **ADDITIONAL REQUIREMENTS**:
-- DO NOT include music cues or TTS formatting
+- The voice must sound like a seasoned equestrian coach, not a podcast narrator or AI assistant
+- Do not include explanation-style or summary phrases. Always speak in active coaching style.
 - Script should sound natural and flowing for a voiceover or AI narrator
 - Include transitions and rider-focused motivational language
 - Use {rider_name} and {horse_name} frequently
 - Keep language professional, instructional, and emotionally supportive
-- Include time cues in training sections (e.g., “next 90 seconds,” “pause and reset”)
 
 ---
 
-🚫 DO NOT summarize or introduce the script. Just return the **full ride-along podcast script only**, with full word count per section to match 30 minutes of voice time.
-
+🚫 DO NOT summarize or introduce the script. Just return the **full ride-along podcast script only**, with style and pause duration.
+[style] and [pause] should be matched so that all contents are inside of them.
 `;
 
 
@@ -178,71 +348,24 @@ export async function callPodcastScript(prompt) {
   }
 }
 
-export function fillTemplate(data) {
-  return promptTemplate.replace(/\{(.*?)\}/g, (_, key) => {
-    return data[key] !== undefined ? data[key] : `{${key}}`;
-  });
+export function fill_Template_Make_Prompts(data) {
+  const fillPlaceholders = (template) =>
+    template.replace(/\{(.*?)\}/g, (_, key) =>
+      data[key] !== undefined ? data[key] : `{${key}}`
+    );
+
+  const fullPrompt1 = fillPlaceholders(promptInstruction + promptPart1);
+  const fullPrompt2 = fillPlaceholders(promptInstruction + promptPart2);
+
+  return [fullPrompt1, fullPrompt2];
 }
 
-export function formatScriptWithStyles(script: string, pauseTime: number): string {
-  const pauseTag = `[pause ${pauseTime}s]`;
-
-  // Helper to pick style based on section keywords
-  function pickStyle(text: string): string {
-    const lower = text.toLowerCase();
-
-    if (lower.includes('opening') || lower.includes('welcome') || lower.includes('thrilled')) {
-      return 'energetic';
-    }
-    if (lower.includes('training focus') || lower.includes('instruction') || lower.includes("let's start")) {
-      return 'instructional';
-    }
-    if (lower.includes('correction') || lower.includes('cue') || lower.includes('focus') || lower.includes('encouraging')) {
-      return 'coaching';
-    }
-    if (lower.includes('mental game') || lower.includes('confidence') || lower.includes('visualize') || lower.includes('belief')) {
-      return 'motivational';
-    }
-    if (lower.includes('wrap-up') || lower.includes('summary') || lower.includes('excellent work') || lower.includes('remember')) {
-      return 'inspirational';
-    }
-    return 'instructional';
-  }
-
+export function formatScriptWithStyles(script: string): string {
   // Step 1: Remove triple backticks and **bold** and (...) text
-  let cleaned = script
-    .replace(/```/g, '') // Remove ``` markers
+  return script
+    .replace(/```(?:text)?/g, '') // Remove ``` markers
     .replace(/\*\*[^*]+\*\*/g, '') // Remove **...**
     .replace(/\([^)]+\)/g, '') // Remove (...) text
     .replace(/\n{3,}/g, '\n\n') // Collapse multiple newlines
     .trim();
-
-  // Step 2: Break by section headings manually (they're still visible in cleaned text)
-  const sectionRegex = /(?:^|\n\n)([A-Z][^\n]+)\n\n/g;
-  const sections: string[] = [];
-  let lastIndex = 0;
-  let match;
-
-  // Find all sections by heading (e.g. Opening, Performance Review...)
-  while ((match = sectionRegex.exec(cleaned)) !== null) {
-    const sectionStart = match.index;
-    if (sectionStart > lastIndex) {
-      const prevSection = cleaned.slice(lastIndex, sectionStart).trim();
-      if (prevSection) sections.push(prevSection);
-    }
-    lastIndex = sectionStart;
-  }
-
-  // Add the last section
-  const finalSection = cleaned.slice(lastIndex).trim();
-  if (finalSection) sections.push(finalSection);
-
-  // Step 3: Format each section with [style] and [pause]
-  const formattedSections = sections.map(section => {
-    const style = pickStyle(section);
-    return `[style:${style}]\n${section.trim()}\n${pauseTag}`;
-  });
-
-  // Join all sections with double line break
-  return formattedSections.join('\n\n');
 }

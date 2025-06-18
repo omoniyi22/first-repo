@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { RiWhatsappFill } from "react-icons/ri";
 import {
@@ -20,11 +18,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
-import {
-  callPodcastScript,
-  fillTemplate,
-  formatScriptWithStyles,
-} from "@/utils/podcastUtils";
+import { callPodcastScript, fill_Template_Make_Prompts, formatScriptWithStyles } from "@/utils/podcastUtils";
+import { generateWeaknessSvg } from "@/utils/diagramGenerator";
 
 // Define proper types for the analysis data
 interface MovementScore {
@@ -181,6 +176,14 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
     fetchAnalysis();
   }, [documentId, user, language]);
 
+  const diagrams = useMemo(() => {
+    if (!!resultData) {
+      return resultData[language]["weaknesses-svg"]
+    } else {
+      return []
+    }
+  }, [resultData]);
+
   useEffect(() => {
     const fetchHorse = async () => {
       if (analysis) {
@@ -194,6 +197,7 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
         if (error) {
           console.error("Error fetching horse:", error);
         } else {
+          console.log(user);
           setAnalysisData({
             rider_name: user.user_metadata.full_name,
             discipline: analysis.discipline,
@@ -231,9 +235,8 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
             exercise_1:
               resultData["en"]["recommendations"][0]?.["exercise"] || "",
             key_points_1:
-              resultData["en"]["recommendations"][0]?.["keyPoints"]?.join(
-                "; "
-              ) || "",
+              typeof resultData["en"]["recommendations"][0]?.["keyPoints"] == "string" ? resultData["en"]["recommendations"][0]?.["keyPoints"] :
+              resultData["en"]["recommendations"][0]?.["keyPoints"].join("; ") || "",
             goal_1: resultData["en"]["recommendations"][0]?.["goal"] || "",
             secondary_recommendation:
               "Clean, balanced transitions at precise markers",
@@ -242,9 +245,8 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
             exercise_2:
               resultData["en"]["recommendations"][1]?.["exercise"] || "",
             key_points_2:
-              resultData["en"]["recommendations"][1]?.["keyPoints"]?.join(
-                "; "
-              ) || "",
+              typeof resultData["en"]["recommendations"][1]?.["keyPoints"] == "string" ? resultData["en"]["recommendations"][1]?.["keyPoints"] :
+              resultData["en"]["recommendations"][1]?.["keyPoints"].join("; ") || "",
             goal_2: resultData["en"]["recommendations"][1]?.["goal"] || "",
             current_season: "Summer",
             upcoming_events: "National Eventing Championship",
@@ -277,24 +279,27 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
         setIsLoading(false);
         return;
       }
-
       // Generate prompt and call podcast script
-      const prompt = fillTemplate(analysisData);
-      const res = await callPodcastScript(prompt);
-      const rawdata = res.result;
-      const result_tts = formatScriptWithStyles(rawdata, 2);
-
-      // Fire-and-forget request
-      fetch("https://6703-45-153-229-59.ngrok-free.app/generate", {
+      const prompts = fill_Template_Make_Prompts(analysisData);
+      let combinedScript = '';
+      for (let i = 0; i < prompts.length; i++) {
+        const prompt = prompts[i];
+        const res = await callPodcastScript(prompt);
+        const rawdata = res.result;
+        combinedScript += rawdata + '\n\n';
+      }
+      const ttsScript = formatScriptWithStyles(combinedScript);
+      console.log("final TTS script", ttsScript)
+      fetch("https://eff1-45-153-229-59.ngrok-free.app/generate", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          scriptText: result_tts,
+          scriptText: ttsScript,
           userId: user.id,
-          analysisId: analysis.id,
-        }),
+          analysisId: analysis.id
+        })
       });
 
       // Begin polling
@@ -768,7 +773,7 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
                   <b>{language === "en" ? "Key Points:" : ":"}</b>
                   <br />
                   {recommendation["keyPoints"] &&
-                  typeof recommendation["keyPoins"] === "string" ? (
+                  typeof recommendation["keyPoints"] == "string" ? (
                     <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
                       <li>{recommendation["keyPoints"]}</li>
                     </ul>
@@ -817,7 +822,36 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
             ))}
         </ul>
       </Card>
-
+      <Card className="p-4 sm:p-6">
+        <div className="mb-8">
+          <h3 className="text-xl font-semibold mb-4">Weaknesses</h3>
+           <div className="grid md:grid-cols-2 gap-6">
+          {diagrams?.map((weakness, index) => (
+            <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden">
+              <div className="p-4 bg-blue-50 border-b">
+                <h3 className="font-semibold text-blue-800">{weakness.title}</h3>
+                <p className="text-sm text-red-600">Weakness: {weakness.weakness}</p>
+              </div>
+              
+              <div className="p-4 flex justify-center">
+                <div 
+                  className="svg-container"
+                  dangerouslySetInnerHTML={{ __html: generateWeaknessSvg(weakness) }} 
+                />
+              </div>
+              
+              <div className="p-4 bg-gray-50 border-t">
+                <p className="text-sm font-medium text-gray-700">Instructions: <span className="text-sm text-gray-400">{`(${weakness.type})`}</span></p>
+                <p className="text-sm text-gray-600">{weakness.instruction}</p>
+                <p className="text-xs mt-2 text-gray-500">
+                  Positions: {weakness.positions.join(', ')} | Arena: {weakness.size}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+        </div>
+      </Card>
       <Card className="p-4 sm:p-6 border-0">
         <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-4 mb-3 sm:mb-4">
           <Button className="bg-[#67C15E] hover:bg-[#67C15E] flex flex-col items-center p-8">
