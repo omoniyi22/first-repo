@@ -152,9 +152,9 @@ const promptPart1 = `
 Generate the first half of a 30-minute equestrian ride-along podcast script. 
 
 Include ONLY the following sections from the structure:
-1. Opening (~1000–1200 words)
-2. Performance Review (~2080–2280 words)
-3. Training Focus 1 (~2080–2280 words)
+1. Opening (~1200–1400 words)
+2. Performance Review (~2280–2480 words)
+3. Training Focus 1 (~2280–2480 words)
 
 Use the structure, tone, and personalization data provided below. 
 End this part of the script **mid-session**, just after completing Training Focus 1, with a natural riding transition like:
@@ -187,7 +187,7 @@ Please write a full script aligned to these exact durations:
    - 🗣️ Use coaching tone: calm, direct, grounded. Avoid overly dramatic exclamations. Speak like a seasoned instructor guiding the ride.
 
 
-2. **Performance Review (~ 1500 words)**  
+2. **Performance Review (~ 1800 words)**  
    - Celebrate {strength_1}, {strength_2}, and {strength_3}  
    - Analyze {overall_score} and movement scores  
    - Discuss {score_trend}  
@@ -204,7 +204,7 @@ Please write a full script aligned to these exact durations:
    - End the section by **reinforcing the rider's growth** and confidence heading into the next training segment.  
    - 🗣️ Use coaching tone: calm, direct, grounded. Avoid overly dramatic exclamations. Speak like a seasoned instructor guiding the ride.
 
-3. **Training Focus 1: {primary_recommendation} (~ 1500 words)**  
+3. **Training Focus 1: {primary_recommendation} (~ 1800 words)**  
    - Quick Fix: {quick_fix_1}  
    - Real-time riding instructions for {exercise_1}  
    - Emphasize {key_points_1}  
@@ -254,9 +254,9 @@ Please write a full script aligned to these exact durations:
 Start naturally by picking up from the last section, as if the coach and rider are still mid-ride.
 
 Include ONLY the following sections:
-4. Training Focus 2 (~1500 words)
-5. Mental Game (~320 words)
-6. Wrap-Up (~160 words)
+4. Training Focus 2 (~1800 words)
+5. Mental Game (~420 words)
+6. Wrap-Up (~200 words)
 
 Pick up with a natural transition like:
 "Okay {rider_name}, now let’s refocus and get into our second key area: {secondary_recommendation}..."
@@ -269,7 +269,7 @@ Do not repeat the opening or prior instructions. Just continue smoothly as a sec
 [Insert the same personalization data and structure below]
    
 
-4. **Training Focus 2: {secondary_recommendation} (~ 1500 words)**  
+4. **Training Focus 2: {secondary_recommendation} (~ 1800 words)**  
    - Quick Fix: {quick_fix_2}  
    - Real-time guided practice for {exercise_2}  
    - Focus on {key_points_2}  
@@ -298,13 +298,13 @@ Do not repeat the opening or prior instructions. Just continue smoothly as a sec
       - “This time, let’s refine it a little more.”
    **********
 
-5. **Mental Game (~ 350 words)**  
+5. **Mental Game (~ 420 words)**  
    - Visualization exercise based on {goals}  
    - Positive reinforcement of current progress  
    - Re-center confidence with gentle focus cues
    - 🗣️ Use coaching tone: calm, direct, grounded. Avoid overly dramatic exclamations. Speak like a seasoned instructor guiding the ride.
 
-6. **Wrap-Up (~ 160 words)**  
+6. **Wrap-Up (~ 200 words)**  
    - Summary of today's work  
    - Encourage progress before {upcoming_events}  
    - Preview next ride’s focus  
