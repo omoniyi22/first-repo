@@ -150,6 +150,8 @@ export type Database = {
           tags: string[] | null
           test_level: string | null
           updated_at: string
+          user_country: string | null
+          user_governing_body: string | null
           user_id: string
           video_type: string | null
         }
@@ -169,6 +171,8 @@ export type Database = {
           tags?: string[] | null
           test_level?: string | null
           updated_at?: string
+          user_country?: string | null
+          user_governing_body?: string | null
           user_id: string
           video_type?: string | null
         }
@@ -188,6 +192,8 @@ export type Database = {
           tags?: string[] | null
           test_level?: string | null
           updated_at?: string
+          user_country?: string | null
+          user_governing_body?: string | null
           user_id?: string
           video_type?: string | null
         }
