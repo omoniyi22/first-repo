@@ -1,5 +1,17 @@
+import React, { useState, useRef, useEffect } from "react";
+import {
+  Sparkles,
+  Download,
+  RotateCcw,
+  Settings,
+  Upload,
+  Eye,
+  AlertTriangle,
+  CheckCircle,
+  Info,
+  Trash2,
+} from "lucide-react";
 
-import React from "react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/ai-course-builder/Header";
@@ -616,10 +628,10 @@ Do NOT include any text or explanation — just return the JSON array.
   const currentLevel = getCurrentLevel();
 
   return (
-    <CourseBuilderProvider>
-      <div className="min-h-screen flex flex-col">
-        <Navbar />
-        <main className="flex-grow container mx-auto px-4 pt-navbar pb-16">
+    <div className="min-h-screen flex flex-col">
+      <Navbar />
+      <main className="flex-grow container mx-auto px-4 pt-24 pb-16">
+        <div className="max-w-6xl mx-auto">
           <div className="max-w-7xl mx-auto">
             <Header
               setDesignMode={setDesignMode}
