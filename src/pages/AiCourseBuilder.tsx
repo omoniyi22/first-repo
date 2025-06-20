@@ -31,14 +31,11 @@ const AiCourseBuilder = () => {
   const [courseStyle, setCourseStyle] = useState("flowing");
   const [targetJumps, setTargetJumps] = useState(8);
   const [difficultyPreference, setDifficultyPreference] = useState("medium");
-  const [showGrid, setShowGrid] = useState(true);
   const [courseText, setCourseText] = useState("");
   const [selectedJump, setSelectedJump] = useState(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [designMode, setDesignMode] = useState("ai");
   const [selectedJumpType, setSelectedJumpType] = useState("vertical");
-  const [aiAnalysis, setAiAnalysis] = useState();
+  const [analysis, setAnalysis] = useState();
   const [generationSettings, setGenerationSettings] = useState({
     allowCombinations: true,
     preferSmoothTurns: true,
@@ -46,7 +43,6 @@ const AiCourseBuilder = () => {
     optimizeForFlow: true,
   });
 
-  const canvasRef = useRef(null);
   const scale = 8;
 
   // Get current level configuration
@@ -138,6 +134,7 @@ Rules:
 - Do not include explanations or commentary
 - The entire response must be valid JSON
 - Round distances and scores appropriately (1 decimal max)
+- Ensure all jump positions are within the specified arena range
 `;
 
       const geminiResponse = await fetch(
@@ -177,12 +174,10 @@ Rules:
         id: Date.now(),
       }));
 
-      setAiAnalysis(cleanedArray.analysis);
+      setAnalysis(cleanedArray.analysis);
       setJumps(updatedJumpsArray);
       setIsGenerating(false);
     } catch (error) {
-      setJumps([]);
-      setIsGenerating(false);
       console.log("🚀 ~ generateAICourse ~ error:", error);
     }
   };
@@ -233,74 +228,6 @@ Rules:
 
     setJumps(newJumps);
     setCourseText("");
-  };
-
-  // Handle canvas interactions for manual design
-  const handleCanvasMouseDown = (event) => {
-    if (designMode !== "manual") return;
-
-    const canvas = canvasRef.current;
-    const rect = canvas.getBoundingClientRect();
-    const x = (event.clientX - rect.left) / scale;
-    const y = (event.clientY - rect.top) / scale;
-
-    const clickedJump = jumps.find((jump) => {
-      const jumpType = jumpTypes.find((type) => type.id === jump.type);
-      const jumpWidth = jumpType?.width || 4;
-      return (
-        Math.abs(jump.x - x) < jumpWidth / 2 + 2 && Math.abs(jump.y - y) < 4
-      );
-    });
-
-    if (clickedJump) {
-      setSelectedJump(clickedJump.id);
-      setIsDragging(true);
-      setDragOffset({
-        x: x - clickedJump.x,
-        y: y - clickedJump.y,
-      });
-    } else {
-      const currentLevel = getCurrentLevel();
-      const newJump = {
-        id: Date.now(),
-        x: Math.round(Math.max(5, Math.min(x, arenaWidth - 5))),
-        y: Math.round(Math.max(5, Math.min(y, arenaLength - 5))),
-        type: selectedJumpType,
-        number: jumps.length + 1,
-        height:
-          currentLevel.minHeight +
-          (currentLevel.maxHeight - currentLevel.minHeight) * 0.5,
-      };
-      setJumps([...jumps, newJump]);
-      setSelectedJump(newJump.id);
-    }
-  };
-
-  const handleCanvasMouseMove = (event) => {
-    if (!isDragging || !selectedJump || designMode !== "manual") return;
-
-    const canvas = canvasRef.current;
-    const rect = canvas.getBoundingClientRect();
-    const x = (event.clientX - rect.left) / scale;
-    const y = (event.clientY - rect.top) / scale;
-
-    const newX = Math.round(
-      Math.max(5, Math.min(x - dragOffset.x, arenaWidth - 5))
-    );
-    const newY = Math.round(
-      Math.max(5, Math.min(y - dragOffset.y, arenaLength - 5))
-    );
-
-    setJumps(
-      jumps.map((jump) =>
-        jump.id === selectedJump ? { ...jump, x: newX, y: newY } : jump
-      )
-    );
-  };
-
-  const handleCanvasMouseUp = () => {
-    setIsDragging(false);
-    setDragOffset({ x: 0, y: 0 });
   };
 
   // Course analysis function
@@ -394,170 +321,6 @@ Rules:
     };
   };
 
-  // Canvas drawing function
-  const drawCourse = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext("2d");
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    if (showGrid) {
-      ctx.strokeStyle = "#e5e7eb";
-      ctx.lineWidth = 1;
-      for (let x = 0; x <= arenaWidth; x += 5) {
-        ctx.beginPath();
-        ctx.moveTo(x * scale, 0);
-        ctx.lineTo(x * scale, arenaLength * scale);
-        ctx.stroke();
-      }
-      for (let y = 0; y <= arenaLength; y += 5) {
-        ctx.beginPath();
-        ctx.moveTo(0, y * scale);
-        ctx.lineTo(arenaWidth * scale, y * scale);
-        ctx.stroke();
-      }
-    }
-
-    ctx.strokeStyle = "#374151";
-    ctx.lineWidth = 3;
-    ctx.strokeRect(0, 0, arenaWidth * scale, arenaLength * scale);
-
-    if (jumps.length > 1) {
-      const sortedJumps = [...jumps].sort((a, b) => a.number - b.number);
-
-      ctx.lineWidth = 2;
-      ctx.setLineDash([8, 4]);
-
-      for (let i = 0; i < sortedJumps.length - 1; i++) {
-        const distance = calculateDistance(sortedJumps[i], sortedJumps[i + 1]);
-
-        if (distance >= 3 && distance <= 6) {
-          ctx.strokeStyle = "#ef4444";
-        } else if (distance < 8) {
-          ctx.strokeStyle = "#f59e0b";
-        } else {
-          ctx.strokeStyle = "#10b981";
-        }
-
-        ctx.beginPath();
-        ctx.moveTo(sortedJumps[i].x * scale, sortedJumps[i].y * scale);
-        ctx.lineTo(sortedJumps[i + 1].x * scale, sortedJumps[i + 1].y * scale);
-        ctx.stroke();
-      }
-      ctx.setLineDash([]);
-    }
-
-    jumps.forEach((jump) => {
-      const jumpType = jumpTypes.find((type) => type.id === jump.type);
-      const x = jump.x * scale;
-      const y = jump.y * scale;
-      const width = jumpType.width * scale;
-      const height = 8;
-
-      const isSelected = selectedJump === jump.id;
-
-      if (isSelected) {
-        ctx.strokeStyle = "#3b82f6";
-        ctx.lineWidth = 3;
-        ctx.setLineDash([5, 5]);
-        ctx.strokeRect(
-          x - width / 2 - 5,
-          y - height / 2 - 5,
-          width + 10,
-          height + 10
-        );
-        ctx.setLineDash([]);
-      }
-
-      const gradient = ctx.createLinearGradient(
-        x - width / 2,
-        y - height / 2,
-        x + width / 2,
-        y + height / 2
-      );
-      gradient.addColorStop(0, jumpType.color);
-      gradient.addColorStop(1, isSelected ? "#1e40af" : "#000000");
-
-      ctx.fillStyle = gradient;
-      ctx.fillRect(x - width / 2, y - height / 2, width, height);
-
-      ctx.strokeStyle = isSelected ? "#3b82f6" : "#000000";
-      ctx.lineWidth = isSelected ? 2 : 1;
-      ctx.strokeRect(x - width / 2, y - height / 2, width, height);
-
-      ctx.fillStyle = "#ffffff";
-      ctx.font = "bold 14px Arial";
-      ctx.textAlign = "center";
-      ctx.strokeStyle = "#000000";
-      ctx.lineWidth = 2;
-      ctx.strokeText(jump.number.toString(), x, y + 4);
-      ctx.fillText(jump.number.toString(), x, y + 4);
-
-      const jumpHeight = jump.height || getCurrentLevel().minHeight || 1.0;
-      ctx.fillStyle = "#374151";
-      ctx.font = "11px Arial";
-      ctx.textAlign = "center";
-      ctx.fillText(`${jumpHeight.toFixed(1)}m`, x, y + 25);
-
-      ctx.fillStyle = "#6b7280";
-      ctx.font = "9px Arial";
-      ctx.fillText(jumpType.name, x, y - 15);
-    });
-
-    if (jumps.length > 1) {
-      const sortedJumps = [...jumps].sort((a, b) => a.number - b.number);
-      for (let i = 0; i < sortedJumps.length - 1; i++) {
-        const distance = calculateDistance(sortedJumps[i], sortedJumps[i + 1]);
-        const midX = ((sortedJumps[i].x + sortedJumps[i + 1].x) / 2) * scale;
-        const midY = ((sortedJumps[i].y + sortedJumps[i + 1].y) / 2) * scale;
-
-        let distanceColor = "#10b981";
-        if (distance < 8) distanceColor = "#f59e0b";
-        if (distance >= 3 && distance <= 6) distanceColor = "#ef4444";
-
-        ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
-        ctx.fillRect(midX - 15, midY - 8, 30, 16);
-
-        ctx.fillStyle = distanceColor;
-        ctx.font = "bold 10px Arial";
-        ctx.textAlign = "center";
-        ctx.fillText(`${distance.toFixed(1)}m`, midX, midY + 3);
-      }
-    }
-  };
-
-  // Export course data
-  const exportCourse = () => {
-    const analysis = analyzeCourse();
-    const exportData = {
-      course: {
-        name: `Course-${discipline}-${level}-${new Date().toLocaleDateString()}`,
-        discipline,
-        level,
-        arena: { width: arenaWidth, length: arenaLength },
-        jumps,
-        analysis,
-        metadata: {
-          aiGenerated: designMode === "ai",
-          designMode,
-          createdAt: new Date().toISOString(),
-          totalJumps: jumps.length,
-        },
-      },
-      version: "1.0",
-    };
-
-    const dataStr = JSON.stringify(exportData, null, 2);
-    const dataBlob = new Blob([dataStr], { type: "application/json" });
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `ai-course-${discipline}-${level}-${Date.now()}.json`;
-    link.click();
-    URL.revokeObjectURL(url);
-  };
-
   // Delete selected jump
   const deleteSelectedJump = () => {
     if (selectedJump) {
@@ -572,10 +335,6 @@ Rules:
   };
 
   // Clear course
-  const clearCourse = () => {
-    setJumps([]);
-    setSelectedJump(null);
-  };
 
   // Update target jumps when level changes
   useEffect(() => {
@@ -585,12 +344,90 @@ Rules:
     }
   }, [discipline, level]);
 
-  // Update canvas when data changes
-  useEffect(() => {
-    drawCourse();
-  }, [jumps, arenaWidth, arenaLength, showGrid, selectedJump]);
+  const analysisAICourse = async () => {
+    try {
+      const currentLevel = getCurrentLevel();
+      const prompt = `
+You're an equestrian AI course analyzer.
 
-  const analysis = designMode === "ai" ? aiAnalysis : analyzeCourse();
+Based on the following jump data and course settings, analyze the course and return a structured JSON object with the analysis results only — no jump generation.
+
+Course Settings:
+Discipline: ${discipline}
+Level: International ${level}
+Jump Height Range: ${currentLevel?.minHeight || 0.8}m to ${
+        currentLevel?.maxHeight || 1.2
+      }m
+Arena Size: ${arenaWidth}m x ${arenaLength}m
+Target Number of Jumps: ${targetJumps}
+
+Jump Data:
+${JSON.stringify(jumps, null, 2)}
+
+
+Output Format (strictly JSON):
+{
+  "totalDistance": 320,
+  "averageDistance": 21.3,
+  "sharpTurns": 2,
+  "combinations": 3,
+  "technicality": 9,
+  "compliance": 85,
+  "aiScore": 79,
+  "issues": [
+    "Potentially dangerous distance between jumps 2 and 3: 4.2m",
+    "Too many jumps for the level"
+  ]
+}
+
+
+Rules:
+- Only analyze the provided jump array
+- Do not generate new jumps
+- The entire response must be valid JSON
+- Round distances and scores to 1 decimal place
+- Do not include any text or explanation — only return the JSON object
+`;
+
+      const geminiResponse = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyDZ6WsChZLWXldvn0OPKYSrVZhw5gs8Rtg`,
+        {
+          method: "post",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            contents: [
+              {
+                role: "user",
+                parts: [
+                  {
+                    text: prompt,
+                  },
+                ],
+              },
+            ],
+          }),
+        }
+      );
+      const result = await geminiResponse.text();
+      const geminiResult = JSON.parse(result);
+      const rawText = geminiResult.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!rawText) {
+        throw new Error("Missing content in Gemini response.");
+      }
+      // Remove markdown formatting like ```json\n and ```
+      const cleaned = rawText.replace(/```json\n?|```/g, "").trim();
+
+      const cleanedArray = JSON.parse(cleaned);
+
+      setAnalysis(cleanedArray);
+    } catch (error) {
+      console.log("🚀 ~ generateAICourse ~ error:", error);
+    }
+  };
+
+  // const analysis = designMode === "ai" ? aiAnalysis : analyzeCourse();
   const currentLevel = getCurrentLevel();
 
   return (
@@ -635,19 +472,19 @@ Rules:
             <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
               <CourseCanvas
                 designMode={designMode}
-                clearCourse={clearCourse}
-                exportCourse={exportCourse}
                 jumps={jumps}
-                showGrid={showGrid}
-                setShowGrid={setShowGrid}
-                canvasRef={canvasRef}
                 arenaWidth={arenaWidth}
                 arenaLength={arenaLength}
                 scale={scale}
-                handleCanvasMouseDown={handleCanvasMouseDown}
-                handleCanvasMouseMove={handleCanvasMouseMove}
-                handleCanvasMouseUp={handleCanvasMouseUp}
                 selectedJump={selectedJump}
+                setJumps={setJumps}
+                setSelectedJump={setSelectedJump}
+                getCurrentLevel={getCurrentLevel}
+                selectedJumpType={selectedJumpType}
+                discipline={discipline}
+                analyzeCourse={analyzeCourse}
+                level={level}
+                calculateDistance={calculateDistance}
               />
 
               <AIAnalysisPanel
@@ -655,6 +492,7 @@ Rules:
                 jumps={jumps}
                 designMode={designMode}
                 currentLevel={currentLevel}
+                analyzeCourse={analysisAICourse}
               />
             </div>
 

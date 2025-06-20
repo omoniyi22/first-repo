@@ -1,6 +1,14 @@
 import { Settings, Sparkles, Trash2, Upload } from "lucide-react";
 import React from "react";
 
+interface CompetitionLevelData {
+  description?: string;
+  minHeight?: number;
+  maxHeight?: number;
+  maxJumps?: number;
+  [key: string]: any;
+}
+
 interface HeaderProps {
   setDesignMode: any;
   designMode: any;
@@ -8,7 +16,11 @@ interface HeaderProps {
   setDiscipline: any;
   level: any;
   setLevel: any;
-  competitionLevels: any;
+  competitionLevels: {
+    [discipline: string]: {
+      [level: string]: CompetitionLevelData;
+    };
+  };
   arenaWidth: any;
   setArenaWidth: any;
   arenaLength: any;
@@ -162,11 +174,9 @@ const Header: React.FC<HeaderProps> = ({
                 <input
                   type="number"
                   value={arenaWidth}
-                  onChange={(e) =>
-                    setArenaWidth(parseInt(e.target.value) || 60)
-                  }
+                  onChange={(e) => setArenaWidth(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  // min="20"
+                  min="20"
                   // max="100"
                 />
               </div>
@@ -181,7 +191,7 @@ const Header: React.FC<HeaderProps> = ({
                     setArenaLength(parseInt(e.target.value) || 40)
                   }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  // min="20"
+                  min="20"
                   // max="100"
                 />
               </div>
