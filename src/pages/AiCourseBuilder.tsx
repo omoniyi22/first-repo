@@ -18,48 +18,9 @@ import Header from "@/components/ai-course-builder/Header";
 import CourseCanvas from "@/components/ai-course-builder/CourseCanvas";
 import AIAnalysisPanel from "@/components/ai-course-builder/AIAnalysisPanel";
 import FeaturesInfo from "@/components/ai-course-builder/FeaturesInfo";
+import { competitionLevels, jumpTypes } from "@/data/aiCourseBuilder";
 
 const AiCourseBuilder = () => {
-  // Competition level definitions
-  //   prettier-ignore
-  const competitionLevels = {
-    showjumping: {
-      'intro': { maxHeight: 0.6, minHeight: 0.4, maxJumps: 8, description: 'Beginner level (0.4-0.6m)' },
-      'novice': { maxHeight: 0.9, minHeight: 0.7, maxJumps: 10, description: 'Basic competition (0.7-0.9m)' },
-      'elementary': { maxHeight: 1.0, minHeight: 0.8, maxJumps: 10, description: 'Intermediate (0.8-1.0m)' },
-      'medium': { maxHeight: 1.15, minHeight: 0.95, maxJumps: 12, description: 'Advanced amateur (0.95-1.15m)' },
-      'advanced': { maxHeight: 1.25, minHeight: 1.05, maxJumps: 12, description: 'Advanced (1.05-1.25m)' },
-      'grand_prix': { maxHeight: 1.6, minHeight: 1.4, maxJumps: 14, description: 'Professional (1.4-1.6m)' }
-    },
-
-    eventing: {
-      '1star': { maxHeight: 1.05, minHeight: 0.9, maxJumps: 25, description: 'International 1-star (0.9-1.05m)' },
-      '2star': { maxHeight: 1.15, minHeight: 1.0, maxJumps: 30, description: 'International 2-star (1.0-1.15m)' },
-      '3star': { maxHeight: 1.25, minHeight: 1.1, maxJumps: 35, description: 'International 3-star (1.1-1.25m)' },
-      '4star': { maxHeight: 1.25, minHeight: 1.15, maxJumps: 40, description: 'International 4-star (1.15-1.25m)' },
-      '5star': { maxHeight: 1.25, minHeight: 1.2, maxJumps: 45, description: 'Olympic level (1.2-1.25m)' }
-    },
-
-    ponyclub: {
-      'lead_rein': { maxHeight: 0.3, minHeight: 0.2, maxJumps: 6, description: 'Tiny tots (0.2-0.3m)' },
-      'first_rung': { maxHeight: 0.4, minHeight: 0.3, maxJumps: 8, description: 'Beginner riders (0.3-0.4m)' },
-      'minimus': { maxHeight: 0.5, minHeight: 0.4, maxJumps: 8, description: 'Young riders (0.4-0.5m)' },
-      'novice_pc': { maxHeight: 0.7, minHeight: 0.5, maxJumps: 10, description: 'Developing riders (0.5-0.7m)' },
-      'intermediate_pc': { maxHeight: 0.9, minHeight: 0.7, maxJumps: 12, description: 'Competent riders (0.7-0.9m)' }
-    }
-  };
-
-  // Jump types with properties
-  //   prettier-ignore
-  const jumpTypes = [
-    { id: 'vertical', name: 'Vertical', color: '#8B4513', width: 4, spread: 0, technicality: 0, difficulty: 1 },
-    { id: 'oxer', name: 'Oxer', color: '#CD853F', width: 4, spread: 1.5, technicality: 1, difficulty: 2 },
-    { id: 'triple', name: 'Triple Bar', color: '#DEB887', width: 6, spread: 2.0, technicality: 2, difficulty: 3 },
-    { id: 'water', name: 'Water Jump', color: '#4169E1', width: 4, spread: 3.0, technicality: 1, difficulty: 4 },
-    { id: 'liverpool', name: 'Liverpool', color: '#2E8B57', width: 4, spread: 2.0, technicality: 2, difficulty: 3 },
-    { id: 'wall', name: 'Wall', color: '#696969', width: 4, spread: 0, technicality: 0, difficulty: 1 }
-  ];
-
   // State management
   const [discipline, setDiscipline] = useState("showjumping");
   const [level, setLevel] = useState("novice");
@@ -77,6 +38,7 @@ const AiCourseBuilder = () => {
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [designMode, setDesignMode] = useState("ai");
   const [selectedJumpType, setSelectedJumpType] = useState("vertical");
+  const [aiAnalysis, setAiAnalysis] = useState();
   const [generationSettings, setGenerationSettings] = useState({
     allowCombinations: true,
     preferSmoothTurns: true,
@@ -123,55 +85,61 @@ const AiCourseBuilder = () => {
     try {
       const currentLevel = getCurrentLevel();
       const prompt = `
-You're an equestrian AI course designer. Generate ONLY an array of jumps based on the following course settings:
+You're an equestrian AI course designer and analyzer. Based on the following settings, generate a realistic course and return both the jump data AND analysis in a structured JSON format.
 
+Course Settings:
 Discipline: ${discipline}
 Level: International ${level}
 Jump Height Range: ${currentLevel?.minHeight || 0.8}m to ${
         currentLevel?.maxHeight || 1.2
       }m
 Arena Size: ${arenaWidth}m x ${arenaLength}m
-Number of Jumps: ${targetJumps}
+Target Number of Jumps: ${targetJumps}
 Course Style: ${courseStyle.replace("_", " ")}
-Difficulty: ${difficultyPreference}
+Preferred Difficulty: ${difficultyPreference}
 
-
-AI Generation Settings:
-- Allow combinations (less than 8m spacing): ${
-        generationSettings.allowCombinations
-      }
+Generation Rules:
+- Allow combinations (spacing <8m): ${generationSettings.allowCombinations}
 - Prefer smooth turns (< 90°): ${generationSettings.preferSmoothTurns}
 - Include specialty jumps (water, liverpool, wall): ${
         generationSettings.includeSpecialtyJumps
       }
-- Optimize for flow: ${generationSettings.optimizeForFlow}
-Generate a course with the following properties:
+- Optimize for course flow: ${generationSettings.optimizeForFlow}
 
+Output Format (strictly JSON):
+{
+  "jumps": [
+    {
+      "id": 1750414508272,
+      "x": 71,
+      "y": 44,
+      "type": "vertical",
+      "number": 1,
+      "height": 1.045
+    },
+    ...
+  ],
+  "analysis": {
+    "totalDistance": 320,
+    "averageDistance": 21.3,
+    "sharpTurns": 2,
+    "combinations": 3,
+    "technicality": 9,
+    "compliance": 85,
+    "aiScore": 79,
+    "issues": [
+      "Potentially dangerous distance between jumps 2 and 3: 4.2m",
+      "Too many jumps for the level"
+    ]
+  }
+}
 
 Rules:
-- Only return a flat array ([]) of jumps.
-- Each jump object must contain:
-  - id: a random 13-digit number
-  - x and y (within the arena bounds)
-  - type: "vertical", "oxer", "wall", etc.
-  - number: 1-based sequence
-  - height: random float within the provided height range
-
-✅ Output format example:
-[
-  {
-    "id": 1750414508272,
-    "x": 71,
-    "y": 44,
-    "type": "vertical",
-    "number": 1,
-    "height": 1.045
-  },
-  ...
-]
-
-Do NOT include any text or explanation — just return the JSON array.
+- Do not include explanations or commentary
+- The entire response must be valid JSON
+- Round distances and scores appropriately (1 decimal max)
 `;
+
       const geminiResponse = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyDZ6WsChZLWXldvn0OPKYSrVZhw5gs8Rtg`,
         {
@@ -202,16 +170,14 @@ Do NOT include any text or explanation — just return the JSON array.
       // Remove markdown formatting like ```json\n and ```
       const cleaned = rawText.replace(/```json\n?|```/g, "").trim();
 
-      const jumpsArray = JSON.parse(cleaned);
-      const updatedJumpsArray = jumpsArray.map((jump) => ({
+      const cleanedArray = JSON.parse(cleaned);
+
+      const updatedJumpsArray = cleanedArray.jumps.map((jump) => ({
         ...jump,
         id: Date.now(),
       }));
-      console.log(
-        "🚀 ~ updatedJumpsArray ~ updatedJumpsArray:",
-        updatedJumpsArray
-      );
 
+      setAiAnalysis(cleanedArray.analysis);
       setJumps(updatedJumpsArray);
       setIsGenerating(false);
     } catch (error) {
@@ -624,7 +590,7 @@ Do NOT include any text or explanation — just return the JSON array.
     drawCourse();
   }, [jumps, arenaWidth, arenaLength, showGrid, selectedJump]);
 
-  const analysis = analyzeCourse();
+  const analysis = designMode === "ai" ? aiAnalysis : analyzeCourse();
   const currentLevel = getCurrentLevel();
 
   return (
@@ -693,7 +659,7 @@ Do NOT include any text or explanation — just return the JSON array.
             </div>
 
             {/* Features Info */}
-            <FeaturesInfo/>
+            <FeaturesInfo />
           </div>
         </div>
       </main>
