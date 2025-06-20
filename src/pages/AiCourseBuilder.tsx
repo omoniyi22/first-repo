@@ -104,129 +104,109 @@ const AiCourseBuilder = () => {
     return angle > 180 ? 360 - angle : angle;
   };
 
-  // Generate flowing course pattern
-  const generateFlowingPattern = (jumpCount) => {
-    const pattern = [];
-    const centerX = arenaWidth / 2;
-    const centerY = arenaLength / 2;
-    const margin = 8;
-
-    for (let i = 0; i < jumpCount; i++) {
-      const angle = (i / jumpCount) * 2 * Math.PI + Math.PI / 4;
-      const radiusX =
-        (arenaWidth / 2 - margin) * (0.7 + Math.sin(i * 0.5) * 0.2);
-      const radiusY =
-        (arenaLength / 2 - margin) * (0.7 + Math.cos(i * 0.3) * 0.2);
-
-      const x = Math.max(
-        margin,
-        Math.min(arenaWidth - margin, centerX + Math.cos(angle) * radiusX)
-      );
-      const y = Math.max(
-        margin,
-        Math.min(arenaLength - margin, centerY + Math.sin(angle) * radiusY)
-      );
-
-      pattern.push({ x: Math.round(x), y: Math.round(y) });
-    }
-
-    return pattern;
-  };
-
-  // AI Jump Type Selection
-  const selectOptimalJumpType = (jumpIndex, totalJumps) => {
-    const availableTypes = jumpTypes.filter((type) => {
-      if (
-        !generationSettings.includeSpecialtyJumps &&
-        ["water", "liverpool"].includes(type.id)
-      ) {
-        return false;
-      }
-
-      if (level === "intro" || level === "lead_rein") {
-        return ["vertical", "oxer"].includes(type.id);
-      }
-
-      return true;
-    });
-
-    if (jumpIndex === 0 || jumpIndex === totalJumps - 1) {
-      return (
-        availableTypes.find((type) => type.difficulty <= 2) || availableTypes[0]
-      );
-    }
-
-    let targetDifficulty;
-    switch (difficultyPreference) {
-      case "easy":
-        targetDifficulty = 1;
-        break;
-      case "challenging":
-        targetDifficulty = 3;
-        break;
-      default:
-        targetDifficulty = 2;
-    }
-
-    const suitableTypes = availableTypes.filter(
-      (type) => Math.abs(type.difficulty - targetDifficulty) <= 1
-    );
-
-    return (
-      suitableTypes[Math.floor(Math.random() * suitableTypes.length)] ||
-      availableTypes[0]
-    );
-  };
-
-  // Calculate optimal height for jump
-  const calculateOptimalHeight = (
-    jumpType,
-    currentLevel,
-    jumpIndex,
-    totalJumps
-  ) => {
-    const baseHeight = currentLevel.minHeight;
-    const heightRange = currentLevel.maxHeight - currentLevel.minHeight;
-
-    let heightMultiplier = 0.3;
-
-    if (jumpIndex > totalJumps * 0.3 && jumpIndex < totalJumps * 0.8) {
-      heightMultiplier = 0.8;
-    } else if (jumpIndex >= totalJumps * 0.8) {
-      heightMultiplier = 0.6;
-    }
-
-    return baseHeight + heightRange * heightMultiplier;
-  };
-
   // AI Course Generation Algorithm
   const generateAICourse = async () => {
     setIsGenerating(true);
 
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    try {
+      const currentLevel = getCurrentLevel();
+      const prompt = `
+You're an equestrian AI course designer. Generate ONLY an array of jumps based on the following course settings:
 
-    const currentLevel = getCurrentLevel();
-    const maxJumps = Math.min(targetJumps, currentLevel.maxJumps);
+Discipline: ${discipline}
+Level: International ${level}
+Jump Height Range: ${currentLevel?.minHeight || 0.8}m to ${
+        currentLevel?.maxHeight || 1.2
+      }m
+Arena Size: ${arenaWidth}m x ${arenaLength}m
+Number of Jumps: ${targetJumps}
+Course Style: ${courseStyle.replace("_", " ")}
+Difficulty: ${difficultyPreference}
 
-    const newJumps = [];
-    const coursePattern = generateFlowingPattern(maxJumps);
 
-    for (let i = 0; i < maxJumps; i++) {
-      const position = coursePattern[i];
-      const jumpType = selectOptimalJumpType(i, maxJumps);
+AI Generation Settings:
+- Allow combinations (less than 8m spacing): ${
+        generationSettings.allowCombinations
+      }
+- Prefer smooth turns (< 90°): ${generationSettings.preferSmoothTurns}
+- Include specialty jumps (water, liverpool, wall): ${
+        generationSettings.includeSpecialtyJumps
+      }
+- Optimize for flow: ${generationSettings.optimizeForFlow}
+Generate a course with the following properties:
 
-      newJumps.push({
-        id: Date.now() + i,
-        x: position.x,
-        y: position.y,
-        type: jumpType.id,
-        number: i + 1,
-        height: calculateOptimalHeight(jumpType, currentLevel, i, maxJumps),
-      });
+
+Rules:
+- Only return a flat array ([]) of jumps.
+- Each jump object must contain:
+  - id: a random 13-digit number
+  - x and y (within the arena bounds)
+  - type: "vertical", "oxer", "wall", etc.
+  - number: 1-based sequence
+  - height: random float within the provided height range
+
+✅ Output format example:
+[
+  {
+    "id": 1750414508272,
+    "x": 71,
+    "y": 44,
+    "type": "vertical",
+    "number": 1,
+    "height": 1.045
+  },
+  ...
+]
+
+Do NOT include any text or explanation — just return the JSON array.
+`;
+      const geminiResponse = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyDZ6WsChZLWXldvn0OPKYSrVZhw5gs8Rtg`,
+        {
+          method: "post",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            contents: [
+              {
+                role: "user",
+                parts: [
+                  {
+                    text: prompt,
+                  },
+                ],
+              },
+            ],
+          }),
+        }
+      );
+      const result = await geminiResponse.text();
+      const geminiResult = JSON.parse(result);
+      const rawText = geminiResult.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!rawText) {
+        throw new Error("Missing content in Gemini response.");
+      }
+      // Remove markdown formatting like ```json\n and ```
+      const cleaned = rawText.replace(/```json\n?|```/g, "").trim();
+
+      const jumpsArray = JSON.parse(cleaned);
+      const updatedJumpsArray = jumpsArray.map((jump) => ({
+        ...jump,
+        id: Date.now(),
+      }));
+      console.log(
+        "🚀 ~ updatedJumpsArray ~ updatedJumpsArray:",
+        updatedJumpsArray
+      );
+
+      setJumps(updatedJumpsArray);
+      setIsGenerating(false);
+    } catch (error) {
+      setJumps([]);
+      setIsGenerating(false);
+      console.log("🚀 ~ generateAICourse ~ error:", error);
     }
-
-    setJumps(newJumps);
-    setIsGenerating(false);
   };
 
   // Parse course text upload
