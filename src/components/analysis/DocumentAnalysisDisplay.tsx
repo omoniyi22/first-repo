@@ -111,6 +111,8 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [analysisData, setAnalysisData] = useState<any>(null);
+  const [isPodcastLoading, setIsPodcastLoading] = useState<boolean>(false);
+  const [podcastMsg, setPodcastMsg] = useState<string>('');
 
   useEffect(() => {
     const fetchAnalysis = async () => {
@@ -197,7 +199,9 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
         if (error) {
           console.error("Error fetching horse:", error);
         } else {
-          console.log(user);
+          if (!resultData) {
+            return;
+          }
           setAnalysisData({
             rider_name: user.user_metadata.full_name,
             discipline: analysis.discipline,
@@ -260,26 +264,22 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
   }, [user, analysis, resultData]);
 
   const getPromptForTTS = async () => {
-    setIsLoading(true);
-
+    setIsPodcastLoading(true);
+    setPodcastMsg('Checking if podcast is already exists...')
     const filePath = `${user.id}_${analysis.id}/final_podcast_with_music.mp3`;
     const { data } = supabase.storage.from("analysis").getPublicUrl(filePath);
-
-    if (!data?.publicUrl) {
-      console.error("Failed to get public URL");
-      setIsLoading(false);
-      return;
-    }
 
     try {
       const initialCheck = await fetch(data.publicUrl, { method: "HEAD" });
 
       if (initialCheck.ok) {
-        window.open(data.publicUrl, "_blank");
-        setIsLoading(false);
+        setPodcastMsg('Downloading podcast...')
+        await downloadFile(data.publicUrl); 
+        setIsPodcastLoading(false);
+        setPodcastMsg('');
         return;
       }
-      // Generate prompt and call podcast script
+      setPodcastMsg('Generating podcast script...');
       const prompts = fill_Template_Make_Prompts(analysisData);
       let combinedScript = '';
       for (let i = 0; i < prompts.length; i++) {
@@ -290,54 +290,118 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
       }
       const ttsScript = formatScriptWithStyles(combinedScript);
       console.log("final TTS script", ttsScript)
-      fetch("https://eff1-45-153-229-59.ngrok-free.app/generate", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          scriptText: ttsScript,
-          userId: user.id,
-          analysisId: analysis.id
-        })
-      });
 
-      // Begin polling
-      const checkInterval = 5000; // 5 seconds
-      const timeout = 10 * 60 * 1000; // 10 minutes
-      const startTime = Date.now();
+      setPodcastMsg('Generating podcast aduio file...');
+      try {
+        const backendResponse = await fetch("https://eff1-45-153-229-59.ngrok-free.app/generate", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            scriptText: ttsScript,
+            userId: user.id,
+            analysisId: analysis.id
+          })
+        });
 
-      const intervalId = setInterval(async () => {
-        const elapsed = Date.now() - startTime;
-        if (elapsed > timeout) {
-          clearInterval(intervalId);
-          setIsLoading(false);
-          console.error("File not available after 10 minutes.");
-          alert("Please analyse again later");
+        if (!backendResponse.ok) {
+          const errMessage = await backendResponse.text();
+          console.error("❌ Backend responded with error:", errMessage);
+          alert(`Failed to start generation: ${backendResponse.status} ${backendResponse.statusText}`);
+          setIsPodcastLoading(false);
           return;
         }
 
-        try {
-          const response = await fetch(data.publicUrl, { method: "HEAD" });
-          if (response.ok) {
+        const backendMsg = await backendResponse.json();
+        console.log("✅ Backend accepted request:", backendMsg.message || backendMsg);
+        const checkInterval = 5000;
+        const timeout = 10 * 60 * 1000;
+        const startTime = Date.now();
+
+        const intervalId = setInterval(async () => {
+          const elapsed = Date.now() - startTime;
+          if (elapsed > timeout) {
             clearInterval(intervalId);
-            window.open(data.publicUrl, "_blank");
-            setIsLoading(false);
+            setIsPodcastLoading(false);
+            console.error("File not available after 10 minutes.");
+            alert("Please analyse again later");
+            return;
           }
-        } catch (error) {
-          console.error("Error checking file availability:", error);
-        }
-      }, checkInterval);
+
+          try {
+            const response = await fetch(data.publicUrl, { method: "HEAD" });
+            if (response.ok) {
+              clearInterval(intervalId);
+              setPodcastMsg('Downloading Podcast...')
+              await downloadFile(data.publicUrl); 
+              setIsPodcastLoading(false);
+              setPodcastMsg('');
+            }
+          } catch (error) {
+            console.error("Error checking file availability:", error);
+          }
+        }, checkInterval);
+      } catch (error) {
+        console.error("❌ Network or server error:", error);
+        alert("Server is not responding or network error occurred. Please try again later.");
+        setIsPodcastLoading(false);
+        setPodcastMsg('');
+        return;
+      }
     } catch (err) {
-      setIsLoading(false);
+      setIsPodcastLoading(false);
+      setPodcastMsg('');
       console.error("Error checking or generating file:", err);
     }
   };
+
+  async function downloadFile(url) {
+    try {
+      // Fetch the file as a blob
+      const response = await fetch(url);
+      const blob = await response.blob();
+      
+      // Create a blob URL
+      const blobUrl = window.URL.createObjectURL(blob);
+      
+      // Create anchor element
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      
+      // Set filename (you can customize this)
+      const filename = url.split('/').pop() || 'podcast_audio.mp3';
+      a.download = filename;
+      
+      // Trigger download
+      document.body.appendChild(a);
+      a.click();
+      
+      // Clean up
+      window.URL.revokeObjectURL(blobUrl);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Error downloading file:', error);
+      // Fallback to opening in new tab if download fails
+      window.open(url, '_blank');
+    }
+  }
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-8">
         <Loader2 className="h-8 w-8 animate-spin text-purple-700" />
+      </div>
+    );
+  }
+
+  if (isPodcastLoading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="flex items-center justify-center flex-col p-8 gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-purple-700" />
+          <span>{podcastMsg}</span>
+        </div>
       </div>
     );
   }
