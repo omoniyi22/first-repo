@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { parseCourseText } from "../utils/courseParser";
+import { parseCourseText } from "./utils/courseParser";
 
 const ManualCourseSettings = () => {
   const {
@@ -89,8 +89,8 @@ const ManualCourseSettings = () => {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {Object.entries(competitionLevels[discipline]).map(
-                  ([key, levelData]) => (
+                {Object.entries(competitionLevels[discipline] || {}).map(
+                  ([key, levelData]: [string, any]) => (
                     <SelectItem key={key} value={key}>
                       {levelData.description}
                     </SelectItem>

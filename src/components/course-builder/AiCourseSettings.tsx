@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { generateAICourse } from "../utils/courseGenerator";
+import { generateAICourse } from "./utils/courseGenerator";
 
 const AiCourseSettings = () => {
   const {
@@ -90,8 +90,8 @@ const AiCourseSettings = () => {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {Object.entries(competitionLevels[discipline]).map(
-                  ([key, levelData]) => (
+                {Object.entries(competitionLevels[discipline] || {}).map(
+                  ([key, levelData]: [string, any]) => (
                     <SelectItem key={key} value={key}>
                       {levelData.description}
                     </SelectItem>

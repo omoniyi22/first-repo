@@ -54,17 +54,15 @@ const selectOptimalJumpType = (jumpIndex: number, totalJumps: number, generation
     return availableTypes.find((type) => type.difficulty <= 2) || availableTypes[0];
   }
 
-  let targetDifficulty;
+  let targetDifficulty: number;
   const difficultyPreference = "medium"; // This could be passed as parameter
-  switch (difficultyPreference) {
-    case "easy":
-      targetDifficulty = 1;
-      break;
-    case "challenging":
-      targetDifficulty = 3;
-      break;
-    default:
-      targetDifficulty = 2;
+  
+  if (difficultyPreference === "easy") {
+    targetDifficulty = 1;
+  } else if (difficultyPreference === "challenging") {
+    targetDifficulty = 3;
+  } else {
+    targetDifficulty = 2;
   }
 
   const suitableTypes = availableTypes.filter(
