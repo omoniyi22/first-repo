@@ -55,7 +55,8 @@ const selectOptimalJumpType = (jumpIndex: number, totalJumps: number, generation
   }
 
   let targetDifficulty: number;
-  const difficultyPreference = "medium"; // This could be passed as parameter
+  // Use the passed difficultyPreference parameter instead of hardcoded string
+  const difficultyPreference = generationSettings.difficultyPreference || "medium";
   
   if (difficultyPreference === "easy") {
     targetDifficulty = 1;
@@ -108,12 +109,18 @@ export const generateAICourse = async ({
   const currentLevel = getCurrentLevel();
   const maxJumps = Math.min(targetJumps, currentLevel.maxJumps);
 
+  // Pass difficultyPreference through generationSettings
+  const enhancedSettings = {
+    ...generationSettings,
+    difficultyPreference
+  };
+
   const newJumps = [];
   const coursePattern = generateFlowingPattern(maxJumps, arenaWidth, arenaLength);
 
   for (let i = 0; i < maxJumps; i++) {
     const position = coursePattern[i];
-    const jumpType = selectOptimalJumpType(i, maxJumps, generationSettings, level);
+    const jumpType = selectOptimalJumpType(i, maxJumps, enhancedSettings, level);
 
     newJumps.push({
       id: Date.now() + i,
