@@ -445,7 +445,7 @@ Rules:
   const currentLevel = getCurrentLevel();
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-purple-50">
       <Navbar />
       <main className="flex-grow container mx-auto px-4 pt-24 pb-16">
         <div className="max-w-6xl mx-auto">
