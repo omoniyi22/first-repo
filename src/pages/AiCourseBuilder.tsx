@@ -46,6 +46,7 @@ const AiCourseBuilder = () => {
   });
   const { user } = useAuth();
   const navigate = useNavigate();
+  
 
   const scale = 8;
 
