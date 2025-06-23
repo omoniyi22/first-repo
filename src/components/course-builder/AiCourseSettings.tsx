@@ -190,10 +190,7 @@ const AiCourseSettings = () => {
               <Checkbox
                 checked={generationSettings.allowCombinations}
                 onCheckedChange={(checked) => 
-                  setGenerationSettings({
-                    ...generationSettings,
-                    allowCombinations: checked as boolean
-                  })
+                  setGenerationSettings(prev => ({ ...prev, allowCombinations: checked as boolean }))
                 }
                 className="data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
               />
@@ -204,10 +201,7 @@ const AiCourseSettings = () => {
               <Checkbox
                 checked={generationSettings.preferSmoothTurns}
                 onCheckedChange={(checked) => 
-                  setGenerationSettings({
-                    ...generationSettings,
-                    preferSmoothTurns: checked as boolean
-                  })
+                  setGenerationSettings(prev => ({ ...prev, preferSmoothTurns: checked as boolean }))
                 }
                 className="data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
               />
@@ -218,10 +212,7 @@ const AiCourseSettings = () => {
               <Checkbox
                 checked={generationSettings.includeSpecialtyJumps}
                 onCheckedChange={(checked) => 
-                  setGenerationSettings({
-                    ...generationSettings,
-                    includeSpecialtyJumps: checked as boolean
-                  })
+                  setGenerationSettings(prev => ({ ...prev, includeSpecialtyJumps: checked as boolean }))
                 }
                 className="data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
               />
@@ -232,10 +223,7 @@ const AiCourseSettings = () => {
               <Checkbox
                 checked={generationSettings.optimizeForFlow}
                 onCheckedChange={(checked) => 
-                  setGenerationSettings({
-                    ...generationSettings,
-                    optimizeForFlow: checked as boolean
-                  })
+                  setGenerationSettings(prev => ({ ...prev, optimizeForFlow: checked as boolean }))
                 }
                 className="data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
               />
