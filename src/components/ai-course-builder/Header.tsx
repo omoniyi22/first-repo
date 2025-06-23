@@ -221,12 +221,12 @@ const Header = ({
                 <label key={key} className="flex items-center space-x-2">
                   <input
                     type="checkbox"
-                    checked={value}
+                    checked={Boolean(value)}
                     onChange={(e) =>
-                      setGenerationSettings((prev) => ({
-                        ...prev,
+                      setGenerationSettings({
+                        ...generationSettings,
                         [key]: e.target.checked,
-                      }))
+                      })
                     }
                     className="rounded text-purple-600 focus:ring-purple-500"
                   />
