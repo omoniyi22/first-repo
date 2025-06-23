@@ -111,6 +111,12 @@ const Dashboard = () => {
           <div className="flex flex-col sm:flex-row gap-3">
             <Button
               className="text-white bg-purple-600 hover:bg-purple-700 text-sm sm:text-base"
+              onClick={() => navigate("/ai-course-builder")}
+            >
+              {language === "en" ? "Ai Course Designer" : "Diseñadora de cursos Ai"}
+            </Button>
+            <Button
+              className="text-white bg-purple-600 hover:bg-purple-700 text-sm sm:text-base"
               onClick={() => navigate("/analysis?view=true")}
             >
               {language === "en" ? "View Analysis" : "Ver análisis"}

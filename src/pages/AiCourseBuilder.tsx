@@ -19,6 +19,8 @@ import CourseCanvas from "@/components/ai-course-builder/CourseCanvas";
 import AIAnalysisPanel from "@/components/ai-course-builder/AIAnalysisPanel";
 import FeaturesInfo from "@/components/ai-course-builder/FeaturesInfo";
 import { competitionLevels, jumpTypes } from "@/data/aiCourseBuilder";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const AiCourseBuilder = () => {
   // State management
@@ -42,8 +44,19 @@ const AiCourseBuilder = () => {
     includeSpecialtyJumps: true,
     optimizeForFlow: true,
   });
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   const scale = 8;
+
+  useEffect(() => {
+
+    // Redirect to login if not authenticated
+    if (!user) {
+      navigate("/sign-in", { state: { from: "/ai-course-builder" } });
+      return;
+    }
+  }, [user]);
 
   // Get current level configuration
   const getCurrentLevel = () => {
