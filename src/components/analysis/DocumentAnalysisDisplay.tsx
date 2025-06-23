@@ -266,7 +266,7 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
   const getPromptForTTS = async () => {
     setIsPodcastLoading(true);
     setPodcastMsg('Checking if podcast is already exists...')
-    const filePath = `${user.id}_${analysis.id}/final_podcast_with_music.mp3`;
+    const filePath = `${user.id}_${analysis.id}/final_podcast_with_music.m4a`;
     const { data } = supabase.storage.from("analysis").getPublicUrl(filePath);
 
     try {
@@ -274,8 +274,8 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
 
       if (initialCheck.ok) {
         setPodcastMsg('Downloading podcast...')
-        await downloadFile(data.publicUrl); 
         setIsPodcastLoading(false);
+        await downloadFile(data.publicUrl); 
         setPodcastMsg('');
         return;
       }
@@ -291,9 +291,9 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
       const ttsScript = formatScriptWithStyles(combinedScript);
       console.log("final TTS script", ttsScript)
 
-      setPodcastMsg('Generating podcast aduio file...');
+      setPodcastMsg('Generating podcast audio file...');
       try {
-        const backendResponse = await fetch("https://eff1-45-153-229-59.ngrok-free.app/generate", {
+        const backendResponse = await fetch("https://f531-45-153-229-59.ngrok-free.app/generate", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
@@ -356,37 +356,45 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
     }
   };
 
-  async function downloadFile(url) {
-    try {
-      // Fetch the file as a blob
-      const response = await fetch(url);
-      const blob = await response.blob();
-      
-      // Create a blob URL
-      const blobUrl = window.URL.createObjectURL(blob);
-      
-      // Create anchor element
-      const a = document.createElement('a');
-      a.href = blobUrl;
-      
-      // Set filename (you can customize this)
-      const filename = url.split('/').pop() || 'podcast_audio.mp3';
-      a.download = filename;
-      
-      // Trigger download
-      document.body.appendChild(a);
-      a.click();
-      
-      // Clean up
-      window.URL.revokeObjectURL(blobUrl);
-      document.body.removeChild(a);
-    } catch (error) {
-      console.error('Error downloading file:', error);
-      // Fallback to opening in new tab if download fails
-      window.open(url, '_blank');
-    }
-  }
+  function downloadFile(url) {
+    return new Promise<void>((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET', url, true);
+      xhr.responseType = 'blob';
 
+      xhr.onload = function () {
+        if (xhr.status === 200) {
+          const blob = xhr.response;
+          const blobUrl = window.URL.createObjectURL(blob);
+          const filename = url.split('/').pop() || 'final_podcast_with_music.m4a';
+          
+          const a = document.createElement('a');
+          a.href = blobUrl;
+          a.download = filename.endsWith('.m4a') ? filename : filename.replace(/\.(mp3|aac)?$/, '.m4a');
+          document.body.appendChild(a);
+
+          // Safari fallback
+          if (navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome')) {
+            window.open(blobUrl, '_blank');
+          } else {
+            a.click();
+          }
+
+          setTimeout(() => {
+            window.URL.revokeObjectURL(blobUrl);
+            document.body.removeChild(a);
+            resolve();
+          }, 60000);
+        } else {
+          reject(new Error('Download failed'));
+        }
+      };
+
+      xhr.onerror = () => reject(new Error('Network error'));
+      xhr.send();
+    });
+  }
+  
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-8">
