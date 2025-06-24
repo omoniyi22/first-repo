@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { fetchBlogPostBySlug, fetchBlogPosts } from "@/services/blogService";
@@ -216,11 +215,11 @@ const BlogPostPage = () => {
             </div>
 
             {/* Featured image */}
-            <div className="max-w-4xl mx-auto mb-8">
+            <div className="w-full aspect-[16/9] overflow-hidden rounded-lg shadow-md">
               <img
                 src={getImagePath(post.image)}
                 alt={getLocalizedContent("title", post.title)}
-                className="w-full h-auto rounded-lg shadow-md"
+                className="w-full h-full object-cover object-center"
                 onError={(e) => handleImageError(e)}
               />
             </div>
@@ -229,11 +228,20 @@ const BlogPostPage = () => {
             <article className="max-w-4xl mx-auto mb-16">
               <div className="prose prose-lg max-w-none">
                 {post.content ? (
-                  <div dangerouslySetInnerHTML={{ 
-                    __html: typeof marked === 'function' ? marked.parse(getLocalizedContent("content", post.content)) : getLocalizedContent("content", post.content)
-                  }} />
+                  <div
+                    dangerouslySetInnerHTML={{
+                      __html:
+                        typeof marked === "function"
+                          ? marked.parse(
+                              getLocalizedContent("content", post.content)
+                            )
+                          : getLocalizedContent("content", post.content),
+                    }}
+                  />
                 ) : (
-                  <p className="text-gray-500 italic">{t["no-content-available"]}</p>
+                  <p className="text-gray-500 italic">
+                    {t["no-content-available"]}
+                  </p>
                 )}
               </div>
             </article>

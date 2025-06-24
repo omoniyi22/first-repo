@@ -51,7 +51,7 @@ const FeaturedPost = ({ post }: FeaturedPostProps) => {
   return (
     <div className="bg-white rounded-xl overflow-hidden shadow-lg">
       <div className="md:flex">
-        <div className="md:w-1/2">
+        <div className="md:w-1/2 max-h-64 md:max-h-[60vh] relative overflow-hidden">
           <img
             src={getImagePath(post.image)}
             alt={localizedTitle}
