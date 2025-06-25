@@ -366,11 +366,11 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
         if (xhr.status === 200) {
           const blob = xhr.response;
           const blobUrl = window.URL.createObjectURL(blob);
-          const filename = 'test.m4a';
+          const filename = analysis.file_name;
           
           const a = document.createElement('a');
           a.href = blobUrl;
-          a.download = filename.endsWith('.m4a') ? filename : filename.replace(/\.(mp3|aac)?$/, '.m4a');
+          a.download = filename.endsWith('.m4a') ? filename : filename.replace(/\.(pdf|PDF)?$/, '.m4a');
           document.body.appendChild(a);
 
           // Safari fallback
