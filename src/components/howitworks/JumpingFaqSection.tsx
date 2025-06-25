@@ -161,7 +161,7 @@ const JumpingFaqSection = () => {
               If you couldn't find the answer to your question, please don't
               hesitate to reach out to our support team.
             </p>
-            <Link to="mailto:info@equineaintelligence.com" >
+            <Link to="mailto:info@aiequestrian.com" >
               <Button variant="primary">Contact Support</Button>
             </Link>
           </AnimatedSection>

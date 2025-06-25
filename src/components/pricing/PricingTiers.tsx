@@ -404,7 +404,7 @@ const PricingTiers = () => {
                 <p className="text-gray-700 mb-8">{t["help-text"]}</p>
 
                 <div className="flex justify-start">
-                  <Link to="mailto:info@equineaintelligence.com">
+                  <Link to="mailto:info@aiequestrian.com">
                     <Button
                       variant="outline"
                       className="bg-transparent border border-purple-600 text-purple-700 py-3 rounded-lg font-medium transition-colors hover:bg-purple-50 hover:text-purple-700 h-auto"

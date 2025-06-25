@@ -150,12 +150,12 @@ const PricingFaq = () => {
           </h3>
           <p className="text-gray-700 mb-6">{t["questions-text"]}</p>
           <div className="flex justify-center">
-            {/* <Link to="mailto:info@equineaintelligence.com">
+            {/* <Link to="mailto:info@aiequestrian.com">
               <Button className="bg-navy-700 hover:bg-navy-800 text-white px-6 py-3 rounded-lg text-base font-medium h-auto flex items-center gap-2">
                 {t["contact-support"]}
               </Button>
             </Link> */}
-            <Link to="mailto:info@equineaintelligence.com">
+            <Link to="mailto:info@aiequestrian.com">
               <Button variant="primary">
                 <MessageCircle className="w-5 h-5" />
                 Contact Support

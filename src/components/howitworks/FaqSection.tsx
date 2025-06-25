@@ -137,7 +137,7 @@ const FaqSection = ({ pageName }: { pageName?: string }) => {
             If you couldn't find the answer to your question, please don't
             hesitate to reach out to our support team.
           </p>
-          <Link to="mailto:info@equineaintelligence.com">
+          <Link to="mailto:info@aiequestrian.com">
             <Button variant="primary" className={btnBg}>
               <MessageCircle className="w-5 h-5" />
               Contact Support
