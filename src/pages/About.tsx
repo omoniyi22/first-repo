@@ -104,7 +104,7 @@ const About = () => {
                     Equestrian Federation
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="text-center">
+                <CardContent className="flex flex-col justify-between min-h-[250px] text-center">
                   <p className="text-gray-700 mb-4">
                     Official technology partner providing AI training solutions
                     to national team riders.
@@ -126,14 +126,14 @@ const About = () => {
                     Elite Equine Equipment
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="text-center">
+                <CardContent className="flex flex-col justify-between min-h-[250px] text-center">
                   <p className="text-gray-700 mb-4">
                     Premium equipment manufacturer partnering to integrate
                     technology with traditional training tools.
                   </p>
-                  <div className="h-20 w-20 bg-purple-100 rounded-full mx-auto flex items-center justify-center p-2 overflow-hidden">
+                  <div className="h-20 w-20 rounded-full mx-auto flex items-center justify-center p-2 overflow-hidden">
                     <img
-                      src="/lovable-uploads/da-logo.png"
+                      src="/lovable-uploads/appetite.png"
                       alt=""
                       className="max-w-full max-h-full object-cover"
                     />
@@ -148,13 +148,17 @@ const About = () => {
                     International Shows Circuit
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="text-center">
+                <CardContent className="flex flex-col justify-between min-h-[250px] text-center">
                   <p className="text-gray-700 mb-4">
                     Official AI analysis partner for major international
                     competitions and events.
                   </p>
-                  <div className="h-20 w-20 bg-purple-100 rounded-full mx-auto flex items-center justify-center">
-                    <span className="text-blue-400">Logo</span>
+                  <div className="h-20 w-20 rounded-full mx-auto flex items-center justify-center">
+                    <img
+                      src="/lovable-uploads/horse-organic.png"
+                      alt=""
+                      className="max-w-full max-h-full object-cover"
+                    />
                   </div>
                 </CardContent>
               </Card>
