@@ -299,3 +299,7 @@ html, body {
   max-width: 100%;
   overflow-x: hidden;
 }
+
+.tawk-icon-right img {
+  display: none !important;
+}

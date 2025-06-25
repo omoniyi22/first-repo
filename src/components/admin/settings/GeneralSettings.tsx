@@ -14,7 +14,7 @@ const GeneralSettings = () => {
   const [settings, setSettings] = useState({
     siteName: "AI Equestrian",
     siteDescription: "Equine analytics platform using artificial intelligence to analyze horse and rider performance across dressage and show jumping disciplines.",
-    contactEmail: "info@aiequestrian.com",
+    contactEmail: "info@equineaintelligence.com",
     supportEmail: "support@aiequestrian.com",
     siteUrl: "https://aiequestrian.com",
     maintenanceMode: false,
