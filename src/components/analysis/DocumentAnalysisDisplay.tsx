@@ -366,7 +366,7 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
         if (xhr.status === 200) {
           const blob = xhr.response;
           const blobUrl = window.URL.createObjectURL(blob);
-          const filename = url.split('/').pop() || 'final_podcast_with_music.m4a';
+          const filename = 'test.m4a';
           
           const a = document.createElement('a');
           a.href = blobUrl;
@@ -385,6 +385,7 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
             document.body.removeChild(a);
             resolve();
           }, 60000);
+          alert("Podcast is downloaded successfully, please find in Downloads folder")
         } else {
           reject(new Error('Download failed'));
         }
