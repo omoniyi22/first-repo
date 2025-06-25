@@ -367,5 +367,6 @@ export function formatScriptWithStyles(script: string): string {
     .replace(/\*\*[^*]+\*\*/g, '') // Remove **...**
     .replace(/\([^)]+\)/g, '') // Remove (...) text
     .replace(/\n{3,}/g, '\n\n') // Collapse multiple newlines
+    .replace(/\[pause \d+s\]\s*$/i, '') // Remove final [pause Xs] at end
     .trim();
 }
