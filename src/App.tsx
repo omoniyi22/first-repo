@@ -55,7 +55,11 @@ import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
 import { HelmetProvider } from "react-helmet-async";
 //import WhatsAppButton from "./components/home/WhatsAppButton";
 import TawktoWidget from "./components/Tawkto";
+<<<<<<< HEAD
 import AiCourseBuilder from "./pages/AiCourseBuilder";
+=======
+import ScrollToTop from "./components/layout/ScrollToTop";
+>>>>>>> emailupdate
 
 function App() {
   const location = useLocation();
@@ -73,6 +77,7 @@ function App() {
   );
   return (
     <>
+<<<<<<< HEAD
       <HelmetProvider>
         <ThemeProvider attribute="class" defaultTheme="light">
           <LanguageProvider>
@@ -94,6 +99,30 @@ function App() {
                   <Route path="/terms" element={<TermsOfService />} />
                   <Route path="/privacy" element={<Privacy />} />
                   <Route path="/how-it-works" element={<HowItWorks />} />
+=======
+    <HelmetProvider>
+      <ThemeProvider attribute="class" defaultTheme="light">
+        <LanguageProvider>
+          <AuthProvider>
+            <SubscriptionProvider>
+              {/* <Router> */}
+              <Analytics />
+                <ScrollToTop />
+              <Routes>
+                {/* Public routes */}
+                <Route path="/" element={<Index />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/sign-in" element={<SignIn />} />
+                <Route path="/sign-up" element={<SignUp />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/blog" element={<Blog />} />
+                <Route path="/blog/:slug" element={<BlogPost />} />
+                <Route path="/pricing" element={<Pricing />} />
+                <Route path="/events" element={<Events />} />
+                <Route path="/terms" element={<TermsOfService />} />
+                <Route path="/privacy" element={<Privacy />} />
+                <Route path="/how-it-works" element={<HowItWorks />} />
+>>>>>>> emailupdate
 
                   {/* Discipline-specific routes */}
                   <Route path="/dressage" element={<Dressage />} />

@@ -300,6 +300,7 @@ html, body {
   overflow-x: hidden;
 }
 
+<<<<<<< HEAD
 
 .svg-exercise {
   stroke: #3b82f6;
@@ -329,3 +330,8 @@ html, body {
   stroke-width: 2;
   fill: none;
 }
+=======
+.tawk-icon-right img {
+  display: none !important;
+}
+>>>>>>> emailupdate
