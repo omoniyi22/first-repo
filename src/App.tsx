@@ -56,6 +56,7 @@ import { HelmetProvider } from "react-helmet-async";
 //import WhatsAppButton from "./components/home/WhatsAppButton";
 import TawktoWidget from "./components/Tawkto";
 import AiCourseBuilder from "./pages/AiCourseBuilder";
+import ScrollToTop from "./components/layout/ScrollToTop";
 
 function App() {
   const location = useLocation();
@@ -80,6 +81,7 @@ function App() {
               <SubscriptionProvider>
                 {/* <Router> */}
                 <Analytics />
+                <ScrollToTop/>
                 <Routes>
                   {/* Public routes */}
                   <Route path="/" element={<Index />} />

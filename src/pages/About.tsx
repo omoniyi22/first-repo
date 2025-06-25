@@ -170,7 +170,7 @@ const About = () => {
                 training.
               </p>
               <Link
-                to="mailto:info@aiequestrian.com"
+                to="mailto:info@equineaintelligence.com"
                 className="inline-flex items-center py-3 px-6 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-lg transition-colors duration-300 font-medium self-start mt-4"
               >
                 Contact for Partnership Opportunities

@@ -47,7 +47,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  to="mailto:info@aiequestrian.com"
+                  to="mailto:info@equineaintelligence.com"
                   className="text-white hover:underline"
                 >
                   Contact
@@ -75,11 +75,11 @@ const Footer = () => {
 
               <div className="flex items-center">
                 <a
-                  href="mailto:info@aiequestrian.com"
+                  href="mailto:info@equineaintelligence.com"
                   className="text-white hover:underline flex items-center"
                 >
                   <Mail className="w-5 h-5 mr-2" />
-                  <span>info@aiequestrian.com</span>
+                  <span>info@equineaintelligence.com</span>
                 </a>
               </div>
             </div>
