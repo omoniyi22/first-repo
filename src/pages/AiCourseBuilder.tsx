@@ -21,6 +21,7 @@ import FeaturesInfo from "@/components/ai-course-builder/FeaturesInfo";
 import { competitionLevels, jumpTypes } from "@/data/aiCourseBuilder";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 const AiCourseBuilder = () => {
   // State management
@@ -38,6 +39,7 @@ const AiCourseBuilder = () => {
   const [designMode, setDesignMode] = useState("ai");
   const [selectedJumpType, setSelectedJumpType] = useState("vertical");
   const [analysis, setAnalysis] = useState();
+  const [userDiscipline, setUserDiscipline] = useState<string>("");
   const [generationSettings, setGenerationSettings] = useState({
     allowCombinations: true,
     preferSmoothTurns: true,
@@ -46,18 +48,45 @@ const AiCourseBuilder = () => {
   });
   const { user } = useAuth();
   const navigate = useNavigate();
-  
 
   const scale = 8;
 
   useEffect(() => {
+    const fetchUserData = async () => {
+      // Redirect to login if not authenticated
+      if (!user) {
+        navigate("/sign-in", { state: { from: "/ai-course-builder" } });
+        return;
+      }
 
-    // Redirect to login if not authenticated
-    if (!user) {
-      navigate("/sign-in", { state: { from: "/ai-course-builder" } });
-      return;
-    }
+      try {
+        // Fetch user profile to get discipline
+        const { data: profileData, error: profileError } = await supabase
+          .from("profiles")
+          .select("discipline")
+          .eq("id", user.id)
+          .single();
+
+        if (profileError && profileError.code !== "PGRST116") {
+          console.error("Error fetching profile:", profileError);
+        } else if (profileData?.discipline) {
+          setUserDiscipline(profileData.discipline);
+        }
+      } catch (error) {
+        console.error("Error fetching horses:", error);
+      } finally {
+      }
+    };
+
+    fetchUserData();
   }, [user]);
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (userDiscipline === "dressage") {
+      navigate("/dashboard", { state: { from: "/ai-course-builder" } });
+    }
+  }, [user, userDiscipline, navigate]);
 
   // Get current level configuration
   const getCurrentLevel = () => {
@@ -443,6 +472,8 @@ Rules:
 
   // const analysis = designMode === "ai" ? aiAnalysis : analyzeCourse();
   const currentLevel = getCurrentLevel();
+
+  if (!userDiscipline || userDiscipline === "dressage") return;
 
   return (
     <div className="min-h-screen flex flex-col">
