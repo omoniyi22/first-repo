@@ -661,6 +661,11 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
                 <FormItem>
                   <FormLabel>
                     {language === "en" ? "Test Level" : "Nivel de Prueba"}
+                    {userProfile?.region === "United Kingdom" && (
+                      <div className="text-[10px] text-yellow-500 mt-[10px] -mb-1">
+                    {language === "en" ? "We've updated British dressage tests to reflect the new 2024 British Dressage system." : "Hemos actualizado las pruebas de doma británica para reflejar el nuevo sistema de doma británica de 2024."}
+                  </div>
+                    )}
                   </FormLabel>
                   <Select
                     onValueChange={field.onChange}

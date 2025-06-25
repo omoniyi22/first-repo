@@ -10,101 +10,55 @@ const DRESSAGE_COUNTRIES_DATA = [
             abbreviation: "BD"
         },
         levels: [
-            // Introductory (3 tests)
-            { name: "Intro A", category: "Introductory", difficulty: 1, arenaSize: "20x40" },
-            { name: "Intro B", category: "Introductory", difficulty: 1, arenaSize: "20x40" },
-            { name: "Intro C", category: "Introductory", difficulty: 1, arenaSize: "20x40" },
+  // Introductory (4 tests)
+  { name: "Intro 1", category: "Introductory", difficulty: 1, arenaSize: "20x40" },
+  { name: "Intro 2", category: "Introductory", difficulty: 1, arenaSize: "20x40" },
+  { name: "Intro 3", category: "Introductory", difficulty: 1, arenaSize: "20x40" },
+  { name: "Intro 4", category: "Introductory", difficulty: 1, arenaSize: "20x40" },
 
-            // Preliminary (19 tests)
-            { name: "Prelim 1", category: "Preliminary", difficulty: 2, arenaSize: "20x40" },
-            { name: "Prelim 2", category: "Preliminary", difficulty: 2, arenaSize: "20x40" },
-            { name: "Prelim 3", category: "Preliminary", difficulty: 2, arenaSize: "20x40" },
-            { name: "Prelim 4", category: "Preliminary", difficulty: 2, arenaSize: "20x40" },
-            { name: "Prelim 5", category: "Preliminary", difficulty: 2, arenaSize: "20x40" },
-            { name: "Prelim 6", category: "Preliminary", difficulty: 2, arenaSize: "20x40" },
-            { name: "Prelim 7", category: "Preliminary", difficulty: 2, arenaSize: "20x40" },
-            { name: "Prelim 8", category: "Preliminary", difficulty: 2, arenaSize: "20x40" },
-            { name: "Prelim 9", category: "Preliminary", difficulty: 2, arenaSize: "20x40" },
-            { name: "Prelim 10", category: "Preliminary", difficulty: 2, arenaSize: "20x40" },
-            { name: "Prelim 11", category: "Preliminary", difficulty: 2, arenaSize: "20x40" },
-            { name: "Prelim 12", category: "Preliminary", difficulty: 2, arenaSize: "20x40" },
-            { name: "Prelim 13", category: "Preliminary", difficulty: 2, arenaSize: "20x40" },
-            { name: "Prelim 14", category: "Preliminary", difficulty: 2, arenaSize: "20x40" },
-            { name: "Prelim 15", category: "Preliminary", difficulty: 2, arenaSize: "20x40" },
-            { name: "Prelim 16", category: "Preliminary", difficulty: 2, arenaSize: "20x40" },
-            { name: "Prelim 17", category: "Preliminary", difficulty: 2, arenaSize: "20x40" },
-            { name: "Prelim 18", category: "Preliminary", difficulty: 2, arenaSize: "20x40" },
-            { name: "Prelim 19", category: "Preliminary", difficulty: 2, arenaSize: "20x40" },
+  // Preliminary (6 tests)
+  { name: "Prelim 1", category: "Preliminary", difficulty: 2, arenaSize: "20x40" },
+  { name: "Prelim 2", category: "Preliminary", difficulty: 2, arenaSize: "20x40" },
+  { name: "Prelim 3", category: "Preliminary", difficulty: 2, arenaSize: "20x40" },
+  { name: "Prelim 4", category: "Preliminary", difficulty: 2, arenaSize: "20x40" },
+  { name: "Prelim 5", category: "Preliminary", difficulty: 2, arenaSize: "20x40" },
+  { name: "Prelim 6", category: "Preliminary", difficulty: 2, arenaSize: "20x40" },
 
-            // Novice (19 tests)
-            { name: "Novice 21", category: "Novice", difficulty: 3, arenaSize: "20x40" },
-            { name: "Novice 22", category: "Novice", difficulty: 3, arenaSize: "20x40" },
-            { name: "Novice 23", category: "Novice", difficulty: 3, arenaSize: "20x40" },
-            { name: "Novice 24", category: "Novice", difficulty: 3, arenaSize: "20x40" },
-            { name: "Novice 25", category: "Novice", difficulty: 3, arenaSize: "20x40" },
-            { name: "Novice 26", category: "Novice", difficulty: 3, arenaSize: "20x40" },
-            { name: "Novice 27", category: "Novice", difficulty: 3, arenaSize: "20x40" },
-            { name: "Novice 28", category: "Novice", difficulty: 3, arenaSize: "20x40" },
-            { name: "Novice 29", category: "Novice", difficulty: 3, arenaSize: "20x40" },
-            { name: "Novice 30", category: "Novice", difficulty: 3, arenaSize: "20x40" },
-            { name: "Novice 31", category: "Novice", difficulty: 3, arenaSize: "20x40" },
-            { name: "Novice 32", category: "Novice", difficulty: 3, arenaSize: "20x40" },
-            { name: "Novice 33", category: "Novice", difficulty: 3, arenaSize: "20x40" },
-            { name: "Novice 34", category: "Novice", difficulty: 3, arenaSize: "20x40" },
-            { name: "Novice 35", category: "Novice", difficulty: 3, arenaSize: "20x40" },
-            { name: "Novice 36", category: "Novice", difficulty: 3, arenaSize: "20x40" },
-            { name: "Novice 37", category: "Novice", difficulty: 3, arenaSize: "20x40" },
-            { name: "Novice 38", category: "Novice", difficulty: 3, arenaSize: "20x40" },
-            { name: "Novice 39", category: "Novice", difficulty: 3, arenaSize: "20x40" },
+  // Novice (6 tests)
+  { name: "Novice 1", category: "Novice", difficulty: 3, arenaSize: "20x60" },
+  { name: "Novice 2", category: "Novice", difficulty: 3, arenaSize: "20x60" },
+  { name: "Novice 3", category: "Novice", difficulty: 3, arenaSize: "20x60" },
+  { name: "Novice 4", category: "Novice", difficulty: 3, arenaSize: "20x60" },
+  { name: "Novice 5", category: "Novice", difficulty: 3, arenaSize: "20x60" },
+  { name: "Novice 6", category: "Novice", difficulty: 3, arenaSize: "20x60" },
 
-            // Elementary (10 tests)
-            { name: "Elementary 40", category: "Elementary", difficulty: 4, arenaSize: "20x60" },
-            { name: "Elementary 41", category: "Elementary", difficulty: 4, arenaSize: "20x60" },
-            { name: "Elementary 42", category: "Elementary", difficulty: 4, arenaSize: "20x60" },
-            { name: "Elementary 43", category: "Elementary", difficulty: 4, arenaSize: "20x60" },
-            { name: "Elementary 44", category: "Elementary", difficulty: 4, arenaSize: "20x60" },
-            { name: "Elementary 45", category: "Elementary", difficulty: 4, arenaSize: "20x60" },
-            { name: "Elementary 46", category: "Elementary", difficulty: 4, arenaSize: "20x60" },
-            { name: "Elementary 47", category: "Elementary", difficulty: 4, arenaSize: "20x60" },
-            { name: "Elementary 48", category: "Elementary", difficulty: 4, arenaSize: "20x60" },
-            { name: "Elementary 49", category: "Elementary", difficulty: 4, arenaSize: "20x60" },
+  // Elementary (6 tests)
+  { name: "Elementary 1", category: "Elementary", difficulty: 4, arenaSize: "20x60" },
+  { name: "Elementary 2", category: "Elementary", difficulty: 4, arenaSize: "20x60" },
+  { name: "Elementary 3", category: "Elementary", difficulty: 4, arenaSize: "20x60" },
+  { name: "Elementary 4", category: "Elementary", difficulty: 4, arenaSize: "20x60" },
+  { name: "Elementary 5", category: "Elementary", difficulty: 4, arenaSize: "20x60" },
+  { name: "Elementary 6", category: "Elementary", difficulty: 4, arenaSize: "20x60" },
 
-            // Medium (10 tests)
-            { name: "Medium 50", category: "Medium", difficulty: 6, arenaSize: "20x60" },
-            { name: "Medium 51", category: "Medium", difficulty: 6, arenaSize: "20x60" },
-            { name: "Medium 52", category: "Medium", difficulty: 6, arenaSize: "20x60" },
-            { name: "Medium 53", category: "Medium", difficulty: 6, arenaSize: "20x60" },
-            { name: "Medium 54", category: "Medium", difficulty: 6, arenaSize: "20x60" },
-            { name: "Medium 55", category: "Medium", difficulty: 6, arenaSize: "20x60" },
-            { name: "Medium 56", category: "Medium", difficulty: 6, arenaSize: "20x60" },
-            { name: "Medium 57", category: "Medium", difficulty: 6, arenaSize: "20x60" },
-            { name: "Medium 58", category: "Medium", difficulty: 6, arenaSize: "20x60" },
-            { name: "Medium 59", category: "Medium", difficulty: 6, arenaSize: "20x60" },
+  // Medium (6 tests)
+  { name: "Medium 1", category: "Medium", difficulty: 5, arenaSize: "20x60" },
+  { name: "Medium 2", category: "Medium", difficulty: 5, arenaSize: "20x60" },
+  { name: "Medium 3", category: "Medium", difficulty: 5, arenaSize: "20x60" },
+  { name: "Medium 4", category: "Medium", difficulty: 5, arenaSize: "20x60" },
+  { name: "Medium 5", category: "Medium", difficulty: 5, arenaSize: "20x60" },
+  { name: "Medium 6", category: "Medium", difficulty: 5, arenaSize: "20x60" },
 
-            // Advanced Medium (10 tests)
-            { name: "Advanced Medium 60", category: "Advanced Medium", difficulty: 8, arenaSize: "20x60" },
-            { name: "Advanced Medium 61", category: "Advanced Medium", difficulty: 8, arenaSize: "20x60" },
-            { name: "Advanced Medium 62", category: "Advanced Medium", difficulty: 8, arenaSize: "20x60" },
-            { name: "Advanced Medium 63", category: "Advanced Medium", difficulty: 8, arenaSize: "20x60" },
-            { name: "Advanced Medium 64", category: "Advanced Medium", difficulty: 8, arenaSize: "20x60" },
-            { name: "Advanced Medium 65", category: "Advanced Medium", difficulty: 8, arenaSize: "20x60" },
-            { name: "Advanced Medium 66", category: "Advanced Medium", difficulty: 8, arenaSize: "20x60" },
-            { name: "Advanced Medium 67", category: "Advanced Medium", difficulty: 8, arenaSize: "20x60" },
-            { name: "Advanced Medium 68", category: "Advanced Medium", difficulty: 8, arenaSize: "20x60" },
-            { name: "Advanced Medium 69", category: "Advanced Medium", difficulty: 8, arenaSize: "20x60" },
+  // Advanced Medium (5 tests)
+  { name: "Advanced Medium 1", category: "Advanced Medium", difficulty: 6, arenaSize: "20x60" },
+  { name: "Advanced Medium 2", category: "Advanced Medium", difficulty: 6, arenaSize: "20x60" },
+  { name: "Advanced Medium 3", category: "Advanced Medium", difficulty: 6, arenaSize: "20x60" },
+  { name: "Advanced Medium 4", category: "Advanced Medium", difficulty: 6, arenaSize: "20x60" },
+  { name: "Advanced Medium 5", category: "Advanced Medium", difficulty: 6, arenaSize: "20x60" },
 
-            // Advanced (10 tests)
-            { name: "Advanced 70", category: "Advanced", difficulty: 8, arenaSize: "20x60" },
-            { name: "Advanced 71", category: "Advanced", difficulty: 8, arenaSize: "20x60" },
-            { name: "Advanced 72", category: "Advanced", difficulty: 8, arenaSize: "20x60" },
-            { name: "Advanced 73", category: "Advanced", difficulty: 8, arenaSize: "20x60" },
-            { name: "Advanced 74", category: "Advanced", difficulty: 8, arenaSize: "20x60" },
-            { name: "Advanced 75", category: "Advanced", difficulty: 8, arenaSize: "20x60" },
-            { name: "Advanced 76", category: "Advanced", difficulty: 8, arenaSize: "20x60" },
-            { name: "Advanced 77", category: "Advanced", difficulty: 8, arenaSize: "20x60" },
-            { name: "Advanced 78", category: "Advanced", difficulty: 8, arenaSize: "20x60" },
-            { name: "Advanced 79", category: "Advanced", difficulty: 8, arenaSize: "20x60" }
-        ]
+  // Advanced (2 tests)
+  { name: "Advanced 1", category: "Advanced", difficulty: 7, arenaSize: "20x60" },
+  { name: "Advanced 2", category: "Advanced", difficulty: 7, arenaSize: "20x60" }
+]
     },
 
     {
