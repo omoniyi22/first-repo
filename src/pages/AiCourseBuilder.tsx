@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Sparkles,
   Download,
@@ -11,7 +11,7 @@ import {
   Info,
   Trash2,
 } from "lucide-react";
-
+import { EnhancedAIGenerator } from '@/utils/enhancedAIGenerator';
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/ai-course-builder/Header";
@@ -23,22 +23,50 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
+// Type definitions
+interface GeneratedJump {
+  id: string;
+  x: number;
+  y: number;
+  type: 'vertical' | 'oxer' | 'triple' | 'water';
+  height?: number;
+  width?: number;
+  number?: number;
+}
+
+interface CourseGenerationResult {
+  jumps: GeneratedJump[];
+  method: string;
+}
+
+interface CourseAnalysis {
+  totalDistance: number;
+  averageDistance: number;
+  difficulty: number;
+  compliance: number;
+  issues: string[];
+  sharpTurns: number;
+  combinations: number;
+  technicality: number;
+  aiScore: number;
+}
+
 const AiCourseBuilder = () => {
-  // State management
+  // Core state management
   const [discipline, setDiscipline] = useState("showjumping");
   const [level, setLevel] = useState("novice");
   const [arenaWidth, setArenaWidth] = useState(60);
   const [arenaLength, setArenaLength] = useState(40);
-  const [jumps, setJumps] = useState([]);
+  const [jumps, setJumps] = useState<GeneratedJump[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [courseStyle, setCourseStyle] = useState("flowing");
   const [targetJumps, setTargetJumps] = useState(8);
   const [difficultyPreference, setDifficultyPreference] = useState("medium");
   const [courseText, setCourseText] = useState("");
-  const [selectedJump, setSelectedJump] = useState(null);
+  const [selectedJump, setSelectedJump] = useState<string | null>(null);
   const [designMode, setDesignMode] = useState("ai");
   const [selectedJumpType, setSelectedJumpType] = useState("vertical");
-  const [analysis, setAnalysis] = useState();
+  const [analysis, setAnalysis] = useState<CourseAnalysis | undefined>();
   const [userDiscipline, setUserDiscipline] = useState<string>("");
   const [generationSettings, setGenerationSettings] = useState({
     allowCombinations: true,
@@ -46,21 +74,25 @@ const AiCourseBuilder = () => {
     includeSpecialtyJumps: true,
     optimizeForFlow: true,
   });
+
+  // Enhanced AI state
+  const [generationMethod, setGenerationMethod] = useState<string>('');
+
   const { user } = useAuth();
   const navigate = useNavigate();
 
   const scale = 8;
+  const GEMINI_API_KEY = 'AIzaSyDZ6WsChZLWXldvn0OPKYSrVZhw5gs8Rtg';
 
+  // Fetch user data and handle authentication
   useEffect(() => {
     const fetchUserData = async () => {
-      // Redirect to login if not authenticated
       if (!user) {
         navigate("/dashboard", { state: { from: "/ai-course-builder" } });
         return;
       }
 
       try {
-        // Fetch user profile to get discipline
         const { data: profileData, error: profileError } = await supabase
           .from("profiles")
           .select("discipline")
@@ -73,20 +105,19 @@ const AiCourseBuilder = () => {
           setUserDiscipline(profileData.discipline);
         }
       } catch (error) {
-        console.error("Error fetching horses:", error);
-      } finally {
+        console.error("Error fetching user data:", error);
       }
     };
 
     fetchUserData();
-  }, [user]);
+  }, [user, navigate]);
 
-  // Redirect to login if not authenticated
+  // Redirect dressage users
   useEffect(() => {
     if (userDiscipline === "dressage") {
       navigate("/dashboard", { state: { from: "/ai-course-builder" } });
     }
-  }, [user, userDiscipline, navigate]);
+  }, [userDiscipline, navigate]);
 
   // Get current level configuration
   const getCurrentLevel = () => {
@@ -103,150 +134,134 @@ const AiCourseBuilder = () => {
   };
 
   // Calculate distance between two points
-  const calculateDistance = (jump1, jump2) => {
+  const calculateDistance = (jump1: GeneratedJump, jump2: GeneratedJump): number => {
     const dx = jump2.x - jump1.x;
     const dy = jump2.y - jump1.y;
     return Math.sqrt(dx * dx + dy * dy);
   };
 
   // Calculate angle between three points
-  const calculateAngle = (jump1, jump2, jump3) => {
+  const calculateAngle = (jump1: GeneratedJump, jump2: GeneratedJump, jump3: GeneratedJump): number => {
     const angle1 = Math.atan2(jump2.y - jump1.y, jump2.x - jump1.x);
     const angle2 = Math.atan2(jump3.y - jump2.y, jump3.x - jump2.x);
     let angle = Math.abs(angle1 - angle2) * (180 / Math.PI);
     return angle > 180 ? 360 - angle : angle;
   };
 
-  // AI Course Generation Algorithm
-  // Updated AI Course Generation with Boundary Constraints
-const generateAICourse = async () => {
-  setIsGenerating(true);
+  // Enhanced AI Course Generation
+  const generateAICourse = async (): Promise<void> => {
+    setIsGenerating(true);
+    setGenerationMethod('');
 
-  try {
-    const currentLevel = getCurrentLevel();
-    const prompt = `
-You're an equestrian AI course designer and analyzer. Based on the following settings, generate a realistic course and return both the jump data AND analysis in a structured JSON format.
-
-Course Settings:
-Discipline: ${discipline}
-Level: International ${level}
-Jump Height Range: ${currentLevel?.minHeight || 0.8}m to ${
-      currentLevel?.maxHeight || 1.2
-    }m
-Arena Size: ${arenaWidth}m x ${arenaLength}m
-Target Number of Jumps: ${targetJumps}
-Course Style: ${courseStyle.replace("_", " ")}
-Preferred Difficulty: ${difficultyPreference}
-
-IMPORTANT BOUNDARY CONSTRAINTS:
-- All jump coordinates MUST be within the arena boundaries
-- X coordinates must be between 5 and ${arenaWidth - 5} meters
-- Y coordinates must be between 5 and ${arenaLength - 5} meters
-- Maintain at least 5 meters margin from all arena edges
-
-Generation Rules:
-- Allow combinations (spacing <8m): ${generationSettings.allowCombinations}
-- Prefer smooth turns (< 90°): ${generationSettings.preferSmoothTurns}
-- Include specialty jumps (water, liverpool, wall): ${
-      generationSettings.includeSpecialtyJumps
-    }
-- Optimize for course flow: ${generationSettings.optimizeForFlow}
-
-Output Format (strictly JSON):
-{
-  "jumps": [
-    {
-      "id": 1750414508272,
-      "x": 25,
-      "y": 15,
-      "type": "vertical",
-      "number": 1,
-      "height": 1.045
-    },
-    ...
-  ],
-  "analysis": {
-    "totalDistance": 320,
-    "averageDistance": 21.3,
-    "sharpTurns": 2,
-    "combinations": 3,
-    "technicality": 9,
-    "compliance": 85,
-    "aiScore": 79,
-    "issues": [
-      "Potentially dangerous distance between jumps 2 and 3: 4.2m",
-      "Too many jumps for the level"
-    ]
-  }
-}
-
-Rules:
-- Do not include explanations or commentary
-- The entire response must be valid JSON
-- Round distances and scores appropriately (1 decimal max)
-- ENSURE ALL JUMP POSITIONS ARE WITHIN THE SPECIFIED BOUNDARIES
-- X coordinates: 5 to ${arenaWidth - 5}, Y coordinates: 5 to ${arenaLength - 5}
-`;
-
-    const geminiResponse = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyDZ6WsChZLWXldvn0OPKYSrVZhw5gs8Rtg`,
-      {
-        method: "post",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              role: "user",
-              parts: [
-                {
-                  text: prompt,
-                },
-              ],
-            },
-          ],
-        }),
+    try {
+      const enhancedGenerator = new EnhancedAIGenerator(GEMINI_API_KEY);
+      
+      // Map difficulty preferences
+      const difficultyMapping: Record<string, string> = {
+        'easy': 'beginner',
+        'medium': 'intermediate', 
+        'hard': 'advanced'
+      };
+      
+      const mappedDifficulty = difficultyMapping[difficultyPreference] || 'intermediate';
+      const currentLevel = getCurrentLevel();
+      
+      // Create enhanced options using user-selected values
+      const enhancedOptions = {
+        generationSettings: generationSettings,
+        levelConfig: currentLevel,
+        discipline: discipline,
+        level: level
+      };
+      
+      const result: CourseGenerationResult = await enhancedGenerator.generateCourse(
+        arenaWidth,
+        arenaLength,
+        targetJumps,
+        courseStyle,
+        mappedDifficulty,
+        enhancedOptions
+      );
+      
+      // Convert to application format with user-selected heights
+      const convertedJumps: GeneratedJump[] = result.jumps.map((jump, index) => ({
+        ...jump,
+        number: index + 1,
+        height: currentLevel.minHeight + 
+               (currentLevel.maxHeight - currentLevel.minHeight) * 0.5
+      }));
+      
+      setJumps(convertedJumps);
+      setGenerationMethod(result.method);
+      
+    } catch (error) {
+      console.error('Enhanced generation failed, using basic fallback:', error);
+      
+      // Basic fallback for production reliability
+      try {
+        const currentLevel = getCurrentLevel();
+        const basicJumps = generateBasicCourse(arenaWidth, arenaLength, targetJumps, currentLevel);
+        setJumps(basicJumps);
+        setGenerationMethod('Basic Pattern Generator');
+      } catch (fallbackError) {
+        console.error('All generation methods failed:', fallbackError);
+        alert('Course generation temporarily unavailable. Please try again.');
       }
-    );
-    const result = await geminiResponse.text();
-    const geminiResult = JSON.parse(result);
-    const rawText = geminiResult.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!rawText) {
-      throw new Error("Missing content in Gemini response.");
+    } finally {
+      setIsGenerating(false);
     }
-    // Remove markdown formatting like ```json\n and ```
-    const cleaned = rawText.replace(/```json\n?|```/g, "").trim();
+  };
 
-    const cleanedArray = JSON.parse(cleaned);
-
-    // Apply boundary constraints to ensure jumps stay within arena
-    const constrainedJumps = cleanedArray.jumps.map((jump) => ({
-      ...jump,
-      id: Date.now() + Math.random(), // Ensure unique IDs
-      x: Math.round(Math.max(5, Math.min(jump.x, arenaWidth - 5))),
-      y: Math.round(Math.max(5, Math.min(jump.y, arenaLength - 5)))
-    }));
-
-    setAnalysis(cleanedArray.analysis);
-    setJumps(constrainedJumps);
-    setIsGenerating(false);
-  } catch (error) {
-    console.log("🚀 ~ generateAICourse ~ error:", error);
-    setIsGenerating(false);
-  }
-};
+  // Basic course generation fallback
+  const generateBasicCourse = (width: number, length: number, numJumps: number, levelConfig: any): GeneratedJump[] => {
+    const jumps: GeneratedJump[] = [];
+    const margin = 8;
+    const patterns = ['figure8', 'serpentine', 'circle'];
+    const pattern = patterns[Math.floor(Math.random() * patterns.length)];
+    
+    for (let i = 0; i < numJumps; i++) {
+      let x: number, y: number;
+      
+      switch (pattern) {
+        case 'serpentine':
+          x = margin + (i / (numJumps - 1)) * (width - 2 * margin);
+          y = (length / 2) + (length / 4) * Math.sin((i / numJumps) * 4 * Math.PI);
+          break;
+        case 'circle':
+          const angle = (i / numJumps) * 2 * Math.PI;
+          const radius = Math.min(width, length) / 3;
+          x = (width / 2) + radius * Math.cos(angle);
+          y = (length / 2) + radius * Math.sin(angle);
+          break;
+        default: // figure8
+          const figureAngle = (i / numJumps) * 4 * Math.PI;
+          x = (width / 2) + (width / 4) * Math.cos(figureAngle) * Math.sin(figureAngle * 2);
+          y = (length / 2) + (length / 4) * Math.sin(figureAngle);
+      }
+      
+      jumps.push({
+        id: `jump_${Date.now()}_${i}`,
+        x: Math.round(Math.max(margin, Math.min(width - margin, x))),
+        y: Math.round(Math.max(margin, Math.min(length - margin, y))),
+        type: i % 3 === 0 ? 'oxer' : 'vertical',
+        number: i + 1,
+        height: levelConfig.minHeight + (levelConfig.maxHeight - levelConfig.minHeight) * 0.5,
+      });
+    }
+    
+    return jumps;
+  };
 
   // Parse course text upload
-  const parseCourseText = () => {
+  const parseCourseText = (): void => {
     if (!courseText.trim()) return;
 
     const lines = courseText.split("\n").filter((line) => line.trim());
-    const newJumps = [];
+    const newJumps: GeneratedJump[] = [];
 
     lines.forEach((line, index) => {
       const lowerLine = line.toLowerCase();
-      let jumpType = "vertical";
+      let jumpType: string = "vertical";
 
       if (lowerLine.includes("oxer")) jumpType = "oxer";
       else if (lowerLine.includes("triple")) jumpType = "triple";
@@ -258,26 +273,19 @@ Rules:
       const col = index % cols;
       const row = Math.floor(index / cols);
       const spacingX = (arenaWidth - 20) / Math.max(1, cols - 1);
-      const spacingY =
-        (arenaLength - 20) / Math.max(1, Math.ceil(lines.length / cols) - 1);
+      const spacingY = (arenaLength - 20) / Math.max(1, Math.ceil(lines.length / cols) - 1);
 
       const x = 10 + (cols === 1 ? (arenaWidth - 20) / 2 : col * spacingX);
-      const y =
-        10 +
-        (Math.ceil(lines.length / cols) === 1
-          ? (arenaLength - 20) / 2
-          : row * spacingY);
+      const y = 10 + (Math.ceil(lines.length / cols) === 1 ? (arenaLength - 20) / 2 : row * spacingY);
 
       const currentLevel = getCurrentLevel();
       newJumps.push({
-        id: Date.now() + index,
+        id: `text_jump_${Date.now()}_${index}`,
         x: Math.round(x),
         y: Math.round(y),
-        type: jumpType,
+        type: jumpType as 'vertical' | 'oxer' | 'triple' | 'water',
         number: index + 1,
-        height:
-          currentLevel.minHeight +
-          (currentLevel.maxHeight - currentLevel.minHeight) * 0.5,
+        height: currentLevel.minHeight + (currentLevel.maxHeight - currentLevel.minHeight) * 0.5,
       });
     });
 
@@ -286,7 +294,7 @@ Rules:
   };
 
   // Course analysis function
-  const analyzeCourse = () => {
+  const analyzeCourse = (): CourseAnalysis => {
     if (jumps.length < 2) {
       return {
         totalDistance: 0,
@@ -301,12 +309,12 @@ Rules:
       };
     }
 
-    const sortedJumps = [...jumps].sort((a, b) => a.number - b.number);
+    const sortedJumps = [...jumps].sort((a, b) => (a.number || 0) - (b.number || 0));
     let totalDistance = 0;
     let sharpTurns = 0;
     let combinations = 0;
     let technicality = 0;
-    let issues = [];
+    let issues: string[] = [];
 
     for (let i = 0; i < sortedJumps.length - 1; i++) {
       const distance = calculateDistance(sortedJumps[i], sortedJumps[i + 1]);
@@ -314,38 +322,26 @@ Rules:
 
       if (distance >= 3 && distance <= 6) {
         issues.push(
-          `Potentially dangerous distance between jumps ${
-            sortedJumps[i].number
-          } and ${sortedJumps[i + 1].number}: ${distance.toFixed(1)}m`
+          `Potentially dangerous distance between jumps ${sortedJumps[i].number} and ${sortedJumps[i + 1].number}: ${distance.toFixed(1)}m`
         );
       }
 
-      if (distance < 8) {
-        combinations++;
-      }
+      if (distance < 8) combinations++;
 
       if (i > 0) {
-        const angle = calculateAngle(
-          sortedJumps[i - 1],
-          sortedJumps[i],
-          sortedJumps[i + 1]
-        );
-        if (angle > 90) {
-          sharpTurns++;
-        }
+        const angle = calculateAngle(sortedJumps[i - 1], sortedJumps[i], sortedJumps[i + 1]);
+        if (angle > 90) sharpTurns++;
       }
     }
 
     jumps.forEach((jump) => {
       const jumpType = jumpTypes.find((type) => type.id === jump.type);
-      technicality += jumpType.technicality;
+      if (jumpType) technicality += jumpType.technicality || 0;
     });
 
     const currentLevel = getCurrentLevel();
     if (jumps.length > currentLevel.maxJumps) {
-      issues.push(
-        `Too many jumps: ${jumps.length}/${currentLevel.maxJumps} allowed for ${level}`
-      );
+      issues.push(`Too many jumps: ${jumps.length}/${currentLevel.maxJumps} allowed for ${level}`);
     }
 
     const flowScore = Math.max(0, 100 - sharpTurns * 10);
@@ -353,19 +349,15 @@ Rules:
     const varietyScore = Math.min(100, technicality * 10);
     const aiScore = (flowScore + safetyScore + varietyScore) / 3;
 
-    const difficulty =
-      sharpTurns * 15 + combinations * 10 + technicality * 5 + jumps.length * 2;
+    const difficulty = sharpTurns * 15 + combinations * 10 + technicality * 5 + jumps.length * 2;
     const levelAdjustedDifficulty = difficulty * (currentLevel.maxHeight / 1.0);
 
-    const complianceIssues = issues.filter((issue) =>
-      issue.includes("Too many jumps")
-    ).length;
+    const complianceIssues = issues.filter((issue) => issue.includes("Too many jumps")).length;
     const compliance = Math.max(0, 100 - complianceIssues * 50);
 
     return {
       totalDistance: totalDistance,
-      averageDistance:
-        jumps.length > 1 ? totalDistance / (jumps.length - 1) : 0,
+      averageDistance: jumps.length > 1 ? totalDistance / (jumps.length - 1) : 0,
       difficulty: Math.min(100, levelAdjustedDifficulty),
       compliance,
       issues,
@@ -377,7 +369,7 @@ Rules:
   };
 
   // Delete selected jump
-  const deleteSelectedJump = () => {
+  const deleteSelectedJump = (): void => {
     if (selectedJump) {
       const updatedJumps = jumps.filter((jump) => jump.id !== selectedJump);
       const renumberedJumps = updatedJumps.map((jump, index) => ({
@@ -389,103 +381,70 @@ Rules:
     }
   };
 
-  // Clear course
-
   // Update target jumps when level changes
   useEffect(() => {
     const currentLevel = getCurrentLevel();
     if (currentLevel && currentLevel.maxJumps) {
       setTargetJumps(Math.min(targetJumps, currentLevel.maxJumps));
     }
-  }, [discipline, level]);
+  }, [discipline, level, targetJumps]);
 
-  const analysisAICourse = async () => {
+  // AI Analysis function
+  const analysisAICourse = async (): Promise<void> => {
     try {
       const currentLevel = getCurrentLevel();
-      const prompt = `
-You're an equestrian AI course analyzer.
+      
+      const prompt = `You are an equestrian course analyzer. Analyze this course and return ONLY JSON.
 
-Based on the following jump data and course settings, analyze the course and return a structured JSON object with the analysis results only — no jump generation.
+Course: ${discipline} ${level}
+Arena: ${arenaWidth}m x ${arenaLength}m  
+Jumps: ${JSON.stringify(jumps.map(j => ({x: j.x, y: j.y, type: j.type})))}
 
-Course Settings:
-Discipline: ${discipline}
-Level: International ${level}
-Jump Height Range: ${currentLevel?.minHeight || 0.8}m to ${
-        currentLevel?.maxHeight || 1.2
-      }m
-Arena Size: ${arenaWidth}m x ${arenaLength}m
-Target Number of Jumps: ${targetJumps}
-
-Jump Data:
-${JSON.stringify(jumps, null, 2)}
-
-
-Output Format (strictly JSON):
+Return format:
 {
-  "totalDistance": 320,
-  "averageDistance": 21.3,
-  "sharpTurns": 2,
-  "combinations": 3,
-  "technicality": 9,
-  "compliance": 85,
-  "aiScore": 79,
-  "issues": [
-    "Potentially dangerous distance between jumps 2 and 3: 4.2m",
-    "Too many jumps for the level"
-  ]
-}
+  "totalDistance": 0,
+  "averageDistance": 0,
+  "sharpTurns": 0,
+  "combinations": 0,
+  "technicality": 0,
+  "compliance": 100,
+  "aiScore": 0,
+  "issues": []
+}`;
 
-
-Rules:
-- Only analyze the provided jump array
-- Do not generate new jumps
-- The entire response must be valid JSON
-- Round distances and scores to 1 decimal place
-- Do not include any text or explanation — only return the JSON object
-`;
-
-      const geminiResponse = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyDZ6WsChZLWXldvn0OPKYSrVZhw5gs8Rtg`,
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
         {
-          method: "post",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            contents: [
-              {
-                role: "user",
-                parts: [
-                  {
-                    text: prompt,
-                  },
-                ],
-              },
-            ],
+            contents: [{ role: "user", parts: [{ text: prompt }] }],
           }),
         }
       );
-      const result = await geminiResponse.text();
-      const geminiResult = JSON.parse(result);
-      const rawText = geminiResult.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (!rawText) {
-        throw new Error("Missing content in Gemini response.");
+      
+      const result = await response.json();
+      const rawText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+      
+      if (rawText) {
+        const cleaned = rawText.replace(/```json\n?|```/g, "").trim();
+        const analysisResult: CourseAnalysis = JSON.parse(cleaned);
+        setAnalysis(analysisResult);
       }
-      // Remove markdown formatting like ```json\n and ```
-      const cleaned = rawText.replace(/```json\n?|```/g, "").trim();
-
-      const cleanedArray = JSON.parse(cleaned);
-
-      setAnalysis(cleanedArray);
     } catch (error) {
-      console.log("🚀 ~ generateAICourse ~ error:", error);
+      console.error("AI analysis failed:", error);
+      // Fallback to local analysis
+      const localAnalysis = analyzeCourse();
+      setAnalysis(localAnalysis);
     }
   };
 
-  // const analysis = designMode === "ai" ? aiAnalysis : analyzeCourse();
   const currentLevel = getCurrentLevel();
 
-  if (!userDiscipline || userDiscipline === "dressage") return;
+  // Early return for unauthorized users
+  if (!userDiscipline || userDiscipline === "dressage") {
+    return null;
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -527,6 +486,13 @@ Rules:
             />
 
             <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+              {generationMethod && (
+                <div className="xl:col-span-4 text-sm text-gray-600 mt-2 p-3 bg-blue-50 rounded-lg">
+                  <Info className="inline w-4 h-4 mr-2" />
+                  Generated using: <span className="font-medium">{generationMethod}</span>
+                </div>
+              )}
+              
               <CourseCanvas
                 designMode={designMode}
                 jumps={jumps}
@@ -553,7 +519,6 @@ Rules:
               />
             </div>
 
-            {/* Features Info */}
             <FeaturesInfo />
           </div>
         </div>
