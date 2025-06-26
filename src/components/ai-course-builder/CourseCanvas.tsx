@@ -22,6 +22,8 @@ const CourseCanvas = ({
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [showGrid, setShowGrid] = useState(true);
   const canvasRef = useRef(null);
+  const canvasPadding = 2;
+  const [selectedJumpCoords, setSelectedJumpCoords] = useState<{ x: number; y: number } | null>(null);
 
   // Get mouse position with proper scaling
   const getMousePos = useCallback((event) => {
@@ -33,182 +35,222 @@ const CourseCanvas = ({
     const scaleY = canvas.height / rect.height;
     
     return {
-      x: ((event.clientX - rect.left) * scaleX) / scale,
-      y: ((event.clientY - rect.top) * scaleY) / scale
-    };
+  x: (((event.clientX - rect.left) * scaleX - canvasPadding * scale) / scale),
+  y: (((event.clientY - rect.top) * scaleY - canvasPadding * scale) / scale)
+};
   }, [scale]);
 
-  // Canvas drawing function with error handling
-  const drawCourse = useCallback(() => {
+  // Function to update button position
+  const updateButtonPosition = useCallback(() => {
+    if (!selectedJump || !canvasRef.current) {
+      setSelectedJumpCoords(null);
+      return;
+    }
+
+    const selectedJumpData = jumps.find(jump => jump.id === selectedJump);
+    if (!selectedJumpData) {
+      setSelectedJumpCoords(null);
+      return;
+    }
+
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    
+    // Calculate the actual position on the screen
+    const canvasX = (selectedJumpData.x * scale + canvasPadding * scale) * (rect.width / canvas.width);
+    const canvasY = (selectedJumpData.y * scale + canvasPadding * scale) * (rect.height / canvas.height);
+    
+    setSelectedJumpCoords({
+      x: canvasX,
+      y: canvasY,
+    });
+  }, [selectedJump, jumps, scale, canvasPadding]);
 
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+  // Canvas drawing function with error handling
+const drawCourse = useCallback(() => {
+  const canvas = canvasRef.current;
+  if (!canvas) return;
 
-    try {
-      // Clear canvas
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
 
-      // Draw grid if enabled
-      if (showGrid) {
-        ctx.strokeStyle = "#e5e7eb";
-        ctx.lineWidth = 1;
-        
-        // Vertical grid lines
-        for (let x = 0; x <= arenaWidth; x += 5) {
-          ctx.beginPath();
-          ctx.moveTo(x * scale, 0);
-          ctx.lineTo(x * scale, arenaLength * scale);
-          ctx.stroke();
-        }
-        
-        // Horizontal grid lines
-        for (let y = 0; y <= arenaLength; y += 5) {
-          ctx.beginPath();
-          ctx.moveTo(0, y * scale);
-          ctx.lineTo(arenaWidth * scale, y * scale);
-          ctx.stroke();
-        }
+  try {
+    ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform
+    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear whole canvas
+    ctx.translate(canvasPadding * scale, canvasPadding * scale); // Shift origin
+
+    // Draw grid
+    if (showGrid) {
+      ctx.strokeStyle = "#e5e7eb";
+      ctx.lineWidth = 1;
+      for (let x = 0; x <= arenaWidth; x += 5) {
+        ctx.beginPath();
+        ctx.moveTo(x * scale, 0);
+        ctx.lineTo(x * scale, arenaLength * scale);
+        ctx.stroke();
+      }
+      for (let y = 0; y <= arenaLength; y += 5) {
+        ctx.beginPath();
+        ctx.moveTo(0, y * scale);
+        ctx.lineTo(arenaWidth * scale, y * scale);
+        ctx.stroke();
+      }
+    }
+
+    // Arena border
+    ctx.strokeStyle = "#374151";
+    ctx.lineWidth = 3;
+    ctx.strokeRect(0, 0, arenaWidth * scale, arenaLength * scale);
+
+    // Draw path lines between jumps
+    const sortedJumps = [...jumps].sort((a, b) => a.number - b.number);
+    if (sortedJumps.length > 1) {
+      ctx.lineWidth = 2;
+      ctx.setLineDash([8, 4]);
+      for (let i = 0; i < sortedJumps.length - 1; i++) {
+        const distance = calculateDistance(sortedJumps[i], sortedJumps[i + 1]);
+        ctx.strokeStyle =
+          distance >= 3 && distance <= 6
+            ? "#ef4444"
+            : distance < 8
+            ? "#f59e0b"
+            : "#10b981";
+
+        ctx.beginPath();
+        ctx.moveTo(sortedJumps[i].x * scale, sortedJumps[i].y * scale);
+        ctx.lineTo(sortedJumps[i + 1].x * scale, sortedJumps[i + 1].y * scale);
+        ctx.stroke();
+      }
+      ctx.setLineDash([]);
+    }
+
+    // Draw jumps
+    sortedJumps.forEach((jump, index) => {
+      const jumpType = jumpTypes.find((type) => type.id === jump.type);
+      if (!jumpType) return;
+
+      const x = jump.x * scale;
+      const y = jump.y * scale;
+      const width = jumpType.width * scale;
+      const height = 8;
+      const isSelected = selectedJump === jump.id;
+
+      const jumpHeight = jump.height || getCurrentLevel()?.minHeight || 1.0;
+
+      // Prepare rotation
+      let angle = 0;
+      if (jump.manualRotation && typeof jump.rotation === "number") {
+        angle = jump.rotation; // Use manually set angle
+      } else if (index < sortedJumps.length - 1) {
+        const next = sortedJumps[index + 1];
+        const dx = next.x - jump.x;
+        const dy = next.y - jump.y;
+        angle = Math.atan2(dy, dx); // Auto-rotation
       }
 
-      // Draw arena border
-      ctx.strokeStyle = "#374151";
-      ctx.lineWidth = 3;
-      ctx.strokeRect(0, 0, arenaWidth * scale, arenaLength * scale);
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(angle + Math.PI / 2);
 
-      // Draw course path if multiple jumps exist
-      if (jumps.length > 1) {
-        const sortedJumps = [...jumps].sort((a, b) => a.number - b.number);
-
-        ctx.lineWidth = 2;
-        ctx.setLineDash([8, 4]);
-
-        for (let i = 0; i < sortedJumps.length - 1; i++) {
-          const distance = calculateDistance(sortedJumps[i], sortedJumps[i + 1]);
-
-          // Set line color based on distance
-          if (distance >= 3 && distance <= 6) {
-            ctx.strokeStyle = "#ef4444"; // Red - dangerous
-          } else if (distance < 8) {
-            ctx.strokeStyle = "#f59e0b"; // Yellow - combination
-          } else {
-            ctx.strokeStyle = "#10b981"; // Green - safe
-          }
-
-          ctx.beginPath();
-          ctx.moveTo(sortedJumps[i].x * scale, sortedJumps[i].y * scale);
-          ctx.lineTo(sortedJumps[i + 1].x * scale, sortedJumps[i + 1].y * scale);
-          ctx.stroke();
-        }
+      // Highlight selected jump
+      if (isSelected) {
+        ctx.strokeStyle = "#3b82f6";
+        ctx.lineWidth = 3;
+        ctx.setLineDash([5, 5]);
+        ctx.strokeRect(-width / 2 - 5, -height / 2 - 5, width + 10, height + 10);
         ctx.setLineDash([]);
       }
 
-      // Draw jumps
-      jumps.forEach((jump) => {
-        const jumpType = jumpTypes.find((type) => type.id === jump.type);
-        if (!jumpType) return; // Skip if jump type not found
+      const gradient = ctx.createLinearGradient(-width / 2, -height / 2, width / 2, height / 2);
+      gradient.addColorStop(0, jumpType.color);
+      gradient.addColorStop(1, isSelected ? "#1e40af" : "#000000");
 
-        const x = jump.x * scale;
-        const y = jump.y * scale;
-        const width = jumpType.width * scale;
-        const height = 8;
+      ctx.fillStyle = gradient;
+      ctx.fillRect(-width / 2, -height / 2, width, height);
 
-        const isSelected = selectedJump === jump.id;
+      ctx.strokeStyle = isSelected ? "#3b82f6" : "#000000";
+      ctx.lineWidth = isSelected ? 2 : 1;
+      ctx.strokeRect(-width / 2, -height / 2, width, height);
+      ctx.restore();
 
-        // Draw selection highlight
-        if (isSelected) {
-          ctx.strokeStyle = "#3b82f6";
-          ctx.lineWidth = 3;
-          ctx.setLineDash([5, 5]);
-          ctx.strokeRect(
-            x - width / 2 - 5,
-            y - height / 2 - 5,
-            width + 10,
-            height + 10
-          );
-          ctx.setLineDash([]);
-        }
+      // Labels (outside of rotation)
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "bold 14px Arial";
+      ctx.textAlign = "center";
+      ctx.strokeStyle = "#000000";
+      ctx.lineWidth = 2;
+      ctx.strokeText(jump.number.toString(), x, y + 4);
+      ctx.fillText(jump.number.toString(), x, y + 4);
 
-        // Create gradient for jump
-        const gradient = ctx.createLinearGradient(
-          x - width / 2,
-          y - height / 2,
-          x + width / 2,
-          y + height / 2
-        );
-        gradient.addColorStop(0, jumpType.color);
-        gradient.addColorStop(1, isSelected ? "#1e40af" : "#000000");
+      ctx.fillStyle = "#374151";
+      ctx.font = "11px Arial";
+      ctx.fillText(`${jumpHeight.toFixed(1)}m`, x, y + 25);
 
-        // Draw jump rectangle
-        ctx.fillStyle = gradient;
-        ctx.fillRect(x - width / 2, y - height / 2, width, height);
+      ctx.fillStyle = "#6b7280";
+      ctx.font = "9px Arial";
+      ctx.fillText(jumpType.name, x, y - 15);
+    });
 
-        ctx.strokeStyle = isSelected ? "#3b82f6" : "#000000";
-        ctx.lineWidth = isSelected ? 2 : 1;
-        ctx.strokeRect(x - width / 2, y - height / 2, width, height);
+    // Draw distances between jumps
+    if (sortedJumps.length > 1) {
+      for (let i = 0; i < sortedJumps.length - 1; i++) {
+        const distance = calculateDistance(sortedJumps[i], sortedJumps[i + 1]);
+        const midX = ((sortedJumps[i].x + sortedJumps[i + 1].x) / 2) * scale;
+        const midY = ((sortedJumps[i].y + sortedJumps[i + 1].y) / 2) * scale;
 
-        // Draw jump number
-        ctx.fillStyle = "#ffffff";
-        ctx.font = "bold 14px Arial";
+        const distanceColor =
+          distance < 8
+            ? distance >= 3
+              ? "#ef4444"
+              : "#f59e0b"
+            : "#10b981";
+
+        ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+        ctx.fillRect(midX - 15, midY - 8, 30, 16);
+
+        ctx.fillStyle = distanceColor;
+        ctx.font = "bold 10px Arial";
         ctx.textAlign = "center";
-        ctx.strokeStyle = "#000000";
-        ctx.lineWidth = 2;
-        ctx.strokeText(jump.number.toString(), x, y + 4);
-        ctx.fillText(jump.number.toString(), x, y + 4);
-
-        // Draw jump height
-        const jumpHeight = jump.height || getCurrentLevel()?.minHeight || 1.0;
-        ctx.fillStyle = "#374151";
-        ctx.font = "11px Arial";
-        ctx.textAlign = "center";
-        ctx.fillText(`${jumpHeight.toFixed(1)}m`, x, y + 25);
-
-        // Draw jump type
-        ctx.fillStyle = "#6b7280";
-        ctx.font = "9px Arial";
-        ctx.fillText(jumpType.name, x, y - 15);
-      });
-
-      // Draw distance labels
-      if (jumps.length > 1) {
-        const sortedJumps = [...jumps].sort((a, b) => a.number - b.number);
-        for (let i = 0; i < sortedJumps.length - 1; i++) {
-          const distance = calculateDistance(sortedJumps[i], sortedJumps[i + 1]);
-          const midX = ((sortedJumps[i].x + sortedJumps[i + 1].x) / 2) * scale;
-          const midY = ((sortedJumps[i].y + sortedJumps[i + 1].y) / 2) * scale;
-
-          let distanceColor = "#10b981"; // Green - safe
-          if (distance < 8) distanceColor = "#f59e0b"; // Yellow - combination
-          if (distance >= 3 && distance <= 6) distanceColor = "#ef4444"; // Red - dangerous
-
-          // Draw background for distance text
-          ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
-          ctx.fillRect(midX - 15, midY - 8, 30, 16);
-
-          // Draw distance text
-          ctx.fillStyle = distanceColor;
-          ctx.font = "bold 10px Arial";
-          ctx.textAlign = "center";
-          ctx.fillText(`${distance.toFixed(1)}m`, midX, midY + 3);
-        }
+        ctx.fillText(`${distance.toFixed(1)}m`, midX, midY + 3);
       }
-    } catch (error) {
-      console.error("Error drawing course:", error);
     }
-  }, [jumps, arenaWidth, arenaLength, showGrid, selectedJump, scale, jumpTypes, getCurrentLevel, calculateDistance]);
+  } catch (error) {
+    console.error("Error drawing course:", error);
+  }
+}, [jumps, arenaWidth, arenaLength, showGrid, selectedJump, scale, getCurrentLevel, calculateDistance]);
+
+  // Update button position whenever relevant data changes
+  useEffect(() => {
+    updateButtonPosition();
+  }, [updateButtonPosition]);
+
+  // Update button position on window resize
+  useEffect(() => {
+    const handleResize = () => {
+      // Small delay to ensure canvas has resized
+      setTimeout(updateButtonPosition, 100);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [updateButtonPosition]);
 
   // Handle canvas resizing
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     
-    const newWidth = arenaWidth * scale;
-    const newHeight = arenaLength * scale;
+    const newWidth = (arenaWidth + canvasPadding * 2) * scale;
+    const newHeight = (arenaLength + canvasPadding * 2) * scale;
     
     if (canvas.width !== newWidth || canvas.height !== newHeight) {
       canvas.width = newWidth;
       canvas.height = newHeight;
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.setTransform(1, 0, 0, 1, 0, 0); // reset any existing transform
+        ctx.translate(canvasPadding * scale, canvasPadding * scale); // shift origin
+      }
       drawCourse();
     }
   }, [arenaWidth, arenaLength, scale, drawCourse]);
@@ -216,7 +258,9 @@ const CourseCanvas = ({
   // Update canvas when data changes
   useEffect(() => {
     drawCourse();
-  }, [drawCourse]);
+    // Update button position after drawing
+    setTimeout(updateButtonPosition, 50);
+  }, [drawCourse, updateButtonPosition]);
 
   // Handle canvas interactions for manual design
   const handleCanvasMouseDown = useCallback((event) => {
@@ -251,8 +295,10 @@ const CourseCanvas = ({
         type: selectedJumpType,
         number: jumps.length + 1,
         height: currentLevel?.minHeight && currentLevel?.maxHeight
-          ? currentLevel.minHeight + (currentLevel.maxHeight - currentLevel.minHeight) * 0.5
-          : 1.0,
+        ? currentLevel.minHeight + (currentLevel.maxHeight - currentLevel.minHeight) * 0.5
+        : 1.0,
+        rotation: 0, // initial rotation in radians
+        manualRotation: false,
       };
       setJumps([...jumps, newJump]);
       setSelectedJump(newJump.id);
@@ -323,6 +369,30 @@ const CourseCanvas = ({
     }
   }, [analyzeCourse, discipline, level, arenaWidth, arenaLength, jumps, designMode]);
 
+  const rotateJump = (angleDelta: number) => {
+  if (!selectedJump) return;
+
+  setJumps((prev) =>
+    prev.map((jump) =>
+      jump.id === selectedJump
+        ? {
+            ...jump,
+            rotation: ((jump.rotation || 0) + (angleDelta * Math.PI) / 180) % (2 * Math.PI),
+            manualRotation: true,
+          }
+        : jump
+    )
+  );
+};
+
+useEffect(() => {
+  if (!selectedJump) {
+    setSelectedJumpCoords(null);
+  } else {
+    updateButtonPosition();
+  }
+}, [selectedJump, updateButtonPosition]);
+
   return (
     <>
       {/* Course Canvas */}
@@ -361,11 +431,11 @@ const CourseCanvas = ({
           </div>
         </div>
 
-        <div className="border-2 border-gray-200 rounded-xl overflow-hidden bg-green-50">
+        <div className="border-2 border-gray-200 rounded-xl overflow-hidden bg-green-50 relative">
           <canvas
             ref={canvasRef}
-            width={arenaWidth * scale}
-            height={arenaLength * scale}
+            width={(arenaWidth + canvasPadding * 2) * scale}
+            height={(arenaLength + canvasPadding * 2) * scale}
             className={`w-full h-auto ${
               designMode === "manual" ? "cursor-crosshair" : ""
             }`}
@@ -375,6 +445,31 @@ const CourseCanvas = ({
             onMouseUp={handleCanvasMouseUp}
             onMouseLeave={handleCanvasMouseUp}
           />
+          {selectedJump && selectedJumpCoords && (
+            <div
+              className="absolute flex space-x-1 z-50"
+              style={{
+                left: `${selectedJumpCoords.x}px`,
+                top: `${selectedJumpCoords.y + 40}px`,
+                transform: 'translate(-50%, 0)',
+              }}
+            >
+              <button
+                onClick={() => rotateJump(-15)}
+                className="text-gray-700 font-bold"
+                title="Rotate Left"
+              >
+                ↺
+              </button>
+              <button
+                onClick={() => rotateJump(15)}
+                className="text-gray-700 font-bold"
+                title="Rotate Right"
+              >
+                ↻
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="mt-4 flex items-center justify-between text-sm text-gray-600">
@@ -397,7 +492,7 @@ const CourseCanvas = ({
               Arena: {arenaWidth}m × {arenaLength}m | Jumps: {jumps.length}
             </p>
             {designMode === "manual" && (
-              <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-500 mt-1">
                 {selectedJump
                   ? "Click and drag to move selected jump"
                   : "Click to add jumps • Click jumps to select"}

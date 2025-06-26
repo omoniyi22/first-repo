@@ -118,31 +118,38 @@ const AiCourseBuilder = () => {
   };
 
   // AI Course Generation Algorithm
-  const generateAICourse = async () => {
-    setIsGenerating(true);
+  // Updated AI Course Generation with Boundary Constraints
+const generateAICourse = async () => {
+  setIsGenerating(true);
 
-    try {
-      const currentLevel = getCurrentLevel();
-      const prompt = `
+  try {
+    const currentLevel = getCurrentLevel();
+    const prompt = `
 You're an equestrian AI course designer and analyzer. Based on the following settings, generate a realistic course and return both the jump data AND analysis in a structured JSON format.
 
 Course Settings:
 Discipline: ${discipline}
 Level: International ${level}
 Jump Height Range: ${currentLevel?.minHeight || 0.8}m to ${
-        currentLevel?.maxHeight || 1.2
-      }m
+      currentLevel?.maxHeight || 1.2
+    }m
 Arena Size: ${arenaWidth}m x ${arenaLength}m
 Target Number of Jumps: ${targetJumps}
 Course Style: ${courseStyle.replace("_", " ")}
 Preferred Difficulty: ${difficultyPreference}
 
+IMPORTANT BOUNDARY CONSTRAINTS:
+- All jump coordinates MUST be within the arena boundaries
+- X coordinates must be between 5 and ${arenaWidth - 5} meters
+- Y coordinates must be between 5 and ${arenaLength - 5} meters
+- Maintain at least 5 meters margin from all arena edges
+
 Generation Rules:
 - Allow combinations (spacing <8m): ${generationSettings.allowCombinations}
 - Prefer smooth turns (< 90°): ${generationSettings.preferSmoothTurns}
 - Include specialty jumps (water, liverpool, wall): ${
-        generationSettings.includeSpecialtyJumps
-      }
+      generationSettings.includeSpecialtyJumps
+    }
 - Optimize for course flow: ${generationSettings.optimizeForFlow}
 
 Output Format (strictly JSON):
@@ -150,8 +157,8 @@ Output Format (strictly JSON):
   "jumps": [
     {
       "id": 1750414508272,
-      "x": 71,
-      "y": 44,
+      "x": 25,
+      "y": 15,
       "type": "vertical",
       "number": 1,
       "height": 1.045
@@ -177,53 +184,58 @@ Rules:
 - Do not include explanations or commentary
 - The entire response must be valid JSON
 - Round distances and scores appropriately (1 decimal max)
-- Ensure all jump positions are within the specified arena range
+- ENSURE ALL JUMP POSITIONS ARE WITHIN THE SPECIFIED BOUNDARIES
+- X coordinates: 5 to ${arenaWidth - 5}, Y coordinates: 5 to ${arenaLength - 5}
 `;
 
-      const geminiResponse = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyDZ6WsChZLWXldvn0OPKYSrVZhw5gs8Rtg`,
-        {
-          method: "post",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            contents: [
-              {
-                role: "user",
-                parts: [
-                  {
-                    text: prompt,
-                  },
-                ],
-              },
-            ],
-          }),
-        }
-      );
-      const result = await geminiResponse.text();
-      const geminiResult = JSON.parse(result);
-      const rawText = geminiResult.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (!rawText) {
-        throw new Error("Missing content in Gemini response.");
+    const geminiResponse = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyDZ6WsChZLWXldvn0OPKYSrVZhw5gs8Rtg`,
+      {
+        method: "post",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              role: "user",
+              parts: [
+                {
+                  text: prompt,
+                },
+              ],
+            },
+          ],
+        }),
       }
-      // Remove markdown formatting like ```json\n and ```
-      const cleaned = rawText.replace(/```json\n?|```/g, "").trim();
-
-      const cleanedArray = JSON.parse(cleaned);
-
-      const updatedJumpsArray = cleanedArray.jumps.map((jump) => ({
-        ...jump,
-        id: Date.now(),
-      }));
-
-      setAnalysis(cleanedArray.analysis);
-      setJumps(updatedJumpsArray);
-      setIsGenerating(false);
-    } catch (error) {
-      console.log("🚀 ~ generateAICourse ~ error:", error);
+    );
+    const result = await geminiResponse.text();
+    const geminiResult = JSON.parse(result);
+    const rawText = geminiResult.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!rawText) {
+      throw new Error("Missing content in Gemini response.");
     }
-  };
+    // Remove markdown formatting like ```json\n and ```
+    const cleaned = rawText.replace(/```json\n?|```/g, "").trim();
+
+    const cleanedArray = JSON.parse(cleaned);
+
+    // Apply boundary constraints to ensure jumps stay within arena
+    const constrainedJumps = cleanedArray.jumps.map((jump) => ({
+      ...jump,
+      id: Date.now() + Math.random(), // Ensure unique IDs
+      x: Math.round(Math.max(5, Math.min(jump.x, arenaWidth - 5))),
+      y: Math.round(Math.max(5, Math.min(jump.y, arenaLength - 5)))
+    }));
+
+    setAnalysis(cleanedArray.analysis);
+    setJumps(constrainedJumps);
+    setIsGenerating(false);
+  } catch (error) {
+    console.log("🚀 ~ generateAICourse ~ error:", error);
+    setIsGenerating(false);
+  }
+};
 
   // Parse course text upload
   const parseCourseText = () => {
