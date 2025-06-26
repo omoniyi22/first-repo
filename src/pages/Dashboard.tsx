@@ -109,7 +109,9 @@ const Dashboard = () => {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0 mb-6 sm:mb-8">
           <DashboardHeader />
           <div className="flex flex-col sm:flex-row gap-3">
-            {userDiscipline !== "dressage" && (
+            {userDiscipline && (
+              <>
+             {userDiscipline !== "dressage" && !!user && (
               <Button
                 className="text-white bg-purple-600 hover:bg-purple-700 text-sm sm:text-base"
                 onClick={() => navigate("/ai-course-builder")}
@@ -149,7 +151,9 @@ const Dashboard = () => {
             >
               <User className="mr-2 h-4 w-4" />
               {language === "en" ? "View Profile" : "Ver Perfil"}
-            </Button>
+            </Button> 
+            </>
+            )}
 
             {isAdmin && (
               <Button

@@ -55,7 +55,7 @@ const AiCourseBuilder = () => {
     const fetchUserData = async () => {
       // Redirect to login if not authenticated
       if (!user) {
-        navigate("/sign-in", { state: { from: "/ai-course-builder" } });
+        navigate("/dashboard", { state: { from: "/ai-course-builder" } });
         return;
       }
 
