@@ -295,78 +295,86 @@ const AiCourseBuilder = () => {
 
   // Course analysis function
   const analyzeCourse = (): CourseAnalysis => {
-    if (jumps.length < 2) {
-      return {
-        totalDistance: 0,
-        averageDistance: 0,
-        difficulty: 0,
-        compliance: 100,
-        issues: [],
-        sharpTurns: 0,
-        combinations: 0,
-        technicality: 0,
-        aiScore: 100,
-      };
-    }
-
-    const sortedJumps = [...jumps].sort((a, b) => (a.number || 0) - (b.number || 0));
-    let totalDistance = 0;
-    let sharpTurns = 0;
-    let combinations = 0;
-    let technicality = 0;
-    let issues: string[] = [];
-
-    for (let i = 0; i < sortedJumps.length - 1; i++) {
-      const distance = calculateDistance(sortedJumps[i], sortedJumps[i + 1]);
-      totalDistance += distance;
-
-      if (distance >= 3 && distance <= 6) {
-        issues.push(
-          `Potentially dangerous distance between jumps ${sortedJumps[i].number} and ${sortedJumps[i + 1].number}: ${distance.toFixed(1)}m`
-        );
-      }
-
-      if (distance < 8) combinations++;
-
-      if (i > 0) {
-        const angle = calculateAngle(sortedJumps[i - 1], sortedJumps[i], sortedJumps[i + 1]);
-        if (angle > 90) sharpTurns++;
-      }
-    }
-
-    jumps.forEach((jump) => {
-      const jumpType = jumpTypes.find((type) => type.id === jump.type);
-      if (jumpType) technicality += jumpType.technicality || 0;
-    });
-
-    const currentLevel = getCurrentLevel();
-    if (jumps.length > currentLevel.maxJumps) {
-      issues.push(`Too many jumps: ${jumps.length}/${currentLevel.maxJumps} allowed for ${level}`);
-    }
-
-    const flowScore = Math.max(0, 100 - sharpTurns * 10);
-    const safetyScore = Math.max(0, 100 - issues.length * 25);
-    const varietyScore = Math.min(100, technicality * 10);
-    const aiScore = (flowScore + safetyScore + varietyScore) / 3;
-
-    const difficulty = sharpTurns * 15 + combinations * 10 + technicality * 5 + jumps.length * 2;
-    const levelAdjustedDifficulty = difficulty * (currentLevel.maxHeight / 1.0);
-
-    const complianceIssues = issues.filter((issue) => issue.includes("Too many jumps")).length;
-    const compliance = Math.max(0, 100 - complianceIssues * 50);
-
-    return {
-      totalDistance: totalDistance,
-      averageDistance: jumps.length > 1 ? totalDistance / (jumps.length - 1) : 0,
-      difficulty: Math.min(100, levelAdjustedDifficulty),
-      compliance,
-      issues,
-      sharpTurns,
-      combinations,
-      technicality,
-      aiScore: Math.round(aiScore),
+  console.log("🔧 Running local analysis...");
+  console.log("Jumps for local analysis:", jumps);
+  
+  if (jumps.length < 2) {
+    const defaultAnalysis = {
+      totalDistance: 0,
+      averageDistance: 0,
+      difficulty: 0,
+      compliance: 100,
+      issues: [],
+      sharpTurns: 0,
+      combinations: 0,
+      technicality: 0,
+      aiScore: 100,
     };
+    console.log("📈 Default analysis (less than 2 jumps):", defaultAnalysis);
+    return defaultAnalysis;
+  }
+
+  const sortedJumps = [...jumps].sort((a, b) => (a.number || 0) - (b.number || 0));
+  let totalDistance = 0;
+  let sharpTurns = 0;
+  let combinations = 0;
+  let technicality = 0;
+  let issues: string[] = [];
+
+  for (let i = 0; i < sortedJumps.length - 1; i++) {
+    const distance = calculateDistance(sortedJumps[i], sortedJumps[i + 1]);
+    totalDistance += distance;
+
+    if (distance >= 3 && distance <= 6) {
+      issues.push(
+        `Potentially dangerous distance between jumps ${sortedJumps[i].number} and ${sortedJumps[i + 1].number}: ${distance.toFixed(1)}m`
+      );
+    }
+
+    if (distance < 8) combinations++;
+
+    if (i > 0) {
+      const angle = calculateAngle(sortedJumps[i - 1], sortedJumps[i], sortedJumps[i + 1]);
+      if (angle > 90) sharpTurns++;
+    }
+  }
+
+  jumps.forEach((jump) => {
+    const jumpType = jumpTypes.find((type) => type.id === jump.type);
+    if (jumpType) technicality += jumpType.technicality || 0;
+  });
+
+  const currentLevel = getCurrentLevel();
+  if (jumps.length > currentLevel.maxJumps) {
+    issues.push(`Too many jumps: ${jumps.length}/${currentLevel.maxJumps} allowed for ${level}`);
+  }
+
+  const flowScore = Math.max(0, 100 - sharpTurns * 10);
+  const safetyScore = Math.max(0, 100 - issues.length * 25);
+  const varietyScore = Math.min(100, technicality * 10);
+  const aiScore = (flowScore + safetyScore + varietyScore) / 3;
+
+  const difficulty = sharpTurns * 15 + combinations * 10 + technicality * 5 + jumps.length * 2;
+  const levelAdjustedDifficulty = difficulty * (currentLevel.maxHeight / 1.0);
+
+  const complianceIssues = issues.filter((issue) => issue.includes("Too many jumps")).length;
+  const compliance = Math.max(0, 100 - complianceIssues * 50);
+
+  const result = {
+    totalDistance: totalDistance,
+    averageDistance: jumps.length > 1 ? totalDistance / (jumps.length - 1) : 0,
+    difficulty: Math.min(100, levelAdjustedDifficulty),
+    compliance,
+    issues,
+    sharpTurns,
+    combinations,
+    technicality,
+    aiScore: Math.round(aiScore),
   };
+
+  console.log("📊 Local analysis result:", result);
+  return result;
+};
 
   // Delete selected jump
   const deleteSelectedJump = (): void => {
@@ -390,54 +398,158 @@ const AiCourseBuilder = () => {
   }, [discipline, level, targetJumps]);
 
   // AI Analysis function
-  const analysisAICourse = async (): Promise<void> => {
-    try {
-      const currentLevel = getCurrentLevel();
-      
-      const prompt = `You are an equestrian course analyzer. Analyze this course and return ONLY JSON.
+const analysisAICourse = async (): Promise<void> => {
+  console.log("🔍 Starting AI analysis...");
+  console.log("Jumps to analyze:", jumps);
+  
+  try {
+    const currentLevel = getCurrentLevel();
+    
+    // Ensure we have jumps to analyze
+    if (jumps.length === 0) {
+      console.log("❌ No jumps to analyze");
+      setAnalysis(undefined);
+      return;
+    }
+    
+    // Create a more detailed prompt with step-by-step calculations
+    const jumpData = jumps.map(j => ({
+      number: j.number,
+      x: j.x, 
+      y: j.y, 
+      type: j.type,
+      height: j.height
+    }));
+    
+    const prompt = `You are an expert equestrian course designer and analyzer. Analyze this ${discipline} course step by step.
 
-Course: ${discipline} ${level}
-Arena: ${arenaWidth}m x ${arenaLength}m  
-Jumps: ${JSON.stringify(jumps.map(j => ({x: j.x, y: j.y, type: j.type})))}
+COURSE SETUP:
+- Discipline: ${discipline}
+- Level: ${level} (Max height: ${currentLevel.maxHeight}m, Max jumps: ${currentLevel.maxJumps})  
+- Arena: ${arenaWidth}m × ${arenaLength}m
+- Total jumps: ${jumps.length}
 
-Return format:
+JUMP SEQUENCE (in order):
+${jumpData.map(j => `Jump ${j.number}: Position (${j.x}, ${j.y}) - Type: ${j.type}`).join('\n')}
+
+STEP-BY-STEP ANALYSIS:
+
+1. DISTANCE CALCULATIONS:
+Calculate distance between each consecutive jump using: √[(x2-x1)² + (y2-y1)²]
+- Jump 1→2: Distance = ?
+- Jump 2→3: Distance = ?
+(continue for all jumps)
+- Total Distance = sum of all distances
+- Average Distance = total distance ÷ (number of jumps - 1)
+
+2. TURN ANALYSIS:
+For each set of 3 consecutive jumps, calculate the turn angle.
+Sharp turns = angles > 90°
+
+3. COMBINATIONS:
+Count jumps that are less than 8 meters apart (combinations)
+
+4. TECHNICALITY SCORING:
+- vertical = 1 point
+- oxer = 2 points  
+- triple = 3 points
+- water = 4 points
+Sum all technicality points
+
+5. COMPLIANCE CHECK:
+- Are there more than ${currentLevel.maxJumps} jumps? (violation)
+- Any dangerous distances (3-6m apart)? (safety issue)
+
+6. OVERALL SCORE:
+Rate the course quality 0-100 based on flow, safety, and design
+
+IMPORTANT: Do the actual mathematical calculations with the provided coordinates. Don't return placeholder zeros.
+
+Return ONLY this JSON with your calculated values:
 {
-  "totalDistance": 0,
-  "averageDistance": 0,
-  "sharpTurns": 0,
-  "combinations": 0,
-  "technicality": 0,
-  "compliance": 100,
-  "aiScore": 0,
-  "issues": []
+  "totalDistance": [your calculated total],
+  "averageDistance": [your calculated average], 
+  "sharpTurns": [your count],
+  "combinations": [your count],
+  "technicality": [your sum],
+  "compliance": [0-100],
+  "aiScore": [0-100],
+  "issues": [array of issues you found]
 }`;
 
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [{ role: "user", parts: [{ text: prompt }] }],
-          }),
-        }
-      );
-      
-      const result = await response.json();
-      const rawText = result.candidates?.[0]?.content?.parts?.[0]?.text;
-      
-      if (rawText) {
-        const cleaned = rawText.replace(/```json\n?|```/g, "").trim();
-        const analysisResult: CourseAnalysis = JSON.parse(cleaned);
-        setAnalysis(analysisResult);
+    console.log("📤 Sending enhanced request to AI...");
+    
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ role: "user", parts: [{ text: prompt }] }],
+          generationConfig: {
+            temperature: 0.3, // Slightly higher for better reasoning
+            topP: 0.9,
+            topK: 40,
+            maxOutputTokens: 2048, // More tokens for detailed analysis
+          },
+        }),
       }
-    } catch (error) {
-      console.error("AI analysis failed:", error);
-      // Fallback to local analysis
-      const localAnalysis = analyzeCourse();
-      setAnalysis(localAnalysis);
+    );
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
-  };
+    
+    const result = await response.json();
+    console.log("📥 AI Response:", result);
+    
+    const rawText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+    console.log("📄 Raw AI text:", rawText);
+    
+    if (rawText) {
+      const cleaned = rawText.replace(/```json\n?|```/g, "").trim();
+      console.log("🧹 Cleaned text:", cleaned);
+      
+      const analysisResult: CourseAnalysis = JSON.parse(cleaned);
+      console.log("✅ Parsed analysis result:", analysisResult);
+      
+      // Validate that we got actual analysis (not all zeros)
+      if (analysisResult.totalDistance === 0 && analysisResult.averageDistance === 0 && jumps.length > 1) {
+        console.log("⚠️ AI still returned zeros, using local analysis");
+        throw new Error("AI returned empty analysis");
+      }
+      
+      // Additional validation - check if values are reasonable
+      if (analysisResult.totalDistance > 0 && analysisResult.averageDistance > 0) {
+        setAnalysis(analysisResult);
+        console.log("💾 AI analysis successfully set to state");
+      } else {
+        throw new Error("AI analysis values seem unrealistic");
+      }
+    } else {
+      throw new Error("No content in AI response");
+    }
+  } catch (error) {
+    console.error("❌ AI analysis failed:", error);
+    
+    // Always fall back to local analysis which we know works
+    console.log("🔄 Using reliable local analysis...");
+    const localAnalysis = analyzeCourse();
+    console.log("📊 Local analysis result:", localAnalysis);
+    
+    setAnalysis(localAnalysis);
+    console.log("💾 Local analysis set to state");
+  }
+};
+
+
+useEffect(() => {
+  if (jumps.length > 0) {
+    // Auto-analyze when jumps change
+    const localAnalysis = analyzeCourse();
+    setAnalysis(localAnalysis);
+  }
+}, [jumps]);
 
   const currentLevel = getCurrentLevel();
 
@@ -515,7 +627,7 @@ Return format:
                 jumps={jumps}
                 designMode={designMode}
                 currentLevel={currentLevel}
-                analyzeCourse={analysisAICourse}
+                analyzeCourse={analysisAICourse} 
               />
             </div>
 

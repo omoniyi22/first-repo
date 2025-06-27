@@ -13,9 +13,12 @@ const AIAnalysisPanel = ({
   const handleAnalyzeCourse = async () => {
     setIsAnalyzing(true);
     try {
+      // Add a small delay to ensure UI updates
+      await new Promise(resolve => setTimeout(resolve, 100));
       await analyzeCourse();
     } catch (error) {
       console.error("Error analyzing course:", error);
+      // You could add a toast notification here to show the error to the user
     } finally {
       setIsAnalyzing(false);
     }
@@ -77,8 +80,16 @@ const AIAnalysisPanel = ({
               </div>
             )}
 
+            {/* Show loading state while analyzing */}
+            {isAnalyzing && (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-3"></div>
+                <p className="text-gray-500">Analyzing course...</p>
+              </div>
+            )}
+
             {/* Analysis Results */}
-            {showAnalysis && analysis && (
+            {showAnalysis && analysis && !isAnalyzing && (
               <div className="space-y-4">
                 {/* AI Score */}
                 <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg">
@@ -91,9 +102,9 @@ const AIAnalysisPanel = ({
                     <div className="flex-1 h-3 bg-gray-200 rounded-full">
                       <div
                         className={`h-3 rounded-full transition-all duration-500 ${
-                          analysis.aiScore > 80
+                          (analysis.aiScore || 0) > 80
                             ? "bg-green-500"
-                            : analysis.aiScore > 60
+                            : (analysis.aiScore || 0) > 60
                             ? "bg-yellow-500"
                             : "bg-red-500"
                         }`}
