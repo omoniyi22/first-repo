@@ -64,31 +64,31 @@ const arenaTemplates = {
 
 const accuracyCircleExercisePos = {
   small: {
-    A: { x: 200, y: 440 },
-    C: { x: 200, y: 160 },
+    A: { x: 205, y: 440 },
+    C: { x: 205, y: 160 },
     H: { x: 160, y: 160 },
     E: { x: 160, y: 300 },
     K: { x: 160, y: 440 },
-    G: { x: 200, y: 160 },
-    X: { x: 200, y: 300 },
-    D: { x: 200, y: 440 },
+    G: { x: 205, y: 160 },
+    X: { x: 205, y: 300 },
+    D: { x: 205, y: 440 },
     M: { x: 240, y: 160 },
     B: { x: 240, y: 300 },
     F: { x: 240, y: 440 },
   },
   large: {
-    A: { x: 200, y: 640 },
-    C: { x: 200, y: 160 },
+    A: { x: 205, y: 640 },
+    C: { x: 205, y: 160 },
     H: { x: 160, y: 160 },
     S: { x: 160, y: 275 },
     E: { x: 160, y: 400 },
     V: { x: 160, y: 525 },
     K: { x: 160, y: 640 },
-    G: { x: 200, y: 160 },
-    I: { x: 200, y: 275 },
-    X: { x: 200, y: 400 },
-    L: { x: 200, y: 525 },
-    D: { x: 200, y: 640 },
+    G: { x: 205, y: 160 },
+    I: { x: 205, y: 275 },
+    X: { x: 205, y: 400 },
+    L: { x: 205, y: 525 },
+    D: { x: 205, y: 640 },
     M: { x: 240, y: 160 },
     R: { x: 240, y: 275 },
     B: { x: 240, y: 400 },
@@ -97,33 +97,70 @@ const accuracyCircleExercisePos = {
   }
 }
 
+const exercisePos = {
+  small: {
+    A: { x: 205, y: 490 },
+    C: { x: 205, y: 110 },
+    H: { x: 110, y: 145 },
+    E: { x: 110, y: 295 },
+    K: { x: 110, y: 445 },
+    G: { x: 205, y: 155 },
+    X: { x: 205, y: 305 },
+    D: { x: 205, y: 455 },
+    M: { x: 290, y: 145 },
+    B: { x: 290, y: 295 },
+    F: { x: 290, y: 445 },
+  },
+  large: {
+    A: { x: 205, y: 690 },
+    C: { x: 205, y: 110 },
+    H: { x: 110, y: 145 },
+    S: { x: 110, y: 270 },
+    E: { x: 110, y: 395 },
+    V: { x: 110, y: 520 },
+    K: { x: 110, y: 645 },
+    G: { x: 205, y: 160 },
+    I: { x: 205, y: 285 },
+    X: { x: 205, y: 410 },
+    L: { x: 205, y: 535 },
+    D: { x: 205, y: 660 },
+    M: { x: 290, y: 145 },
+    R: { x: 290, y: 270 },
+    B: { x: 290, y: 395 },
+    P: { x: 290, y: 520 },
+    F: { x: 290, y: 645 },
+  }
+}
 
 const exerciseGenerators = {
-  contact: (arena: ArenaTemplate, positions: string[]) => {
+  contact: (arena: ArenaTemplate, positions: string[], exPositions: object) => {
     return {
       svg: `
         ${positions.map(pos => {
           const chars = pos.split('');
           const points = chars.map(char => {
-            const x = arena.letters[char]?.x ?? arena.width/2;
-            const y = arena.letters[char]?.y ?? arena.height/2;
+            const x = exPositions[char]?.x ?? arena.width / 2;
+            const y = exPositions[char]?.y ?? arena.height / 2;
             return `${x},${y}`;
           }).join(' ');
 
-          return `
-            <polyline points="${points}" 
-                     fill="none"
-                     stroke="green"
-                     stroke-width="2"
-                     class="contact-line" />
-            ${chars.map((char, i) => `
-              <circle cx="${arena.letters[char]?.x ?? arena.width/2}"
-                      cy="${arena.letters[char]?.y ?? arena.height/2}"
-                      r="4"
-                      fill="green"
-                      class="contact-point" />
-            `).join('')}
-          `;
+          const line = chars.length > 1
+            ? `<polyline points="${points}" 
+                        fill="none"
+                        stroke="green"
+                        stroke-width="2"
+                        class="contact-line" />`
+            : '';
+
+          const circles = chars.map(char => `
+            <circle cx="${exPositions[char]?.x ?? arena.width / 2}"
+                    cy="${exPositions[char]?.y ?? arena.height / 2}"
+                    r="4"
+                    fill="green"
+                    class="contact-point" />
+          `).join('');
+
+          return `${line}${circles}`;
         }).join('')}
       `,
     };
@@ -135,62 +172,58 @@ const exerciseGenerators = {
       `).join(''),
     };
   },
-  transitions: (arena: ArenaTemplate, positions: string[]) => ({
+  transitions: (arena: ArenaTemplate, positions: string[], exPosition: object) => ({
     svg: positions.map(pos => `
-      <rect x="${arena.letters[pos[0]].x - 10}" 
-            y="${arena.letters[pos[0]].y + 5}" 
-            width="30" height="10" 
+      <rect x="${exPosition[pos[0]].x == 290 ? 280 : exPosition[pos[0]].x == 110 ? 120 : 198}" 
+            y="${exPosition[pos[0]].y}" 
+            width="15" height="5" 
             class="transition-zone" />
     `).join(''),
   }),
-  straightness: (arena: ArenaTemplate, positions: string[]) => ({
+  straightness: (arena: ArenaTemplate, positions: string[], exPosition: object) => ({
    svg: `
         ${positions.map(pos => {
           const chars = pos.split('');
           const points = chars.map(char => {
-            const x = arena.letters[char]?.x ?? arena.width/2;
-            const y = arena.letters[char]?.y ?? arena.height/2;
+            const x = exPosition[char]?.x ?? arena.width/2;
+            const y = exPosition[char]?.y ?? arena.height/2;
             return `${x},${y}`;
           }).join(' ');
 
           return `
             <polyline points="${points}" 
                      fill="none"
-                     stroke="blue"
                      stroke-width="2"
                      class="straightness-line" />
             ${chars.map((char, i) => `
-              <circle cx="${arena.letters[char]?.x ?? arena.width/2}"
-                      cy="${arena.letters[char]?.y ?? arena.height/2}"
+              <circle cx="${exPosition[char]?.x ?? arena.width/2}"
+                      cy="${exPosition[char]?.y ?? arena.height/2}"
                       r="4"
-                      fill="blue"
                       class="straightness-point" />
             `).join('')}
           `;
         }).join('')}
       `,
   }),
-  rhythm: (arena: ArenaTemplate, positions: string[]) => ({
+  rhythm: (arena: ArenaTemplate, positions: string[], exPositions: object) => ({
     svg: `
       ${positions.map(pos => {
           const chars = pos.split('');
           const points = chars.map(char => {
-            const x = arena.letters[char]?.x ?? arena.width/2;
-            const y = arena.letters[char]?.y ?? arena.height/2;
+            const x = exPositions[char]?.x ?? arena.width/2;
+            const y = exPositions[char]?.y ?? arena.height/2;
             return `${x},${y}`;
           }).join(' ');
 
           return `
             <polyline points="${points}" 
                      fill="none"
-                     stroke="gray"
                      stroke-width="2"
                      class="straightness-line" />
             ${chars.map((char, i) => `
-              <circle cx="${arena.letters[char]?.x ?? arena.width/2}"
-                      cy="${arena.letters[char]?.y ?? arena.height/2}"
+              <circle cx="${exPositions[char]?.x ?? arena.width/2}"
+                      cy="${exPositions[char]?.y ?? arena.height/2}"
                       r="4"
-                      fill="gray"
                       class="straightness-point" />
             `).join('')}
           `;
@@ -203,6 +236,7 @@ const exerciseGenerators = {
 export function generateWeaknessSvg(weakness: WeaknessSvg): string {
   const arena = arenaTemplates[weakness.size];
   const accuracyCircle = accuracyCircleExercisePos[weakness.size];
+  const exercisePosition = exercisePos[weakness.size];
   const generator = exerciseGenerators[weakness.type] || exerciseGenerators.accuracy;
 
   let svg;
@@ -210,7 +244,7 @@ export function generateWeaknessSvg(weakness: WeaknessSvg): string {
     console.log(accuracyCircle);
     svg = generator(arena, weakness.positions, accuracyCircle);
   } else {
-    svg = generator(arena, weakness.positions);
+    svg = generator(arena, weakness.positions, exercisePosition);
   }
 
   return `

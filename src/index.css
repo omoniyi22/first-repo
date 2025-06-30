@@ -314,8 +314,20 @@ html, body {
   stroke-width: 1;
 }
 
+.transition-zone {
+  fill: #F44336;
+}
+
 .svg-transition-point {
   fill: #ef4444;
+}
+
+.straightness-point {
+  stroke: #4CAF50;
+  fill: #4CAF50;
+}
+.straightness-line {
+  stroke: #4CAF50;
 }
 
 .svg-center-line,
