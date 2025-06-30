@@ -1,5 +1,5 @@
 import { Settings, Sparkles, Trash2, Upload } from "lucide-react";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 interface CompetitionLevelData {
   description?: string;
@@ -45,6 +45,7 @@ interface HeaderProps {
   selectedJump: any;
   deleteSelectedJump: any;
 }
+
 const Header: React.FC<HeaderProps> = ({
   setDesignMode,
   designMode,
@@ -77,6 +78,10 @@ const Header: React.FC<HeaderProps> = ({
   selectedJump,
   deleteSelectedJump,
 }) => {
+  const [inputValue, setInputValue] = useState(String(arenaLength));
+  useEffect(() => {
+  setInputValue(String(arenaLength));
+}, [arenaLength]);
   return (
     <>
       {/* Header */}
@@ -181,20 +186,30 @@ const Header: React.FC<HeaderProps> = ({
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Arena Length (m)
-                </label>
-                <input
-                  type="number"
-                  value={arenaLength}
-                  onChange={(e) =>
-                    setArenaLength(parseInt(e.target.value) || 40)
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  min="20"
-                  // max="100"
-                />
-              </div>
+    <label className="block text-sm font-medium text-gray-700 mb-2">
+      Arena Length (m)
+    </label>
+    <input
+      type="number"
+      value={inputValue}
+    onChange={(e) => {
+      const val = e.target.value;
+      setInputValue(val);
+      if (val !== "") {
+        const parsed = parseInt(val);
+        if (!isNaN(parsed)) setArenaLength(parsed);
+      }
+    }}
+    onBlur={() => {
+      if (inputValue === "") {
+        setInputValue("40");
+        setArenaLength(40);
+      }
+    }}
+      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+      min="20"
+    />
+  </div>
             </div>
 
             {designMode === "ai" && (

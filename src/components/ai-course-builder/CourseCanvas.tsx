@@ -72,6 +72,8 @@ const CourseCanvas = ({
     const canvasX = event.clientX - rect.left;
     const canvasY = event.clientY - rect.top;
     
+
+
     // Convert to arena coordinates accounting for viewport
     const x = (canvasX - canvasPadding - viewport.offsetX) / scale;
     const y = (canvasY - canvasPadding - viewport.offsetY) / scale;
