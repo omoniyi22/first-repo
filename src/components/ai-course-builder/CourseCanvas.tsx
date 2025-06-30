@@ -49,7 +49,7 @@ const CourseCanvas = ({
     
     // Use the smaller scale to ensure entire arena fits
     return Math.min(scaleX, scaleY);
-  }, [arenaWidth, arenaLength]);
+  }, [arenaWidth, arenaLength, baseScale]);
 
   // Reset viewport to fit arena
   const resetViewport = useCallback(() => {
@@ -72,8 +72,6 @@ const CourseCanvas = ({
     const canvasX = event.clientX - rect.left;
     const canvasY = event.clientY - rect.top;
     
-
-
     // Convert to arena coordinates accounting for viewport
     const x = (canvasX - canvasPadding - viewport.offsetX) / scale;
     const y = (canvasY - canvasPadding - viewport.offsetY) / scale;
@@ -273,12 +271,18 @@ const CourseCanvas = ({
         let angle = 0;
         if (jump.manualRotation && typeof jump.rotation === "number") {
           angle = jump.rotation;
-        } else if (index < sortedJumps.length - 1) {
-          // Auto-rotate based on next jump (not previous)
-          const next = sortedJumps[index + 1];
+        } else if (index === 0 && sortedJumps.length > 1) {
+          // First jump faces the second jump
+          const next = sortedJumps[1];
           const dx = next.x - jump.x;
           const dy = next.y - jump.y;
-          angle = Math.atan2(dy, dx) - Math.PI / 2; // Adjust angle for proper orientation
+          angle = Math.atan2(dy, dx) - Math.PI / 2;
+        } else if (index > 0) {
+          // All other jumps face their previous jump
+          const prev = sortedJumps[index - 1];
+          const dx = prev.x - jump.x;
+          const dy = prev.y - jump.y;
+          angle = Math.atan2(dy, dx) - Math.PI / 2;
         }
 
         ctx.save();
@@ -353,9 +357,9 @@ const CourseCanvas = ({
           // Move arrow to edge of jump
           const jumpType = jumpTypes.find((type) => type.id === fromJump.type);
           const jumpWidth = (jumpType?.width || 4) * fitScale;
-          ctx.translate(jumpWidth / 2 + 8 / viewport.zoom, 0);
+          ctx.translate(jumpWidth / 2 + 20 / viewport.zoom, 0);
           
-          // Larger arrow shape (increased from 6 to 10)
+          // Larger arrow shape
           ctx.beginPath();
           ctx.moveTo(0, 0);
           ctx.lineTo(-8 / viewport.zoom, -5 / viewport.zoom);
@@ -379,9 +383,9 @@ const CourseCanvas = ({
   useEffect(() => {
     const handleKeyPress = (event) => {
       if (event.key === '+' || event.key === '=') {
-        setViewport(prev => ({ ...prev, zoom: Math.min(5, prev.zoom + 0.01) }));
+        setViewport(prev => ({ ...prev, zoom: Math.min(5, prev.zoom + 0.1) }));
       } else if (event.key === '-' || event.key === '_') {
-        setViewport(prev => ({ ...prev, zoom: Math.max(0.2, prev.zoom - 0.01) }));
+        setViewport(prev => ({ ...prev, zoom: Math.max(0.2, prev.zoom - 0.1) }));
       } else if (event.key === '0' && (event.ctrlKey || event.metaKey)) {
         event.preventDefault();
         resetViewport();
