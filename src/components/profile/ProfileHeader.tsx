@@ -6,6 +6,7 @@ import { Loader2 } from 'lucide-react';
 import ProfileImage from './ProfileImage';
 import ProfileForm from './ProfileForm';
 import ProfileActions from './ProfileActions';
+import { ActivityLogger } from '@/utils/activityTracker'; 
 
 // Define a type for our profile data
 interface ProfileData {
@@ -128,6 +129,15 @@ const ProfileHeader = () => {
       if (error) {
         throw error;
       }
+
+      try {
+      const userName = displayName || user?.user_metadata?.full_name || user?.email || 'Unknown User';
+      await ActivityLogger.profileUpdated(userName);
+      console.log('✅ Profile update activity logged for:', userName);
+    } catch (activityError) {
+      console.error('Failed to log profile activity:', activityError);
+      // Don't throw error - just log it, don't break the profile save flow
+    }
       
       toast({
         title: "Profile updated",

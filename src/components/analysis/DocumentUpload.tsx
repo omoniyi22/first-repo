@@ -58,6 +58,7 @@ import { fetchPdfAsBase64 } from "@/utils/pdfUtils";
 import { convertImagesToPDF, imageToBase64PDF } from "@/utils/img2pdf";
 import * as jsPDF from "jspdf";
 import { useNavigate } from "react-router-dom";
+import { ActivityLogger } from '@/utils/activityTracker';
 
 const DocumentUploadFormSchema = z.object({
   discipline: z.enum(["dressage", "jumping"]),
@@ -939,6 +940,16 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
                       userGoverningBody: userProfile?.governing_body,
                     },
                   });
+
+                  try {
+                    const userName = user?.user_metadata?.full_name || user?.email || 'Unknown User';
+                    // Get the filename from the last upload
+                    const fileName = selectedFiles.length > 0 ? selectedFiles[0].name : 'Document';
+                    await ActivityLogger.documentAnalyzed(userName, fileName);
+                    console.log('✅ Document analysis activity logged for:', userName);
+                  } catch (activityError) {
+                    console.error('Failed to log document activity:', activityError);
+                  }
 
                   navigate(`/analysis?document_id=${newDocumentId}`);
                   fetchDocs && fetchDocs();
