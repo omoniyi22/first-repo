@@ -4,6 +4,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { RiWhatsappFill } from "react-icons/ri";
 import {
   ArrowDown,
+  CloudDownload,
   CloudUpload,
   FileText,
   Lightbulb,
@@ -18,7 +19,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
-import { callPodcastScript, fill_Template_Make_Prompts, formatScriptWithStyles } from "@/utils/podcastUtils";
+import {
+  callPodcastScript,
+  fill_Template_Make_Prompts,
+  formatScriptWithStyles,
+} from "@/utils/podcastUtils";
 import { generateWeaknessSvg } from "@/utils/diagramGenerator";
 
 // Define proper types for the analysis data
@@ -112,7 +117,7 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [analysisData, setAnalysisData] = useState<any>(null);
   const [isPodcastLoading, setIsPodcastLoading] = useState<boolean>(false);
-  const [podcastMsg, setPodcastMsg] = useState<string>('');
+  const [podcastMsg, setPodcastMsg] = useState<string>("");
 
   useEffect(() => {
     const fetchAnalysis = async () => {
@@ -180,9 +185,9 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
 
   const diagrams = useMemo(() => {
     if (!!resultData) {
-      return resultData[language]["weaknesses-svg"]
+      return resultData[language]["weaknesses-svg"];
     } else {
-      return []
+      return [];
     }
   }, [resultData]);
 
@@ -239,8 +244,12 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
             exercise_1:
               resultData["en"]["recommendations"][0]?.["exercise"] || "",
             key_points_1:
-              typeof resultData["en"]["recommendations"][0]?.["keyPoints"] == "string" ? resultData["en"]["recommendations"][0]?.["keyPoints"] :
-              resultData["en"]["recommendations"][0]?.["keyPoints"].join("; ") || "",
+              typeof resultData["en"]["recommendations"][0]?.["keyPoints"] ==
+              "string"
+                ? resultData["en"]["recommendations"][0]?.["keyPoints"]
+                : resultData["en"]["recommendations"][0]?.["keyPoints"].join(
+                    "; "
+                  ) || "",
             goal_1: resultData["en"]["recommendations"][0]?.["goal"] || "",
             secondary_recommendation:
               "Clean, balanced transitions at precise markers",
@@ -249,14 +258,17 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
             exercise_2:
               resultData["en"]["recommendations"][1]?.["exercise"] || "",
             key_points_2:
-              typeof resultData["en"]["recommendations"][1]?.["keyPoints"] == "string" ? resultData["en"]["recommendations"][1]?.["keyPoints"] :
-              resultData["en"]["recommendations"][1]?.["keyPoints"].join("; ") || "",
+              typeof resultData["en"]["recommendations"][1]?.["keyPoints"] ==
+              "string"
+                ? resultData["en"]["recommendations"][1]?.["keyPoints"]
+                : resultData["en"]["recommendations"][1]?.["keyPoints"].join(
+                    "; "
+                  ) || "",
             goal_2: resultData["en"]["recommendations"][1]?.["goal"] || "",
             current_season: "Summer",
             upcoming_events: "National Eventing Championship",
             training_phase: "Preparation",
           });
-
         }
       }
     };
@@ -265,7 +277,7 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
 
   const getPromptForTTS = async () => {
     setIsPodcastLoading(true);
-    setPodcastMsg('Checking if podcast is already exists...')
+    setPodcastMsg("Checking if podcast is already exists...");
     const filePath = `${user.id}_${analysis.id}/final_podcast_with_music.m4a`;
     const { data } = supabase.storage.from("analysis").getPublicUrl(filePath);
 
@@ -273,48 +285,56 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
       const initialCheck = await fetch(data.publicUrl, { method: "HEAD" });
 
       if (initialCheck.ok) {
-        setPodcastMsg('Downloading podcast...')
+        setPodcastMsg("Downloading podcast...");
         setIsPodcastLoading(false);
-        await downloadFile(data.publicUrl); 
-        setPodcastMsg('');
+        await downloadFile(data.publicUrl);
+        setPodcastMsg("");
         return;
       }
-      setPodcastMsg('Generating podcast script...');
+      setPodcastMsg("Generating podcast script...");
       const prompts = fill_Template_Make_Prompts(analysisData);
-      let combinedScript = '';
+      let combinedScript = "";
       for (let i = 0; i < prompts.length; i++) {
         const prompt = prompts[i];
         const res = await callPodcastScript(prompt);
         const rawdata = res.result;
-        combinedScript += rawdata + '\n\n';
+        combinedScript += rawdata + "\n\n";
       }
       const ttsScript = formatScriptWithStyles(combinedScript);
-      console.log("final TTS script", ttsScript)
+      console.log("final TTS script", ttsScript);
 
-      setPodcastMsg('Generating podcast audio file...');
+      setPodcastMsg("Generating podcast audio file...");
       try {
-        const backendResponse = await fetch("https://f531-45-153-229-59.ngrok-free.app/generate", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            scriptText: ttsScript,
-            userId: user.id,
-            analysisId: analysis.id
-          })
-        });
+        const backendResponse = await fetch(
+          "https://f531-45-153-229-59.ngrok-free.app/generate",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              scriptText: ttsScript,
+              userId: user.id,
+              analysisId: analysis.id,
+            }),
+          }
+        );
 
         if (!backendResponse.ok) {
           const errMessage = await backendResponse.text();
           console.error("❌ Backend responded with error:", errMessage);
-          alert(`Failed to start generation: ${backendResponse.status} ${backendResponse.statusText}`);
+          alert(
+            `Failed to start generation: ${backendResponse.status} ${backendResponse.statusText}`
+          );
           setIsPodcastLoading(false);
           return;
         }
 
         const backendMsg = await backendResponse.json();
-        console.log("✅ Backend accepted request:", backendMsg.message || backendMsg);
+        console.log(
+          "✅ Backend accepted request:",
+          backendMsg.message || backendMsg
+        );
         const checkInterval = 5000;
         const timeout = 10 * 60 * 1000;
         const startTime = Date.now();
@@ -333,10 +353,10 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
             const response = await fetch(data.publicUrl, { method: "HEAD" });
             if (response.ok) {
               clearInterval(intervalId);
-              setPodcastMsg('Downloading Podcast...')
-              await downloadFile(data.publicUrl); 
+              setPodcastMsg("Downloading Podcast...");
+              await downloadFile(data.publicUrl);
               setIsPodcastLoading(false);
-              setPodcastMsg('');
+              setPodcastMsg("");
             }
           } catch (error) {
             console.error("Error checking file availability:", error);
@@ -344,14 +364,16 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
         }, checkInterval);
       } catch (error) {
         console.error("❌ Network or server error:", error);
-        alert("Server is not responding or network error occurred. Please try again later.");
+        alert(
+          "Server is not responding or network error occurred. Please try again later."
+        );
         setIsPodcastLoading(false);
-        setPodcastMsg('');
+        setPodcastMsg("");
         return;
       }
     } catch (err) {
       setIsPodcastLoading(false);
-      setPodcastMsg('');
+      setPodcastMsg("");
       console.error("Error checking or generating file:", err);
     }
   };
@@ -359,23 +381,28 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
   function downloadFile(url) {
     return new Promise<void>((resolve, reject) => {
       const xhr = new XMLHttpRequest();
-      xhr.open('GET', url, true);
-      xhr.responseType = 'blob';
+      xhr.open("GET", url, true);
+      xhr.responseType = "blob";
 
       xhr.onload = function () {
         if (xhr.status === 200) {
           const blob = xhr.response;
           const blobUrl = window.URL.createObjectURL(blob);
           const filename = analysis.file_name;
-          
-          const a = document.createElement('a');
+
+          const a = document.createElement("a");
           a.href = blobUrl;
-          a.download = filename.endsWith('.m4a') ? filename : filename.replace(/\.(pdf|PDF)?$/, '.m4a');
+          a.download = filename.endsWith(".m4a")
+            ? filename
+            : filename.replace(/\.(pdf|PDF)?$/, ".m4a");
           document.body.appendChild(a);
 
           // Safari fallback
-          if (navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome')) {
-            window.open(blobUrl, '_blank');
+          if (
+            navigator.userAgent.includes("Safari") &&
+            !navigator.userAgent.includes("Chrome")
+          ) {
+            window.open(blobUrl, "_blank");
           } else {
             a.click();
           }
@@ -385,17 +412,19 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
             document.body.removeChild(a);
             resolve();
           }, 60000);
-          alert("Podcast is downloaded successfully, please find in Downloads folder")
+          alert(
+            "Podcast is downloaded successfully, please find in Downloads folder"
+          );
         } else {
-          reject(new Error('Download failed'));
+          reject(new Error("Download failed"));
         }
       };
 
-      xhr.onerror = () => reject(new Error('Network error'));
+      xhr.onerror = () => reject(new Error("Network error"));
       xhr.send();
     });
   }
-  
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-8">
@@ -898,31 +927,46 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
       <Card className="p-4 sm:p-6">
         <div className="mb-8">
           <h3 className="text-xl font-semibold mb-4">Weaknesses</h3>
-           <div className="grid md:grid-cols-2 gap-6">
-          {diagrams?.map((weakness, index) => (
-            <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden">
-              <div className="p-4 bg-blue-50 border-b">
-                <h3 className="font-semibold text-blue-800">{weakness.title}</h3>
-                <p className="text-sm text-red-600">Weakness: {weakness.weakness}</p>
+          <div className="grid md:grid-cols-2 gap-6">
+            {diagrams?.map((weakness, index) => (
+              <div
+                key={index}
+                className="bg-white rounded-lg shadow-md overflow-hidden"
+              >
+                <div className="p-4 bg-blue-50 border-b">
+                  <h3 className="font-semibold text-blue-800">
+                    {weakness.title}
+                  </h3>
+                  <p className="text-sm text-red-600">
+                    Weakness: {weakness.weakness}
+                  </p>
+                </div>
+
+                <div className="p-4 flex justify-center">
+                  <div
+                    className="svg-container"
+                    dangerouslySetInnerHTML={{
+                      __html: generateWeaknessSvg(weakness),
+                    }}
+                  />
+                </div>
+
+                <div className="p-4 bg-gray-50 border-t">
+                  <p className="text-sm font-medium text-gray-700">
+                    Instructions:{" "}
+                    <span className="text-sm text-gray-400">{`(${weakness.type})`}</span>
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    {weakness.instruction}
+                  </p>
+                  <p className="text-xs mt-2 text-gray-500">
+                    Positions: {weakness.positions.join(", ")} | Arena:{" "}
+                    {weakness.size}
+                  </p>
+                </div>
               </div>
-              
-              <div className="p-4 flex justify-center">
-                <div 
-                  className="svg-container"
-                  dangerouslySetInnerHTML={{ __html: generateWeaknessSvg(weakness) }} 
-                />
-              </div>
-              
-              <div className="p-4 bg-gray-50 border-t">
-                <p className="text-sm font-medium text-gray-700">Instructions: <span className="text-sm text-gray-400">{`(${weakness.type})`}</span></p>
-                <p className="text-sm text-gray-600">{weakness.instruction}</p>
-                <p className="text-xs mt-2 text-gray-500">
-                  Positions: {weakness.positions.join(', ')} | Arena: {weakness.size}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
         </div>
       </Card>
       <Card className="p-4 sm:p-6 border-0">
@@ -934,13 +978,13 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
           </Button>
 
           <Button
-            className="bg-[#c9c9c9] hover:bg-[#c9c9c9] flex flex-col items-center p-8"
+            className="bg-purple-600 hover:bg-purple-600 flex flex-col items-center p-8"
             onClick={async () => {
               await getPromptForTTS();
             }}
           >
-            <CloudUpload className="!h-7 !w-7 text-white" />
-            Get Your Ride-Along Podcast
+            <CloudDownload className="!h-7 !w-7 text-white " />
+            Get your personal ride along training class here
           </Button>
 
           <div className="space-x-2 flex flex-col items-center">

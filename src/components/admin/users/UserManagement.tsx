@@ -75,7 +75,6 @@ const UserManagement = () => {
           created_at: user.created_at || new Date().toISOString(),
           user_metadata: {
             full_name:
-              userProfile.coach_name ||
               user.user_metadata?.full_name ||
               user.user_metadata?.name ||
               `User ${user.id.substring(0, 5)}`,
