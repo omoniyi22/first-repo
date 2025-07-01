@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
 import { supabase } from '@/integrations/supabase/client';
 import { Provider } from '@supabase/supabase-js';
+import { ActivityLogger } from '@/utils/activityTracker';
 
 const AuthForm = () => {
   const [searchParams] = useSearchParams();
@@ -135,6 +136,17 @@ const AuthForm = () => {
         
         if (error) throw error;
 
+        if (data.user) {
+        try {
+          await ActivityLogger.userRegistered(name || email);
+          console.log('✅ User registration activity logged for:', name || email);
+        } catch (activityError) {
+          console.error('Failed to log activity:', activityError);
+          // Don't throw error - just log it, don't break the signup flow
+        }
+      }
+        
+
         toast({
           title: "Welcome to AI Dressage Trainer!",
           description: "Please check your email and click the confirmation link to verify your account.",
@@ -175,35 +187,35 @@ const AuthForm = () => {
   };
 
   const handleSSOAuth = async (provider: Provider) => {
-    setIsProcessingSSO(true);
-    
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: {
-          redirectTo: `${window.location.origin}/dashboard`,
-          queryParams: {
-            prompt: 'select_account', // Force Google to show account picker even if user is already signed in
-          }
-        }
-      });
-      
-      if (error) throw error;
-      
-      // The user will be redirected to the provider's authentication page
-    } catch (error) {
-      console.error('SSO authentication error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'SSO Authentication Failed';
-      toast({
-        title: "SSO Authentication Failed",
-        description: errorMessage,
-        variant: "destructive",
-      });
-      setIsProcessingSSO(false);
-    }
-  };
+  setIsProcessingSSO(true);
   
-  // Password validation
+  try {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: `${window.location.origin}/dashboard`,
+        queryParams: {
+          prompt: 'select_account',
+        }
+      }
+    });
+    
+    if (error) throw error;
+    
+    // The user will be redirected to the provider's authentication page
+  } catch (error) {
+    console.error('SSO authentication error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'SSO Authentication Failed';
+    toast({
+      title: "SSO Authentication Failed",
+      description: errorMessage,
+      variant: "destructive",
+    });
+    setIsProcessingSSO(false);
+  }
+};
+
+// Password validation
   const hasMinLength = password.length >= 8;
   const hasUpperCase = /[A-Z]/.test(password);
   const hasLowerCase = /[a-z]/.test(password);

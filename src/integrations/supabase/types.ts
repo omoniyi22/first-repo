@@ -568,6 +568,34 @@ export type Database = {
           },
         ]
       }
+      // In your types file
+activities: {
+  Row: {
+    id: string;
+    type: 'user' | 'document' | 'video' | 'profile'; 
+    title: string;
+    user_name: string;
+    created_at: string;
+    updated_at: string;
+  };
+  Insert: {
+    id?: string;
+    type: 'user' | 'document' | 'video' | 'profile'; 
+    title: string;
+    user_name: string;
+    created_at?: string;
+    updated_at?: string;
+  };
+  Update: {
+    id?: string;
+    type?: 'user' | 'document' | 'video' | 'profile'; 
+    title?: string;
+    user_name?: string;
+    created_at?: string;
+    updated_at?: string;
+  };
+  Relationships: [];
+};
       user_roles: {
         Row: {
           created_at: string | null

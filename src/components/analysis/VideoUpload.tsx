@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Card } from "@/components/ui/card";
+import { ActivityLogger } from '@/utils/activityTracker';
 import {
   Select,
   SelectContent,
@@ -325,6 +326,15 @@ const VideoUpload = ({ fetchDocs }: VideoUploadProps) => {
       }
 
       console.log("Document analysis record saved successfully");
+
+      try {
+        const userName = user?.user_metadata?.full_name || user?.email || 'Unknown User';
+        await ActivityLogger.videoAnalyzed(userName, customFilename);
+        console.log('✅ Video analysis activity logged for:', userName);
+      } catch (activityError) {
+        console.error('Failed to log video activity:', activityError);
+        // Don't throw error - just log it, don't break the upload flow
+      }
 
       // Trigger the analysis function
       try {
