@@ -107,35 +107,99 @@ export class EnhancedAIGenerator {
       `${example.name} (${example.arenaSize}): ${JSON.stringify(example.jumps)}`
     ).join('\n\n');
 
-    return `You are a professional show jumping course designer. Design a course using these professional examples as reference.
+    return `You are a professional show jumping course designer. Generate a safe, logical, and competition-quality course using professional design standards and patterns.
 
 PROFESSIONAL TRAINING EXAMPLES:
 ${trainingExamplesText}
 
-REQUIREMENTS:
-- Arena: ${arenaWidth}m × ${arenaLength}m  
-- Jumps: ${numberOfJumps}
-- Style: ${courseStyle}
-- Level: ${difficultyLevel}
-- Allow combinations: ${allowCombinations}
-- Prefer smooth turns: ${preferSmoothTurns}
-- Include specialty jumps: ${includeSpecialtyJumps}
-- Optimize for flow: ${optimizeForFlow}
+COURSE REQUIREMENTS:
+- Arena Size: ${arenaWidth}m × ${arenaLength}m
+- Total Jumps: ${numberOfJumps}
+- Course Style: ${courseStyle}
+- Difficulty Level: ${difficultyLevel}
+- Allow Combinations: ${allowCombinations}
+- Prefer Smooth Turns: ${preferSmoothTurns}
+- Include Specialty Jumps: ${includeSpecialtyJumps}
+- Optimize for Flow: ${optimizeForFlow}
 
-CRITICAL RULES:
-1. ALL jumps must be INSIDE arena boundaries (x: 5-${arenaWidth-5}, y: 5-${arenaLength-5})
-2. Minimum 10m between consecutive jumps (except combinations if allowed)
-3. Use professional patterns from examples above
-4. Return ONLY valid JSON array format
+FLOW PATTERN SELECTION:
+Choose a professional multi-directional flow pattern (do NOT place jumps randomly):
+- Figure-8 (clockwise/counter-clockwise)
+- Progressive Serpentine
+- Outside Track with Diagonals
+- Cross Pattern or Diamond Pattern
+Each pattern must:
+- Flow in 4 or more directions
+- Include at least one diagonal line across the arena
+- Have a balance of clockwise and counterclockwise turns
+- Avoid more than 2 consecutive turns in the same direction
 
-OUTPUT FORMAT:
+FLOW STRATEGY & JUMP LOGIC:
+Use intelligent jump progression:
+- Jumps 1–2: Easy verticals (confidence/rhythm)
+- Jumps 3–4: Oxers or verticals (establish technique)
+- Jumps 5–6: Technical jumps (triple, liverpool, etc.)
+- Jumps 7–8+: Flow finish (oxer/vertical)
+
+Apply level-appropriate height progression:
+- Intro: 0.4–0.6m opening → 0.6m max → 0.5m finish
+- Novice: 0.7–0.9m opening → 1.0m max → 0.8m finish
+- Advanced: 1.2–1.6m peak height, with logical ramp-up and down
+
+VALIDATION RULES:
+Turn Angle Validation (for each triplet A→B→C):
+- Calculate vectors and turning angle (degrees)
+- Maximum allowed per level:
+  • Intro: ≤60° | Novice: ≤75° | Elementary: ≤90°
+  • Medium: ≤105° | Advanced: ≤120°
+- If angle exceeds limit → REJECT pattern and retry
+
+Distance Validation (each pair A→B):
+- Intro: 15–25m | Novice: 18–30m | Elementary: 20–35m
+- Medium: 22–40m | Advanced: 25–45m
+- If outside range → REJECT course
+
+Flow Direction Checks:
+- Must include 3 or more cardinal directions (N, S, E, W)
+- No excessive repetition of one direction
+- Must include a diagonal and natural riding lines
+
+COURSE PLACEMENT CONSTRAINTS:
+- All jumps must stay within arena bounds (x: 5 to ${arenaWidth - 5}, y: 5 to ${arenaLength - 5})
+- Minimum 10m between non-combination jumps
+- Use professional example patterns as guidance
+
+IMPLEMENTATION LOGIC (internal flow):
+Step 1: Choose pattern by level (e.g., Intro → Simple Figure-8, Advanced → Outside Track + Diagonals)  
+Step 2: Use geometry to place coordinates using loops/angles (e.g., sin/cos logic for loops)  
+Step 3: Validate full sequence:
+- Turn angles
+- Distances
+- Direction changes
+Step 4: Assign:
+- Jump types by position
+- Heights based on level and phase of course
+
+EXAMPLE OUTPUT FORMAT:
+Return only a valid JSON array of jump objects:
 [
-  {"id": "jump1", "x": 15, "y": 12, "type": "vertical"},
-  {"id": "jump2", "x": 35, "y": 18, "type": "oxer"}
+  {"id": "jump1", "x": 30, "y": 10, "type": "vertical", "height": 0.4},
+  {"id": "jump2", "x": 45, "y": 18, "type": "vertical", "height": 0.5},
+  {"id": "jump3", "x": 50, "y": 30, "type": "oxer", "height": 0.6}
 ]
 
-Valid jump types: vertical, oxer, triple, water, liverpool, wall
-Generate exactly ${numberOfJumps} jumps with coordinates that stay within boundaries.`;
+Allowed types: vertical, oxer, triple, water, liverpool, wall  
+Include "height" (in meters) in each object.  
+Use geometry and flow logic to create a ridable, level-specific, and natural-feeling course.
+
+GOAL:
+Design a complete show jumping course that:
+- Flows naturally in multiple directions
+- Respects turn angle and distance rules by level
+- Uses real-world design logic
+- Has progressive difficulty
+- Looks and feels like a real professional layout
+`;
   }
 
   // Find relevant training examples based on arena size and style
