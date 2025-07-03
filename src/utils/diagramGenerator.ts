@@ -16,6 +16,7 @@ export interface WeaknessSvg {
   positions: string[];
   size: 'small' | 'large';
   instruction: string;
+  speed: string;
 }
 
 /*** Arena Templates ***/
@@ -132,105 +133,216 @@ const exercisePos = {
   }
 }
 
+export const COLOR_BY_SPEED = {
+  "Walk": "#00ff00",
+  "Trot": "#ffff00",
+  "Canter": "#0000ff",
+  "Halt": "#ff0000",
+  "Transition": "#ff0000",
+  "Free Walk": "#a215b4",
+};
+
+export const COLOR_LEGEND = {
+  "Walk": "#00ff00",
+  "Trot": "#ffff00",
+  "Canter": "#0000ff",
+  "Halt/Transition": "#ff0000",
+  "Free Walk": "#a215b4",
+};
+
+function getConditionalAxisAlignedPoints(
+  chars: string[],
+  positionMap: Object,
+  arena: ArenaTemplate
+): { x: number; y: number }[] {
+  const resolved: { x: number; y: number }[] = [];
+
+  for (let i = 0; i < chars.length - 1; i++) {
+    const currChar = chars[i];
+    const nextChar = chars[i + 1];
+
+    const curr = positionMap[currChar] || { x: arena.width / 2, y: arena.height / 2 };
+    const next = positionMap[nextChar] || { x: arena.width / 2, y: arena.height / 2 };
+
+    resolved.push(curr);
+
+    const needsZigzag = curr.x !== next.x && curr.y !== next.y;
+
+    // Special vertical insertion for H/M → C or K/F → A
+    const specialVerticalCase =
+      ((currChar === 'H' || currChar === 'M') && nextChar === 'C') ||
+      ((currChar === 'K' || currChar === 'F') && nextChar === 'A');
+
+    if (needsZigzag) {
+      if (specialVerticalCase) {
+        resolved.push({ x: curr.x, y: next.y }); // vertical first
+      } else if (currChar === 'A' || currChar === 'C') {
+        resolved.push({ x: next.x, y: curr.y }); // horizontal first
+      }
+    }
+  }
+
+  const lastChar = chars[chars.length - 1];
+  const last = positionMap[lastChar] || { x: arena.width / 2, y: arena.height / 2 };
+  resolved.push(last);
+
+  return resolved;
+}
+
+function generateArrowOverlays(points: { x: number, y: number }[], color: string): string {
+  const arrows: string[] = [];
+
+  for (let i = 0; i < points.length - 1; i++) {
+    const p1 = points[i];
+    const p2 = points[i + 1];
+
+    if (p1.x === p2.x && p1.y === p2.y) continue;
+
+    const midX = (p1.x + p2.x) / 2;
+    const midY = (p1.y + p2.y) / 2;
+    const angle = Math.atan2(p2.y - p1.y, p2.x - p1.x) * (180 / Math.PI);
+
+    arrows.push(`
+      <path d="M -5 -5 L 5 0 L -5 5 Z"
+            transform="translate(${midX}, ${midY}) rotate(${angle})"
+            fill="${color}" />
+    `);
+  }
+
+  return arrows.join('');
+}
+
+
 const exerciseGenerators = {
-  contact: (arena: ArenaTemplate, positions: string[], exPositions: object) => {
+  contact: (arena: ArenaTemplate, positions: string[], exPositions: object, speed: string) => {
+    const allChars = positions.flatMap(pos => pos.split(''));
+    const resolvedPoints = getConditionalAxisAlignedPoints(allChars, exPositions, arena);
+    const points = resolvedPoints.map(p => `${p.x},${p.y}`).join(' ');
+
+    const circles = allChars.map(char => `
+      <circle cx="${exPositions[char]?.x ?? arena.width / 2}"
+              cy="${exPositions[char]?.y ?? arena.height / 2}"
+              r="4"
+              fill="${COLOR_BY_SPEED[speed]}"
+              />
+    `).join('');
+
+    const arrows = generateArrowOverlays(resolvedPoints, COLOR_BY_SPEED[speed]);
+
     return {
       svg: `
-        ${positions.map(pos => {
-          const chars = pos.split('');
-          const points = chars.map(char => {
-            const x = exPositions[char]?.x ?? arena.width / 2;
-            const y = exPositions[char]?.y ?? arena.height / 2;
-            return `${x},${y}`;
-          }).join(' ');
-
-          const line = chars.length > 1
-            ? `<polyline points="${points}" 
-                        fill="none"
-                        stroke="green"
-                        stroke-width="2"
-                        class="contact-line" />`
-            : '';
-
-          const circles = chars.map(char => `
-            <circle cx="${exPositions[char]?.x ?? arena.width / 2}"
-                    cy="${exPositions[char]?.y ?? arena.height / 2}"
-                    r="4"
-                    fill="green"
-                    class="contact-point" />
-          `).join('');
-
-          return `${line}${circles}`;
-        }).join('')}
+        <polyline points="${points}" 
+                  fill="none"
+                  stroke="${COLOR_BY_SPEED[speed]}"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+        ${arrows}
       `,
     };
   },
-  accuracy: (arena: ArenaTemplate, positions: string[], circlePositions: object) => {
+
+  accuracy: (arena: ArenaTemplate, positions: string[], circlePositions: object, speed: string) => {
+    const RADIUS = 50;
+
+    const svgParts = positions.map(pos => {
+      const center = circlePositions[pos[0]];
+      if (!center) return '';
+
+      const arrowX = center.x + RADIUS; // slight spacing from circle
+      const arrowY = center.y;
+
+      return `
+        <circle cx="${center.x}" cy="${center.y}" r="${RADIUS}" stroke="${COLOR_BY_SPEED[speed]}"
+                  stroke-width="2" fill="none" />
+
+        <path d="M -5 -5 L 5 0 L -5 5 Z"
+              transform="translate(${arrowX}, ${arrowY}) rotate(90)"
+              fill="${COLOR_BY_SPEED[speed]}" />
+      `;
+    }).join('');
+
     return {
-      svg: positions.map(pos => `
-        <circle cx=${circlePositions[pos[0]].x} cy=${circlePositions[pos[0]].y} r="50" class="svg-exercise"/>
-      `).join(''),
+      svg: svgParts,
     };
   },
-  transitions: (arena: ArenaTemplate, positions: string[], exPosition: object) => ({
-    svg: positions.map(pos => `
-      <rect x="${exPosition[pos[0]].x == 290 ? 280 : exPosition[pos[0]].x == 110 ? 120 : 198}" 
-            y="${exPosition[pos[0]].y}" 
-            width="15" height="5" 
-            class="transition-zone" />
-    `).join(''),
-  }),
-  straightness: (arena: ArenaTemplate, positions: string[], exPosition: object) => ({
-   svg: `
-        ${positions.map(pos => {
-          const chars = pos.split('');
-          const points = chars.map(char => {
-            const x = exPosition[char]?.x ?? arena.width/2;
-            const y = exPosition[char]?.y ?? arena.height/2;
-            return `${x},${y}`;
-          }).join(' ');
 
-          return `
-            <polyline points="${points}" 
-                     fill="none"
-                     stroke-width="2"
-                     class="straightness-line" />
-            ${chars.map((char, i) => `
-              <circle cx="${exPosition[char]?.x ?? arena.width/2}"
-                      cy="${exPosition[char]?.y ?? arena.height/2}"
-                      r="4"
-                      class="straightness-point" />
-            `).join('')}
-          `;
-        }).join('')}
+
+  transitions: (arena: ArenaTemplate, positions: string[], exPosition: object, speed: string) => {
+    const allChars = positions.flatMap(pos => pos.split(''));
+    const resolvedPoints = getConditionalAxisAlignedPoints(allChars, exPosition, arena);
+    const points = resolvedPoints.map(p => `${p.x},${p.y}`).join(' ');
+
+    const circles = allChars.map(char => `
+      <circle cx="${exPosition[char]?.x ?? arena.width / 2}"
+              cy="${exPosition[char]?.y ?? arena.height / 2}"
+              r="4"
+              class="transition-point" />
+    `).join('');
+
+    const arrows = generateArrowOverlays(resolvedPoints, COLOR_BY_SPEED[speed]);
+
+    return {
+      svg: `
+        <polyline points="${points}" 
+                  fill="none"
+                  stroke="${COLOR_BY_SPEED[speed]}"
+                  stroke-width="2"
+                  stroke-linecap="round"
+              />
+        ${arrows}
       `,
-  }),
-  rhythm: (arena: ArenaTemplate, positions: string[], exPositions: object) => ({
-    svg: `
-      ${positions.map(pos => {
-          const chars = pos.split('');
-          const points = chars.map(char => {
-            const x = exPositions[char]?.x ?? arena.width/2;
-            const y = exPositions[char]?.y ?? arena.height/2;
-            return `${x},${y}`;
-          }).join(' ');
+    };
+  },
 
-          return `
-            <polyline points="${points}" 
-                     fill="none"
-                     stroke-width="2"
-                     class="straightness-line" />
-            ${chars.map((char, i) => `
-              <circle cx="${exPositions[char]?.x ?? arena.width/2}"
-                      cy="${exPositions[char]?.y ?? arena.height/2}"
-                      r="4"
-                      class="straightness-point" />
-            `).join('')}
-          `;
-        }).join('')}
-    `,
-  })
+  straightness: (arena: ArenaTemplate, positions: string[], exPosition: object, speed: string) => {
+    const allChars = positions.flatMap(pos => pos.split(''));
+    const resolvedPoints = getConditionalAxisAlignedPoints(allChars, exPosition, arena);
+    const points = resolvedPoints.map(p => `${p.x},${p.y}`).join(' ');
+
+    // const circles = allChars.map(char => `
+    //   <circle cx="${exPosition[char]?.x ?? arena.width / 2}"
+    //           cy="${exPosition[char]?.y ?? arena.height / 2}"
+    //           r="4"
+    //           class="straightness-point" />
+    // `).join('');
+
+    const arrows = generateArrowOverlays(resolvedPoints, COLOR_BY_SPEED[speed]);
+
+    return {
+      svg: `
+        <polyline points="${points}" 
+                  fill="none"
+                  stroke="${COLOR_BY_SPEED[speed]}"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                   />
+        ${arrows}
+      `,
+    };
+  },
+
+  rhythm: (arena: ArenaTemplate, positions: string[], exPositions: object, speed: string) => {
+    const allChars = positions.flatMap(pos => pos.split(''));
+    const resolvedPoints = getConditionalAxisAlignedPoints(allChars, exPositions, arena);
+    const points = resolvedPoints.map(p => `${p.x},${p.y}`).join(' ');
+
+    const arrows = generateArrowOverlays(resolvedPoints, COLOR_BY_SPEED[speed]);
+
+    return {
+      svg: `
+        <polyline points="${points}" 
+                  fill="none"
+                  stroke="${COLOR_BY_SPEED[speed]}"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  class="rhythm-line" />
+        ${arrows}
+      `,
+    };
+  }
 };
+
 
 /*** Main Functions ***/
 export function generateWeaknessSvg(weakness: WeaknessSvg): string {
@@ -242,9 +354,9 @@ export function generateWeaknessSvg(weakness: WeaknessSvg): string {
   let svg;
   if (weakness.type == "accuracy") {
     console.log(accuracyCircle);
-    svg = generator(arena, weakness.positions, accuracyCircle);
+    svg = generator(arena, weakness.positions, accuracyCircle, weakness.speed);
   } else {
-    svg = generator(arena, weakness.positions, exercisePosition);
+    svg = generator(arena, weakness.positions, exercisePosition, weakness.speed);
   }
 
   return `

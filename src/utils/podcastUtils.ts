@@ -348,14 +348,18 @@ export async function callPodcastScript(prompt) {
   }
 }
 
-export function fill_Template_Make_Prompts(data) {
+export function fill_Template_Make_Prompts(data, language) {
   const fillPlaceholders = (template) =>
     template.replace(/\{(.*?)\}/g, (_, key) =>
       data[key] !== undefined ? data[key] : `{${key}}`
     );
 
-  const fullPrompt1 = fillPlaceholders(promptInstruction + promptPart1);
-  const fullPrompt2 = fillPlaceholders(promptInstruction + promptPart2);
+  let fullPrompt1 = fillPlaceholders(promptInstruction + promptPart1);
+  let fullPrompt2 = fillPlaceholders(promptInstruction + promptPart2);
+  if (language != "en") {
+    fullPrompt1 += ' Script language must be Spanish!';
+    fullPrompt2 += ' Script language must be Spanish!';
+  }
 
   return [fullPrompt1, fullPrompt2];
 }

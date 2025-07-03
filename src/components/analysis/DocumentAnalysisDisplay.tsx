@@ -24,7 +24,7 @@ import {
   fill_Template_Make_Prompts,
   formatScriptWithStyles,
 } from "@/utils/podcastUtils";
-import { generateWeaknessSvg } from "@/utils/diagramGenerator";
+import { COLOR_LEGEND, generateWeaknessSvg } from "@/utils/diagramGenerator";
 
 // Define proper types for the analysis data
 interface MovementScore {
@@ -292,7 +292,7 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
         return;
       }
       setPodcastMsg("Generating podcast script...");
-      const prompts = fill_Template_Make_Prompts(analysisData);
+      const prompts = fill_Template_Make_Prompts(analysisData, language);
       let combinedScript = "";
       for (let i = 0; i < prompts.length; i++) {
         const prompt = prompts[i];
@@ -927,6 +927,20 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
       <Card className="p-4 sm:p-6">
         <div className="mb-8">
           <h3 className="text-xl font-semibold mb-4">Weaknesses</h3>
+          <div className="mb-6 bg-white p-4 rounded shadow border">
+            <h4 className="font-semibold text-gray-800 text-center mb-6">GAITS</h4>
+            <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 gap-2 text-sm">
+              {Object.entries(COLOR_LEGEND).map(([label, color]) => (
+                <div key={label} className="flex md:justify-center items-center space-x-2">
+                  <span
+                    className="inline-block w-4 h-4 rounded-sm"
+                    style={{ backgroundColor: color }}
+                  />
+                  <span className="text-gray-700">{label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
           <div className="grid md:grid-cols-2 gap-6">
             {diagrams?.map((weakness, index) => (
               <div
