@@ -11,7 +11,7 @@ import {
   Info,
   Trash2,
 } from "lucide-react";
-import { EnhancedAIGenerator } from '@/utils/enhancedAIGenerator';
+import { EnhancedAIGenerator } from "@/utils/enhancedAIGenerator";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/ai-course-builder/Header";
@@ -22,13 +22,21 @@ import { competitionLevels, jumpTypes } from "@/data/aiCourseBuilder";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-
+import {
+  JERSEY_FRESH_CCI3,
+  MACON_GRAND_INDOOR,
+  MACON_VARIATION_1_ROTATE_15,
+  MACON_VARIATION_2_MIRROR_H,
+  MACON_VARIATION_4_MIRROR_V_POSITION,
+  MACON_VARIATION_5_ROTATE_30_HEIGHT,
+  PARIS_GRAND_INDOOR,
+} from "@/data/courseData";
 // Type definitions
 interface GeneratedJump {
   id: string;
   x: number;
   y: number;
-  type: 'vertical' | 'oxer' | 'triple' | 'water';
+  type: "vertical" | "oxer" | "triple" | "water";
   height?: number;
   width?: number;
   number?: number;
@@ -76,13 +84,13 @@ const AiCourseBuilder = () => {
   });
 
   // Enhanced AI state
-  const [generationMethod, setGenerationMethod] = useState<string>('');
+  const [generationMethod, setGenerationMethod] = useState<string>("");
 
   const { user } = useAuth();
   const navigate = useNavigate();
 
   const scale = 8;
-  const GEMINI_API_KEY = 'AIzaSyDZ6WsChZLWXldvn0OPKYSrVZhw5gs8Rtg';
+  const GEMINI_API_KEY = "AIzaSyDZ6WsChZLWXldvn0OPKYSrVZhw5gs8Rtg";
 
   // Fetch user data and handle authentication
   useEffect(() => {
@@ -134,14 +142,21 @@ const AiCourseBuilder = () => {
   };
 
   // Calculate distance between two points
-  const calculateDistance = (jump1: GeneratedJump, jump2: GeneratedJump): number => {
+  const calculateDistance = (
+    jump1: GeneratedJump,
+    jump2: GeneratedJump
+  ): number => {
     const dx = jump2.x - jump1.x;
     const dy = jump2.y - jump1.y;
     return Math.sqrt(dx * dx + dy * dy);
   };
 
   // Calculate angle between three points
-  const calculateAngle = (jump1: GeneratedJump, jump2: GeneratedJump, jump3: GeneratedJump): number => {
+  const calculateAngle = (
+    jump1: GeneratedJump,
+    jump2: GeneratedJump,
+    jump3: GeneratedJump
+  ): number => {
     const angle1 = Math.atan2(jump2.y - jump1.y, jump2.x - jump1.x);
     const angle2 = Math.atan2(jump3.y - jump2.y, jump3.x - jump2.x);
     let angle = Math.abs(angle1 - angle2) * (180 / Math.PI);
@@ -151,104 +166,93 @@ const AiCourseBuilder = () => {
   // Enhanced AI Course Generation
   const generateAICourse = async (): Promise<void> => {
     setIsGenerating(true);
-    setGenerationMethod('');
+    setGenerationMethod("");
 
     try {
-      const enhancedGenerator = new EnhancedAIGenerator(GEMINI_API_KEY);
-      
-      // Map difficulty preferences
-      const difficultyMapping: Record<string, string> = {
-        'easy': 'beginner',
-        'medium': 'intermediate', 
-        'hard': 'advanced'
-      };
-      
-      const mappedDifficulty = difficultyMapping[difficultyPreference] || 'intermediate';
-      const currentLevel = getCurrentLevel();
-      
-      // Create enhanced options using user-selected values
-      const enhancedOptions = {
-        generationSettings: generationSettings,
-        levelConfig: currentLevel,
-        discipline: discipline,
-        level: level
-      };
-      
-      const result: CourseGenerationResult = await enhancedGenerator.generateCourse(
-        arenaWidth,
-        arenaLength,
-        targetJumps,
-        courseStyle,
-        mappedDifficulty,
-        enhancedOptions
-      );
-      
-      // Convert to application format with user-selected heights
-      const convertedJumps: GeneratedJump[] = result.jumps.map((jump, index) => ({
-        ...jump,
-        number: index + 1,
-        height: currentLevel.minHeight + 
-               (currentLevel.maxHeight - currentLevel.minHeight) * 0.5
-      }));
-      
-      setJumps(convertedJumps);
-      setGenerationMethod(result.method);
-      
-    } catch (error) {
-      console.error('Enhanced generation failed, using basic fallback:', error);
-      
-      // Basic fallback for production reliability
-      try {
-        const currentLevel = getCurrentLevel();
-        const basicJumps = generateBasicCourse(arenaWidth, arenaLength, targetJumps, currentLevel);
-        setJumps(basicJumps);
-        setGenerationMethod('Basic Pattern Generator');
-      } catch (fallbackError) {
-        console.error('All generation methods failed:', fallbackError);
-        alert('Course generation temporarily unavailable. Please try again.');
+      // 1. Pick a professional course based on user settings
+      let selectedCourse;
+      if (difficultyPreference === "easy") {
+        selectedCourse = JERSEY_FRESH_CCI3;
+      } else if (difficultyPreference === "medium") {
+        selectedCourse = MACON_VARIATION_4_MIRROR_V_POSITION;
+      } else {
+        selectedCourse = PARIS_GRAND_INDOOR;
       }
+
+      // 2. Scale to user's arena size
+      const scaleX = arenaWidth / selectedCourse.arena.width;
+      const scaleY = arenaLength / selectedCourse.arena.length;
+
+      // 3. Convert to your app format
+      const convertedJumps = selectedCourse.jumps.map((jump, index) => ({
+        id: `jump_${jump.number}`,
+        number: jump.number,
+        x: jump.x * scaleX,
+        y: jump.y * scaleY,
+        // height:
+        // getCurrentLevel().minHeight +
+        // (getCurrentLevel().maxHeight - getCurrentLevel().minHeight) * 0.5,
+        height: jump.height,
+        type: jump.type,
+        rotation: jump.rotation,
+      }));
+
+      setJumps(convertedJumps);
+      setGenerationMethod(`Professional Course: ${selectedCourse.name}`);
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Course generation failed. Please try again.");
     } finally {
       setIsGenerating(false);
     }
   };
-
   // Basic course generation fallback
-  const generateBasicCourse = (width: number, length: number, numJumps: number, levelConfig: any): GeneratedJump[] => {
+  const generateBasicCourse = (
+    width: number,
+    length: number,
+    numJumps: number,
+    levelConfig: any
+  ): GeneratedJump[] => {
     const jumps: GeneratedJump[] = [];
     const margin = 8;
-    const patterns = ['figure8', 'serpentine', 'circle'];
+    const patterns = ["figure8", "serpentine", "circle"];
     const pattern = patterns[Math.floor(Math.random() * patterns.length)];
-    
+
     for (let i = 0; i < numJumps; i++) {
       let x: number, y: number;
-      
+
       switch (pattern) {
-        case 'serpentine':
+        case "serpentine":
           x = margin + (i / (numJumps - 1)) * (width - 2 * margin);
-          y = (length / 2) + (length / 4) * Math.sin((i / numJumps) * 4 * Math.PI);
+          y =
+            length / 2 + (length / 4) * Math.sin((i / numJumps) * 4 * Math.PI);
           break;
-        case 'circle':
+        case "circle":
           const angle = (i / numJumps) * 2 * Math.PI;
           const radius = Math.min(width, length) / 3;
-          x = (width / 2) + radius * Math.cos(angle);
-          y = (length / 2) + radius * Math.sin(angle);
+          x = width / 2 + radius * Math.cos(angle);
+          y = length / 2 + radius * Math.sin(angle);
           break;
         default: // figure8
           const figureAngle = (i / numJumps) * 4 * Math.PI;
-          x = (width / 2) + (width / 4) * Math.cos(figureAngle) * Math.sin(figureAngle * 2);
-          y = (length / 2) + (length / 4) * Math.sin(figureAngle);
+          x =
+            width / 2 +
+            (width / 4) * Math.cos(figureAngle) * Math.sin(figureAngle * 2);
+          y = length / 2 + (length / 4) * Math.sin(figureAngle);
       }
-      
+
       jumps.push({
         id: `jump_${Date.now()}_${i}`,
         x: Math.round(Math.max(margin, Math.min(width - margin, x))),
         y: Math.round(Math.max(margin, Math.min(length - margin, y))),
-        type: i % 3 === 0 ? 'oxer' : 'vertical',
+        type: i % 3 === 0 ? "oxer" : "vertical",
         number: i + 1,
-        height: levelConfig.minHeight + (levelConfig.maxHeight - levelConfig.minHeight) * 0.5,
+        height:
+          levelConfig.minHeight +
+          (levelConfig.maxHeight - levelConfig.minHeight) * 0.5,
       });
     }
-    
+
     return jumps;
   };
 
@@ -273,19 +277,26 @@ const AiCourseBuilder = () => {
       const col = index % cols;
       const row = Math.floor(index / cols);
       const spacingX = (arenaWidth - 20) / Math.max(1, cols - 1);
-      const spacingY = (arenaLength - 20) / Math.max(1, Math.ceil(lines.length / cols) - 1);
+      const spacingY =
+        (arenaLength - 20) / Math.max(1, Math.ceil(lines.length / cols) - 1);
 
       const x = 10 + (cols === 1 ? (arenaWidth - 20) / 2 : col * spacingX);
-      const y = 10 + (Math.ceil(lines.length / cols) === 1 ? (arenaLength - 20) / 2 : row * spacingY);
+      const y =
+        10 +
+        (Math.ceil(lines.length / cols) === 1
+          ? (arenaLength - 20) / 2
+          : row * spacingY);
 
       const currentLevel = getCurrentLevel();
       newJumps.push({
         id: `text_jump_${Date.now()}_${index}`,
         x: Math.round(x),
         y: Math.round(y),
-        type: jumpType as 'vertical' | 'oxer' | 'triple' | 'water',
+        type: jumpType as "vertical" | "oxer" | "triple" | "water",
         number: index + 1,
-        height: currentLevel.minHeight + (currentLevel.maxHeight - currentLevel.minHeight) * 0.5,
+        height:
+          currentLevel.minHeight +
+          (currentLevel.maxHeight - currentLevel.minHeight) * 0.5,
       });
     });
 
@@ -295,86 +306,100 @@ const AiCourseBuilder = () => {
 
   // Course analysis function
   const analyzeCourse = (): CourseAnalysis => {
-  console.log("🔧 Running local analysis...");
-  console.log("Jumps for local analysis:", jumps);
-  
-  if (jumps.length < 2) {
-    const defaultAnalysis = {
-      totalDistance: 0,
-      averageDistance: 0,
-      difficulty: 0,
-      compliance: 100,
-      issues: [],
-      sharpTurns: 0,
-      combinations: 0,
-      technicality: 0,
-      aiScore: 100,
-    };
-    console.log("📈 Default analysis (less than 2 jumps):", defaultAnalysis);
-    return defaultAnalysis;
-  }
+    console.log("🔧 Running local analysis...");
+    console.log("Jumps for local analysis:", jumps);
 
-  const sortedJumps = [...jumps].sort((a, b) => (a.number || 0) - (b.number || 0));
-  let totalDistance = 0;
-  let sharpTurns = 0;
-  let combinations = 0;
-  let technicality = 0;
-  let issues: string[] = [];
+    if (jumps.length < 2) {
+      const defaultAnalysis = {
+        totalDistance: 0,
+        averageDistance: 0,
+        difficulty: 0,
+        compliance: 100,
+        issues: [],
+        sharpTurns: 0,
+        combinations: 0,
+        technicality: 0,
+        aiScore: 100,
+      };
+      console.log("📈 Default analysis (less than 2 jumps):", defaultAnalysis);
+      return defaultAnalysis;
+    }
 
-  for (let i = 0; i < sortedJumps.length - 1; i++) {
-    const distance = calculateDistance(sortedJumps[i], sortedJumps[i + 1]);
-    totalDistance += distance;
+    const sortedJumps = [...jumps].sort(
+      (a, b) => (a.number || 0) - (b.number || 0)
+    );
+    let totalDistance = 0;
+    let sharpTurns = 0;
+    let combinations = 0;
+    let technicality = 0;
+    let issues: string[] = [];
 
-    if (distance >= 3 && distance <= 6) {
+    for (let i = 0; i < sortedJumps.length - 1; i++) {
+      const distance = calculateDistance(sortedJumps[i], sortedJumps[i + 1]);
+      totalDistance += distance;
+
+      if (distance >= 3 && distance <= 6) {
+        issues.push(
+          `Potentially dangerous distance between jumps ${
+            sortedJumps[i].number
+          } and ${sortedJumps[i + 1].number}: ${distance.toFixed(1)}m`
+        );
+      }
+
+      if (distance < 8) combinations++;
+
+      if (i > 0) {
+        const angle = calculateAngle(
+          sortedJumps[i - 1],
+          sortedJumps[i],
+          sortedJumps[i + 1]
+        );
+        if (angle > 90) sharpTurns++;
+      }
+    }
+
+    jumps.forEach((jump) => {
+      const jumpType = jumpTypes.find((type) => type.id === jump.type);
+      if (jumpType) technicality += jumpType.technicality || 0;
+    });
+
+    const currentLevel = getCurrentLevel();
+    if (jumps.length > currentLevel.maxJumps) {
       issues.push(
-        `Potentially dangerous distance between jumps ${sortedJumps[i].number} and ${sortedJumps[i + 1].number}: ${distance.toFixed(1)}m`
+        `Too many jumps: ${jumps.length}/${currentLevel.maxJumps} allowed for ${level}`
       );
     }
 
-    if (distance < 8) combinations++;
+    const flowScore = Math.max(0, 100 - sharpTurns * 10);
+    const safetyScore = Math.max(0, 100 - issues.length * 25);
+    const varietyScore = Math.min(100, technicality * 10);
+    const aiScore = (flowScore + safetyScore + varietyScore) / 3;
 
-    if (i > 0) {
-      const angle = calculateAngle(sortedJumps[i - 1], sortedJumps[i], sortedJumps[i + 1]);
-      if (angle > 90) sharpTurns++;
-    }
-  }
+    const difficulty =
+      sharpTurns * 15 + combinations * 10 + technicality * 5 + jumps.length * 2;
+    const levelAdjustedDifficulty = difficulty * (currentLevel.maxHeight / 1.0);
 
-  jumps.forEach((jump) => {
-    const jumpType = jumpTypes.find((type) => type.id === jump.type);
-    if (jumpType) technicality += jumpType.technicality || 0;
-  });
+    const complianceIssues = issues.filter((issue) =>
+      issue.includes("Too many jumps")
+    ).length;
+    const compliance = Math.max(0, 100 - complianceIssues * 50);
 
-  const currentLevel = getCurrentLevel();
-  if (jumps.length > currentLevel.maxJumps) {
-    issues.push(`Too many jumps: ${jumps.length}/${currentLevel.maxJumps} allowed for ${level}`);
-  }
+    const result = {
+      totalDistance: totalDistance,
+      averageDistance:
+        jumps.length > 1 ? totalDistance / (jumps.length - 1) : 0,
+      difficulty: Math.min(100, levelAdjustedDifficulty),
+      compliance,
+      issues,
+      sharpTurns,
+      combinations,
+      technicality,
+      aiScore: Math.round(aiScore),
+    };
 
-  const flowScore = Math.max(0, 100 - sharpTurns * 10);
-  const safetyScore = Math.max(0, 100 - issues.length * 25);
-  const varietyScore = Math.min(100, technicality * 10);
-  const aiScore = (flowScore + safetyScore + varietyScore) / 3;
-
-  const difficulty = sharpTurns * 15 + combinations * 10 + technicality * 5 + jumps.length * 2;
-  const levelAdjustedDifficulty = difficulty * (currentLevel.maxHeight / 1.0);
-
-  const complianceIssues = issues.filter((issue) => issue.includes("Too many jumps")).length;
-  const compliance = Math.max(0, 100 - complianceIssues * 50);
-
-  const result = {
-    totalDistance: totalDistance,
-    averageDistance: jumps.length > 1 ? totalDistance / (jumps.length - 1) : 0,
-    difficulty: Math.min(100, levelAdjustedDifficulty),
-    compliance,
-    issues,
-    sharpTurns,
-    combinations,
-    technicality,
-    aiScore: Math.round(aiScore),
+    console.log("📊 Local analysis result:", result);
+    return result;
   };
-
-  console.log("📊 Local analysis result:", result);
-  return result;
-};
 
   // Delete selected jump
   const deleteSelectedJump = (): void => {
@@ -382,7 +407,6 @@ const AiCourseBuilder = () => {
       const updatedJumps = jumps.filter((jump) => jump.id !== selectedJump);
       const renumberedJumps = updatedJumps.map((jump, index) => ({
         ...jump,
-        number: index + 1,
       }));
       setJumps(renumberedJumps);
       setSelectedJump(null);
@@ -398,39 +422,43 @@ const AiCourseBuilder = () => {
   }, [discipline, level, targetJumps]);
 
   // AI Analysis function
-const analysisAICourse = async (): Promise<void> => {
-  console.log("🔍 Starting AI analysis...");
-  console.log("Jumps to analyze:", jumps);
-  
-  try {
-    const currentLevel = getCurrentLevel();
-    
-    // Ensure we have jumps to analyze
-    if (jumps.length === 0) {
-      console.log("❌ No jumps to analyze");
-      setAnalysis(undefined);
-      return;
-    }
-    
-    // Create a more detailed prompt with step-by-step calculations
-    const jumpData = jumps.map(j => ({
-      number: j.number,
-      x: j.x, 
-      y: j.y, 
-      type: j.type,
-      height: j.height
-    }));
-    
-    const prompt = `You are an expert equestrian course designer and analyzer. Analyze this ${discipline} course step by step.
+  const analysisAICourse = async (): Promise<void> => {
+    console.log("🔍 Starting AI analysis...");
+    console.log("Jumps to analyze:", jumps);
+
+    try {
+      const currentLevel = getCurrentLevel();
+
+      // Ensure we have jumps to analyze
+      if (jumps.length === 0) {
+        console.log("❌ No jumps to analyze");
+        setAnalysis(undefined);
+        return;
+      }
+
+      // Create a more detailed prompt with step-by-step calculations
+      const jumpData = jumps.map((j) => ({
+        number: j.number,
+        x: j.x,
+        y: j.y,
+        type: j.type,
+        height: j.height,
+      }));
+
+      const prompt = `You are an expert equestrian course designer and analyzer. Analyze this ${discipline} course step by step.
 
 COURSE SETUP:
 - Discipline: ${discipline}
-- Level: ${level} (Max height: ${currentLevel.maxHeight}m, Max jumps: ${currentLevel.maxJumps})  
+- Level: ${level} (Max height: ${currentLevel.maxHeight}m, Max jumps: ${
+        currentLevel.maxJumps
+      })  
 - Arena: ${arenaWidth}m × ${arenaLength}m
 - Total jumps: ${jumps.length}
 
 JUMP SEQUENCE (in order):
-${jumpData.map(j => `Jump ${j.number}: Position (${j.x}, ${j.y}) - Type: ${j.type}`).join('\n')}
+${jumpData
+  .map((j) => `Jump ${j.number}: Position (${j.x}, ${j.y}) - Type: ${j.type}`)
+  .join("\n")}
 
 STEP-BY-STEP ANALYSIS:
 
@@ -477,79 +505,85 @@ Return ONLY this JSON with your calculated values:
   "issues": [array of issues you found]
 }`;
 
-    console.log("📤 Sending enhanced request to AI...");
-    
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ role: "user", parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.3, // Slightly higher for better reasoning
-            topP: 0.9,
-            topK: 40,
-            maxOutputTokens: 2048, // More tokens for detailed analysis
-          },
-        }),
+      console.log("📤 Sending enhanced request to AI...");
+
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ role: "user", parts: [{ text: prompt }] }],
+            generationConfig: {
+              temperature: 0.3, // Slightly higher for better reasoning
+              topP: 0.9,
+              topK: 40,
+              maxOutputTokens: 2048, // More tokens for detailed analysis
+            },
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-    );
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
-    const result = await response.json();
-    console.log("📥 AI Response:", result);
-    
-    const rawText = result.candidates?.[0]?.content?.parts?.[0]?.text;
-    console.log("📄 Raw AI text:", rawText);
-    
-    if (rawText) {
-      const cleaned = rawText.replace(/```json\n?|```/g, "").trim();
-      console.log("🧹 Cleaned text:", cleaned);
-      
-      const analysisResult: CourseAnalysis = JSON.parse(cleaned);
-      console.log("✅ Parsed analysis result:", analysisResult);
-      
-      // Validate that we got actual analysis (not all zeros)
-      if (analysisResult.totalDistance === 0 && analysisResult.averageDistance === 0 && jumps.length > 1) {
-        console.log("⚠️ AI still returned zeros, using local analysis");
-        throw new Error("AI returned empty analysis");
-      }
-      
-      // Additional validation - check if values are reasonable
-      if (analysisResult.totalDistance > 0 && analysisResult.averageDistance > 0) {
-        setAnalysis(analysisResult);
-        console.log("💾 AI analysis successfully set to state");
+
+      const result = await response.json();
+      console.log("📥 AI Response:", result);
+
+      const rawText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+      console.log("📄 Raw AI text:", rawText);
+
+      if (rawText) {
+        const cleaned = rawText.replace(/```json\n?|```/g, "").trim();
+        console.log("🧹 Cleaned text:", cleaned);
+
+        const analysisResult: CourseAnalysis = JSON.parse(cleaned);
+        console.log("✅ Parsed analysis result:", analysisResult);
+
+        // Validate that we got actual analysis (not all zeros)
+        if (
+          analysisResult.totalDistance === 0 &&
+          analysisResult.averageDistance === 0 &&
+          jumps.length > 1
+        ) {
+          console.log("⚠️ AI still returned zeros, using local analysis");
+          throw new Error("AI returned empty analysis");
+        }
+
+        // Additional validation - check if values are reasonable
+        if (
+          analysisResult.totalDistance > 0 &&
+          analysisResult.averageDistance > 0
+        ) {
+          setAnalysis(analysisResult);
+          console.log("💾 AI analysis successfully set to state");
+        } else {
+          throw new Error("AI analysis values seem unrealistic");
+        }
       } else {
-        throw new Error("AI analysis values seem unrealistic");
+        throw new Error("No content in AI response");
       }
-    } else {
-      throw new Error("No content in AI response");
+    } catch (error) {
+      console.error("❌ AI analysis failed:", error);
+
+      // Always fall back to local analysis which we know works
+      console.log("🔄 Using reliable local analysis...");
+      const localAnalysis = analyzeCourse();
+      console.log("📊 Local analysis result:", localAnalysis);
+
+      setAnalysis(localAnalysis);
+      console.log("💾 Local analysis set to state");
     }
-  } catch (error) {
-    console.error("❌ AI analysis failed:", error);
-    
-    // Always fall back to local analysis which we know works
-    console.log("🔄 Using reliable local analysis...");
-    const localAnalysis = analyzeCourse();
-    console.log("📊 Local analysis result:", localAnalysis);
-    
-    setAnalysis(localAnalysis);
-    console.log("💾 Local analysis set to state");
-  }
-};
+  };
 
-
-useEffect(() => {
-  if (jumps.length > 0) {
-    // Auto-analyze when jumps change
-    const localAnalysis = analyzeCourse();
-    setAnalysis(localAnalysis);
-  }
-}, [jumps]);
+  useEffect(() => {
+    if (jumps.length > 0) {
+      // Auto-analyze when jumps change
+      const localAnalysis = analyzeCourse();
+      setAnalysis(localAnalysis);
+    }
+  }, [jumps]);
 
   const currentLevel = getCurrentLevel();
 
@@ -601,10 +635,11 @@ useEffect(() => {
               {generationMethod && (
                 <div className="xl:col-span-4 text-sm text-gray-600 mt-2 p-3 bg-blue-50 rounded-lg">
                   <Info className="inline w-4 h-4 mr-2" />
-                  Generated using: <span className="font-medium">{generationMethod}</span>
+                  Generated using:{" "}
+                  <span className="font-medium">{generationMethod}</span>
                 </div>
               )}
-              
+
               <CourseCanvas
                 designMode={designMode}
                 jumps={jumps}
@@ -627,7 +662,7 @@ useEffect(() => {
                 jumps={jumps}
                 designMode={designMode}
                 currentLevel={currentLevel}
-                analyzeCourse={analysisAICourse} 
+                analyzeCourse={analysisAICourse}
               />
             </div>
 
