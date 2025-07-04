@@ -17,6 +17,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { fetchPdfAsBase64 } from "@/utils/pdfUtils";
 import { imageToBase64PDF } from "@/utils/img2pdf";
 import { useViewport } from "@/hooks/use-viewport";
+import {
+  callPodcastScript,
+  fill_Template_Make_Prompts,
+  formatScriptWithStyles,
+} from "@/utils/podcastUtils";
 
 interface DocumentAnalysisItem {
   id: string;
@@ -44,6 +49,8 @@ const Analysis = () => {
   const { language, translations } = useLanguage();
   const t = translations[language];
   const { isMobile } = useViewport();
+  const [isPodcastLoading, setIsPodcastLoading] = useState<boolean>(false);
+  const [podcastMsg, setPodcastMsg] = useState<string>("");
 
   const buttonText = {
     en: {
@@ -60,6 +67,7 @@ const Analysis = () => {
 
   const [activeTab, setActiveTab] = useState<string>("upload");
   const [documents, setDocuments] = useState<DocumentAnalysisItem[]>([]);
+  console.log("🚀 ~ Analysis ~ documents:", documents);
   const [videos, setVideos] = useState<DocumentAnalysisItem[]>([]);
   const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(
     null
@@ -353,6 +361,250 @@ const Analysis = () => {
     });
   };
 
+  const getAnalysisData = async (analysis) => {
+    let resultData = null;
+
+    if (userDiscipline === "dressage") {
+      // Fetch analysis results if document status is 'completed'
+      if (analysis.status === "completed") {
+        const { data: resultdata, error: resultError } = await supabase
+          .from("analysis_results")
+          .select("result_json")
+          .eq("document_id", analysis.id)
+          .single();
+
+        if (resultError) {
+          console.warn("Could not fetch analysis results:", resultError);
+        } else if (resultdata) {
+          resultData = resultdata.result_json;
+        }
+      }
+
+      if (resultData) {
+        const { data, error } = await supabase
+          .from("horses")
+          .select("*")
+          .eq("id", analysis.horse_id)
+          .single();
+
+        if (error) {
+          console.error("Error fetching horse:", error);
+        } else {
+          if (!resultData) {
+            return;
+          }
+          return {
+            rider_name: user.user_metadata.full_name,
+            discipline: analysis.discipline,
+            experience_level: analysis.test_level,
+            goals:
+              "Improve overall harmony and contact, reduce tension in horse",
+            horse_name: data["name"],
+            horse_age: data["age"],
+            horse_breed: data["breed"],
+            horse_level: data["dressage_level"],
+            overall_score: resultData["en"]["percentage"].toFixed(3),
+            best_movement:
+              resultData["en"]["highestScore"]["movement"].join(", "),
+            best_score: resultData["en"]["highestScore"]["score"],
+            worst_movement:
+              resultData["en"]["lowestScore"]["movement"].join(", "),
+            worst_score: resultData["en"]["lowestScore"]["score"],
+            score_trend: "Stable with potential for improvement",
+            strength_1: resultData["en"]["strengths"][0] || "",
+            strength_2: resultData["en"]["strengths"][1] || "",
+            strength_3: resultData["en"]["strengths"][2] || "",
+            weakness_1: resultData["en"]["weaknesses"][0] || "",
+            weakness_2: resultData["en"]["weaknesses"][1] || "",
+            weakness_3: resultData["en"]["weaknesses"][2] || "",
+            judge_comment_a:
+              resultData["en"]["generalComments"]?.["judgeA"] || "",
+            judge_comment_b:
+              resultData["en"]["generalComments"]?.["judgeB"] || "",
+            judge_comment_c:
+              resultData["en"]["generalComments"]?.["judgeC"] || "",
+            primary_recommendation:
+              "Establishing consistent, elastic connection",
+            quick_fix_1:
+              resultData["en"]["recommendations"][0]?.["quickFix"] || "",
+            exercise_1:
+              resultData["en"]["recommendations"][0]?.["exercise"] || "",
+            key_points_1:
+              typeof resultData["en"]["recommendations"][0]?.["keyPoints"] ==
+              "string"
+                ? resultData["en"]["recommendations"][0]?.["keyPoints"]
+                : resultData["en"]["recommendations"][0]?.["keyPoints"].join(
+                    "; "
+                  ) || "",
+            goal_1: resultData["en"]["recommendations"][0]?.["goal"] || "",
+            secondary_recommendation:
+              "Clean, balanced transitions at precise markers",
+            quick_fix_2:
+              resultData["en"]["recommendations"][1]?.["quickFix"] || "",
+            exercise_2:
+              resultData["en"]["recommendations"][1]?.["exercise"] || "",
+            key_points_2:
+              typeof resultData["en"]["recommendations"][1]?.["keyPoints"] ==
+              "string"
+                ? resultData["en"]["recommendations"][1]?.["keyPoints"]
+                : resultData["en"]["recommendations"][1]?.["keyPoints"].join(
+                    "; "
+                  ) || "",
+            goal_2: resultData["en"]["recommendations"][1]?.["goal"] || "",
+            current_season: "Summer",
+            upcoming_events: "National Eventing Championship",
+            training_phase: "Preparation",
+          };
+        }
+      }
+    }
+  };
+
+  const getPromptForTTS = async (id) => {
+    setIsPodcastLoading(true);
+    setPodcastMsg("Checking if podcast is already exists...");
+    const filePath = `${user.id}_${id}/final_podcast_with_music.m4a`;
+    const { data } = supabase.storage.from("analysis").getPublicUrl(filePath);
+    const analysis = documents.find((doc) => doc.id === id);
+
+    try {
+      const initialCheck = await fetch(data.publicUrl, { method: "HEAD" });
+
+      if (initialCheck.ok) {
+        setPodcastMsg("Downloading podcast...");
+        setIsPodcastLoading(false);
+        await openFileInNewTab(data.publicUrl, analysis);
+        setPodcastMsg("");
+        return;
+      }
+      setPodcastMsg("Generating podcast script...");
+      const analysisData = await getAnalysisData(analysis);
+      const prompts = fill_Template_Make_Prompts(analysisData, language);
+      let combinedScript = "";
+      for (let i = 0; i < prompts.length; i++) {
+        const prompt = prompts[i];
+        const res = await callPodcastScript(prompt);
+        const rawdata = res.result;
+        combinedScript += rawdata + "\n\n";
+      }
+      const ttsScript = formatScriptWithStyles(combinedScript);
+      console.log("final TTS script", ttsScript);
+
+      setPodcastMsg("Generating podcast audio file...");
+      try {
+        const backendResponse = await fetch(
+          "https://f531-45-153-229-59.ngrok-free.app/generate",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              scriptText: ttsScript,
+              userId: user.id,
+              analysisId: analysis.id,
+            }),
+          }
+        );
+
+        if (!backendResponse.ok) {
+          const errMessage = await backendResponse.text();
+          console.error("❌ Backend responded with error:", errMessage);
+          alert(
+            `Failed to start generation: ${backendResponse.status} ${backendResponse.statusText}`
+          );
+          setIsPodcastLoading(false);
+          return;
+        }
+
+        const backendMsg = await backendResponse.json();
+        console.log(
+          "✅ Backend accepted request:",
+          backendMsg.message || backendMsg
+        );
+        const checkInterval = 5000;
+        const timeout = 10 * 60 * 1000;
+        const startTime = Date.now();
+
+        const intervalId = setInterval(async () => {
+          const elapsed = Date.now() - startTime;
+          if (elapsed > timeout) {
+            clearInterval(intervalId);
+            setIsPodcastLoading(false);
+            console.error("File not available after 10 minutes.");
+            alert("Please analyse again later");
+            return;
+          }
+
+          try {
+            const response = await fetch(data.publicUrl, { method: "HEAD" });
+            if (response.ok) {
+              clearInterval(intervalId);
+              setPodcastMsg("Downloading Podcast...");
+              await openFileInNewTab(data.publicUrl, analysis);
+              setIsPodcastLoading(false);
+              setPodcastMsg("");
+            }
+          } catch (error) {
+            console.error("Error checking file availability:", error);
+          }
+        }, checkInterval);
+      } catch (error) {
+        console.error("❌ Network or server error:", error);
+        alert(
+          "Server is not responding or network error occurred. Please try again later."
+        );
+        setIsPodcastLoading(false);
+        setPodcastMsg("");
+        return;
+      }
+    } catch (err) {
+      setIsPodcastLoading(false);
+      setPodcastMsg("");
+      console.error("Error checking or generating file:", err);
+    }
+  };
+
+  function openFileInNewTab(url, analysis) {
+    return new Promise<void>((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open("GET", url, true);
+      xhr.responseType = "blob";
+
+      xhr.onload = function () {
+        if (xhr.status === 200) {
+          const blob = xhr.response;
+          const blobUrl = window.URL.createObjectURL(blob);
+
+          // Open in new tab
+          const newTab = window.open(blobUrl, "_blank");
+
+          // Check if popup was blocked
+          if (!newTab) {
+            alert(
+              "Popup blocked. Please allow popups for this site and try again."
+            );
+            reject(new Error("Popup blocked"));
+            return;
+          }
+
+          // Clean up the blob URL after some time
+          setTimeout(() => {
+            window.URL.revokeObjectURL(blobUrl);
+            resolve();
+          }, 60000);
+
+          // alert("Podcast opened in new tab successfully");
+        } else {
+          reject(new Error("Failed to load file"));
+        }
+      };
+
+      xhr.onerror = () => reject(new Error("Network error"));
+      xhr.send();
+    });
+  }
+
   if (isSpinnerLoading) {
     return (
       <div className="fixed w-screen flex items-center justify-center p-8 h-screen">
@@ -392,6 +644,14 @@ const Analysis = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      {isPodcastLoading && (
+        <div className="fixed w-screen flex items-center justify-center p-8 h-screen bg-black/50 z-50 ">
+          <div className="flex flex-col items-center gap-4 bg-white p-8 rounded-lg shadow-lg">
+            <Loader2 className="h-8 w-8 animate-spin text-purple-700" />
+            <p>{podcastMsg}</p>
+          </div>
+        </div>
+      )}
       <Navbar />
       <main className="flex-grow container mx-auto px-4 pt-24 pb-16">
         <div className="max-w-6xl mx-auto">
@@ -431,6 +691,10 @@ const Analysis = () => {
                 className={`flex justify-center items-center gap-2 ${
                   isMobile ? "flex-grow text-xs py-1 px-2" : ""
                 } data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#7857eb] data-[state=active]:to-[#3b78e8] data-[state=active]:text-white`}
+                onClick={() => {
+                  selectedDocumentId && setSelectedDocumentId(null);
+                  selectedVideoId && setSelectedVideoId(null);
+                }}
               >
                 {userDiscipline === "dressage"
                   ? language === "en"
@@ -559,6 +823,9 @@ const Analysis = () => {
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                   {language === "en" ? "Status" : "Estado"}
                                 </th>
+                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                  {language === "en" ? "Podcast" : "Podcast"}
+                                </th>
                                 <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                                   {language === "en" ? "Action" : "Acción"}
                                 </th>
@@ -618,6 +885,24 @@ const Analysis = () => {
                                         ? "Failed"
                                         : "Fallido"}
                                     </span>
+                                  </td>
+                                  <td className="px-4 py-3 whitespace-nowrap text-sm text-center">
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={async () => {
+                                        if (doc.status === "completed") {
+                                          await getPromptForTTS(doc.id);
+                                        } else {
+                                          alert("First complete the analysis");
+                                        }
+                                      }}
+                                      className="text-purple-700 border-purple-200"
+                                    >
+                                      {language === "en"
+                                        ? "View podcast"
+                                        : "Ver podcast"}
+                                    </Button>
                                   </td>
                                   <td className="px-4 py-3 whitespace-nowrap text-sm text-center">
                                     <Button

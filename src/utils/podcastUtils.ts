@@ -340,7 +340,7 @@ export async function callPodcastScript(prompt) {
       return null;
     }
 
-    console.log('✅ Function response:', data.result);
+    // console.log('✅ Function response:', data.result);
     return data;
 
   } catch (err) {
