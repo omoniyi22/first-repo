@@ -113,7 +113,6 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
   const { user } = useAuth();
   const [analysis, setAnalysis] = useState<DocumentAnalysis | null>(null);
   const [resultData, setResultData] = useState<AnalysisResultData | null>(null);
-  console.log("🚀 ~ resultData:", resultData)
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [analysisData, setAnalysisData] = useState<any>(null);
@@ -218,6 +217,7 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
             horse_age: data["age"],
             horse_breed: data["breed"],
             horse_level: data["dressage_level"],
+            horse_image: data["photo_url"],
             overall_score: resultData["en"]["percentage"].toFixed(3),
             best_movement:
               resultData["en"]["highestScore"]["movement"].join(", "),
@@ -518,7 +518,13 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
   }
 
   return (
-    <div className="space-y-6 sm:space-y-8">
+    <Card className="space-y-6 sm:space-y-8 p-4 sm:p-6">
+      {/* Analysis Results */}
+      <div className="text-start">
+        <h2 className="text-xl font-semibold ">
+          {language === "en" ? "Analysis Results" : "Resultados del análisis"}
+        </h2>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
         {/* Total Score Card */}
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br to-[#3C78EB] from-[#7658EB] p-6 text-white shadow-lg">
@@ -625,7 +631,31 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
           </div>
         </div>
       </div>
+      {/* Judge Comments */}
+      <Card className="p-4 sm:p-6">
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
+          <h4 className="text-lg sm:text-xl font-semibold">
+            {language === "en" ? "Judge Comments" : "Comentarios del Juez"}
+          </h4>
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#F1F5F9] backdrop-blur-sm">
+            <MessageCircle className="h-6 w-6 text-[#7658EB]" />
+          </div>
+        </div>
+        <ul className="text-sm sm:text-base space-y-2">
+          {Object.entries(resultData[language].generalComments)
+            .filter(([_, comment]) => !!comment && comment.trim() !== "")
+            .map(([judge, comment], index) => (
+              <li
+                key={index}
+                className="text-sm sm:text-base bg-[#F1F5F9] p-5 rounded-[15px]"
+              >
+                <strong>{judge.replace("judge", "")}:</strong> {comment}
+              </li>
+            ))}
+        </ul>
+      </Card>
 
+      {/* Personalised Insight */}
       <Card className="p-4 sm:p-6">
         <div className="flex items-center justify-between mb-3 sm:mb-4">
           <h4 className="text-lg sm:text-xl font-semibold">
@@ -904,35 +934,18 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
       </Card>
 
       <Card className="p-4 sm:p-6">
-        <div className="flex items-center justify-between mb-3 sm:mb-4">
-          <h4 className="text-lg sm:text-xl font-semibold">
-            {language === "en" ? "Judge Comments" : "Comentarios del Juez"}
-          </h4>
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#F1F5F9] backdrop-blur-sm">
-            <MessageCircle className="h-6 w-6 text-[#7658EB]" />
-          </div>
-        </div>
-        <ul className="text-sm sm:text-base space-y-2">
-          {Object.entries(resultData[language].generalComments)
-            .filter(([_, comment]) => !!comment && comment.trim() !== "")
-            .map(([judge, comment], index) => (
-              <li
-                key={index}
-                className="text-sm sm:text-base bg-[#F1F5F9] p-5 rounded-[15px]"
-              >
-                <strong>{judge.replace("judge", "")}:</strong> {comment}
-              </li>
-            ))}
-        </ul>
-      </Card>
-      <Card className="p-4 sm:p-6">
         <div className="mb-8">
-          <h3 className="text-xl font-semibold mb-4">Weaknesses</h3>
+          <h3 className="text-xl font-semibold mb-4">Recommended Exercises</h3>
           <div className="mb-6 bg-white p-4 rounded shadow border">
-            <h4 className="font-semibold text-gray-800 text-center mb-6">GAITS</h4>
+            <h4 className="font-semibold text-gray-800 text-center mb-6">
+              GAITS
+            </h4>
             <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 gap-2 text-sm">
               {Object.entries(COLOR_LEGEND).map(([label, color]) => (
-                <div key={label} className="flex md:justify-center items-center space-x-2">
+                <div
+                  key={label}
+                  className="flex md:justify-center items-center space-x-2"
+                >
                   <span
                     className="inline-block w-4 h-4 rounded-sm"
                     style={{ backgroundColor: color }}
@@ -944,7 +957,7 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
           </div>
           <div className="grid md:grid-cols-2 gap-6">
             {diagrams?.map((weakness, index) => (
-              <div
+              <Card
                 key={index}
                 className="bg-white rounded-lg shadow-md overflow-hidden"
               >
@@ -966,7 +979,7 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
                   />
                 </div>
 
-                <div className="p-4 bg-gray-50 border-t">
+                <div className="p-4 bg-gray-50 border-t h-full">
                   <p className="text-sm font-medium text-gray-700">
                     Instructions:{" "}
                     <span className="text-sm text-gray-400">{`(${weakness.type})`}</span>
@@ -979,9 +992,50 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
                     {weakness.size}
                   </p>
                 </div>
-              </div>
+              </Card>
             ))}
           </div>
+          <Card className="w-full bg-gradient-to-r from-[#7658EB] to-[#3C78EB] text-white p-6 mt-6 flex items-center justify-between rounded-lg shadow-lg">
+            <div className="">
+              <h2 className="text-xl font-medium">
+                Want more guidance? Download the RideAlong Podcast and ride with
+                us.
+              </h2>
+              <Button className="bg-white text-[#2C1A5C] hover:bg-white mt-4">
+                Get Your Ride-Along Podcast
+              </Button>
+            </div>
+            {analysisData && analysisData?.horse_image && (
+              <div className="relative w-36 h-36 rounded-full overflow-hidden flex items-center justify-center">
+                {/* Blurred background layer */}
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    backgroundImage: `url('${
+                      analysisData.horse_image ||
+                      "/lovable-uploads/1000010999.png"
+                    }')`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                    backgroundRepeat: "no-repeat",
+                    filter: "blur(2px)",
+                    zIndex: 0,
+                  }}
+                ></div>
+
+                <div className="relative z-10 w-24 h-24 rounded-full bg-[#3f77eb]/20 backdrop-blur-sm flex items-center justify-center">
+                  <img
+                    src={
+                      analysisData?.horse_image ||
+                      "/lovable-uploads/1000010999.png"
+                    }
+                    alt="Horse and rider jumping over competition obstacle"
+                    className="w-full h-full object-cover object-center rounded-full"
+                  />
+                </div>
+              </div>
+            )}
+          </Card>
         </div>
       </Card>
       <Card className="p-4 sm:p-6 border-0">
@@ -1012,7 +1066,7 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
           </div>
         </div>
       </Card>
-    </div>
+    </Card>
   );
 };
 
