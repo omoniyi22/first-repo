@@ -622,7 +622,7 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
             src="/lovable-uploads/1000010999.png"
             alt="Horse and rider jumping over competition obstacle"
             className="w-12 h-12 object-cover object-center"
-          /> 
+          />
         </div>
         <ul className="text-sm sm:text-base space-y-2">
           {Object.entries(resultData[language].generalComments)
@@ -774,7 +774,7 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 ">
         <Card className="p-4 sm:p-6 bg-gradient-to-r from-[#A38DFC] to-[#7658EB] border-0">
           <div className="flex items-center justify-between mb-3 sm:mb-4">
-            <h4 className="text-lg sm:text-xl font-semibold">
+            <h4 className="text-lg sm:text-xl font-semibold text-white">
               {language === "en" ? "Strengths" : "Fortalezas"}
             </h4>
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white backdrop-blur-sm">
@@ -783,7 +783,7 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
           </div>
           <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
             {resultData[language]?.strengths?.map((strength, index) => (
-              <li key={index} className="text-sm sm:text-base">
+              <li key={index} className="text-sm sm:text-base text-white">
                 {strength}
               </li>
             ))}
@@ -792,7 +792,7 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
 
         <Card className="p-4 sm:p-6 bg-gradient-to-r from-[#5E92FA] to-[#3C77EC] border-0">
           <div className="flex items-center justify-between mb-3 sm:mb-4">
-            <h4 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
+            <h4 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4 text-white">
               {language === "en" ? "Weaknesses" : "Debilidades"}
             </h4>
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white backdrop-blur-sm">
@@ -801,7 +801,7 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
           </div>
           <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
             {resultData[language]?.weaknesses?.map((weakness, index) => (
-              <li key={index} className="text-sm sm:text-base">
+              <li key={index} className="text-sm sm:text-base text-white">
                 {weakness}
               </li>
             ))}
@@ -1001,36 +1001,28 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
                 Get Your Ride-Along Podcast
               </Button>
             </div>
-            {analysisData && analysisData?.horse_image && (
-              <div className="relative w-36 h-36 rounded-full overflow-hidden flex items-center justify-center">
-                {/* Blurred background layer */}
-                <div
+            <div className="relative w-36 h-36 rounded-full overflow-hidden flex items-center justify-center">
+              {/* Blurred background layer */}
+              {/* <div
                   className="absolute inset-0"
                   style={{
-                    backgroundImage: `url('${
-                      analysisData.horse_image ||
-                      "/lovable-uploads/1000010999.png"
-                    }')`,
+                    backgroundImage: `url('${"/lovable-uploads/report-cta.png"}')`,
                     backgroundSize: "cover",
                     backgroundPosition: "center",
                     backgroundRepeat: "no-repeat",
                     filter: "blur(2px)",
                     zIndex: 0,
                   }}
-                ></div>
+                ></div> */}
 
-                <div className="relative z-10 w-28 h-28 rounded-full bg-[#3f77eb]/20 backdrop-blur-sm flex items-center justify-center">
-                  <img
-                    src={
-                      analysisData?.horse_image ||
-                      "/lovable-uploads/1000010999.png"
-                    }
-                    alt="Horse and rider jumping over competition obstacle"
-                    className="w-full h-full object-cover object-center rounded-full"
-                  />
-                </div>
+              <div className="relative z-10 w-28 h-28 rounded-full bg-[#3f77eb]/20 backdrop-blur-sm flex items-center justify-center">
+                <img
+                  src={"/lovable-uploads/report-cta.png"}
+                  alt="Horse and rider jumping over competition obstacle"
+                  className="w-full h-full object-cover object-center rounded-full"
+                />
               </div>
-            )}
+            </div>
           </Card>
         </div>
       </Card>
