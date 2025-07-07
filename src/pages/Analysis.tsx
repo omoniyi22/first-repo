@@ -808,7 +808,7 @@ const Analysis = () => {
                                     className="rounded"
                                   />
                                 </th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32 sm:w-auto">
+                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                   {language === "en" ? "Name" : "Nombre"}
                                 </th>
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -842,7 +842,7 @@ const Analysis = () => {
                                       className="rounded"
                                     />
                                   </td>
-                                  <td className="px-4 py-3 whitespace-nowrap w-32 sm:w-auto max-w-[150px] truncate">
+                                  <td className="px-4 py-3 whitespace-nowrap">
                                     <span className="text-sm font-medium text-gray-900">
                                       {doc.file_name}
                                     </span>
