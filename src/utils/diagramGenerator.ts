@@ -143,11 +143,11 @@ export const COLOR_BY_SPEED = {
 };
 
 export const COLOR_LEGEND = {
-  "Walk": "#00ff00",
-  "Trot": "#ffff00",
-  "Canter": "#0000ff",
-  "Halt/Transition": "#ff0000",
-  "Free Walk": "#a215b4",
+  "Walk": { from: "#3AD55A", to: "#00AE23" },
+  "Trot": { from: "#FFD766", to: "#FF821C" },
+  "Canter": { from: "#5E92FA", to: "#3C77EC" },
+  "Halt/Transition": { from: "#F67DB5", to: "#D80568" },
+  "Free Walk": { from: "#A38DFC", to: "#7658EB" },
 };
 
 function getConditionalAxisAlignedPoints(

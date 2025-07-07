@@ -527,7 +527,7 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
         {/* Total Score Card */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br to-[#3C78EB] from-[#7658EB] p-6 text-white shadow-lg">
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#7658EB] to-[#3C78EB] p-6 text-white shadow-lg">
           <div className="absolute top-4 right-4">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
               <FileText className="h-6 w-6 text-white" />
@@ -552,82 +552,63 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
         </div>
 
         {/* Highest Score Card */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#3AD55A] to-[#00AE23] p-6 text-white shadow-lg">
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#A38DFC] to-[#7658EB] p-6 text-white shadow-lg">
           <div className="absolute top-4 right-4">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
               <TrendingUp className="h-6 w-6 text-white" />
+              {/* <img
+                src="/TrendingUp.svg"
+                className="h-6 w-6"
+                alt=""
+              /> */}
             </div>
           </div>
           <div className="space-y-2">
-            <div className="flex">
-              <h4 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
-                {language === "en" ? "Highest Score - " : "Fortalezas - "}
-              </h4>
-              <span className="text-lg p-[3px] font-semibold">
+            <h3 className="text-lg font-medium opacity-90">
+              {language === "en" ? "Highest Score" : "Puntuación más alta"}
+            </h3>
+            {resultData[language].percentage ? (
+              <p className="text-4xl font-bold text-white">
                 {language === "en"
                   ? resultData.en["highestScore"].score
                   : resultData.es["highestScore"].score}
-              </span>
-            </div>
-            <div className="space-y-1">
-              <b>
-                {(language === "en"
-                  ? resultData.en["highestScore"].movement
-                  : resultData.es["highestScore"].movement) instanceof Array
-                  ? (language === "en"
-                      ? resultData.en["highestScore"].movement
-                      : resultData.es["highestScore"].movement
-                    ).map((line, index) => (
-                      <span key={index}>
-                        - {line}
-                        <br />
-                      </span>
-                    ))
-                  : language === "en"
-                  ? resultData.en["highestScore"].movement
-                  : resultData.es["highestScore"].movement}
-              </b>
-            </div>
+              </p>
+            ) : (
+              <p className="text-lg text-white">
+                {language === "en"
+                  ? "Score not available"
+                  : "Puntuación no disponible"}
+              </p>
+            )}
+            <p className="text-white">at L Pirueta a la izquierda</p>
           </div>
         </div>
 
         {/* Lowest Score Card */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#FFA071] to-[#EC6624] p-6 text-white shadow-lg">
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#5E92FA] to-[#3C77EC] p-6 text-white shadow-lg">
           <div className="absolute top-4 right-4">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
               <TrendingDown className="h-6 w-6 text-white" />
             </div>
           </div>
           <div className="space-y-2">
-            <div className="flex">
-              <h4 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
-                {language === "en" ? "Lowest Score - " : "Debilidades - "}
-              </h4>
-              <span className="text-lg p-[3px] font-semibold">
+            <h3 className="text-lg font-medium opacity-90">
+              {language === "en" ? "Lowest Score" : "Puntuación más baja"}
+            </h3>
+            {resultData[language].percentage ? (
+              <p className="text-4xl font-bold text-white">
                 {language === "en"
                   ? resultData.en["lowestScore"].score
                   : resultData.es["lowestScore"].score}
-              </span>
-            </div>
-            <div className="space-y-1">
-              <b>
-                {(language === "en"
-                  ? resultData.en["lowestScore"].movement
-                  : resultData.es["lowestScore"].movement) instanceof Array
-                  ? (language === "en"
-                      ? resultData.en["lowestScore"].movement
-                      : resultData.es["lowestScore"].movement
-                    ).map((line, index) => (
-                      <span key={index}>
-                        - {line}
-                        <br />
-                      </span>
-                    ))
-                  : language === "en"
-                  ? resultData.en["lowestScore"].movement
-                  : resultData.es["lowestScore"].movement}
-              </b>
-            </div>
+              </p>
+            ) : (
+              <p className="text-lg text-white">
+                {language === "en"
+                  ? "Score not available"
+                  : "Puntuación no disponible"}
+              </p>
+            )}
+            <p className="text-white">at A Doblar a lo largo</p>
           </div>
         </div>
       </div>
@@ -637,9 +618,11 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
           <h4 className="text-lg sm:text-xl font-semibold">
             {language === "en" ? "Judge Comments" : "Comentarios del Juez"}
           </h4>
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#F1F5F9] backdrop-blur-sm">
-            <MessageCircle className="h-6 w-6 text-[#7658EB]" />
-          </div>
+          <img
+            src="/lovable-uploads/1000010999.png"
+            alt="Horse and rider jumping over competition obstacle"
+            className="w-12 h-12 object-cover object-center"
+          /> 
         </div>
         <ul className="text-sm sm:text-base space-y-2">
           {Object.entries(resultData[language].generalComments)
@@ -664,13 +647,13 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
               : "Perspectiva personalizada"}
           </h4>
 
-          <img
+          {/* <img
             src="/lovable-uploads/1000010999.png"
             alt="Horse and rider jumping over competition obstacle"
             className="w-16 h-16 object-cover object-center"
-          />
+          /> */}
         </div>
-        <div>
+        <div className="max-w-[900px]">
           <p>
             {language === "en"
               ? resultData.en["personalInsight"]
@@ -789,12 +772,12 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
         )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 ">
-        <Card className="p-4 sm:p-6 bg-[#E6FFEB] border-0">
+        <Card className="p-4 sm:p-6 bg-gradient-to-r from-[#A38DFC] to-[#7658EB] border-0">
           <div className="flex items-center justify-between mb-3 sm:mb-4">
             <h4 className="text-lg sm:text-xl font-semibold">
               {language === "en" ? "Strengths" : "Fortalezas"}
             </h4>
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/50 backdrop-blur-sm">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white backdrop-blur-sm">
               <Trophy className="h-6 w-6 text-[#4d975b]" />
             </div>
           </div>
@@ -807,12 +790,12 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
           </ul>
         </Card>
 
-        <Card className="p-4 sm:p-6 bg-[#FFEAE0] border-0">
+        <Card className="p-4 sm:p-6 bg-gradient-to-r from-[#5E92FA] to-[#3C77EC] border-0">
           <div className="flex items-center justify-between mb-3 sm:mb-4">
             <h4 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
               {language === "en" ? "Weaknesses" : "Debilidades"}
             </h4>
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/50 backdrop-blur-sm">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white backdrop-blur-sm">
               <ArrowDown className="h-6 w-6 text-[#975c41]" />
             </div>
           </div>
@@ -871,9 +854,6 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
           <h4 className="text-lg sm:text-xl font-semibold">
             {language === "en" ? "Recommendations" : "Recomendaciones"}
           </h4>
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#F1F5F9] backdrop-blur-sm">
-            <Lightbulb className="h-6 w-6 text-[#7658EB]" />
-          </div>
         </div>
         <ul className="space-y-2 sm:space-y-5">
           {resultData[language]?.recommendations?.map(
@@ -935,7 +915,14 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
 
       <Card className="p-4 sm:p-6">
         <div className="mb-8">
-          <h3 className="text-xl font-semibold mb-4">Recommended Exercises</h3>
+          <div className="flex items-center justify-between mb-3 sm:mb-4">
+            <h3 className="text-xl font-semibold mb-4">
+              Recommended Exercises
+            </h3>
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#F1F5F9] backdrop-blur-sm">
+              <ArrowDown className="h-6 w-6 text-[#7658EB]" />
+            </div>
+          </div>
           <div className="mb-6 bg-white p-4 rounded shadow border">
             <h4 className="font-semibold text-gray-800 text-center mb-6">
               GAITS
@@ -948,8 +935,11 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
                 >
                   <span
                     className="inline-block w-4 h-4 rounded-sm"
-                    style={{ backgroundColor: color }}
+                    style={{
+                      backgroundImage: `linear-gradient(to right, ${color.from}, ${color.to})`,
+                    }}
                   />
+
                   <span className="text-gray-700">{label}</span>
                 </div>
               ))}
@@ -995,13 +985,19 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
               </Card>
             ))}
           </div>
-          <Card className="w-full bg-gradient-to-r from-[#7658EB] to-[#3C78EB] text-white p-6 mt-6 flex items-center justify-between rounded-lg shadow-lg">
+          <Card className="w-full bg-gradient-to-r from-[#7658EB] to-[#3C78EB] text-white p-6 mt-6 flex items-center justify-between rounded-lg shadow-lg flex-col-reverse sm:flex-row gap-5 sm:gap-0">
             <div className="">
               <h2 className="text-xl font-medium">
-                Want more guidance? Download the RideAlong Podcast and ride with
-                us.
+                Want more guidance?
+                <br />
+                Download the RideAlong Podcast and ride with us.
               </h2>
-              <Button className="bg-white text-[#2C1A5C] hover:bg-white mt-4">
+              <Button
+                className="bg-white text-[#2C1A5C] hover:bg-white mt-4"
+                onClick={async () => {
+                  await getPromptForTTS();
+                }}
+              >
                 Get Your Ride-Along Podcast
               </Button>
             </div>
@@ -1023,7 +1019,7 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
                   }}
                 ></div>
 
-                <div className="relative z-10 w-24 h-24 rounded-full bg-[#3f77eb]/20 backdrop-blur-sm flex items-center justify-center">
+                <div className="relative z-10 w-28 h-28 rounded-full bg-[#3f77eb]/20 backdrop-blur-sm flex items-center justify-center">
                   <img
                     src={
                       analysisData?.horse_image ||
@@ -1040,13 +1036,13 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
       </Card>
       <Card className="p-4 sm:p-6 border-0">
         <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-4 mb-3 sm:mb-4">
-          <Button className="bg-[#67C15E] hover:bg-[#67C15E] flex flex-col items-center p-8">
+          <Button className="bg-gradient-to-r from-[#3AD55A] to-[#00AE23] flex items-center">
             {/* <MessageCircle className="h-10 w-10 text-white" /> */}
             <RiWhatsappFill className="!h-7 !w-7 text-white" size={50} />
             Send Results to Coach
           </Button>
 
-          <Button
+          {/* <Button
             className="bg-purple-600 hover:bg-purple-600 flex flex-col items-center p-8"
             onClick={async () => {
               await getPromptForTTS();
@@ -1054,14 +1050,14 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
           >
             <CloudDownload className="!h-7 !w-7 text-white " />
             Get your personal ride along training class here
-          </Button>
+          </Button> */}
 
-          <div className="space-x-2 flex flex-col items-center">
+          <div className="space-x-2 flex items-center">
             <p className="text-center">Powered by</p>
             <img
               src="/lovable-uploads/1000010999.png"
               alt="Horse and rider jumping over competition obstacle"
-              className="w-14 h-14 object-cover object-center"
+              className="w-12 h-12 object-cover object-center"
             />
           </div>
         </div>
