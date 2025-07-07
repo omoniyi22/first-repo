@@ -778,7 +778,7 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
               {language === "en" ? "Strengths" : "Fortalezas"}
             </h4>
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white backdrop-blur-sm">
-              <Trophy className="h-6 w-6 text-[#4d975b]" />
+              <Trophy className="h-6 w-6 text-[#6344CF]" />
             </div>
           </div>
           <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
@@ -796,7 +796,7 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
               {language === "en" ? "Weaknesses" : "Debilidades"}
             </h4>
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white backdrop-blur-sm">
-              <ArrowDown className="h-6 w-6 text-[#975c41]" />
+              <ArrowDown className="h-6 w-6 text-[#3C78EB]" />
             </div>
           </div>
           <ul className="list-disc pl-5 space-y-1 sm:space-y-2">

@@ -134,12 +134,12 @@ const exercisePos = {
 }
 
 export const COLOR_BY_SPEED = {
-  "Walk": "#00ff00",
-  "Trot": "#ffff00",
-  "Canter": "#0000ff",
-  "Halt": "#ff0000",
-  "Transition": "#ff0000",
-  "Free Walk": "#a215b4",
+  "Walk": "#00AE23",
+  "Trot": "#FF821C",
+  "Canter": "#3C77EC",
+  "Halt": "#D80568",
+  "Transition": "#D80568",
+  "Free Walk": "#7658EB",
 };
 
 export const COLOR_LEGEND = {
