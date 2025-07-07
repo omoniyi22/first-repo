@@ -142,6 +142,7 @@ export const COLOR_BY_SPEED = {
   "Free Walk": "#7658EB",
 };
 
+
 export const COLOR_LEGEND = {
   "Walk": { from: "#3AD55A", to: "#00AE23" },
   "Trot": { from: "#FFD766", to: "#FF821C" },
