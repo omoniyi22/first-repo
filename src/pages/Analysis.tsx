@@ -503,6 +503,7 @@ const Analysis = () => {
               scriptText: ttsScript,
               userId: user.id,
               analysisId: analysis.id,
+              language: language,
             }),
           }
         );

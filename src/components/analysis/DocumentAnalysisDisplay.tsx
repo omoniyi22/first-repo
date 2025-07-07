@@ -317,6 +317,7 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
               scriptText: ttsScript,
               userId: user.id,
               analysisId: analysis.id,
+              language: language
             }),
           }
         );

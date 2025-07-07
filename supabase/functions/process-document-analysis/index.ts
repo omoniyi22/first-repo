@@ -206,7 +206,31 @@ serve(async (req)=>{
       maintains energy independently
       **Quick Fix:** Before each movement, check horse's immediate
       response to leg aid
+      6.  For weaknesses analysis, provide structured data from weakness (counts should be same - if you extract 3 weaknesses, you should draw 3 diagrams) including:
+      - Arena size detection 
+      While analyzing the document, if there is "S", "V", "R", "P", "I" or "L" positions, arena size is large, otherwise small.
+      (large if positions include "S","V","R","P","I" or "L" else small)
+      And also some positions are combined like "PM", and in that case you should analyze by character.
+      for example, if document contains "PM", it will be large.
+      - Specific weakness description
+      - Movement positions (like S, M, H, etc.) Positions can be only letters not number.
+      - Movement speed can be "Walk", "Trot", "Canter", "Halt", "Transition", "Free Walk":
+      - Recommended exercises with exact positions - exact positions are essential!
+      If the weakness is related to accuracy, the recommendation must be: "Practise 10m circles at [exact positions]," followed by a short reason or coaching instruction. 
+      For other types of weaknesses, suggest appropriate exercises with positions and a relevant coaching sentence, but do not mention 10m circles.
 
+      Required weakness format:
+      {
+        "title": "Exercise title matching weakness type",
+        "weakness": "Specific description from judges' comments",
+        "type": "accuracy"|"transitions"|"straightness"|"rhythm",
+        "positions": ["A", "C"],
+        "speed": "Walk",
+        "size": "large"|"small",
+        "instruction": "Specific practice instruction with positions"
+      }
+
+      This is total output result sample.
       {
         "en": {
           "percentage": 68.5,
@@ -220,6 +244,26 @@ serve(async (req)=>{
             "Tension in transitions",
             "Balance in halts needs work"
           ],
+          "weaknesses-svg": [
+            {
+              "title": "Circle Accuracy Exercise",
+              "weakness": "Inconsistent 20m circle shape at S",
+              "type": "accuracy",
+              "positions": ["S", "M"],
+              "size": "large",
+              "speed": "Trot",
+              "instruction": "Practice 20m circles at S, maintaining exact shape through M"
+            },
+            {
+              "title": "Circle Accuracy Exercise",
+              "weakness": "Inconsistent 20m circle shape at S",
+              "type": "accuracy",
+              "positions": ["S", "M"],
+              "size": "large",
+              "speed": "Free Walk",
+              "instruction": "Practice 20m circles at S, maintaining exact shape through M"
+            }
+          ]
           "generalComments": {
             "judgeA": "Work on balanced halts - 6.5",
             "judgeB": "Work on balanced halts - 7",
@@ -294,7 +338,7 @@ serve(async (req)=>{
       At least 3 Recommendations are needed and all recommendations should be deep, meaningful, useful, correct and in detail (More specific exercise recommendations as well such as: "Try shoulder - in exercises" rather than just "focus on relaxtion").
       Ensure recommendations are specific, actionable, and progressive while remaining concise.
       I need the results with both Spanish and English - (en, es).
-      In es version, all content (including highest scores movements and so on.) should be English, otherwise, all content should be Spanish.
+      In en version, all content (including highest scores movements and so on.) should be English, otherwise, all content should be Spanish. So all contents language should be consistent in one mode
       And in general comments, after writing the judge's comment, you should write the average score of each judge like "Work on balanced halts - 6.5".
       And only return the full JSON not truncated without any comment like "Here is the analyzed result of the document.".
       And should choose professional riding words like "flying changes" instead of "changes of leg" and your personal insight content pattern should be written to the person like "You seem to be ... if you ..." with 3-5 sentences and must be richful and helpful for riders.
