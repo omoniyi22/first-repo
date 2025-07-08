@@ -57,6 +57,7 @@ import { HelmetProvider } from "react-helmet-async";
 import TawktoWidget from "./components/Tawkto";
 import AiCourseBuilder from "./pages/AiCourseBuilder";
 import ScrollToTop from "./components/layout/ScrollToTop";
+import PublicAnalysis from "./pages/PublicAnalysis";
 
 function App() {
   const location = useLocation();
@@ -81,7 +82,7 @@ function App() {
               <SubscriptionProvider>
                 {/* <Router> */}
                 <Analytics />
-                <ScrollToTop/>
+                <ScrollToTop />
                 <Routes>
                   {/* Public routes */}
                   <Route path="/" element={<Index />} />
@@ -128,6 +129,9 @@ function App() {
                     element={<JumpProfileSetup />}
                   />
                   <Route path="/analysis" element={<Analysis />} />
+                  {/* Public analysis route */}
+                  <Route path="/analysis/:id" element={<PublicAnalysis />} />
+
                   <Route
                     path="/ai-course-builder"
                     element={<AiCourseBuilder />}

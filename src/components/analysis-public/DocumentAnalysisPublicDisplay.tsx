@@ -107,7 +107,7 @@ interface DocumentAnalysisDisplayProps {
   documentId: string;
 }
 
-const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
+const DocumentAnalysisPublicDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
   documentId,
 }) => {
   const { language } = useLanguage();
@@ -116,24 +116,21 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
   const [resultData, setResultData] = useState<AnalysisResultData | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [analysisData, setAnalysisData] = useState<any>(null);
-  const [isPodcastLoading, setIsPodcastLoading] = useState<boolean>(false);
-  const [podcastMsg, setPodcastMsg] = useState<string>("");
 
   useEffect(() => {
     const fetchAnalysis = async () => {
-      if (!user) return;
+      // Remove this line: if (!user) return;
 
       try {
         setIsLoading(true);
 
-        // Fetch the document analysis from Supabase
+        // Fetch the document analysis from Supabase - remove user_id filter
         const { data: documentData, error: documentError } = await supabase
           .from("document_analysis")
           .select("*")
           .eq("id", documentId)
-          .eq("user_id", user.id)
-          .single();
+          .maybeSingle();
+        console.log("🚀 ~ fetchAnalysis ~ documentData:", documentData);
 
         if (documentError) throw documentError;
 
@@ -151,15 +148,11 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
             if (resultError) {
               console.warn("Could not fetch analysis results:", resultError);
             } else if (resultData) {
-              // Use actual result data from the database
               setResultData(
                 resultData.result_json as unknown as AnalysisResultData
               );
-            } else {
-              // Fall back to mock data if no results
             }
           } else {
-            // Document is not completed yet
             setResultData(null);
           }
         } else {
@@ -180,9 +173,8 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
         );
       }
     };
-
     fetchAnalysis();
-  }, [documentId, user, language]);
+  }, [documentId, language]);
 
   const diagrams = useMemo(() => {
     if (!!resultData) {
@@ -192,248 +184,13 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
     }
   }, [resultData]);
 
-  useEffect(() => {
-    const fetchHorse = async () => {
-      if (analysis) {
-        const horse_id = analysis.horse_id;
-        const { data, error } = await supabase
-          .from("horses")
-          .select("*")
-          .eq("id", horse_id)
-          .single();
-
-        if (error) {
-          console.error("Error fetching horse:", error);
-        } else {
-          if (!resultData) {
-            return;
-          }
-          setAnalysisData({
-            rider_name: user.user_metadata.full_name,
-            discipline: analysis.discipline,
-            experience_level: analysis.test_level,
-            goals:
-              "Improve overall harmony and contact, reduce tension in horse",
-            horse_name: data["name"],
-            horse_age: data["age"],
-            horse_breed: data["breed"],
-            horse_level: data["dressage_level"],
-            horse_image: data["photo_url"],
-            overall_score: resultData["en"]["percentage"].toFixed(3),
-            best_movement:
-              resultData["en"]["highestScore"]["movement"].join(", "),
-            best_score: resultData["en"]["highestScore"]["score"],
-            worst_movement:
-              resultData["en"]["lowestScore"]["movement"].join(", "),
-            worst_score: resultData["en"]["lowestScore"]["score"],
-            score_trend: "Stable with potential for improvement",
-            strength_1: resultData["en"]["strengths"][0] || "",
-            strength_2: resultData["en"]["strengths"][1] || "",
-            strength_3: resultData["en"]["strengths"][2] || "",
-            weakness_1: resultData["en"]["weaknesses"][0] || "",
-            weakness_2: resultData["en"]["weaknesses"][1] || "",
-            weakness_3: resultData["en"]["weaknesses"][2] || "",
-            judge_comment_a:
-              resultData["en"]["generalComments"]?.["judgeA"] || "",
-            judge_comment_b:
-              resultData["en"]["generalComments"]?.["judgeB"] || "",
-            judge_comment_c:
-              resultData["en"]["generalComments"]?.["judgeC"] || "",
-            primary_recommendation:
-              "Establishing consistent, elastic connection",
-            quick_fix_1:
-              resultData["en"]["recommendations"][0]?.["quickFix"] || "",
-            exercise_1:
-              resultData["en"]["recommendations"][0]?.["exercise"] || "",
-            key_points_1:
-              typeof resultData["en"]["recommendations"][0]?.["keyPoints"] ==
-              "string"
-                ? resultData["en"]["recommendations"][0]?.["keyPoints"]
-                : resultData["en"]["recommendations"][0]?.["keyPoints"].join(
-                    "; "
-                  ) || "",
-            goal_1: resultData["en"]["recommendations"][0]?.["goal"] || "",
-            secondary_recommendation:
-              "Clean, balanced transitions at precise markers",
-            quick_fix_2:
-              resultData["en"]["recommendations"][1]?.["quickFix"] || "",
-            exercise_2:
-              resultData["en"]["recommendations"][1]?.["exercise"] || "",
-            key_points_2:
-              typeof resultData["en"]["recommendations"][1]?.["keyPoints"] ==
-              "string"
-                ? resultData["en"]["recommendations"][1]?.["keyPoints"]
-                : resultData["en"]["recommendations"][1]?.["keyPoints"].join(
-                    "; "
-                  ) || "",
-            goal_2: resultData["en"]["recommendations"][1]?.["goal"] || "",
-            current_season: "Summer",
-            upcoming_events: "National Eventing Championship",
-            training_phase: "Preparation",
-          });
-        }
-      }
-    };
-    fetchHorse();
-  }, [user, analysis, resultData]);
-
-  const getPromptForTTS = async () => {
-    setIsPodcastLoading(true);
-    setPodcastMsg("Checking if podcast is already exists...");
-    const filePath = `${user.id}_${analysis.id}/final_podcast_with_music.m4a`;
-    const { data } = supabase.storage.from("analysis").getPublicUrl(filePath);
-
-    try {
-      const initialCheck = await fetch(data.publicUrl, { method: "HEAD" });
-
-      if (initialCheck.ok) {
-        setPodcastMsg("Downloading podcast...");
-        setIsPodcastLoading(false);
-        await downloadFile(data.publicUrl);
-        setPodcastMsg("");
-        return;
-      }
-      setPodcastMsg("Generating podcast script...");
-      const prompts = fill_Template_Make_Prompts(analysisData, language);
-      let combinedScript = "";
-      for (let i = 0; i < prompts.length; i++) {
-        const prompt = prompts[i];
-        const res = await callPodcastScript(prompt);
-        const rawdata = res.result;
-        combinedScript += rawdata + "\n\n";
-      }
-      const ttsScript = formatScriptWithStyles(combinedScript);
-      console.log("final TTS script", ttsScript);
-
-      setPodcastMsg("Generating podcast audio file...");
-      try {
-        const backendResponse = await fetch(
-          "https://f531-45-153-229-59.ngrok-free.app/generate",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              scriptText: ttsScript,
-              userId: user.id,
-              analysisId: analysis.id,
-              language: language,
-            }),
-          }
-        );
-
-        if (!backendResponse.ok) {
-          const errMessage = await backendResponse.text();
-          console.error("❌ Backend responded with error:", errMessage);
-          alert(
-            `Failed to start generation: ${backendResponse.status} ${backendResponse.statusText}`
-          );
-          setIsPodcastLoading(false);
-          return;
-        }
-
-        const backendMsg = await backendResponse.json();
-        console.log(
-          "✅ Backend accepted request:",
-          backendMsg.message || backendMsg
-        );
-        const checkInterval = 5000;
-        const timeout = 10 * 60 * 1000;
-        const startTime = Date.now();
-
-        const intervalId = setInterval(async () => {
-          const elapsed = Date.now() - startTime;
-          if (elapsed > timeout) {
-            clearInterval(intervalId);
-            setIsPodcastLoading(false);
-            console.error("File not available after 10 minutes.");
-            alert("Please analyse again later");
-            return;
-          }
-
-          try {
-            const response = await fetch(data.publicUrl, { method: "HEAD" });
-            if (response.ok) {
-              clearInterval(intervalId);
-              setPodcastMsg("Downloading Podcast...");
-              await downloadFile(data.publicUrl);
-              setIsPodcastLoading(false);
-              setPodcastMsg("");
-            }
-          } catch (error) {
-            console.error("Error checking file availability:", error);
-          }
-        }, checkInterval);
-      } catch (error) {
-        console.error("❌ Network or server error:", error);
-        alert(
-          "Server is not responding or network error occurred. Please try again later."
-        );
-        setIsPodcastLoading(false);
-        setPodcastMsg("");
-        return;
-      }
-    } catch (err) {
-      setIsPodcastLoading(false);
-      setPodcastMsg("");
-      console.error("Error checking or generating file:", err);
-    }
-  };
-
-  function downloadFile(url) {
-    return new Promise<void>((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-      xhr.open("GET", url, true);
-      xhr.responseType = "blob";
-
-      xhr.onload = function () {
-        if (xhr.status === 200) {
-          const blob = xhr.response;
-          const blobUrl = window.URL.createObjectURL(blob);
-          const filename = analysis.file_name;
-
-          const a = document.createElement("a");
-          a.href = blobUrl;
-          a.download = filename.endsWith(".m4a")
-            ? filename
-            : filename.replace(/\.(pdf|PDF)?$/, ".m4a");
-          document.body.appendChild(a);
-
-          // Safari fallback
-          if (
-            navigator.userAgent.includes("Safari") &&
-            !navigator.userAgent.includes("Chrome")
-          ) {
-            window.open(blobUrl, "_blank");
-          } else {
-            a.click();
-          }
-
-          setTimeout(() => {
-            window.URL.revokeObjectURL(blobUrl);
-            document.body.removeChild(a);
-            resolve();
-          }, 60000);
-          alert(
-            "Podcast is downloaded successfully, please find in Downloads folder"
-          );
-        } else {
-          reject(new Error("Download failed"));
-        }
-      };
-
-      xhr.onerror = () => reject(new Error("Network error"));
-      xhr.send();
-    });
-  }
-
   const handleWhatsAppShare = () => {
     const message = `📊 Check out my competition analysis report!
 
 You can view it here: ${window.location.origin}/analysis/${documentId}
 
 Let me know what you think!`;
+
     const encodedMessage = encodeURIComponent(message);
     const url = `https://wa.me/?text=${encodedMessage}`;
 
@@ -444,17 +201,6 @@ Let me know what you think!`;
     return (
       <div className="flex items-center justify-center p-8">
         <Loader2 className="h-8 w-8 animate-spin text-purple-700" />
-      </div>
-    );
-  }
-
-  if (isPodcastLoading) {
-    return (
-      <div className="flex items-center justify-center p-8">
-        <div className="flex items-center justify-center flex-col p-8 gap-4">
-          <Loader2 className="h-8 w-8 animate-spin text-purple-700" />
-          <span>{podcastMsg}</span>
-        </div>
       </div>
     );
   }
@@ -1007,27 +753,12 @@ Let me know what you think!`;
               </h2>
               <Button
                 className="bg-white text-[#2C1A5C] hover:bg-white mt-4"
-                onClick={async () => {
-                  await getPromptForTTS();
-                }}
+                disabled
               >
                 Get Your Ride-Along Podcast
               </Button>
             </div>
             <div className="relative w-36 h-36 rounded-full overflow-hidden flex items-center justify-center">
-              {/* Blurred background layer */}
-              {/* <div
-                  className="absolute inset-0"
-                  style={{
-                    backgroundImage: `url('${"/lovable-uploads/report-cta.png"}')`,
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                    backgroundRepeat: "no-repeat",
-                    filter: "blur(2px)",
-                    zIndex: 0,
-                  }}
-                ></div> */}
-
               <div className="relative z-10 w-28 h-28 rounded-full bg-[#3f77eb]/20 backdrop-blur-sm flex items-center justify-center">
                 <img
                   src={"/lovable-uploads/report-cta.png"}
@@ -1043,22 +774,12 @@ Let me know what you think!`;
         <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-4 mb-3 sm:mb-4">
           <Button
             className="bg-gradient-to-r from-[#3AD55A] to-[#00AE23] flex items-center"
+            disabled={!user}
             onClick={handleWhatsAppShare}
           >
-            {/* <MessageCircle className="h-10 w-10 text-white" /> */}
             <RiWhatsappFill className="!h-7 !w-7 text-white" size={50} />
             Send Results to Coach
           </Button>
-
-          {/* <Button
-            className="bg-purple-600 hover:bg-purple-600 flex flex-col items-center p-8"
-            onClick={async () => {
-              await getPromptForTTS();
-            }}
-          >
-            <CloudDownload className="!h-7 !w-7 text-white " />
-            Get your personal ride along training class here
-          </Button> */}
 
           <div className="space-x-2 flex items-center">
             <p className="text-center">Powered by</p>
@@ -1074,4 +795,4 @@ Let me know what you think!`;
   );
 };
 
-export default DocumentAnalysisDisplay;
+export default DocumentAnalysisPublicDisplay;

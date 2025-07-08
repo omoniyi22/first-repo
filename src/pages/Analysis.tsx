@@ -67,7 +67,6 @@ const Analysis = () => {
 
   const [activeTab, setActiveTab] = useState<string>("upload");
   const [documents, setDocuments] = useState<DocumentAnalysisItem[]>([]);
-  console.log("🚀 ~ Analysis ~ documents:", documents);
   const [videos, setVideos] = useState<DocumentAnalysisItem[]>([]);
   const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(
     null
