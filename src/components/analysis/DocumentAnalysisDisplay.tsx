@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -267,8 +268,8 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
                     "; "
                   ) || "",
             goal_2: resultData["en"]["recommendations"][1]?.["goal"] || "",
-            current_season: "Summer",
-            upcoming_events: "National Eventing Championship",
+            current_season: "",
+            upcoming_events: "",
             training_phase: "Preparation",
           });
         }
@@ -594,7 +595,7 @@ Let me know what you think!`;
                   : "Puntuación no disponible"}
               </p>
             )}
-            <p className="text-white">at L Pirueta a la izquierda</p>
+            <p className="text-white">{resultData[language]["highestScore"].movement[0]}</p>
           </div>
         </div>
 
@@ -622,7 +623,7 @@ Let me know what you think!`;
                   : "Puntuación no disponible"}
               </p>
             )}
-            <p className="text-white">at A Doblar a lo largo</p>
+            <p className="text-white">{resultData[language]["lowestScore"].movement[0]}</p>
           </div>
         </div>
       </div>

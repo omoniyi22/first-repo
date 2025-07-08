@@ -215,20 +215,21 @@ serve(async (req)=>{
       - Specific weakness description
       - Movement positions (like S, M, H, etc.) Positions can be only letters not number.
       - Movement speed can be "Walk", "Trot", "Canter", "Halt", "Transition", "Free Walk":
-      - Recommended exercises with exact positions - exact positions are essential!
+      - Recommended exercises with more than 2 exact positions - 2+ exact positions are essential!
       If the weakness type is accuracy, the recommendation must be: "Practise 10m circles at [exact positions]," followed by a short reason or coaching instruction. 
       For other types of weaknesses, suggest appropriate exercises with positions and a relevant coaching sentence, but do not mention circle excercies. You must not mention kind of circle exercises in weaknesses except for Accuracy
 
       Required weakness format:
       {
         "title": "Exercise title matching weakness type",
-        "weakness": "Specific description from judges' comments",
+        "weakness": "Specific description from judges' comments (en, es version)",
         "type": "accuracy"|"transitions"|"straightness"|"rhythm",
         "positions": ["A", "C"],
         "speed": "Walk",
         "size": "large"|"small",
         "instruction": "Specific practice instruction with positions"
       }
+
 
       This is total output result sample.
       {
@@ -338,7 +339,10 @@ serve(async (req)=>{
       At least 3 Recommendations are needed and all recommendations should be deep, meaningful, useful, correct and in detail (More specific exercise recommendations as well such as: "Try shoulder - in exercises" rather than just "focus on relaxtion").
       Ensure recommendations are specific, actionable, and progressive while remaining concise.
       I need the results with both Spanish and English - (en, es).
-      In en version, all content (including highest scores movements and so on.) should be English, otherwise, all content should be Spanish. So all contents language should be consistent in one mode
+      In en version, all content (including highest scores movements, weaknesses-svg and so on.) should be English, otherwise, all content should be Spanish. So all contents language should be consistent in one mode. Don't miss to convert languages of weaknesses-svg and highest-lowestScore movement contents.
+      Ensure no mixed-language elements appear in either version.
+      For the en version: everything must be in English
+      For the es version: everything must be in Spanish
       And in general comments, after writing the judge's comment, you should write the average score of each judge like "Work on balanced halts - 6.5".
       And only return the full JSON not truncated without any comment like "Here is the analyzed result of the document.".
       And should choose professional riding words like "flying changes" instead of "changes of leg" and your personal insight content pattern should be written to the person like "You seem to be ... if you ..." with 3-5 sentences and must be richful and helpful for riders.
