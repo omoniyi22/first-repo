@@ -14,6 +14,7 @@ import {
   TrendingDown,
   TrendingUp,
   Trophy,
+  User,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -317,7 +318,7 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
               scriptText: ttsScript,
               userId: user.id,
               analysisId: analysis.id,
-              language: language
+              language: language,
             }),
           }
         );
@@ -619,11 +620,10 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
           <h4 className="text-lg sm:text-xl font-semibold">
             {language === "en" ? "Judge Comments" : "Comentarios del Juez"}
           </h4>
-          <img
-            src="/lovable-uploads/1000010999.png"
-            alt="Horse and rider jumping over competition obstacle"
-            className="w-12 h-12 object-cover object-center"
-          />
+
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#F1F5F9] backdrop-blur-sm">
+            <User className="h-6 w-6 text-[#7658EB]" />
+          </div>
         </div>
         <ul className="text-sm sm:text-base space-y-2">
           {Object.entries(resultData[language].generalComments)
@@ -648,11 +648,11 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
               : "Perspectiva personalizada"}
           </h4>
 
-          {/* <img
+          <img
             src="/lovable-uploads/1000010999.png"
             alt="Horse and rider jumping over competition obstacle"
-            className="w-16 h-16 object-cover object-center"
-          /> */}
+            className="w-12 h-12 object-cover object-center"
+          />
         </div>
         <div className="max-w-[900px]">
           <p>
