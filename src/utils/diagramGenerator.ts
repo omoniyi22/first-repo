@@ -142,7 +142,6 @@ export const COLOR_BY_SPEED = {
   "Free Walk": "#7658EB",
 };
 
-
 export const COLOR_LEGEND = {
   "Walk": { from: "#3AD55A", to: "#00AE23" },
   "Trot": { from: "#FFD766", to: "#FF821C" },
@@ -239,6 +238,7 @@ const exerciseGenerators = {
                   stroke-linecap="round"
                 />
         ${arrows}
+        ${circles}
       `,
     };
   },
@@ -292,6 +292,7 @@ const exerciseGenerators = {
                   stroke-linecap="round"
               />
         ${arrows}
+        ${circles}
       `,
     };
   },
@@ -301,12 +302,12 @@ const exerciseGenerators = {
     const resolvedPoints = getConditionalAxisAlignedPoints(allChars, exPosition, arena);
     const points = resolvedPoints.map(p => `${p.x},${p.y}`).join(' ');
 
-    // const circles = allChars.map(char => `
-    //   <circle cx="${exPosition[char]?.x ?? arena.width / 2}"
-    //           cy="${exPosition[char]?.y ?? arena.height / 2}"
-    //           r="4"
-    //           class="straightness-point" />
-    // `).join('');
+    const circles = allChars.map(char => `
+      <circle cx="${exPosition[char]?.x ?? arena.width / 2}"
+              cy="${exPosition[char]?.y ?? arena.height / 2}"
+              r="4"
+              class="straightness-point" />
+    `).join('');
 
     const arrows = generateArrowOverlays(resolvedPoints, COLOR_BY_SPEED[speed]);
 
@@ -319,6 +320,7 @@ const exerciseGenerators = {
                   stroke-linecap="round"
                    />
         ${arrows}
+        ${circles}
       `,
     };
   },

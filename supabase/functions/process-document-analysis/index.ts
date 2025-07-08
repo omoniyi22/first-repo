@@ -216,8 +216,8 @@ serve(async (req)=>{
       - Movement positions (like S, M, H, etc.) Positions can be only letters not number.
       - Movement speed can be "Walk", "Trot", "Canter", "Halt", "Transition", "Free Walk":
       - Recommended exercises with exact positions - exact positions are essential!
-      If the weakness is related to accuracy, the recommendation must be: "Practise 10m circles at [exact positions]," followed by a short reason or coaching instruction. 
-      For other types of weaknesses, suggest appropriate exercises with positions and a relevant coaching sentence, but do not mention 10m circles.
+      If the weakness type is accuracy, the recommendation must be: "Practise 10m circles at [exact positions]," followed by a short reason or coaching instruction. 
+      For other types of weaknesses, suggest appropriate exercises with positions and a relevant coaching sentence, but do not mention circle excercies. You must not mention kind of circle exercises in weaknesses except for Accuracy
 
       Required weakness format:
       {
