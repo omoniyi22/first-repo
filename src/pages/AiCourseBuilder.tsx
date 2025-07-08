@@ -30,6 +30,10 @@ import {
   MACON_VARIATION_4_MIRROR_V_POSITION,
   MACON_VARIATION_5_ROTATE_30_HEIGHT,
   PARIS_GRAND_INDOOR,
+  PARIS_VARIATION_1_ROTATE_20,
+  PARIS_VARIATION_2_MIRROR_H,
+  PARIS_VARIATION_3_MIRROR_V_POSITION,
+  PARIS_VARIATION_4_ROTATE_30_HEIGHT,
 } from "@/data/courseData";
 // Type definitions
 interface GeneratedJump {
@@ -174,7 +178,7 @@ const AiCourseBuilder = () => {
       if (difficultyPreference === "easy") {
         selectedCourse = JERSEY_FRESH_CCI3;
       } else if (difficultyPreference === "medium") {
-        selectedCourse = MACON_VARIATION_4_MIRROR_V_POSITION;
+        selectedCourse = JERSEY_FRESH_CCI3;
       } else {
         selectedCourse = PARIS_GRAND_INDOOR;
       }

@@ -798,26 +798,1043 @@ export const MACON_VARIATION_5_ROTATE_30_HEIGHT = {
 };
 
 // ====== COURSE 2: JERSEY FRESH CCI 3* ======
+export const PARIS_GRAND_INDOOR = {
+    id: "paris_grand_indoor_160",
+    name: "Paris Grand Indoor 1.60m",
+    level: "grand_prix",
+    arena: { width: 60, length: 40 },
+    jumps: [
+        {
+            id: "jump_1",
+            number: 1,
+            x: 45,
+            y: 25,
+            height: 0.8,
+            type: "vertical",
+            rotation: -1.5707963267948963
+        },
+        {
+            id: "jump_2",
+            number: 2,
+            x: 39,
+            y: 12,
+            height: 0.8,
+            type: "vertical",
+            rotation: 1.0471975511965976,
+            manualRotation: true
+        },
+        {
+            id: "jump_3",
+            number: 3,
+            x: 17,
+            y: 20,
+            height: 0.8,
+            type: "vertical",
+            rotation: 1.308996938995747
+        },
+        {
+            id: "jump_4a",
+            number: "4a",
+            x: 14,
+            y: 5,
+            height: 0.8,
+            type: "vertical",
+            rotation: -1.5707963267948963
+        },
+        {
+            id: "jump_4b",
+            number: "4b",
+            x: 22,
+            y: 5,
+            height: 0.8,
+            type: "vertical",
+            rotation: -1.5707963267948963
+        },
+        {
+            id: "jump_4c",
+            number: "4c",
+            x: 34,
+            y: 5,
+            height: 0.8,
+            type: "vertical",
+            rotation: -1.5707963267948963
+        },
+        {
+            id: "jump_5",
+            number: 5,
+            x: 47,
+            y: 5,
+            height: 0.8,
+            type: "vertical",
+            rotation: -1.5707963267948963
+        },
+        {
+            id: "jump_6",
+            number: 6,
+            x: 45,
+            y: 31,
+            height: 0.8,
+            type: "vertical",
+            rotation: 1.8325957145940457
+        },
+        {
+            id: "jump_7",
+            number: 7,
+            x: 29,
+            y: 21,
+            height: 0.8,
+            type: "vertical",
+            rotation: 2.0943951023931953
+        },
+        {
+            id: "jump_8",
+            number: 8,
+            x: 12,
+            y: 14,
+            height: 0.8,
+            type: "vertical",
+            rotation: 1.308996938995747
+        },
+        {
+            id: "jump_9",
+            number: 9,
+            x: 23,
+            y: 30,
+            height: 0.8,
+            type: "vertical",
+            rotation: 1.308996938995747
+        },
+        {
+            id: "jump_10a",
+            number: "10a",
+            x: 37,
+            y: 22,
+            height: 0.8,
+            type: "vertical",
+            rotation: 1.308996938995747,
+            manualRotation: true
+        },
+        {
+            id: "jump_10b",
+            number: "10b",
+            x: 44,
+            y: 16,
+            height: 0.8,
+            type: "vertical",
+            rotation: 1.308996938995747,
+            manualRotation: true
+        },
+        {
+            id: "jump_11a",
+            number: "11a",
+            x: 41,
+            y: 35,
+            height: 0.8,
+            type: "vertical",
+            rotation: 1.5707963267948963
+        },
+        {
+            id: "jump_11b",
+            number: "11b",
+            x: 30,
+            y: 35,
+            height: 0.8,
+            type: "vertical",
+            rotation: -1.5707963267948963
+        },
+        {
+            id: "jump_12",
+            number: 12,
+            x: 8,
+            y: 26,
+            height: 0.8,
+            type: "vertical",
+            rotation: -0.2617993877991494
+        }
+    ],
+    metadata: {
+        source: "Paris Grand Indoor Salon du Cheval 2018",
+        complexity: "high",
+        pattern: "flowing",
+        designer: "Cédric LONGIS, Stéphane Paillot, Gauthier Delafontaine"
+    }
+}
+
+// ====== VARIATION 1: 20° ROTATION ======
+export const PARIS_VARIATION_1_ROTATE_20 = {
+    id: "paris_grand_indoor_var_1_rotate_20",
+    name: "Paris Grand Indoor 1.60m - Rotated 20°",
+    level: "grand_prix",
+    arena: { width: 60, length: 40 },
+    jumps: [
+        {
+            id: "jump_1",
+            number: 1,
+            x: 40.8,
+            y: 28.5,
+            height: 1.6,
+            type: "vertical",
+            rotation: -1.2217
+        },
+        {
+            id: "jump_2",
+            number: 2,
+            x: 38.1,
+            y: 16.2,
+            height: 1.6,
+            type: "vertical",
+            rotation: 1.3963
+        },
+        {
+            id: "jump_3",
+            number: 3,
+            x: 13.4,
+            y: 22.8,
+            height: 1.6,
+            type: "vertical",
+            rotation: 1.9198993877991493,
+            manualRotation: true
+        },
+        {
+            id: "jump_4A",
+            number: "4A",
+            x: 12,
+            y: 5,
+            height: 1.6,
+            type: "vertical",
+            rotation: -1.7452987755982987,
+            manualRotation: true
+        },
+        {
+            id: "jump_4B",
+            number: "4B",
+            x: 22,
+            y: 6,
+            height: 1.6,
+            type: "vertical",
+            rotation: -1.2217
+        },
+        {
+            id: "jump_4C",
+            number: "4C",
+            x: 32,
+            y: 8,
+            height: 1.6,
+            type: "vertical",
+            rotation: -1.2217
+        },
+        {
+            id: "jump_5",
+            number: 5,
+            x: 46,
+            y: 11,
+            height: 1.6,
+            type: "vertical",
+            rotation: -1.2217
+        },
+        {
+            id: "jump_6",
+            number: 6,
+            x: 37.8,
+            y: 34.2,
+            height: 1.6,
+            type: "vertical",
+            rotation: 1.9199006122008508,
+            manualRotation: true
+        },
+        {
+            id: "jump_7",
+            number: 7,
+            x: 25,
+            y: 24,
+            height: 1.6,
+            type: "vertical",
+            rotation: 1.9199012244017009,
+            manualRotation: true
+        },
+        {
+            id: "jump_8",
+            number: 8,
+            x: 12,
+            y: 16,
+            height: 1.6,
+            type: "vertical",
+            rotation: 1.3963006122008506,
+            manualRotation: true
+        },
+        {
+            id: "jump_9",
+            number: 9,
+            x: 19,
+            y: 28,
+            height: 1.6,
+            type: "vertical",
+            rotation: 1.6581
+        },
+        {
+            id: "jump_10A",
+            number: "10A",
+            x: 33,
+            y: 25,
+            height: 1.6,
+            type: "vertical",
+            rotation: 1.1345012244017012,
+            manualRotation: true
+        },
+        {
+            id: "jump_10B",
+            number: "10B",
+            x: 42,
+            y: 21,
+            height: 1.6,
+            type: "vertical",
+            rotation: 1.3963006122008506,
+            manualRotation: true
+        },
+        {
+            id: "jump_11A",
+            number: "11A",
+            x: 34.2,
+            y: 37.8,
+            height: 1.6,
+            type: "vertical",
+            rotation: 1.9199
+        },
+        {
+            id: "jump_11B",
+            number: "11B",
+            x: 25,
+            y: 35,
+            height: 1.6,
+            type: "vertical",
+            rotation: -1.2217,
+            manualRotation: true
+        },
+        {
+            id: "jump_12",
+            number: 12,
+            x: 10,
+            y: 32,
+            height: 1.6,
+            type: "vertical",
+            rotation: -0.9598975511965975,
+            manualRotation: true
+        }
+    ],
+    combinations: [
+        {
+            id: "4",
+            jumps: ["4A", "4B", "4C"],
+            type: "triple"
+        },
+        {
+            id: "10",
+            jumps: ["10A", "10B"],
+            type: "double"
+        },
+        {
+            id: "11",
+            jumps: ["11A", "11B"],
+            type: "double"
+        }
+    ],
+    metadata: {
+        source: "Paris Grand Indoor Salon du Cheval 2018",
+        complexity: "high",
+        pattern: "flowing",
+        designer: "Cédric LONGIS, Stéphane Paillot, Gauthier Delafontaine"
+    }
+};
+
+// ====== VARIATION 2: HORIZONTAL MIRROR ======
+export const PARIS_VARIATION_2_MIRROR_H = {
+    id: "paris_grand_indoor_var_2_mirror_h",
+    name: "Paris Grand Indoor 1.60m - Mirrored Horizontal",
+    level: "grand_prix",
+    arena: { width: 60, length: 40 },
+    jumps: [
+        {
+            id: "jump_1",
+            number: 1,
+            x: 15,
+            y: 25,
+            height: 1.6,
+            type: "vertical",
+            rotation: 1.5707963267948963
+        },
+        {
+            id: "jump_2",
+            number: 2,
+            x: 20,
+            y: 14,
+            height: 1.6,
+            type: "vertical",
+            rotation: -1.308996938995747,
+            manualRotation: true
+        },
+        {
+            id: "jump_3",
+            number: 3,
+            x: 43,
+            y: 20,
+            height: 1.6,
+            type: "vertical",
+            rotation: -1.308996938995747
+        },
+        {
+            id: "jump_4A",
+            number: "4A",
+            x: 46,
+            y: 5,
+            height: 1.6,
+            type: "vertical",
+            rotation: 1.5707963267948963
+        },
+        {
+            id: "jump_4B",
+            number: "4B",
+            x: 38,
+            y: 5,
+            height: 1.6,
+            type: "vertical",
+            rotation: 1.5707963267948963
+        },
+        {
+            id: "jump_4C",
+            number: "4C",
+            x: 25,
+            y: 5,
+            height: 1.6,
+            type: "vertical",
+            rotation: 1.5707963267948963
+        },
+        {
+            id: "jump_5",
+            number: 5,
+            x: 13,
+            y: 8,
+            height: 1.6,
+            type: "vertical",
+            rotation: 1.0471975511965976,
+            manualRotation: true
+        },
+        {
+            id: "jump_6",
+            number: 6,
+            x: 15,
+            y: 31,
+            height: 1.6,
+            type: "vertical",
+            rotation: -1.8325957145940457
+        },
+        {
+            id: "jump_7",
+            number: 7,
+            x: 31,
+            y: 21,
+            height: 1.6,
+            type: "vertical",
+            rotation: -2.0943951023931953
+        },
+        {
+            id: "jump_8",
+            number: 8,
+            x: 48,
+            y: 14,
+            height: 1.6,
+            type: "vertical",
+            rotation: -1.308996938995747
+        },
+        {
+            id: "jump_9",
+            number: 9,
+            x: 37,
+            y: 30,
+            height: 1.6,
+            type: "vertical",
+            rotation: -1.308996938995747
+        },
+        {
+            id: "jump_10A",
+            number: "10A",
+            x: 24,
+            y: 21,
+            height: 1.6,
+            type: "vertical",
+            rotation: -1.308996938995747
+        },
+        {
+            id: "jump_10B",
+            number: "10B",
+            x: 14,
+            y: 17,
+            height: 1.6,
+            type: "vertical",
+            rotation: -1.8325957145940457,
+            manualRotation: true
+        },
+        {
+            id: "jump_11A",
+            number: "11A",
+            x: 22,
+            y: 35,
+            height: 1.6,
+            type: "vertical",
+            rotation: -1.5707963267948963
+        },
+        {
+            id: "jump_11B",
+            number: "11B",
+            x: 33,
+            y: 35,
+            height: 1.6,
+            type: "vertical",
+            rotation: 1.308996938995747,
+            manualRotation: true
+        },
+        {
+            id: "jump_12",
+            number: 12,
+            x: 48,
+            y: 27,
+            height: 1.6,
+            type: "vertical",
+            rotation: 1.0471975511965976,
+            manualRotation: true
+        }
+    ],
+    combinations: [
+        {
+            id: "4",
+            jumps: ["4A", "4B", "4C"],
+            type: "triple"
+        },
+        {
+            id: "10",
+            jumps: ["10A", "10B"],
+            type: "double"
+        },
+        {
+            id: "11",
+            jumps: ["11A", "11B"],
+            type: "double"
+        }
+    ],
+    metadata: {
+        source: "Paris Grand Indoor Salon du Cheval 2018 - Variation",
+        complexity: "high",
+        pattern: "flowing mirrored",
+        designer: "Cédric LONGIS, Stéphane Paillot, Gauthier Delafontaine",
+        variation: "Horizontal mirror flip"
+    }
+};
+
+// ====== VARIATION 3: VERTICAL MIRROR + POSITION ADJUSTMENT ======
+export const PARIS_VARIATION_3_MIRROR_V_POSITION = {
+    id: "paris_grand_indoor_var_3_mirror_v_position",
+    name: "Paris Grand Indoor 1.60m - Vertical Mirror + Position Tweaks",
+    level: "grand_prix",
+    arena: { width: 60, length: 40 },
+    jumps: [
+        {
+            id: "jump_1",
+            number: 1,
+            x: 46.2,
+            y: 15,
+            height: 1.6,
+            type: "vertical",
+            rotation: 1.5707963267948963
+        },
+        {
+            id: "jump_2",
+            number: 2,
+            x: 40,
+            y: 27,
+            height: 1.6,
+            type: "vertical",
+            rotation: -1.308996938995747,
+            manualRotation: true
+        },
+        {
+            id: "jump_3",
+            number: 3,
+            x: 18.3,
+            y: 20,
+            height: 1.6,
+            type: "vertical",
+            rotation: -1.308996938995747
+        },
+        {
+            id: "jump_4A",
+            number: "4A",
+            x: 15.2,
+            y: 35,
+            height: 1.6,
+            type: "vertical",
+            rotation: 1.5707963267948963
+        },
+        {
+            id: "jump_4B",
+            number: "4B",
+            x: 25,
+            y: 35,
+            height: 1.6,
+            type: "vertical",
+            rotation: 1.5707963267948963
+        },
+        {
+            id: "jump_4C",
+            number: "4C",
+            x: 38,
+            y: 34,
+            height: 1.6,
+            type: "vertical",
+            rotation: 1.308996938995747,
+            manualRotation: true
+        },
+        {
+            id: "jump_5",
+            number: 5,
+            x: 47,
+            y: 33,
+            height: 1.6,
+            type: "vertical",
+            rotation: 1.0471975511965976,
+            manualRotation: true
+        },
+        {
+            id: "jump_6",
+            number: 6,
+            x: 45,
+            y: 10,
+            height: 1.6,
+            type: "vertical",
+            rotation: -2.0943951023931953,
+            manualRotation: true
+        },
+        {
+            id: "jump_7",
+            number: 7,
+            x: 30.8,
+            y: 19,
+            height: 1.6,
+            type: "vertical",
+            rotation: -2.0943951023931953
+        },
+        {
+            id: "jump_8",
+            number: 8,
+            x: 13.2,
+            y: 26,
+            height: 1.6,
+            type: "vertical",
+            rotation: -1.308996938995747
+        },
+        {
+            id: "jump_9",
+            number: 9,
+            x: 19,
+            y: 13,
+            height: 1.6,
+            type: "vertical",
+            rotation: -1.308996938995747,
+            manualRotation: true
+        },
+        {
+            id: "jump_10A",
+            number: "10A",
+            x: 31,
+            y: 13,
+            height: 1.6,
+            type: "vertical",
+            rotation: -1.0471975511965976,
+            manualRotation: true
+        },
+        {
+            id: "jump_10B",
+            number: "10B",
+            x: 41,
+            y: 20,
+            height: 1.6,
+            type: "vertical",
+            rotation: -1.3089969389957472,
+            manualRotation: true
+        },
+        {
+            id: "jump_11A",
+            number: "11A",
+            x: 40,
+            y: 5,
+            height: 1.6,
+            type: "vertical",
+            rotation: -1.308996938995747,
+            manualRotation: true
+        },
+        {
+            id: "jump_11B",
+            number: "11B",
+            x: 30,
+            y: 5,
+            height: 1.6,
+            type: "vertical",
+            rotation: 1.5707963267948963
+        },
+        {
+            id: "jump_12",
+            number: 12,
+            x: 11,
+            y: 8,
+            height: 1.6,
+            type: "vertical",
+            rotation: 1.0471975511965976,
+            manualRotation: true
+        }
+    ],
+    combinations: [
+        {
+            id: "4",
+            jumps: ["4A", "4B", "4C"],
+            type: "triple"
+        },
+        {
+            id: "10",
+            jumps: ["10A", "10B"],
+            type: "double"
+        },
+        {
+            id: "11",
+            jumps: ["11A", "11B"],
+            type: "double"
+        }
+    ],
+    metadata: {
+        source: "Paris Grand Indoor Salon du Cheval 2018 - Variation",
+        complexity: "high",
+        pattern: "flowing vertically mirrored with position adjustments",
+        designer: "Cédric LONGIS, Stéphane Paillot, Gauthier Delafontaine",
+        variation: "Vertical mirror + 1-2m position adjustments"
+    }
+};
+
+// ====== VARIATION 4: 30° ROTATION + MODERATE HEIGHT CHANGES ======
+export const PARIS_VARIATION_4_ROTATE_30_HEIGHT = {
+    id: "paris_grand_indoor_var_4_rotate_30_height",
+    name: "Paris Grand Indoor 1.60m - Rotated 30° + Height Changes",
+    level: "grand_prix",
+    arena: { width: 60, length: 40 },
+    jumps: [
+        {
+            id: "jump_1",
+            number: 1,
+            x: 55,
+            y: 25,
+            height: 1.5,
+            type: "vertical",
+            rotation: -3.665193877991495
+        },
+        {
+            id: "jump_2",
+            number: 2,
+            x: 43,
+            y: 12,
+            height: 1.65,
+            type: "vertical",
+            rotation: 1.3090006122008508
+        },
+        {
+            id: "jump_3",
+            number: 3,
+            x: 18,
+            y: 26,
+            height: 1.6,
+            type: "vertical",
+            rotation: 1.3090012244017013,
+            manualRotation: true
+        },
+        {
+            id: "jump_4A",
+            number: "4A",
+            x: 12,
+            y: 10,
+            height: 1.55,
+            type: "vertical",
+            rotation: -2.356196938995747,
+            manualRotation: true
+        },
+        {
+            id: "jump_4B",
+            number: "4B",
+            x: 24,
+            y: 6,
+            height: 1.55,
+            type: "vertical",
+            rotation: -1.832598163397448
+        },
+        {
+            id: "jump_4C",
+            number: "4C",
+            x: 35,
+            y: 10,
+            height: 1.55,
+            type: "vertical",
+            rotation: -1.0472
+        },
+        {
+            id: "jump_5",
+            number: 5,
+            x: 41,
+            y: 18,
+            height: 1.7,
+            type: "vertical",
+            rotation: -0.7854006122008506
+        },
+        {
+            id: "jump_6",
+            number: 6,
+            x: 40,
+            y: 33,
+            height: 1.6,
+            type: "vertical",
+            rotation: 2.0944006122008503,
+            manualRotation: true
+        },
+        {
+            id: "jump_7",
+            number: 7,
+            x: 24,
+            y: 21,
+            height: 1.55,
+            type: "vertical",
+            rotation: 2.618,
+            manualRotation: true
+        },
+        {
+            id: "jump_8",
+            number: 8,
+            x: 19,
+            y: 10,
+            height: 1.65,
+            type: "vertical",
+            rotation: -0.5235944901923444,
+            manualRotation: true
+        },
+        {
+            id: "jump_9",
+            number: 9,
+            x: 10,
+            y: 21,
+            height: 1.5,
+            type: "vertical",
+            rotation: 3.1415969389957477
+        },
+        {
+            id: "jump_10A",
+            number: "10A",
+            x: 20,
+            y: 33,
+            height: 1.55,
+            type: "vertical",
+            rotation: 1.5708006122008507,
+            manualRotation: true
+        },
+        {
+            id: "jump_10B",
+            number: "10B",
+            x: 29,
+            y: 30,
+            height: 1.55,
+            type: "vertical",
+            rotation: 1.3090012244017013,
+            manualRotation: true
+        },
+        {
+            id: "jump_11A",
+            number: "11A",
+            x: 41,
+            y: 24,
+            height: 1.7,
+            type: "vertical",
+            rotation: 1.0472024488034024,
+            manualRotation: true
+        },
+        {
+            id: "jump_11B",
+            number: "11B",
+            x: 47,
+            y: 19,
+            height: 1.7,
+            type: "vertical",
+            rotation: -2.356196938995747
+        },
+        {
+            id: "jump_12",
+            number: 12,
+            x: 53,
+            y: 10,
+            height: 1.6,
+            type: "vertical",
+            rotation: 0.5235993877991494
+        }
+    ],
+    combinations: [
+        {
+            id: "4",
+            jumps: ["4A", "4B", "4C"],
+            type: "triple"
+        },
+        {
+            id: "10",
+            jumps: ["10A", "10B"],
+            type: "double"
+        },
+        {
+            id: "11",
+            jumps: ["11A", "11B"],
+            type: "double"
+        }
+    ],
+    metadata: {
+        source: "Paris Grand Indoor Salon du Cheval 2018 - Variation",
+        complexity: "high",
+        pattern: "flowing rotated 30° with height variation",
+        designer: "Cédric LONGIS, Stéphane Paillot, Gauthier Delafontaine",
+        variation: "30° clockwise rotation + height range 1.50m-1.70m"
+    }
+};
+
+// ====== COURSE 3: JERSEY FRESH CCI 3* ======
 export const JERSEY_FRESH_CCI3 = {
     id: "jersey_fresh_cci3",
     name: "Jersey Fresh CCI 3* Cross Country",
     level: "advanced",
-    arena: { width: 80, length: 60 }, // Cross country - larger area
+    arena: { width: 60, length: 40 }, // Cross country - larger area
     jumps: [
-        { number: 1, x: 55, y: 35, height: 1.15, type: "vertical", rotation: 225 },
-        { number: 2, x: 45, y: 25, height: 1.15, type: "oxer", rotation: 180 },
-        { number: 3, x: 25, y: 35, height: 1.15, type: "vertical", rotation: 135 },
-        { number: 4, x: 15, y: 50, height: 1.15, type: "vertical", rotation: 90 },
-        { number: 5, x: 8, y: 30, height: 1.15, type: "oxer", rotation: 270 },
-        { number: 6, x: 35, y: 45, height: 1.15, type: "vertical", rotation: 90 },
-        { number: "7a", x: 35, y: 15, height: 1.15, type: "vertical", rotation: 90 },
-        { number: "7b", x: 38, y: 15, height: 1.15, type: "vertical", rotation: 90 },
-        { number: 8, x: 20, y: 40, height: 1.15, type: "water", rotation: 180 },
-        { number: 9, x: 12, y: 45, height: 1.15, type: "oxer", rotation: 45 },
-        { number: "10a", x: 30, y: 25, height: 1.15, type: "vertical", rotation: 90 },
-        { number: "10b", x: 33, y: 25, height: 1.15, type: "vertical", rotation: 90 },
-        { number: "10c", x: 36, y: 25, height: 1.15, type: "vertical", rotation: 90 },
-        { number: 11, x: 65, y: 25, height: 1.15, type: "oxer", rotation: 270 }
+        {
+            id: "jump_1",
+            number: 1,
+            x: 45,
+            y: 10,
+            height: 0.8,
+            type: "vertical",
+            rotation: -0.7853981633974483
+        },
+        {
+            id: "jump_2",
+            number: 2,
+            x: 43,
+            y: 25,
+            height: 0.8,
+            type: "vertical",
+            rotation: 2.356194490192345
+        },
+        {
+            id: "jump_3",
+            number: 3,
+            x: 34,
+            y: 15,
+            height: 0.8,
+            type: "vertical",
+            rotation: -0.7853981633974481
+        },
+        {
+            id: "jump_4",
+            number: 4,
+            x: 14,
+            y: 7,
+            height: 0.8,
+            type: "vertical",
+            rotation: -1.5707963267948963
+        },
+        {
+            id: "jump_5",
+            number: 5,
+            x: 12,
+            y: 33,
+            height: 0.8,
+            type: "vertical",
+            rotation: 1.0471975511965976
+        },
+        {
+            id: "jump_6",
+            number: 6,
+            x: 29,
+            y: 22,
+            height: 0.8,
+            type: "vertical",
+            rotation: -1.5707963267948963
+        },
+        {
+            id: "jump_7",
+            number: 7,
+            x: 44,
+            y: 35,
+            height: 0.8,
+            type: "vertical",
+            rotation: -1.5707963267948963
+        },
+        {
+            id: "jump_8",
+            number: 8,
+            x: 30,
+            y: 35,
+            height: 0.8,
+            type: "vertical",
+            rotation: 1.5707963267948963
+        },
+        {
+            id: "jump_9",
+            number: 9,
+            x: 21,
+            y: 15,
+            height: 0.8,
+            type: "vertical",
+            rotation: 0.5235987755982988
+        },
+        {
+            id: "jump_10",
+            number: 10,
+            x: 11,
+            y: 21,
+            height: 0.8,
+            type: "vertical",
+            rotation: -1.0471975511965976
+        },
+        {
+            id: "jump_11",
+            number: 11,
+            x: 24,
+            y: 29,
+            height: 0.8,
+            type: "vertical",
+            rotation: -1.0471975511965976
+        },
+        {
+            id: "jump_12",
+            number: 12,
+            x: 30,
+            y: 30,
+            height: 0.8,
+            type: "vertical",
+            rotation: -1.0471975511965976
+        },
+        {
+            id: "jump_13",
+            number: 13,
+            x: 37,
+            y: 30,
+            height: 0.8,
+            type: "vertical",
+            rotation: -1.5707963267948963
+        },
+        {
+            id: "jump_14",
+            number: 14,
+            x: 53,
+            y: 24,
+            height: 0.8,
+            type: "vertical",
+            rotation: 1.0471975511965976
+        }
     ],
     metadata: {
         source: "Jersey Fresh International Three Day Event",
@@ -828,36 +1845,36 @@ export const JERSEY_FRESH_CCI3 = {
 };
 
 // ====== COURSE 3: PARIS GRAND INDOOR ======
-export const PARIS_GRAND_INDOOR = {
-    id: "paris_grand_indoor_160",
-    name: "Paris Grand Indoor 1.60m",
-    level: "grand_prix",
-    arena: { width: 60, length: 40 },
-    jumps: [
-        { number: 1, x: 45, y: 30, height: 1.60, type: "vertical", rotation: 270 },
-        { number: 2, x: 42, y: 20, height: 1.60, type: "oxer", rotation: 225 },
-        { number: 3, x: 20, y: 25, height: 1.60, type: "water", rotation: 180 },
-        { number: "4a", x: 10, y: 35, height: 1.60, type: "vertical", rotation: 90 },
-        { number: "4b", x: 18, y: 35, height: 1.60, type: "vertical", rotation: 90 },
-        { number: "4c", x: 26, y: 35, height: 1.60, type: "vertical", rotation: 90 },
-        { number: 5, x: 52, y: 35, height: 1.60, type: "oxer", rotation: 90 },
-        { number: 6, x: 45, y: 25, height: 1.60, type: "vertical", rotation: 270 },
-        { number: 7, x: 52, y: 15, height: 1.60, type: "vertical", rotation: 315 },
-        { number: 8, x: 8, y: 28, height: 1.60, type: "vertical", rotation: 45 },
-        { number: 9, x: 20, y: 15, height: 1.60, type: "oxer", rotation: 90 },
-        { number: "10a", x: 38, y: 18, height: 1.60, type: "vertical", rotation: 45 },
-        { number: "10b", x: 42, y: 15, height: 1.60, type: "oxer", rotation: 45 },
-        { number: 11, x: 48, y: 12, height: 1.60, type: "water", rotation: 90 },
-        { number: 12, x: 35, y: 12, height: 1.60, type: "vertical", rotation: 90 },
-        { number: 13, x: 12, y: 32, height: 1.60, type: "oxer", rotation: 135 }
-    ],
-    metadata: {
-        source: "Paris Grand Indoor Salon du Cheval 2018",
-        complexity: "high",
-        pattern: "flowing",
-        designer: "Cédric LONGIS, Stéphane Paillot, Gauthier Delafontaine"
-    }
-};
+// export const PARIS_GRAND_INDOOR = {
+//     id: "paris_grand_indoor_160",
+//     name: "Paris Grand Indoor 1.60m",
+//     level: "grand_prix",
+//     arena: { width: 60, length: 40 },
+//     jumps: [
+//         { number: 1, x: 45, y: 30, height: 1.60, type: "vertical", rotation: 270 },
+//         { number: 2, x: 42, y: 20, height: 1.60, type: "oxer", rotation: 225 },
+//         { number: 3, x: 20, y: 25, height: 1.60, type: "water", rotation: 180 },
+//         { number: "4a", x: 10, y: 35, height: 1.60, type: "vertical", rotation: 90 },
+//         { number: "4b", x: 18, y: 35, height: 1.60, type: "vertical", rotation: 90 },
+//         { number: "4c", x: 26, y: 35, height: 1.60, type: "vertical", rotation: 90 },
+//         { number: 5, x: 52, y: 35, height: 1.60, type: "oxer", rotation: 90 },
+//         { number: 6, x: 45, y: 25, height: 1.60, type: "vertical", rotation: 270 },
+//         { number: 7, x: 52, y: 15, height: 1.60, type: "vertical", rotation: 315 },
+//         { number: 8, x: 8, y: 28, height: 1.60, type: "vertical", rotation: 45 },
+//         { number: 9, x: 20, y: 15, height: 1.60, type: "oxer", rotation: 90 },
+//         { number: "10a", x: 38, y: 18, height: 1.60, type: "vertical", rotation: 45 },
+//         { number: "10b", x: 42, y: 15, height: 1.60, type: "oxer", rotation: 45 },
+//         { number: 11, x: 48, y: 12, height: 1.60, type: "water", rotation: 90 },
+//         { number: 12, x: 35, y: 12, height: 1.60, type: "vertical", rotation: 90 },
+//         { number: 13, x: 12, y: 32, height: 1.60, type: "oxer", rotation: 135 }
+//     ],
+//     metadata: {
+//         source: "Paris Grand Indoor Salon du Cheval 2018",
+//         complexity: "high",
+//         pattern: "flowing",
+//         designer: "Cédric LONGIS, Stéphane Paillot, Gauthier Delafontaine"
+//     }
+// };
 
 // ====== COURSE 4: JERSEY FRESH CCI 4* ======
 export const JERSEY_FRESH_CCI4 = {
