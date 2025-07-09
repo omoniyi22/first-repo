@@ -23,30 +23,33 @@ const CourseCanvas = ({
   const [showGrid, setShowGrid] = useState(true);
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
-  const [selectedJumpCoords, setSelectedJumpCoords] = useState<{ x: number; y: number } | null>(null);
-  
+  const [selectedJumpCoords, setSelectedJumpCoords] = useState<{
+    x: number;
+    y: number;
+  } | null>(null);
+
   // Viewport state for pan and zoom
   const [viewport, setViewport] = useState({
     zoom: 1,
     offsetX: 0,
-    offsetY: 0
+    offsetY: 0,
   });
   const [isPanning, setIsPanning] = useState(false);
   const [panStart, setPanStart] = useState({ x: 0, y: 0 });
-  
-  const canvasPadding = 20; // Fixed padding in pixels
+
+  const canvasPadding = 10; // Fixed padding in pixels
 
   // Calculate the scale to fit the arena in the viewport
   const calculateFitScale = useCallback(() => {
     const container = containerRef.current;
     if (!container) return baseScale;
-    
+
     const containerWidth = container.clientWidth;
     const containerHeight = container.clientHeight;
-    
-    const scaleX = (containerWidth - canvasPadding * 2) / arenaWidth;
-    const scaleY = (containerHeight - canvasPadding * 2) / arenaLength;
-    
+
+    const scaleX = (containerWidth - 10 * 2) / arenaWidth;
+    const scaleY = (containerHeight - 10 * 2) / arenaLength;
+
     // Use the smaller scale to ensure entire arena fits
     return Math.min(scaleX, scaleY);
   }, [arenaWidth, arenaLength, baseScale]);
@@ -57,27 +60,30 @@ const CourseCanvas = ({
     setViewport({
       zoom: 1,
       offsetX: 0,
-      offsetY: 0
+      offsetY: 0,
     });
   }, [calculateFitScale]);
 
   // Get mouse position relative to arena coordinates
-  const getMousePos = useCallback((event) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return { x: 0, y: 0 };
-    
-    const rect = canvas.getBoundingClientRect();
-    const scale = calculateFitScale() * viewport.zoom;
-    
-    const canvasX = event.clientX - rect.left;
-    const canvasY = event.clientY - rect.top;
-    
-    // Convert to arena coordinates accounting for viewport
-    const x = (canvasX - canvasPadding - viewport.offsetX) / scale;
-    const y = (canvasY - canvasPadding - viewport.offsetY) / scale;
-    
-    return { x, y };
-  }, [calculateFitScale, viewport]);
+  const getMousePos = useCallback(
+    (event) => {
+      const canvas = canvasRef.current;
+      if (!canvas) return { x: 0, y: 0 };
+
+      const rect = canvas.getBoundingClientRect();
+      const scale = calculateFitScale() * viewport.zoom;
+
+      const canvasX = event.clientX - rect.left;
+      const canvasY = event.clientY - rect.top;
+
+      // Convert to arena coordinates accounting for viewport
+      const x = (canvasX - canvasPadding - viewport.offsetX) / scale;
+      const y = (canvasY - canvasPadding - viewport.offsetY) / scale;
+
+      return { x, y };
+    },
+    [calculateFitScale, viewport]
+  );
 
   // Update button position
   const updateButtonPosition = useCallback(() => {
@@ -86,7 +92,7 @@ const CourseCanvas = ({
       return;
     }
 
-    const selectedJumpData = jumps.find(jump => jump.id === selectedJump);
+    const selectedJumpData = jumps.find((jump) => jump.id === selectedJump);
     if (!selectedJumpData) {
       setSelectedJumpCoords(null);
       return;
@@ -95,11 +101,13 @@ const CourseCanvas = ({
     const canvas = canvasRef.current;
     const rect = canvas.getBoundingClientRect();
     const scale = calculateFitScale() * viewport.zoom;
-    
+
     // Calculate screen position
-    const screenX = selectedJumpData.x * scale + canvasPadding + viewport.offsetX;
-    const screenY = selectedJumpData.y * scale + canvasPadding + viewport.offsetY;
-    
+    const screenX =
+      selectedJumpData.x * scale + canvasPadding + viewport.offsetX;
+    const screenY =
+      selectedJumpData.y * scale + canvasPadding + viewport.offsetY;
+
     setSelectedJumpCoords({
       x: screenX,
       y: screenY,
@@ -119,28 +127,31 @@ const CourseCanvas = ({
     try {
       // Clear canvas
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
+
       // Save context
       ctx.save();
-      
+
       // Apply viewport transformations
-      ctx.translate(canvasPadding + viewport.offsetX, canvasPadding + viewport.offsetY);
+      ctx.translate(
+        canvasPadding + viewport.offsetX,
+        canvasPadding + viewport.offsetY
+      );
       ctx.scale(viewport.zoom, viewport.zoom);
 
       // Draw grid
       if (showGrid) {
         ctx.strokeStyle = "#e5e7eb";
         ctx.lineWidth = 1 / viewport.zoom;
-        
+
         const fitScale = calculateFitScale();
-        
+
         for (let x = 0; x <= arenaWidth; x += 5) {
           ctx.beginPath();
           ctx.moveTo(x * fitScale, 0);
           ctx.lineTo(x * fitScale, arenaLength * fitScale);
           ctx.stroke();
         }
-        
+
         for (let y = 0; y <= arenaLength; y += 5) {
           ctx.beginPath();
           ctx.moveTo(0, y * fitScale);
@@ -157,25 +168,35 @@ const CourseCanvas = ({
 
       // Sort jumps for drawing
       const sortedJumps = [...jumps].sort((a, b) => a.number - b.number);
-      
+
       // Draw path lines only for dangerous or combination distances
       if (sortedJumps.length > 1) {
         ctx.save();
         ctx.lineWidth = 2 / viewport.zoom;
         ctx.setLineDash([8 / viewport.zoom, 4 / viewport.zoom]);
-        
+
         for (let i = 0; i < sortedJumps.length - 1; i++) {
-          const distance = calculateDistance(sortedJumps[i], sortedJumps[i + 1]);
-          
+          const distance = calculateDistance(
+            sortedJumps[i],
+            sortedJumps[i + 1]
+          );
+
           // Only draw line if distance is dangerous (3-6m) or combination (<8m)
           if (distance < 8) {
-            ctx.strokeStyle = distance >= 3 && distance <= 6
-              ? "rgba(239, 68, 68, 0.5)" // Red for dangerous
-              : "rgba(245, 158, 11, 0.5)"; // Yellow for combination
-            
+            ctx.strokeStyle =
+              distance >= 3 && distance <= 6
+                ? "rgba(239, 68, 68, 0.5)" // Red for dangerous
+                : "rgba(245, 158, 11, 0.5)"; // Yellow for combination
+
             ctx.beginPath();
-            ctx.moveTo(sortedJumps[i].x * fitScale, sortedJumps[i].y * fitScale);
-            ctx.lineTo(sortedJumps[i + 1].x * fitScale, sortedJumps[i + 1].y * fitScale);
+            ctx.moveTo(
+              sortedJumps[i].x * fitScale,
+              sortedJumps[i].y * fitScale
+            );
+            ctx.lineTo(
+              sortedJumps[i + 1].x * fitScale,
+              sortedJumps[i + 1].y * fitScale
+            );
             ctx.stroke();
           }
         }
@@ -191,7 +212,7 @@ const CourseCanvas = ({
         const x = jump.x * fitScale;
         const y = jump.y * fitScale;
         const width = jumpType.width * fitScale;
-        const height = 8 * fitScale / baseScale;
+        const height = (8 * fitScale) / baseScale;
         const isSelected = selectedJump === jump.id;
         const isFirst = index === 0;
         const isLast = index === sortedJumps.length - 1;
@@ -203,7 +224,7 @@ const CourseCanvas = ({
           // Start flag
           ctx.save();
           ctx.translate(x - 30 / viewport.zoom, y - 30 / viewport.zoom);
-          
+
           // Flag pole
           ctx.strokeStyle = "#374151";
           ctx.lineWidth = 2 / viewport.zoom;
@@ -211,7 +232,7 @@ const CourseCanvas = ({
           ctx.moveTo(0, 0);
           ctx.lineTo(0, 20 / viewport.zoom);
           ctx.stroke();
-          
+
           // Flag
           ctx.fillStyle = "#10b981";
           ctx.beginPath();
@@ -220,20 +241,20 @@ const CourseCanvas = ({
           ctx.lineTo(0, 10 / viewport.zoom);
           ctx.closePath();
           ctx.fill();
-          
+
           // "START" text
           ctx.fillStyle = "#065f46";
           ctx.font = `bold ${10 / viewport.zoom}px Arial`;
           ctx.fillText("START", -5 / viewport.zoom, -5 / viewport.zoom);
-          
+
           ctx.restore();
         }
-        
+
         if (isLast) {
           // Finish flag
           ctx.save();
           ctx.translate(x + 30 / viewport.zoom, y - 30 / viewport.zoom);
-          
+
           // Flag pole
           ctx.strokeStyle = "#374151";
           ctx.lineWidth = 2 / viewport.zoom;
@@ -241,49 +262,39 @@ const CourseCanvas = ({
           ctx.moveTo(0, 0);
           ctx.lineTo(0, 20 / viewport.zoom);
           ctx.stroke();
-          
+
           // Checkered flag pattern
           const flagSize = 15 / viewport.zoom;
           const checkerSize = flagSize / 3;
           ctx.fillStyle = "#000000";
-          
+
           for (let row = 0; row < 3; row++) {
             for (let col = 0; col < 3; col++) {
               if ((row + col) % 2 === 0) {
-                ctx.fillRect(col * checkerSize, row * checkerSize, checkerSize, checkerSize);
+                ctx.fillRect(
+                  col * checkerSize,
+                  row * checkerSize,
+                  checkerSize,
+                  checkerSize
+                );
               }
             }
           }
-          
+
           ctx.strokeStyle = "#000000";
           ctx.lineWidth = 1 / viewport.zoom;
           ctx.strokeRect(0, 0, flagSize, flagSize);
-          
+
           // "FINISH" text
           ctx.fillStyle = "#dc2626";
           ctx.font = `bold ${10 / viewport.zoom}px Arial`;
           ctx.fillText("FINISH", -5 / viewport.zoom, -5 / viewport.zoom);
-          
+
           ctx.restore();
         }
 
         // Calculate rotation
-        let angle = 0;
-        if (jump.manualRotation && typeof jump.rotation === "number") {
-          angle = jump.rotation;
-        } else if (index === 0 && sortedJumps.length > 1) {
-          // First jump faces the second jump
-          const next = sortedJumps[1];
-          const dx = next.x - jump.x;
-          const dy = next.y - jump.y;
-          angle = Math.atan2(dy, dx) - Math.PI / 2;
-        } else if (index > 0) {
-          // All other jumps face their previous jump
-          const prev = sortedJumps[index - 1];
-          const dx = prev.x - jump.x;
-          const dy = prev.y - jump.y;
-          angle = Math.atan2(dy, dx) - Math.PI / 2;
-        }
+        const angle = jump.rotation || 0;
 
         ctx.save();
         ctx.translate(x, y);
@@ -294,11 +305,21 @@ const CourseCanvas = ({
           ctx.strokeStyle = "#3b82f6";
           ctx.lineWidth = 3 / viewport.zoom;
           ctx.setLineDash([5 / viewport.zoom, 5 / viewport.zoom]);
-          ctx.strokeRect(-width / 2 - 5, -height / 2 - 5, width + 10, height + 10);
+          ctx.strokeRect(
+            -width / 2 - 5,
+            -height / 2 - 5,
+            width + 10,
+            height + 10
+          );
           ctx.setLineDash([]);
         }
 
-        const gradient = ctx.createLinearGradient(-width / 2, -height / 2, width / 2, height / 2);
+        const gradient = ctx.createLinearGradient(
+          -width / 2,
+          -height / 2,
+          width / 2,
+          height / 2
+        );
         gradient.addColorStop(0, jumpType.color);
         gradient.addColorStop(1, isSelected ? "#1e40af" : "#000000");
 
@@ -333,32 +354,32 @@ const CourseCanvas = ({
         ctx.save();
         ctx.fillStyle = "#1f2937"; // Darker color (gray-800)
         ctx.strokeStyle = "#1f2937";
-        
+
         // Draw arrows on all jumps except the last one
         for (let i = 0; i < sortedJumps.length - 1; i++) {
           const fromJump = sortedJumps[i];
           const toJump = sortedJumps[i + 1];
-          
+
           // Position arrow right on the jump
           const arrowX = fromJump.x * fitScale;
           const arrowY = fromJump.y * fitScale;
-          
+
           // Calculate arrow angle
           const angle = Math.atan2(
             toJump.y - fromJump.y,
             toJump.x - fromJump.x
           );
-          
+
           // Draw larger arrow
           ctx.save();
           ctx.translate(arrowX, arrowY);
           ctx.rotate(angle);
-          
+
           // Move arrow to edge of jump
           const jumpType = jumpTypes.find((type) => type.id === fromJump.type);
           const jumpWidth = (jumpType?.width || 4) * fitScale;
           ctx.translate(jumpWidth / 2 + 20 / viewport.zoom, 0);
-          
+
           // Larger arrow shape
           ctx.beginPath();
           ctx.moveTo(0, 0);
@@ -366,7 +387,7 @@ const CourseCanvas = ({
           ctx.lineTo(-8 / viewport.zoom, 5 / viewport.zoom);
           ctx.closePath();
           ctx.fill();
-          
+
           ctx.restore();
         }
         ctx.restore();
@@ -377,23 +398,40 @@ const CourseCanvas = ({
     } catch (error) {
       console.error("Error drawing course:", error);
     }
-  }, [jumps, arenaWidth, arenaLength, showGrid, selectedJump, calculateFitScale, viewport, baseScale, getCurrentLevel, calculateDistance]);
+  }, [
+    jumps,
+    arenaWidth,
+    arenaLength,
+    showGrid,
+    selectedJump,
+    calculateFitScale,
+    viewport,
+    baseScale,
+    getCurrentLevel,
+    calculateDistance,
+  ]);
 
   // Keyboard controls for zoom
   useEffect(() => {
     const handleKeyPress = (event) => {
-      if (event.key === '+' || event.key === '=') {
-        setViewport(prev => ({ ...prev, zoom: Math.min(5, prev.zoom + 0.1) }));
-      } else if (event.key === '-' || event.key === '_') {
-        setViewport(prev => ({ ...prev, zoom: Math.max(0.2, prev.zoom - 0.1) }));
-      } else if (event.key === '0' && (event.ctrlKey || event.metaKey)) {
+      if (event.key === "+" || event.key === "=") {
+        setViewport((prev) => ({
+          ...prev,
+          zoom: Math.min(5, prev.zoom + 0.1),
+        }));
+      } else if (event.key === "-" || event.key === "_") {
+        setViewport((prev) => ({
+          ...prev,
+          zoom: Math.max(0.2, prev.zoom - 0.1),
+        }));
+      } else if (event.key === "0" && (event.ctrlKey || event.metaKey)) {
         event.preventDefault();
         resetViewport();
       }
     };
 
-    window.addEventListener('keydown', handleKeyPress);
-    return () => window.removeEventListener('keydown', handleKeyPress);
+    window.addEventListener("keydown", handleKeyPress);
+    return () => window.removeEventListener("keydown", handleKeyPress);
   }, [resetViewport]);
 
   // Handle canvas resizing
@@ -402,17 +440,17 @@ const CourseCanvas = ({
       const container = containerRef.current;
       const canvas = canvasRef.current;
       if (!container || !canvas) return;
-      
+
       canvas.width = container.clientWidth;
       canvas.height = container.clientHeight;
-      
+
       drawCourse();
       updateButtonPosition();
     };
 
     handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, [drawCourse, updateButtonPosition]);
 
   // Redraw when relevant data changes
@@ -426,21 +464,21 @@ const CourseCanvas = ({
     // Only prevent default if mouse is over canvas
     const canvas = canvasRef.current;
     if (!canvas) return;
-    
+
     const rect = canvas.getBoundingClientRect();
-    const isOverCanvas = 
-      event.clientX >= rect.left && 
-      event.clientX <= rect.right && 
-      event.clientY >= rect.top && 
+    const isOverCanvas =
+      event.clientX >= rect.left &&
+      event.clientX <= rect.right &&
+      event.clientY >= rect.top &&
       event.clientY <= rect.bottom;
-    
+
     if (isOverCanvas) {
       event.preventDefault();
       event.stopPropagation();
       const delta = event.deltaY > 0 ? -0.05 : 0.05; // 5% increments
-      setViewport(prev => ({
+      setViewport((prev) => ({
         ...prev,
-        zoom: Math.max(0.2, Math.min(5, prev.zoom + delta))
+        zoom: Math.max(0.2, Math.min(5, prev.zoom + delta)),
       }));
     }
   }, []);
@@ -451,93 +489,124 @@ const CourseCanvas = ({
     if (!canvas) return;
 
     const wheelHandler = (event) => handleWheel(event);
-    
+
     // Use passive: false to allow preventDefault
-    canvas.addEventListener('wheel', wheelHandler, { passive: false });
-    
+    canvas.addEventListener("wheel", wheelHandler, { passive: false });
+
     return () => {
-      canvas.removeEventListener('wheel', wheelHandler);
+      canvas.removeEventListener("wheel", wheelHandler);
     };
   }, [handleWheel]);
 
   // Handle canvas interactions
-  const handleCanvasMouseDown = useCallback((event) => {
-    if (event.shiftKey || event.button === 1) {
-      // Start panning with shift+click or middle mouse
-      setIsPanning(true);
-      setPanStart({ x: event.clientX, y: event.clientY });
-      return;
-    }
+  const handleCanvasMouseDown = useCallback(
+    (event) => {
+      if (event.shiftKey || event.button === 1) {
+        // Start panning with shift+click or middle mouse
+        setIsPanning(true);
+        setPanStart({ x: event.clientX, y: event.clientY });
+        return;
+      }
 
-    if (designMode !== "manual") return;
+      if (designMode !== "manual") return;
 
-    const { x, y } = getMousePos(event);
+      const { x, y } = getMousePos(event);
 
-    // Check if clicking on existing jump
-    const clickedJump = jumps.find((jump) => {
-      const jumpType = jumpTypes.find((type) => type.id === jump.type);
-      const jumpWidth = jumpType?.width || 4;
-      return (
-        Math.abs(jump.x - x) < jumpWidth / 2 + 2 && Math.abs(jump.y - y) < 4
-      );
-    });
-
-    if (clickedJump) {
-      setSelectedJump(clickedJump.id);
-      setIsDragging(true);
-      setDragOffset({
-        x: x - clickedJump.x,
-        y: y - clickedJump.y,
+      // Check if clicking on existing jump
+      const clickedJump = jumps.find((jump) => {
+        const jumpType = jumpTypes.find((type) => type.id === jump.type);
+        const jumpWidth = jumpType?.width || 4;
+        return (
+          Math.abs(jump.x - x) < jumpWidth / 2 + 2 && Math.abs(jump.y - y) < 4
+        );
       });
-    } else {
-      const currentLevel = getCurrentLevel();
-      const newJump = {
-        id: Date.now(),
-        x: Math.round(Math.max(5, Math.min(x, arenaWidth - 5))),
-        y: Math.round(Math.max(5, Math.min(y, arenaLength - 5))),
-        type: selectedJumpType,
-        number: jumps.length + 1,
-        height: currentLevel?.minHeight && currentLevel?.maxHeight
-          ? currentLevel.minHeight + (currentLevel.maxHeight - currentLevel.minHeight) * 0.5
-          : 1.0,
-        rotation: 0,
-        manualRotation: false,
-      };
-      setJumps([...jumps, newJump]);
-      setSelectedJump(newJump.id);
-    }
-  }, [designMode, getMousePos, jumps, jumpTypes, setSelectedJump, setJumps, getCurrentLevel, selectedJumpType, arenaWidth, arenaLength]);
 
-  const handleCanvasMouseMove = useCallback((event) => {
-    if (isPanning) {
-      const dx = event.clientX - panStart.x;
-      const dy = event.clientY - panStart.y;
-      setViewport(prev => ({
-        ...prev,
-        offsetX: prev.offsetX + dx,
-        offsetY: prev.offsetY + dy
-      }));
-      setPanStart({ x: event.clientX, y: event.clientY });
-      return;
-    }
+      if (clickedJump) {
+        setSelectedJump(clickedJump.id);
+        setIsDragging(true);
+        setDragOffset({
+          x: x - clickedJump.x,
+          y: y - clickedJump.y,
+        });
+      } else {
+        const currentLevel = getCurrentLevel();
+        const newJump = {
+          id: Date.now(),
+          x: Math.round(Math.max(5, Math.min(x, arenaWidth - 5))),
+          y: Math.round(Math.max(5, Math.min(y, arenaLength - 5))),
+          type: selectedJumpType,
+          number: jumps.length + 1,
+          height:
+            currentLevel?.minHeight && currentLevel?.maxHeight
+              ? currentLevel.minHeight +
+                (currentLevel.maxHeight - currentLevel.minHeight) * 0.5
+              : 1.0,
+          rotation: 0,
+          // manualRotation: false,
+        };
+        setJumps([...jumps, newJump]);
+        setSelectedJump(newJump.id);
+      }
+    },
+    [
+      designMode,
+      getMousePos,
+      jumps,
+      jumpTypes,
+      setSelectedJump,
+      setJumps,
+      getCurrentLevel,
+      selectedJumpType,
+      arenaWidth,
+      arenaLength,
+    ]
+  );
 
-    if (!isDragging || !selectedJump || designMode !== "manual") return;
+  const handleCanvasMouseMove = useCallback(
+    (event) => {
+      if (isPanning) {
+        const dx = event.clientX - panStart.x;
+        const dy = event.clientY - panStart.y;
+        setViewport((prev) => ({
+          ...prev,
+          offsetX: prev.offsetX + dx,
+          offsetY: prev.offsetY + dy,
+        }));
+        setPanStart({ x: event.clientX, y: event.clientY });
+        return;
+      }
 
-    const { x, y } = getMousePos(event);
+      if (!isDragging || !selectedJump || designMode !== "manual") return;
 
-    const newX = Math.round(
-      Math.max(5, Math.min(x - dragOffset.x, arenaWidth - 5))
-    );
-    const newY = Math.round(
-      Math.max(5, Math.min(y - dragOffset.y, arenaLength - 5))
-    );
+      const { x, y } = getMousePos(event);
 
-    setJumps(
-      jumps.map((jump) =>
-        jump.id === selectedJump ? { ...jump, x: newX, y: newY } : jump
-      )
-    );
-  }, [isPanning, panStart, isDragging, selectedJump, designMode, getMousePos, dragOffset, arenaWidth, arenaLength, jumps, setJumps]);
+      const newX = Math.round(
+        Math.max(5, Math.min(x - dragOffset.x, arenaWidth - 5))
+      );
+      const newY = Math.round(
+        Math.max(5, Math.min(y - dragOffset.y, arenaLength - 5))
+      );
+
+      setJumps(
+        jumps.map((jump) =>
+          jump.id === selectedJump ? { ...jump, x: newX, y: newY } : jump
+        )
+      );
+    },
+    [
+      isPanning,
+      panStart,
+      isDragging,
+      selectedJump,
+      designMode,
+      getMousePos,
+      dragOffset,
+      arenaWidth,
+      arenaLength,
+      jumps,
+      setJumps,
+    ]
+  );
 
   const handleCanvasMouseUp = useCallback(() => {
     setIsDragging(false);
@@ -582,7 +651,15 @@ const CourseCanvas = ({
     } catch (error) {
       console.error("Error exporting course:", error);
     }
-  }, [analyzeCourse, discipline, level, arenaWidth, arenaLength, jumps, designMode]);
+  }, [
+    analyzeCourse,
+    discipline,
+    level,
+    arenaWidth,
+    arenaLength,
+    jumps,
+    designMode,
+  ]);
 
   const rotateJump = (angleDelta: number) => {
     if (!selectedJump) return;
@@ -592,7 +669,9 @@ const CourseCanvas = ({
         jump.id === selectedJump
           ? {
               ...jump,
-              rotation: ((jump.rotation || 0) + (angleDelta * Math.PI) / 180) % (2 * Math.PI),
+              rotation:
+                ((jump.rotation || 0) + (angleDelta * Math.PI) / 180) %
+                (2 * Math.PI),
               manualRotation: true,
             }
           : jump
@@ -613,15 +692,27 @@ const CourseCanvas = ({
           <div className="flex items-center space-x-3">
             <div className="flex items-center space-x-1 bg-gray-100 rounded-lg px-2 py-1">
               <button
-                onClick={() => setViewport(prev => ({ ...prev, zoom: Math.min(5, prev.zoom + 0.05) }))}
+                onClick={() =>
+                  setViewport((prev) => ({
+                    ...prev,
+                    zoom: Math.min(5, prev.zoom + 0.05),
+                  }))
+                }
                 className="p-1 hover:bg-gray-200 rounded transition-all"
                 title="Zoom In"
               >
                 <ZoomIn className="w-4 h-4" />
               </button>
-              <span className="text-sm text-gray-600 px-2 min-w-[50px] text-center">{Math.round(viewport.zoom * 100)}%</span>
+              <span className="text-sm text-gray-600 px-2 min-w-[50px] text-center">
+                {Math.round(viewport.zoom * 100)}%
+              </span>
               <button
-                onClick={() => setViewport(prev => ({ ...prev, zoom: Math.max(0.2, prev.zoom - 0.05) }))}
+                onClick={() =>
+                  setViewport((prev) => ({
+                    ...prev,
+                    zoom: Math.max(0.2, prev.zoom - 0.05),
+                  }))
+                }
                 className="p-1 hover:bg-gray-200 rounded transition-all"
                 title="Zoom Out"
               >
@@ -662,11 +753,11 @@ const CourseCanvas = ({
           </div>
         </div>
 
-        <div 
+        <div
           ref={containerRef}
           className="border-2 border-gray-200 rounded-xl overflow-hidden bg-green-50 relative flex-1"
-          style={{ 
-            minHeight: '400px'
+          style={{
+            minHeight: "400px",
           }}
         >
           <canvas
@@ -685,7 +776,7 @@ const CourseCanvas = ({
               style={{
                 left: `${selectedJumpCoords.x}px`,
                 top: `${selectedJumpCoords.y + 40}px`,
-                transform: 'translate(-50%, 0)',
+                transform: "translate(-50%, 0)",
               }}
             >
               <button
