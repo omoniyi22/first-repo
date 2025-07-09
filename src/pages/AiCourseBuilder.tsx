@@ -68,6 +68,7 @@ const AiCourseBuilder = () => {
   const [selectedJumpType, setSelectedJumpType] = useState("vertical");
   const [analysis, setAnalysis] = useState<CourseAnalysis | undefined>();
   const [userDiscipline, setUserDiscipline] = useState<string>("");
+  const [courseIndex, setCourseIndex] = useState(0);
   const [generationSettings, setGenerationSettings] = useState({
     allowCombinations: true,
     preferSmoothTurns: true,
@@ -185,9 +186,9 @@ const AiCourseBuilder = () => {
         setIsGenerating(false);
         return;
       }
-
-      const selectedCourse =
-        selectedCourses[Math.floor(Math.random() * selectedCourses.length)];
+      const nextIndex = courseIndex % selectedCourses.length;
+      const selectedCourse = selectedCourses[nextIndex];
+      setCourseIndex(nextIndex + 1); // update index for next time
 
       setArenaWidth(selectedCourse.arena.width);
       setArenaLength(selectedCourse.arena.length);
@@ -203,7 +204,11 @@ const AiCourseBuilder = () => {
         rotation: jump.rotation,
       }));
 
+      await new Promise((resolve) => setTimeout(resolve, 1500)); // Simulate network delay
+
+      // 4. Set jumps state
       setJumps(convertedJumps);
+
       setGenerationMethod(`Professional Course: ${selectedCourse.name}`);
     } catch (error) {
       console.error("Error:", error);
