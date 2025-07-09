@@ -13,7 +13,7 @@ const StepsSection = () => {
       title: "Upload Score Sheets",
       description:
         "Simply take a photo of your dressage test score sheet or upload a digital copy. Our system supports all major dressage organizations and test levels.",
-      image: "/public/lovable-uploads/upload-score-sheets.png",
+      image: "/lovable-uploads/upload-score-sheets.png",
       features: [
         "Support for FEI, USDF, British Dressage, and other formats",
         "Simple drag-and-drop or camera upload",
@@ -27,7 +27,7 @@ const StepsSection = () => {
       title: "AI Analysis",
       description:
         "Our advanced artificial intelligence analyzes your scores, comments, and performance patterns to identify both strengths and areas for improvement.",
-      image: "/public/lovable-uploads/ai-analysis.png",
+      image: "/lovable-uploads/ai-analysis.png",
       features: [
         "Detailed breakdown of each movement score",
         "Pattern recognition across multiple tests",
@@ -41,7 +41,7 @@ const StepsSection = () => {
       title: "Personalized Recommendations",
       description:
         "Receive tailored training recommendations and exercises specifically designed to address your improvement areas and enhance your strengths.",
-      image: "/public/lovable-uploads/personalized-recommendations.png",
+      image: "/lovable-uploads/personalized-recommendations.png",
       features: [
         "Custom exercise selection from our library",
         "Difficulty progression based on your level",
@@ -55,7 +55,7 @@ const StepsSection = () => {
       title: "Progress Tracking",
       description:
         "Monitor your improvement over time with comprehensive analytics dashboards and progress reports that show your development as a rider.",
-      image: "/public/lovable-uploads/progress-tracking.png",
+      image: "/lovable-uploads/progress-tracking.png",
       features: [
         "Visual charts of score improvements",
         "Achievement tracking and milestones",
