@@ -24,11 +24,15 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import {
   JERSEY_FRESH_CCI3,
+  JERSEY_FRESH_VARIATION_1_ROTATE_25,
+  JERSEY_FRESH_VARIATION_2_MIRROR_H,
+  JERSEY_FRESH_VARIATION_3_MIRROR_V_POSITION,
+  JERSEY_FRESH_VARIATION_4_ROTATE_35_HEIGHT,
   MACON_GRAND_INDOOR,
   MACON_VARIATION_1_ROTATE_15,
   MACON_VARIATION_2_MIRROR_H,
-  MACON_VARIATION_4_MIRROR_V_POSITION,
-  MACON_VARIATION_5_ROTATE_30_HEIGHT,
+  MACON_VARIATION_3_MIRROR_V_POSITION,
+  MACON_VARIATION_4_ROTATE_30_HEIGHT,
   PARIS_GRAND_INDOOR,
   PARIS_VARIATION_1_ROTATE_20,
   PARIS_VARIATION_2_MIRROR_H,
@@ -178,7 +182,7 @@ const AiCourseBuilder = () => {
       if (difficultyPreference === "easy") {
         selectedCourse = JERSEY_FRESH_CCI3;
       } else if (difficultyPreference === "medium") {
-        selectedCourse = JERSEY_FRESH_CCI3;
+        selectedCourse = JERSEY_FRESH_VARIATION_3_MIRROR_V_POSITION;
       } else {
         selectedCourse = PARIS_GRAND_INDOOR;
       }

@@ -474,10 +474,9 @@ export const MACON_VARIATION_2_MIRROR_H = {
     }
 };
 
-
-// ====== VARIATION 4: VERTICAL MIRROR + POSITION ADJUSTMENT ======
-export const MACON_VARIATION_4_MIRROR_V_POSITION = {
-    id: "macon_grand_indoor_var_4_mirror_v_position",
+// ====== VARIATION 3: VERTICAL MIRROR + POSITION ADJUSTMENT ======
+export const MACON_VARIATION_3_MIRROR_V_POSITION = {
+    id: "macon_grand_indoor_var_3_mirror_v_position",
     name: "Macon Grand Indoor 1.35m - Vertical Mirror + Position Tweaks",
     level: "grand_prix",
     arena: { width: 60, length: 40 },
@@ -636,9 +635,9 @@ export const MACON_VARIATION_4_MIRROR_V_POSITION = {
     }
 };
 
-// ====== VARIATION 5: 30° ROTATION + MODERATE HEIGHT CHANGES ======
-export const MACON_VARIATION_5_ROTATE_30_HEIGHT = {
-    id: "macon_grand_indoor_var_5_rotate_30_height",
+// ====== VARIATION 4: 30° ROTATION + MODERATE HEIGHT CHANGES ======
+export const MACON_VARIATION_4_ROTATE_30_HEIGHT = {
+    id: "macon_grand_indoor_var_4_rotate_30_height",
     name: "Macon Grand Indoor 1.35m - Rotated 30° + Height Changes",
     level: "grand_prix",
     arena: { width: 60, length: 40 },
@@ -1841,6 +1840,600 @@ export const JERSEY_FRESH_CCI3 = {
         complexity: "high",
         pattern: "technical",
         designer: "International Course Designer"
+    }
+};
+
+
+// ====== VARIATION 1: 25° ROTATION ======
+export const JERSEY_FRESH_VARIATION_1_ROTATE_25 = {
+    id: "jersey_fresh_cci3_var_1_rotate_25",
+    name: "Jersey Fresh CCI 3* Cross Country - Rotated 25°",
+    level: "advanced",
+    arena: { width: 60, length: 40 },
+    jumps: [
+        {
+            id: "jump_1",
+            number: 1,
+            x: 44,
+            y: 13,
+            height: 1.15,
+            type: "vertical",
+            rotation: -1.1344981633974482,
+            manualRotation: true
+        },
+        {
+            id: "jump_2",
+            number: 2,
+            x: 41,
+            y: 28,
+            height: 1.15,
+            type: "vertical",
+            rotation: 2.268901224401701,
+            manualRotation: true
+        },
+        {
+            id: "jump_3",
+            number: 3,
+            x: 29,
+            y: 15,
+            height: 1.15,
+            type: "vertical",
+            rotation: -0.8726987755982989,
+            manualRotation: true
+        },
+        {
+            id: "jump_4",
+            number: 4,
+            x: 19,
+            y: 9,
+            height: 1.15,
+            type: "vertical",
+            rotation: -1.1345
+        },
+        {
+            id: "jump_5",
+            number: 5,
+            x: 10,
+            y: 31,
+            height: 1.15,
+            type: "vertical",
+            rotation: 1.4835
+        },
+        {
+            id: "jump_6",
+            number: 6,
+            x: 23,
+            y: 26,
+            height: 1.15,
+            type: "vertical",
+            rotation: -2.1816975511965975,
+            manualRotation: true
+        },
+        {
+            id: "jump_7",
+            number: '7a',
+            x: 34,
+            y: 35,
+            height: 1.15,
+            type: "vertical",
+            rotation: -1.6580987755982988,
+            manualRotation: true
+        },
+        {
+            id: "jump_8",
+            number: '7b',
+            x: 27,
+            y: 35,
+            height: 1.15,
+            type: "vertical",
+            rotation: 1.4835012244017012,
+            manualRotation: true
+        },
+        {
+            id: "jump_9",
+            number: 8,
+            x: 18,
+            y: 20,
+            height: 1.15,
+            type: "vertical",
+            rotation: 0.4363012244017012,
+            manualRotation: true
+        },
+        {
+            id: "jump_10",
+            number: 9,
+            x: 9,
+            y: 19,
+            height: 1.15,
+            type: "vertical",
+            rotation: -0.6109
+        },
+        {
+            id: "jump_11",
+            number: '10a',
+            x: 15,
+            y: 25,
+            height: 1.15,
+            type: "vertical",
+            rotation: -0.6109
+        },
+        {
+            id: "jump_12",
+            number: '10b',
+            x: 24,
+            y: 31,
+            height: 1.15,
+            type: "vertical",
+            rotation: -1.9198969389957468,
+            manualRotation: true
+        },
+        {
+            id: "jump_13",
+            number: '10c',
+            x: 34,
+            y: 26,
+            height: 1.15,
+            type: "vertical",
+            rotation: -2.1816975511965975,
+            manualRotation: true
+        },
+        {
+            id: "jump_14",
+            number: 11,
+            x: 47,
+            y: 20,
+            height: 1.15,
+            type: "vertical",
+            rotation: 0.698101836602552,
+            manualRotation: true
+        }
+    ],
+    metadata: {
+        source: "Jersey Fresh International Three Day Event - Variation",
+        complexity: "high",
+        pattern: "technical rotated",
+        designer: "International Course Designer",
+        variation: "25° clockwise rotation"
+    }
+};
+
+
+// ====== VARIATION 2: HORIZONTAL MIRROR ======
+export const JERSEY_FRESH_VARIATION_2_MIRROR_H = {
+    id: "jersey_fresh_cci3_var_2_mirror_h",
+    name: "Jersey Fresh CCI 3* Cross Country - Mirrored Horizontal",
+    level: "advanced",
+    arena: { width: 60, length: 40 },
+    jumps: [
+        {
+            id: "jump_1",
+            number: 1,
+            x: 15,
+            y: 10,
+            height: 1.15,
+            type: "vertical",
+            rotation: 0.7853981633974483
+        },
+        {
+            id: "jump_2",
+            number: 2,
+            x: 17,
+            y: 25,
+            height: 1.15,
+            type: "vertical",
+            rotation: -2.356194490192345
+        },
+        {
+            id: "jump_3",
+            number: 3,
+            x: 26,
+            y: 15,
+            height: 1.15,
+            type: "vertical",
+            rotation: 0.7853981633974481
+        },
+        {
+            id: "jump_4",
+            number: 4,
+            x: 46,
+            y: 7,
+            height: 1.15,
+            type: "vertical",
+            rotation: 1.5707963267948963
+        },
+        {
+            id: "jump_5",
+            number: 5,
+            x: 48,
+            y: 33,
+            height: 1.15,
+            type: "vertical",
+            rotation: -1.0471975511965976
+        },
+        {
+            id: "jump_6",
+            number: 6,
+            x: 31,
+            y: 22,
+            height: 1.15,
+            type: "vertical",
+            rotation: 1.5707963267948963
+        },
+        {
+            id: "jump_7",
+            number: '7a',
+            x: 16,
+            y: 35,
+            height: 1.15,
+            type: "vertical",
+            rotation: 1.5707963267948963
+        },
+        {
+            id: "jump_8",
+            number: '7b',
+            x: 30,
+            y: 35,
+            height: 1.15,
+            type: "vertical",
+            rotation: -1.5707963267948963
+        },
+        {
+            id: "jump_9",
+            number: 8,
+            x: 39,
+            y: 15,
+            height: 1.15,
+            type: "vertical",
+            rotation: -0.5235987755982988
+        },
+        {
+            id: "jump_10",
+            number: 9,
+            x: 49,
+            y: 21,
+            height: 1.15,
+            type: "vertical",
+            rotation: 1.0471975511965976
+        },
+        {
+            id: "jump_11",
+            number: '10a',
+            x: 36,
+            y: 29,
+            height: 1.15,
+            type: "vertical",
+            rotation: 1.0471975511965976
+        },
+        {
+            id: "jump_12",
+            number: '10b',
+            x: 30,
+            y: 30,
+            height: 1.15,
+            type: "vertical",
+            rotation: 1.0471975511965976
+        },
+        {
+            id: "jump_13",
+            number: '10c',
+            x: 23,
+            y: 30,
+            height: 1.15,
+            type: "vertical",
+            rotation: 1.5707963267948963
+        },
+        {
+            id: "jump_14",
+            number: 11,
+            x: 7,
+            y: 24,
+            height: 1.15,
+            type: "vertical",
+            rotation: -1.0471975511965976
+        }
+    ],
+    metadata: {
+        source: "Jersey Fresh International Three Day Event - Variation",
+        complexity: "high",
+        pattern: "technical mirrored",
+        designer: "International Course Designer",
+        variation: "Horizontal mirror flip"
+    }
+};
+
+
+// ====== VARIATION 3: VERTICAL MIRROR + POSITION ADJUSTMENT ======
+export const JERSEY_FRESH_VARIATION_3_MIRROR_V_POSITION = {
+    id: "jersey_fresh_cci3_var_3_mirror_v_position",
+    name: "Jersey Fresh CCI 3* Cross Country - Vertical Mirror + Position Tweaks",
+    level: "advanced",
+    arena: { width: 60, length: 40 },
+    jumps: [
+        {
+            id: "jump_1",
+            number: 1,
+            x: 46.2,
+            y: 30,
+            height: 1.15,
+            type: "vertical",
+            rotation: -2.356194490192345,
+            manualRotation: true
+        },
+        {
+            id: "jump_2",
+            number: 2,
+            x: 44.1,
+            y: 15,
+            height: 1.15,
+            type: "vertical",
+            rotation: 0.7853981633974485,
+            manualRotation: true
+        },
+        {
+            id: "jump_3",
+            number: 3,
+            x: 35.3,
+            y: 25,
+            height: 1.15,
+            type: "vertical",
+            rotation: -2.3561944901923444,
+            manualRotation: true
+        },
+        {
+            id: "jump_4",
+            number: 4,
+            x: 15.1,
+            y: 33,
+            height: 1.15,
+            type: "vertical",
+            rotation: -1.5707963267948963
+        },
+        {
+            id: "jump_5",
+            number: 5,
+            x: 14,
+            y: 10,
+            height: 1.15,
+            type: "vertical",
+            rotation: 2.356194490192345,
+            manualRotation: true
+        },
+        {
+            id: "jump_6",
+            number: 6,
+            x: 30.8,
+            y: 18,
+            height: 1.15,
+            type: "vertical",
+            rotation: -1.5707963267948963
+        },
+        {
+            id: "jump_7",
+            number: 7,
+            x: 45.2,
+            y: 5,
+            height: 1.15,
+            type: "vertical",
+            rotation: -1.5707963267948963
+        },
+        {
+            id: "jump_8",
+            number: 8,
+            x: 31.3,
+            y: 5,
+            height: 1.15,
+            type: "vertical",
+            rotation: 1.5707963267948963
+        },
+        {
+            id: "jump_9",
+            number: 9,
+            x: 20,
+            y: 24,
+            height: 1.15,
+            type: "vertical",
+            rotation: -0.2617993877991494,
+            manualRotation: true
+        },
+        {
+            id: "jump_10",
+            number: 10,
+            x: 13,
+            y: 20,
+            height: 1.15,
+            type: "vertical",
+            rotation: -2.0943951023931953,
+            manualRotation: true
+        },
+        {
+            id: "jump_11",
+            number: 11,
+            x: 26,
+            y: 14,
+            height: 1.15,
+            type: "vertical",
+            rotation: -2.0943951023931953,
+            manualRotation: true
+        },
+        {
+            id: "jump_12",
+            number: 12,
+            x: 33,
+            y: 11,
+            height: 1.15,
+            type: "vertical",
+            rotation: -2.0943951023931953,
+            manualRotation: true
+        },
+        {
+            id: "jump_13",
+            number: 13,
+            x: 40,
+            y: 10,
+            height: 1.15,
+            type: "vertical",
+            rotation: -1.5707963267948963
+        },
+        {
+            id: "jump_14",
+            number: 14,
+            x: 52,
+            y: 19,
+            height: 1.15,
+            type: "vertical",
+            rotation: 2.6179938779914944,
+            manualRotation: true
+        }
+    ],
+    metadata: {
+        source: "Jersey Fresh International Three Day Event - Variation",
+        complexity: "high",
+        pattern: "technical vertically mirrored with position adjustments",
+        designer: "International Course Designer",
+        variation: "Vertical mirror + 1-2m position adjustments"
+    }
+};
+
+// ====== VARIATION 4: 35° ROTATION + MODERATE HEIGHT CHANGES ======
+export const JERSEY_FRESH_VARIATION_4_ROTATE_35_HEIGHT = {
+    id: "jersey_fresh_cci3_var_4_rotate_35_height",
+    name: "Jersey Fresh CCI 3* Cross Country - Rotated 35° + Height Changes",
+    level: "advanced",
+    arena: { width: 60, length: 40 },
+    jumps: [
+        {
+            id: "jump_1",
+            number: 1,
+            x: 38.8,
+            y: 21.8,
+            height: 1.10,
+            type: "vertical",
+            rotation: -0.1745
+        },
+        {
+            id: "jump_2",
+            number: 2,
+            x: 31.4,
+            y: 34.2,
+            height: 1.20,
+            type: "vertical",
+            rotation: 2.9671
+        },
+        {
+            id: "jump_3",
+            number: 3,
+            x: 24.6,
+            y: 25.8,
+            height: 1.15,
+            type: "vertical",
+            rotation: -0.1745
+        },
+        {
+            id: "jump_4",
+            number: 4,
+            x: 7.2,
+            y: 15.1,
+            height: 1.25,
+            type: "vertical",
+            rotation: -0.9599
+        },
+        {
+            id: "jump_5",
+            number: 5,
+            x: -1.1,
+            y: 28.2,
+            height: 1.15,
+            type: "vertical",
+            rotation: 1.6581
+        },
+        {
+            id: "jump_6",
+            number: 6,
+            x: 18.4,
+            y: 28.8,
+            height: 1.20,
+            type: "vertical",
+            rotation: -0.9599
+        },
+        {
+            id: "jump_7",
+            number: 7,
+            x: 26.8,
+            y: 42.1,
+            height: 1.10,
+            type: "vertical",
+            rotation: -0.9599
+        },
+        {
+            id: "jump_8",
+            number: 8,
+            x: 13.8,
+            y: 38.2,
+            height: 1.15,
+            type: "vertical",
+            rotation: 2.1817
+        },
+        {
+            id: "jump_9",
+            number: 9,
+            x: 13.2,
+            y: 21.8,
+            height: 1.25,
+            type: "vertical",
+            rotation: 1.1345
+        },
+        {
+            id: "jump_10",
+            number: 10,
+            x: 2.6,
+            y: 23.2,
+            height: 1.15,
+            type: "vertical",
+            rotation: -0.4363
+        },
+        {
+            id: "jump_11",
+            number: 11,
+            x: 10.8,
+            y: 33.2,
+            height: 1.20,
+            type: "vertical",
+            rotation: -0.4363
+        },
+        {
+            id: "jump_12",
+            number: 12,
+            x: 16.2,
+            y: 35.4,
+            height: 1.10,
+            type: "vertical",
+            rotation: -0.4363
+        },
+        {
+            id: "jump_13",
+            number: 13,
+            x: 22.6,
+            y: 38.4,
+            height: 1.15,
+            type: "vertical",
+            rotation: -0.9599
+        },
+        {
+            id: "jump_14",
+            number: 14,
+            x: 42.8,
+            y: 38.8,
+            height: 1.25,
+            type: "vertical",
+            rotation: 1.6581
+        }
+    ],
+    metadata: {
+        source: "Jersey Fresh International Three Day Event - Variation",
+        complexity: "high",
+        pattern: "technical rotated 35° with height variation",
+        designer: "International Course Designer",
+        variation: "35° clockwise rotation + height range 1.10m-1.25m"
     }
 };
 

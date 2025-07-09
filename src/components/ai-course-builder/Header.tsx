@@ -181,8 +181,8 @@ const Header: React.FC<HeaderProps> = ({
                   value={arenaWidth}
                   onChange={(e) => setArenaWidth(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  min="20"
-                  // max="100"
+                  min="60"
+                  max="60"
                 />
               </div>
               <div>
@@ -207,7 +207,8 @@ const Header: React.FC<HeaderProps> = ({
                     }
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  min="20"
+                  min="40"
+                  max="40"
                 />
               </div>
             </div>
@@ -231,6 +232,7 @@ const Header: React.FC<HeaderProps> = ({
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                       min="4"
                       max={currentLevel?.maxJumps || 8}
+                      disabled
                     />
                     <p className="text-xs text-gray-500 mt-1">
                       Max for {level}: {currentLevel?.maxJumps || 8}
@@ -245,6 +247,7 @@ const Header: React.FC<HeaderProps> = ({
                       value={courseStyle}
                       onChange={(e) => setCourseStyle(e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      disabled
                     >
                       <option value="flowing">Flowing & Smooth</option>
                       <option value="technical">Technical & Challenging</option>
@@ -261,6 +264,7 @@ const Header: React.FC<HeaderProps> = ({
                     value={difficultyPreference}
                     onChange={(e) => setDifficultyPreference(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    disabled
                   >
                     <option value="easy">
                       Easy - Simple jumps, smooth flow
