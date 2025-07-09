@@ -22,23 +22,7 @@ import { competitionLevels, jumpTypes } from "@/data/aiCourseBuilder";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  JERSEY_FRESH_CCI3,
-  JERSEY_FRESH_VARIATION_1_ROTATE_25,
-  JERSEY_FRESH_VARIATION_2_MIRROR_H,
-  JERSEY_FRESH_VARIATION_3_MIRROR_V_POSITION,
-  JERSEY_FRESH_VARIATION_4_ROTATE_35_HEIGHT,
-  MACON_GRAND_INDOOR,
-  MACON_VARIATION_1_ROTATE_15,
-  MACON_VARIATION_2_MIRROR_H,
-  MACON_VARIATION_3_MIRROR_V_POSITION,
-  MACON_VARIATION_4_ROTATE_30_HEIGHT,
-  PARIS_GRAND_INDOOR,
-  PARIS_VARIATION_1_ROTATE_20,
-  PARIS_VARIATION_2_MIRROR_H,
-  PARIS_VARIATION_3_MIRROR_V_POSITION,
-  PARIS_VARIATION_4_ROTATE_30_HEIGHT,
-} from "@/data/courseData";
+import { COURSE_DATA } from "@/data/courseData";
 // Type definitions
 interface GeneratedJump {
   id: string;
@@ -171,35 +155,49 @@ const AiCourseBuilder = () => {
     return angle > 180 ? 360 - angle : angle;
   };
 
+  function countUniqueJumps(jumpsArray) {
+    const uniqueNumbers = new Set();
+
+    for (const jump of jumpsArray) {
+      const num = jump.number.toString();
+      const mainNumber = num.replace(/[a-zA-Z]/g, ""); // remove letter suffix like 'a', 'b'
+      uniqueNumbers.add(mainNumber);
+    }
+
+    return uniqueNumbers.size;
+  }
   // Enhanced AI Course Generation
   const generateAICourse = async (): Promise<void> => {
     setIsGenerating(true);
     setGenerationMethod("");
 
     try {
-      // 1. Pick a professional course based on user settings
-      let selectedCourse;
-      if (difficultyPreference === "easy") {
-        selectedCourse = JERSEY_FRESH_CCI3;
-      } else if (difficultyPreference === "medium") {
-        selectedCourse = JERSEY_FRESH_VARIATION_3_MIRROR_V_POSITION;
-      } else {
-        selectedCourse = PARIS_GRAND_INDOOR;
+      const courseData = COURSE_DATA;
+
+      const selectedCourses = courseData.filter(
+        (course) =>
+          course.competition_level === level &&
+          course.jumping_discipline === discipline
+      );
+
+      if (selectedCourses.length === 0) {
+        alert("No courses found for the selected discipline and level.");
+        setIsGenerating(false);
+        return;
       }
 
-      // 2. Scale to user's arena size
-      const scaleX = arenaWidth / selectedCourse.arena.width;
-      const scaleY = arenaLength / selectedCourse.arena.length;
+      const selectedCourse =
+        selectedCourses[Math.floor(Math.random() * selectedCourses.length)];
 
+      setArenaWidth(selectedCourse.arena.width);
+      setArenaLength(selectedCourse.arena.length);
+      setTargetJumps(countUniqueJumps(selectedCourse.jumps));
       // 3. Convert to your app format
       const convertedJumps = selectedCourse.jumps.map((jump, index) => ({
-        id: `jump_${jump.number}`,
+        id: `${jump.number}`,
         number: jump.number,
-        x: jump.x * scaleX,
-        y: jump.y * scaleY,
-        // height:
-        // getCurrentLevel().minHeight +
-        // (getCurrentLevel().maxHeight - getCurrentLevel().minHeight) * 0.5,
+        x: jump.x,
+        y: jump.y,
         height: jump.height,
         type: jump.type,
         rotation: jump.rotation,
