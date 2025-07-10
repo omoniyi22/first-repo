@@ -134,27 +134,20 @@ serve(async (req)=>{
       - Step 2: Add trot transitions using same 3-stride preparation
       rule
       - Step 3: Practice test-specific transitions with exact timing
-      **Key Points:** Preparation is everything - half-halt before
-      asking, maintain rhythm after
-      **Watch For:** Don't rush the ask - horse should be balanced
-      before transition request
-      **Goal:** Execute transitions exactly at the letter with
-      maintained balance
+      **Key Points:** Preparation is everything - half-halt before asking, maintain rhythm after
+      **Watch For:** Don't rush the ask - horse should be balanced before transition request
+      **Goal:** Execute transitions exactly at the letter with maintained balance
       **Quick Fix:** Count "prepare-half halt-ask" for every transition
 
       3. MOVEMENT ACCURACY (e.g., LEG YIELD)
-      Based on leg yield execution issues (score [X]), provide this
-      recommendation:
+      Based on leg yield execution issues (score [X]), provide this recommendation:
       **Exercise: Progressive Leg Yield Development**
       **Focus:** Forward-sideways movement with rhythm maintenance
-      **Setup:** Start quarterline to centerline, use ground markers
-      every 5m
+      **Setup:** Start quarterline to centerline, use ground markers every 5m
       **Method:**
       - Step 1: Walk leg yield along wall for safety and understanding
-      - Step 2: Trot shallow angle (minimal bend) focusing on rhythm
-      Unset
-      - Step 3: Gradually increase angle while checking straightness
-      after
+      - Step 2: Trot shallow angle (minimal bend) focusing on rhythm Unset
+      - Step 3: Gradually increase angle while checking straightness after
       **Key Points:** Think forward-sideways, not just sideways -
       maintain impulsion throughout
       **Watch For:** Avoid over-bending neck - movement comes from
@@ -164,27 +157,19 @@ serve(async (req)=>{
       over-bend, inside leg at girth
 
       4. RHYTHM/TEMPO ISSUES
-      Based on rhythm irregularities in [gait], provide this
-      recommendation:
+      Based on rhythm irregularities in [gait], provide this recommendation:
       **Exercise: Rhythm Stabilization Program**
       **Focus:** Establishing and maintaining consistent tempo
-      **Setup:** Large circles and straight lines, avoid corners
-      initially
+      **Setup:** Use long straight lines and shallow loops; avoid tight corners or complex patterns initially
       **Method:**
-      - Step 1: Find horse's natural rhythm on 20m circle in [gait]
-      - Step 2: Practice maintaining this rhythm through simple changes
-      of direction
-      - Step 3: Gradually add more complex movements while checking
-      rhythm
-      **Key Points:** Count the beat out loud - 1-2-1-2 for trot,
-      1-2-3-1-2-3 for canter
-      **Watch For:** Don't push for "more" if rhythm suffers -
-      establish beat first, energy second
-      **Goal:** Consistent rhythm that you can count throughout entire
-      test
+      - Step 1: Identify the horse's natural rhythm in [gait] on a straight track
+      - Step 2: Practice maintaining this rhythm through transitions between long sides and diagonals
+      - Step 3: Gradually introduce shallow loops, serpentines, and gentle changes of direction while monitoring rhythm
+      **Key Points:** Count the beat out loud – "1-2-1-2" for trot, "1-2-3-1-2-3" for canter
+      **Watch For:** Avoid pushing for more energy if it disrupts the rhythm – prioritize a clear, consistent beat
+      **Goal:** A reliable tempo you can maintain and count through every part of the test
       Unset
-      **Quick Fix:** When rhythm falters, return to 20m circle and
-      re-establish beat
+      **Quick Fix:** If rhythm falters, return to straight lines and re-establish the natural beat before resuming more complex work
       5. IMPULSION/ENERGY ISSUES
       Based on low impulsion scores in [movements], provide this
       recommendation:
@@ -193,29 +178,24 @@ serve(async (req)=>{
       **Setup:** Straight lines and large circles, dressage whip
       available
       **Method:**
-      - Step 1: Establish clear forward response to light leg aid in
-      walk
+      - Step 1: Establish clear forward response to light leg aid in walk
       - Step 2: Practice immediate trot transitions from light leg cue
-      - Step 3: Maintain energy through movements using half-halts, not
-      pulling
-      **Key Points:** Impulsion comes from behind - active hindlegs,
-      not faster frontlegs
-      **Watch For:** Don't confuse speed with impulsion - horse can be
-      slow but engaged
-      **Goal:** Horse responds immediately to light leg aid and
-      maintains energy independently
-      **Quick Fix:** Before each movement, check horse's immediate
-      response to leg aid
+      - Step 3: Maintain energy through movements using half-halts, not pulling
+      **Key Points:** Impulsion comes from behind - active hindlegs, not faster frontlegs
+      **Watch For:** Don't confuse speed with impulsion - horse can be slow but engaged
+      **Goal:** Horse responds immediately to light leg aid and maintains energy independently
+      **Quick Fix:** Before each movement, check horse's immediate response to leg aid
       6.  For weaknesses analysis, provide structured data from weakness (counts should be same - if you extract 3 weaknesses, you should draw 3 diagrams) including:
       - Arena size detection 
       While analyzing the document, if there is "S", "V", "R", "P", "I" or "L" positions, arena size is large, otherwise small.
       (large if positions include "S","V","R","P","I" or "L" else small)
+      Arena size should be consistant in all weaknesses for one document.
       And also some positions are combined like "PM", and in that case you should analyze by character.
       for example, if document contains "PM", it will be large.
       - Specific weakness description
       - Movement positions (like S, M, H, etc.) Positions can be only letters not number.
       - Movement speed can be "Walk", "Trot", "Canter", "Halt", "Transition", "Free Walk":
-      - Recommended exercises with more than 2 exact positions - 2+ exact positions are essential!
+      - Recommended exercises with more than 2 exact positions - 2+ exact different positions are essential!
       If the weakness type is accuracy, the recommendation must be: "Practise 10m circles at [exact positions]," followed by a short reason or coaching instruction. 
       For other types of weaknesses, suggest appropriate exercises with positions and a relevant coaching sentence, but do not mention circle excercies. You must not mention kind of circle exercises in weaknesses except for Accuracy
 
@@ -248,21 +228,21 @@ serve(async (req)=>{
           "weaknesses-svg": [
             {
               "title": "Circle Accuracy Exercise",
-              "weakness": "Inconsistent 20m circle shape at S",
+              "weakness": "Inconsistent 10m circle shape at S",
               "type": "accuracy",
               "positions": ["S", "M"],
               "size": "large",
               "speed": "Trot",
-              "instruction": "Practice 20m circles at S, maintaining exact shape through M"
+              "instruction": "Practice 10m circles at S, maintaining exact shape through M"
             },
             {
               "title": "Circle Accuracy Exercise",
-              "weakness": "Inconsistent 20m circle shape at S",
+              "weakness": "Inconsistent 10m circle shape at S",
               "type": "accuracy",
               "positions": ["S", "M"],
               "size": "large",
               "speed": "Free Walk",
-              "instruction": "Practice 20m circles at S, maintaining exact shape through M"
+              "instruction": "Practice 10m circles at S, maintaining exact shape through M"
             }
           ]
           "generalComments": {
@@ -310,7 +290,7 @@ serve(async (req)=>{
               "area": "Right Center Quality (5.0)",
               "tip": {
                 "quickFix": "Try breathing out as you apply right leg aid",
-                "Exercise": "20m circle with gradual spiral in and out"
+                "Exercise": "10m circle with gradual spiral in and out"
               }
             },
             {
