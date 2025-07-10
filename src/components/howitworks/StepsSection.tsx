@@ -24,7 +24,14 @@ const StepsSection = () => {
     {
       id: 2,
       icon: <BarChart3 className="w-6 h-6" />,
-      title: "AI Analysis",
+      icon_image: (
+        <img
+          src="/lovable-uploads/ddb7f47e-072a-4346-9fd3-a8a055f13bba.png"
+          className="w-full h-full"
+          alt=""
+        />
+      ),
+      title: "Analyzing your test sheet",
       description:
         "Our advanced artificial intelligence analyzes your scores, comments, and performance patterns to identify both strengths and areas for improvement.",
       image: "/lovable-uploads/ai-analysis.png",
@@ -138,12 +145,25 @@ const StepsSection = () => {
                     alt=""
                     className="w-full h-full object-cover"
                   />
-                  <div className="w-full h-full bg-gradient-to-t from-purple-100 to-transparent absolute inset-0 flex items-center justify-center">
+                  <div
+                    className={`w-full h-full ${
+                      activeStepData.id !== 2 &&
+                      "bg-gradient-to-t from-purple-100 to-transparent"
+                    } absolute inset-0 flex items-center justify-center`}
+                  >
                     <div className="text-center p-8  ">
                       <div className="w-16 h-16 rounded-full bg-purple-200 mx-auto flex items-center justify-center mb-4">
-                        {activeStepData.icon}
+                        {activeStepData.id === 2
+                          ? activeStepData.icon_image
+                          : activeStepData.icon}
                       </div>
-                      <h3 className="text-gray-800 font-medium">
+                      <h3
+                        className={` ${
+                          activeStepData.id === 2
+                            ? "text-white"
+                            : "text-gray-800"
+                        } font-medium`}
+                      >
                         Step {activeStepData.id}: {activeStepData.title}
                       </h3>
                     </div>
