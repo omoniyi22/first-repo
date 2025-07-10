@@ -808,19 +808,19 @@ const Analysis = () => {
                                     className="rounded"
                                   />
                                 </th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32 sm:w-auto">
+                                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-32 sm:w-auto">
                                   {language === "en" ? "Name" : "Nombre"}
                                 </th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                                   {language === "en" ? "Horse" : "Caballo"}
                                 </th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                                   {language === "en" ? "Level" : "Nivel"}
                                 </th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                                   {language === "en" ? "Date" : "Fecha"}
                                 </th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                                   {language === "en" ? "Status" : "Estado"}
                                 </th>
                                 <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -834,7 +834,7 @@ const Analysis = () => {
                             <tbody className="bg-white divide-y divide-gray-200">
                               {documents.map((doc) => (
                                 <tr key={doc.id} className="hover:bg-gray-50">
-                                  <td className="px-4 py-3 whitespace-nowrap">
+                                  <td className="px-4 py-3 whitespace-nowrap text-center">
                                     <input
                                       type="checkbox"
                                       checked={selectedItems.includes(doc.id)}
@@ -842,22 +842,22 @@ const Analysis = () => {
                                       className="rounded"
                                     />
                                   </td>
-                                  <td className="px-4 py-3 whitespace-nowrap w-32 sm:w-auto max-w-[150px] truncate">
+                                  <td className="px-4 py-3 whitespace-nowrap text-center w-32 sm:w-auto max-w-[150px] truncate">
                                     <span className="text-sm font-medium text-gray-900">
                                       {doc.file_name}
                                     </span>
                                   </td>
-                                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                                  <td className="px-4 py-3 whitespace-nowrap text-center text-sm text-gray-500">
                                     {doc.horse_name}
                                   </td>
-                                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                                  <td className="px-4 py-3 whitespace-nowrap text-center text-sm text-gray-700">
                                     {doc.test_level ||
                                       (language === "en" ? "Dressage" : "Doma")}
                                   </td>
-                                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                                  <td className="px-4 py-3 whitespace-nowrap text-center text-sm text-gray-500">
                                     {formatDate(doc.document_date)}
                                   </td>
-                                  <td className="px-4 py-3 whitespace-nowrap">
+                                  <td className="px-4 py-3 whitespace-nowrap text-center">
                                     <span
                                       className={`px-2 inline-flex text-xs leading-5 font-medium rounded-full ${
                                         doc.status === "completed"
