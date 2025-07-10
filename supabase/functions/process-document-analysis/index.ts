@@ -107,7 +107,7 @@ serve(async (req)=>{
       provide this recommendation:
       **Exercise: Progressive Contact Development**
       **Focus:** Establishing consistent, elastic connection
-      **Setup:** 20m circle, start on long rein
+      **Setup:** 10m circle, start on long rein
       **Method:**
       - Step 1: Walk 5 minutes allowing horse to stretch down naturally
       - Step 2: Gradually shorten reins while maintaining horse's
@@ -266,9 +266,9 @@ serve(async (req)=>{
             }
           ]
           "generalComments": {
-            "judgeA": "Work on balanced halts - 6.5",
-            "judgeB": "Work on balanced halts - 7",
-            "judgeC": "Good Rider - 8"
+            "judgeA": "Work on balanced halts",
+            "judgeB": "Work on balanced halts",
+            "judgeC": "Good Rider"
           },
           "recommendations": [
             {
@@ -323,11 +323,13 @@ serve(async (req)=>{
           ],
           "highestScore": {
             "score": 8,
-            "movement": ["Halt at X", "Halt at Y"]
-          },
+            "movement": ["Halt at X", "Halt at Y"] 
+            // if the current version is English ("en"); otherwise, provide the Spanish equivalents ["Alto en X", "Alto en Y"].
+          }
           "lowestScore": {
             "score": 6,
             "movement": ["Halt at X", "Halt at Y"]
+            // if the current version is English ("en"); otherwise, provide the Spanish equivalents ["Alto en X", "Alto en Y"].
           },
           "personalInsight": "You seem to be a rider who excels at precise technical elements, especially halts and geometry. However, if you focus more on relaxation and expression during transitions and medium gaits, you could significantly improve your overall performance."
         },
@@ -339,14 +341,17 @@ serve(async (req)=>{
       At least 3 Recommendations are needed and all recommendations should be deep, meaningful, useful, correct and in detail (More specific exercise recommendations as well such as: "Try shoulder - in exercises" rather than just "focus on relaxtion").
       Ensure recommendations are specific, actionable, and progressive while remaining concise.
       I need the results with both Spanish and English - (en, es).
-      In en version, all content (including highest scores movements, weaknesses-svg and so on.) should be English, otherwise, all content should be Spanish. So all contents language should be consistent in one mode. Don't miss to convert languages of weaknesses-svg and highest-lowestScore movement contents.
+      In en version, all content (including highest scores movements, weaknesses-svg and so on, even if originally written in Spanish.) should be English, otherwise, all content should be Spanish. So all contents language should be consistent in one mode. 
       Ensure no mixed-language elements appear in either version.
-      For the en version: everything must be in English
-      For the es version: everything must be in Spanish
-      And in general comments, after writing the judge's comment, you should write the average score of each judge like "Work on balanced halts - 6.5".
+      !!!For the en version: everything must be in English!!!
+      !!!For the es version: everything must be in Spanish!!!
       And only return the full JSON not truncated without any comment like "Here is the analyzed result of the document.".
       And should choose professional riding words like "flying changes" instead of "changes of leg" and your personal insight content pattern should be written to the person like "You seem to be ... if you ..." with 3-5 sentences and must be richful and helpful for riders.
       In other words, riders can get the attractive recommendations, focus area and personal insight from your analysis - you should make them to love this tool.
+      REMINDER:
+      * All instructions, prompts, and validation should enforce:
+      * ✅ EN version: 100% English
+      * ✅ ES version: 100% Spanish
     `;
     const geminiResponse = await fetch(geminiUrl, {
       method: 'POST',
