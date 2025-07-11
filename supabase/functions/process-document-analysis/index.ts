@@ -134,20 +134,27 @@ serve(async (req)=>{
       - Step 2: Add trot transitions using same 3-stride preparation
       rule
       - Step 3: Practice test-specific transitions with exact timing
-      **Key Points:** Preparation is everything - half-halt before asking, maintain rhythm after
-      **Watch For:** Don't rush the ask - horse should be balanced before transition request
-      **Goal:** Execute transitions exactly at the letter with maintained balance
+      **Key Points:** Preparation is everything - half-halt before
+      asking, maintain rhythm after
+      **Watch For:** Don't rush the ask - horse should be balanced
+      before transition request
+      **Goal:** Execute transitions exactly at the letter with
+      maintained balance
       **Quick Fix:** Count "prepare-half halt-ask" for every transition
 
       3. MOVEMENT ACCURACY (e.g., LEG YIELD)
-      Based on leg yield execution issues (score [X]), provide this recommendation:
+      Based on leg yield execution issues (score [X]), provide this
+      recommendation:
       **Exercise: Progressive Leg Yield Development**
       **Focus:** Forward-sideways movement with rhythm maintenance
-      **Setup:** Start quarterline to centerline, use ground markers every 5m
+      **Setup:** Start quarterline to centerline, use ground markers
+      every 5m
       **Method:**
       - Step 1: Walk leg yield along wall for safety and understanding
-      - Step 2: Trot shallow angle (minimal bend) focusing on rhythm Unset
-      - Step 3: Gradually increase angle while checking straightness after
+      - Step 2: Trot shallow angle (minimal bend) focusing on rhythm
+      Unset
+      - Step 3: Gradually increase angle while checking straightness
+      after
       **Key Points:** Think forward-sideways, not just sideways -
       maintain impulsion throughout
       **Watch For:** Avoid over-bending neck - movement comes from
@@ -178,13 +185,19 @@ serve(async (req)=>{
       **Setup:** Straight lines and large circles, dressage whip
       available
       **Method:**
-      - Step 1: Establish clear forward response to light leg aid in walk
+      - Step 1: Establish clear forward response to light leg aid in
+      walk
       - Step 2: Practice immediate trot transitions from light leg cue
-      - Step 3: Maintain energy through movements using half-halts, not pulling
-      **Key Points:** Impulsion comes from behind - active hindlegs, not faster frontlegs
-      **Watch For:** Don't confuse speed with impulsion - horse can be slow but engaged
-      **Goal:** Horse responds immediately to light leg aid and maintains energy independently
-      **Quick Fix:** Before each movement, check horse's immediate response to leg aid
+      - Step 3: Maintain energy through movements using half-halts, not
+      pulling
+      **Key Points:** Impulsion comes from behind - active hindlegs,
+      not faster frontlegs
+      **Watch For:** Don't confuse speed with impulsion - horse can be
+      slow but engaged
+      **Goal:** Horse responds immediately to light leg aid and
+      maintains energy independently
+      **Quick Fix:** Before each movement, check horse's immediate
+      response to leg aid
       6.  For weaknesses analysis, provide structured data from weakness (counts should be same - if you extract 3 weaknesses, you should draw 3 diagrams) including:
       - Arena size detection 
       While analyzing the document, if there is "S", "V", "R", "P", "I" or "L" positions, arena size is large, otherwise small.
@@ -304,12 +317,12 @@ serve(async (req)=>{
           "highestScore": {
             "score": 8,
             "movement": ["Halt at X", "Halt at Y"] 
-            // if the current version is English ("en"); otherwise, provide the Spanish equivalents ["Alto en X", "Alto en Y"].
+            // if the current version is English ("en"), provied the English contents; otherwise, provide the Spanish equivalents ["Alto en X", "Alto en Y"].
           }
           "lowestScore": {
             "score": 6,
             "movement": ["Halt at X", "Halt at Y"]
-            // if the current version is English ("en"); otherwise, provide the Spanish equivalents ["Alto en X", "Alto en Y"].
+            // if the current version is English ("en"), provied the English contents; otherwise, provide the Spanish equivalents ["Alto en X", "Alto en Y"].
           },
           "personalInsight": "You seem to be a rider who excels at precise technical elements, especially halts and geometry. However, if you focus more on relaxation and expression during transitions and medium gaits, you could significantly improve your overall performance."
         },
@@ -374,9 +387,51 @@ serve(async (req)=>{
       console.error("❌ Failed to parse JSON:", resultText);
       throw new Error("Gemini returned invalid JSON format");
     }
+    const localizationPrompt = `
+      You will be given a JSON object. Translate all text content "en" inside it to English and "es" to Spanish, preserving keys and structure.
+      Return only the updated JSON, nothing else.
+      JSON:
+      ${JSON.stringify(finalResult, null, 2)}
+      `;
+    // 2. Send the updated prompt back to Gemini
+    const localizationResponse = await fetch(geminiUrl, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        contents: [
+          {
+            role: 'user',
+            parts: [
+              {
+                text: localizationPrompt
+              }
+            ]
+          }
+        ]
+      })
+    });
+    const localizationResultRaw = await localizationResponse.text();
+    if (!localizationResponse.ok) {
+      console.error('Gemini localization error response:', localizationResultRaw);
+      throw new Error(`Gemini API Error: ${localizationResponse.status}`);
+    }
+    const parsed = JSON.parse(localizationResultRaw);
+    let localizedText = parsed.candidates[0].content.parts[0].text;
+    // Strip markdown formatting if present
+    localizedText = localizedText.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
+    let localizedResult;
+    try {
+      localizedResult = JSON.parse(localizedText);
+    } catch (err) {
+      console.error("❌ Failed to parse localized JSON:", localizedText);
+      throw new Error("Gemini returned invalid localized JSON format");
+    }
     await supabase.from('analysis_results').insert({
       document_id: documentId,
-      result_json: finalResult
+      result_json: localizedResult
     });
     await supabase.from('document_analysis').update({
       status: 'completed',
@@ -388,7 +443,7 @@ serve(async (req)=>{
       return;
     }
     // Insert only the first 2 recommendations
-    await Promise.all(finalResult.en.recommendations.slice(0, 2).map(async (recommendation)=>{
+    await Promise.all(localizedResult.en.recommendations.slice(0, 2).map(async (recommendation)=>{
       // Calculate target date after one month
       const oneMonthLater = new Date();
       oneMonthLater.setMonth(oneMonthLater.getMonth() + 1);
