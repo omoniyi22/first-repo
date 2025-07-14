@@ -64,6 +64,7 @@ const MovementRadarChart = () => {
         if (error) throw error;
 
         processDressageData(data);
+        // console.log("🚀 ~ fetchDressageData ~ data:", data)
       } catch (error) {
         console.error("Error fetching dressage data:", error);
         setLoading(false);
@@ -76,7 +77,7 @@ const MovementRadarChart = () => {
         return;
       }
 
-      // console.log("🏇 Processing dressage data from", data.length, "documents");
+      // console.log("🏇 Processing dressage data from", data, "documents");
 
       // Extract movement categories and scores
       const movementScores = {
@@ -141,8 +142,8 @@ const MovementRadarChart = () => {
           Canter: [
             "canter",
             "galope",
-            "change",
-            "cambio",
+            "flying change",
+            "cambio de pie",
             "flying",
             "pirouette",
             "pirueta",
@@ -389,11 +390,10 @@ const MovementRadarChart = () => {
           //   } scores, average: ${avgScore.toFixed(2)}`
           // );
         } else {
-          // Default scores if no data available
-          avgScore = 6.5 + (Math.random() - 0.5) * 2; // Random between 5.5-7.5
-          // console.log(
-          //   `📈 ${movement}: No data, using default: ${avgScore.toFixed(2)}`
-          // );
+          // REMOVED: Default random scores when no data available
+          // Instead, return null or 0 to indicate no data
+          avgScore = 0; // or you could return null and filter out later
+          // console.log(`📈 ${movement}: No data available, setting to 0`);
         }
 
         return {
@@ -402,6 +402,9 @@ const MovementRadarChart = () => {
           fullMark: 10,
         };
       });
+
+      // Optional: Filter out movements with no data (score = 0)
+      // const filteredRadarData = radarData.filter(item => item.score > 0);
 
       // console.log("🎯 Final radar data:", radarData);
 
