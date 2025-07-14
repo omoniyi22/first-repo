@@ -101,19 +101,21 @@ const About = () => {
               <Card className="border border-purple-200 bg-white">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-xl text-center font-serif text-blue-800">
-                    Equestrian Federation
+                    TLA Stables
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="flex flex-col justify-between min-h-[300px] text-center">
                   <p className="text-gray-700 mb-4">
-                    Horse Organics- Founded in August 2019, Horse Organics is a
-                    family-driven venture born from our deep love for horses.
-                    Starting with a single product, our commitment to excellence
-                    in horse care has led to a curated line of over five
-                    exceptional products
+                    We specialise in training, sourcing, and selling top-quality
+                    showjumping horses to clients around the world. With a
+                    passion for excellence and a proven track record, we match
+                    talented horses with ambitious riders at every level.
                   </p>
                   <div className="h-20 w-20 bg-purple-100 rounded-full mx-auto flex items-center justify-center overflow-hidden">
-                    <a href="https://horscare.com/shop" target="_blank">
+                    <a
+                      href="https://www.instagram.com/tla_stables?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
+                      target="_blank"
+                    >
                       <img
                         src="/lovable-uploads/tla-stables.jpeg"
                         alt=""
@@ -152,19 +154,20 @@ const About = () => {
               <Card className="border border-purple-200 bg-white">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-xl text-center font-serif text-blue-800">
-                    International Shows Circuit
+                    Horse Care
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="flex flex-col justify-between min-h-[300px] text-center">
                   <p className="text-gray-700 mb-4">
-                    We specialise in training, sourcing, and selling top-quality
-                    showjumping horses to clients around the world. With a
-                    passion for excellence and a proven track record, we match
-                    talented horses with ambitious riders at every level.
+                    Horse Organics- Founded in August 2019, Horse Organics is a
+                    family-driven venture born from our deep love for horses.
+                    Starting with a single product, our commitment to excellence
+                    in horse care has led to a curated line of over five
+                    exceptional products
                   </p>
                   <div className="h-20 w-20 rounded-full mx-auto flex items-center justify-center">
                     <a
-                      href="https://www.instagram.com/tla_stables?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
+                      href="https://horscare.com/shop"
                       target="_blank"
                     >
                       <img
