@@ -74,7 +74,7 @@ const About = () => {
         <CoreValues />
 
         {/* Key Statistics Section - Added back */}
-        <KeyStatistics />
+        {/* <KeyStatistics /> */}
 
         {/* Problems We Solve Section */}
         <ProblemsWeSolve />
@@ -104,17 +104,22 @@ const About = () => {
                     Equestrian Federation
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="flex flex-col justify-between min-h-[250px] text-center">
+                <CardContent className="flex flex-col justify-between min-h-[300px] text-center">
                   <p className="text-gray-700 mb-4">
-                    Official technology partner providing AI training solutions
-                    to national team riders.
+                    Horse Organics- Founded in August 2019, Horse Organics is a
+                    family-driven venture born from our deep love for horses.
+                    Starting with a single product, our commitment to excellence
+                    in horse care has led to a curated line of over five
+                    exceptional products
                   </p>
                   <div className="h-20 w-20 bg-purple-100 rounded-full mx-auto flex items-center justify-center overflow-hidden">
-                    <img
-                      src="/lovable-uploads/tla-stables.jpeg"
-                      alt=""
-                      className="max-w-full max-h-full object-cover"
-                    />
+                    <a href="https://horscare.com/shop" target="_blank">
+                      <img
+                        src="/lovable-uploads/tla-stables.jpeg"
+                        alt=""
+                        className="max-w-full max-h-full object-cover"
+                      />
+                    </a>
                   </div>
                 </CardContent>
               </Card>
@@ -126,17 +131,19 @@ const About = () => {
                     Elite Equine Equipment
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="flex flex-col justify-between min-h-[250px] text-center">
+                <CardContent className="flex flex-col justify-between min-h-[300px] text-center">
                   <p className="text-gray-700 mb-4">
                     Premium equipment manufacturer partnering to integrate
                     technology with traditional training tools.
                   </p>
                   <div className="h-20 w-20 rounded-full mx-auto flex items-center justify-center p-2 overflow-hidden">
-                    <img
-                      src="/lovable-uploads/appetite.png"
-                      alt=""
-                      className="max-w-full max-h-full object-cover"
-                    />
+                    <a href="https://appetitecreative.com/" target="_blank">
+                      <img
+                        src="/lovable-uploads/appetite.png"
+                        alt=""
+                        className="max-w-full max-h-full object-cover"
+                      />
+                    </a>
                   </div>
                 </CardContent>
               </Card>
@@ -148,17 +155,24 @@ const About = () => {
                     International Shows Circuit
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="flex flex-col justify-between min-h-[250px] text-center">
+                <CardContent className="flex flex-col justify-between min-h-[300px] text-center">
                   <p className="text-gray-700 mb-4">
-                    Official AI analysis partner for major international
-                    competitions and events.
+                    We specialise in training, sourcing, and selling top-quality
+                    showjumping horses to clients around the world. With a
+                    passion for excellence and a proven track record, we match
+                    talented horses with ambitious riders at every level.
                   </p>
                   <div className="h-20 w-20 rounded-full mx-auto flex items-center justify-center">
-                    <img
-                      src="/lovable-uploads/horse-organic.png"
-                      alt=""
-                      className="max-w-full max-h-full object-cover"
-                    />
+                    <a
+                      href="https://www.instagram.com/tla_stables?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
+                      target="_blank"
+                    >
+                      <img
+                        src="/lovable-uploads/horse-organic.png"
+                        alt=""
+                        className="max-w-full max-h-full object-cover"
+                      />
+                    </a>
                   </div>
                 </CardContent>
               </Card>
