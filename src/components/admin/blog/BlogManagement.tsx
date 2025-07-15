@@ -11,9 +11,15 @@ import {
 } from "@/components/ui/select";
 import { BlogPost } from "@/data/blogPosts";
 import BlogPostsList from "@/components/admin/blog/BlogPostsList";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import BlogPostForm from "@/components/admin/blog/BlogPostForm";
-import { 
+import {
   Pagination,
   PaginationContent,
   PaginationItem,
@@ -21,7 +27,13 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { fetchBlogPosts, createBlogPost, updateBlogPost, deleteBlogPost, fetchBlogPostBySlug } from "@/services/blogService";
+import {
+  fetchBlogPosts,
+  createBlogPost,
+  updateBlogPost,
+  deleteBlogPost,
+  fetchBlogPostBySlug,
+} from "@/services/blogService";
 import { useToast } from "@/hooks/use-toast";
 
 const POSTS_PER_PAGE = 10;
@@ -36,7 +48,7 @@ const BlogManagement = () => {
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
-  
+
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [paginatedPosts, setPaginatedPosts] = useState<BlogPost[]>([]);
@@ -52,11 +64,12 @@ const BlogManagement = () => {
       setPosts(fetchedPosts);
       setFilteredPosts(fetchedPosts);
     } catch (error) {
-      console.error('Error fetching posts:', error);
+      console.error("Error fetching posts:", error);
       toast({
         title: "Failed to load posts",
-        description: "There was a problem loading blog posts from the database.",
-        variant: "destructive"
+        description:
+          "There was a problem loading blog posts from the database.",
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
@@ -65,24 +78,24 @@ const BlogManagement = () => {
 
   useEffect(() => {
     let result = posts;
-    
+
     if (searchTerm) {
       result = result.filter(
-        post => 
+        (post) =>
           post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
           post.excerpt.toLowerCase().includes(searchTerm.toLowerCase()) ||
           post.author.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
-    
+
     if (disciplineFilter && disciplineFilter !== "all") {
-      result = result.filter(post => post.discipline === disciplineFilter);
+      result = result.filter((post) => post.discipline === disciplineFilter);
     }
-    
+
     if (categoryFilter && categoryFilter !== "all") {
-      result = result.filter(post => post.category === categoryFilter);
+      result = result.filter((post) => post.category === categoryFilter);
     }
-    
+
     setFilteredPosts(result);
     setCurrentPage(1); // Reset to first page when filters change
   }, [searchTerm, disciplineFilter, categoryFilter, posts]);
@@ -98,7 +111,7 @@ const BlogManagement = () => {
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleAddPost = () => {
@@ -116,7 +129,9 @@ const BlogManagement = () => {
           setEditingPost(fullPost);
         } else {
           setEditingPost(post);
-          console.warn("Could not fetch full blog post details, using list data");
+          console.warn(
+            "Could not fetch full blog post details, using list data"
+          );
         }
       } else {
         setEditingPost(post);
@@ -133,35 +148,35 @@ const BlogManagement = () => {
   const handleDeletePost = async (postId: number) => {
     try {
       // Find the post to get its Supabase UUID
-      const postToDelete = posts.find(p => p.id === postId);
-      
+      const postToDelete = posts.find((p) => p.id === postId);
+
       if (!postToDelete) {
         throw new Error("Post not found");
       }
-      
+
       // For Supabase, we need the actual UUID, not our numeric ID
       const supabaseId = postToDelete.supabaseId;
-      
+
       if (!supabaseId) {
         throw new Error("Supabase ID not found for this post");
       }
-      
+
       await deleteBlogPost(supabaseId);
-      
+
       // Remove post from state
-      setPosts(posts.filter(post => post.id !== postId));
-      
+      setPosts(posts.filter((post) => post.id !== postId));
+
       toast({
         title: "Post deleted",
         description: "The blog post has been successfully deleted.",
       });
     } catch (error) {
-      console.error('Error deleting post:', error);
-      
+      console.error("Error deleting post:", error);
+
       toast({
         title: "Failed to delete post",
         description: "There was a problem deleting the blog post.",
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
@@ -171,33 +186,33 @@ const BlogManagement = () => {
       if (editingPost) {
         // Update existing post
         const supabaseId = editingPost.supabaseId;
-        
+
         if (!supabaseId) {
           throw new Error("Supabase ID not found for this post");
         }
-        
+
         // Ensure content is handled properly (empty string if null/undefined)
         const content = post.content === undefined ? "" : post.content;
-        
+
         console.log("Updating blog post with content:", content);
-        
+
         await updateBlogPost(supabaseId, {
           title: post.title,
           slug: post.slug,
           excerpt: post.excerpt,
-          content: content, 
+          content: content,
           author: post.author,
           discipline: post.discipline,
           category: post.category,
           image: post.image,
-          authorImage: post.authorImage
+          authorImage: post.authorImage,
         });
-        
+
         // Update the post in our local state
-        setPosts(prevPosts => 
-          prevPosts.map(p => p.id === post.id ? { ...post, supabaseId } : p)
+        setPosts((prevPosts) =>
+          prevPosts.map((p) => (p.id === post.id ? { ...post, supabaseId } : p))
         );
-        
+
         toast({
           title: "Post updated",
           description: "The blog post has been successfully updated.",
@@ -206,45 +221,46 @@ const BlogManagement = () => {
         // Create new post
         // Format date as string in the format expected by Supabase
         const formattedDate = new Date().toISOString();
-        
+
         // Handle content field (empty string if null/undefined)
         const content = post.content === undefined ? "" : post.content;
-        
+
         console.log("Creating new blog post with content:", content);
-        
+
         const newPostId = await createBlogPost({
           title: post.title,
           slug: post.slug,
           excerpt: post.excerpt,
           content: content,
           author: post.author,
-          authorImage: post.authorImage || '/placeholder.svg',
+          authorImage: post.authorImage || "/placeholder.svg",
           date: formattedDate,
           discipline: post.discipline,
           category: post.category,
           image: post.image,
-          readingTime: post.readingTime || '5 min read'
+          readingTime: post.readingTime || "5 min read",
         });
-        
+
         if (newPostId) {
           // Reload all posts to get the new one with correct ID
           await loadBlogPosts();
-          
+
           toast({
             title: "Post created",
             description: "The new blog post has been successfully created.",
           });
         }
       }
-      
+
       setIsFormOpen(false);
     } catch (error) {
-      console.error('Error saving post:', error);
-      
+      console.error("Error saving post:", error);
+
       toast({
         title: "Failed to save post",
-        description: "There was a problem saving the blog post to the database.",
-        variant: "destructive"
+        description:
+          "There was a problem saving the blog post to the database.",
+        variant: "destructive",
       });
     }
   };
@@ -252,19 +268,19 @@ const BlogManagement = () => {
   // Generate pagination items
   const renderPaginationItems = () => {
     const items = [];
-    
+
     // Always show first page
     items.push(
       <PaginationItem key="first">
-        <PaginationLink 
-          isActive={currentPage === 1} 
+        <PaginationLink
+          isActive={currentPage === 1}
           onClick={() => handlePageChange(1)}
         >
           1
         </PaginationLink>
       </PaginationItem>
     );
-    
+
     // Show ellipsis if needed
     if (currentPage > 3) {
       items.push(
@@ -273,14 +289,18 @@ const BlogManagement = () => {
         </PaginationItem>
       );
     }
-    
+
     // Show pages around current page
-    for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) {
+    for (
+      let i = Math.max(2, currentPage - 1);
+      i <= Math.min(totalPages - 1, currentPage + 1);
+      i++
+    ) {
       if (i === 1 || i === totalPages) continue; // Skip first and last pages as they're handled separately
       items.push(
         <PaginationItem key={i}>
-          <PaginationLink 
-            isActive={currentPage === i} 
+          <PaginationLink
+            isActive={currentPage === i}
             onClick={() => handlePageChange(i)}
           >
             {i}
@@ -288,7 +308,7 @@ const BlogManagement = () => {
         </PaginationItem>
       );
     }
-    
+
     // Show ellipsis if needed
     if (currentPage < totalPages - 2 && totalPages > 3) {
       items.push(
@@ -297,13 +317,13 @@ const BlogManagement = () => {
         </PaginationItem>
       );
     }
-    
+
     // Always show last page if there is more than one page
     if (totalPages > 1) {
       items.push(
         <PaginationItem key="last">
-          <PaginationLink 
-            isActive={currentPage === totalPages} 
+          <PaginationLink
+            isActive={currentPage === totalPages}
             onClick={() => handlePageChange(totalPages)}
           >
             {totalPages}
@@ -311,7 +331,7 @@ const BlogManagement = () => {
         </PaginationItem>
       );
     }
-    
+
     return items;
   };
 
@@ -319,7 +339,9 @@ const BlogManagement = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Blog Management</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+            Blog Management
+          </h1>
           <p className="text-gray-500">Create and manage blog posts</p>
         </div>
         <Button onClick={handleAddPost}>
@@ -369,29 +391,43 @@ const BlogManagement = () => {
           <p className="mt-4 text-gray-600">Loading blog posts...</p>
         </div>
       ) : (
-        <BlogPostsList 
-          posts={paginatedPosts} 
-          onEdit={handleEditPost} 
-          onDelete={handleDeletePost} 
+        <BlogPostsList
+          posts={paginatedPosts}
+          onEdit={handleEditPost}
+          onDelete={handleDeletePost}
+          currentPage={currentPage}
+          itemsPerPage={POSTS_PER_PAGE}
         />
       )}
-      
+
       {totalPages > 1 && (
         <Pagination>
           <PaginationContent>
             <PaginationItem>
-              <PaginationPrevious 
-                onClick={() => currentPage > 1 && handlePageChange(currentPage - 1)}
-                className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+              <PaginationPrevious
+                onClick={() =>
+                  currentPage > 1 && handlePageChange(currentPage - 1)
+                }
+                className={
+                  currentPage === 1
+                    ? "pointer-events-none opacity-50"
+                    : "cursor-pointer"
+                }
               />
             </PaginationItem>
-            
+
             {renderPaginationItems()}
-            
+
             <PaginationItem>
-              <PaginationNext 
-                onClick={() => currentPage < totalPages && handlePageChange(currentPage + 1)}
-                className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+              <PaginationNext
+                onClick={() =>
+                  currentPage < totalPages && handlePageChange(currentPage + 1)
+                }
+                className={
+                  currentPage === totalPages
+                    ? "pointer-events-none opacity-50"
+                    : "cursor-pointer"
+                }
               />
             </PaginationItem>
           </PaginationContent>
@@ -401,16 +437,18 @@ const BlogManagement = () => {
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
         <DialogContent className="max-w-3xl">
           <DialogHeader>
-            <DialogTitle>{editingPost ? 'Edit Blog Post' : 'Create New Blog Post'}</DialogTitle>
+            <DialogTitle>
+              {editingPost ? "Edit Blog Post" : "Create New Blog Post"}
+            </DialogTitle>
             <DialogDescription>
-              {editingPost 
-                ? 'Make changes to your blog post here.' 
-                : 'Fill out the form below to create a new blog post.'}
+              {editingPost
+                ? "Make changes to your blog post here."
+                : "Fill out the form below to create a new blog post."}
             </DialogDescription>
           </DialogHeader>
-          <BlogPostForm 
-            post={editingPost} 
-            onSave={handleSavePost} 
+          <BlogPostForm
+            post={editingPost}
+            onSave={handleSavePost}
             onCancel={() => setIsFormOpen(false)}
           />
         </DialogContent>

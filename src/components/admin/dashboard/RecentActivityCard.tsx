@@ -16,7 +16,7 @@ interface RecentActivityCardProps {
 }
 
 const RecentActivityCard: React.FC<RecentActivityCardProps> = ({ 
-  limit = 5,
+  limit = 10,
   enableRealtime = true,
   showRefreshButton = false
 }) => {

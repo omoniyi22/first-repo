@@ -27,9 +27,11 @@ interface BlogPostsListProps {
   posts: BlogPost[];
   onEdit: (post: BlogPost) => void;
   onDelete: (id: number) => void;
+  currentPage?: number;
+  itemsPerPage?: number;
 }
 
-const BlogPostsList = ({ posts, onEdit, onDelete }: BlogPostsListProps) => {
+const BlogPostsList = ({ posts, onEdit, onDelete, currentPage = 1, itemsPerPage = 10 }: BlogPostsListProps) => {
   const [postToDelete, setPostToDelete] = useState<BlogPost | null>(null);
 
   const confirmDelete = () => {
@@ -90,7 +92,7 @@ const BlogPostsList = ({ posts, onEdit, onDelete }: BlogPostsListProps) => {
             ) : (
               posts.map((post, index) => (
                 <TableRow key={post.id}>
-                  <TableCell>{post.id}</TableCell>
+                  <TableCell>{(currentPage - 1) * itemsPerPage + index + 1}</TableCell>
                   <TableCell>
                     <div className="font-medium">{post.title}</div>
                     <div className="text-xs text-gray-500 truncate max-w-[200px] md:max-w-[300px]">

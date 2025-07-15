@@ -30,7 +30,6 @@ const DashboardOverview = () => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-     
         const allUser = await fetchUsers();
 
         const usersData = getCurrentMonthUsersWithPercentage(allUser);
@@ -167,7 +166,7 @@ const DashboardOverview = () => {
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-lg font-medium">
@@ -183,7 +182,7 @@ const DashboardOverview = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="lg:col-span-2">
+        {/* <Card className="lg:col-span-2">
           <CardHeader className="pb-2">
             <CardTitle className="text-lg font-medium">
               <div className="flex items-center">
@@ -218,9 +217,9 @@ const DashboardOverview = () => {
               </div>
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
 
-        <Card>
+        {/* <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-lg font-medium">
               <div className="flex items-center">
@@ -261,7 +260,7 @@ const DashboardOverview = () => {
               </div>
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
       </div>
     </div>
   );
