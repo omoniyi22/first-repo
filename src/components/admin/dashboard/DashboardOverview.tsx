@@ -166,8 +166,8 @@ const DashboardOverview = () => {
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-6">
-        <Card>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card className="self-start">
           <CardHeader className="pb-2">
             <CardTitle className="text-lg font-medium">
               Usage Analytics
