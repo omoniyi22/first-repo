@@ -143,7 +143,107 @@ const defaultTranslations = {
     "privacy": "Privacy Policy",
     "contact-us": "Contact Us",
     "newsletter-signup": "Subscribe to our newsletter",
-    "all-rights": "All rights reserved."
+    "all-rights": "All rights reserved.",
+    
+    // Core values
+    "innovation": "Innovation",
+    "innovation-desc": "Pushing the boundaries of what's possible in equestrian training",
+    "precision": "Precision",
+    "precision-desc": "Delivering accurate, reliable analysis and recommendations",
+    "community": "Community",
+    "community-desc": "Building a supportive network of riders and trainers",
+    "tradition": "Tradition",
+    "tradition-desc": "Respecting classical principles while embracing technology",
+    
+    // Team section
+    "meet-our-team": "Meet Our Team",
+    "team-description": "We're a dedicated team of dressage experts and AI specialists passionate about transforming dressage training.",
+    "view-linkedin": "View LinkedIn Profile",
+    "our-approach": "Our Approach",
+    "data-driven": "Data-Driven",
+    "data-driven-desc": "We utilize advanced data analytics to provide riders with actionable insights for improvement.",
+    "personalized": "Personalized",
+    "personalized-desc": "Every rider receives custom training plans tailored to their specific goals and challenges.",
+    "accessible": "Accessible",
+    "accessible-desc": "We make elite-level dressage training accessible to riders worldwide, regardless of location.",
+    "experience-ai-training": "Experience AI Dressage Training",
+    "have-questions": "Have questions about our platform or want to learn more about how AI Dressage Trainer can help you achieve your riding goals? Get in touch with our team.",
+    "start-free-trial": "Start Free Trial",
+    "send-message": "Send a Message",
+    
+    // Mission section
+    "about-ai-trainer": "About AI Dressage Trainer",
+    "mission-description": "We're on a mission to transform dressage training through the power of artificial intelligence.",
+    "our-vision": "Our Vision",
+    "mission-vision": "Our Mission & Vision",
+    "mission-text1": "At AI Dressage Trainer, we believe that technology can enhance the time-honored tradition of dressage training. Our mission is to democratize access to elite-level dressage education by leveraging artificial intelligence to provide personalized, data-driven insights to riders of all levels.",
+    "mission-text2": "We envision a world where every dressage rider, regardless of location or resources, can receive tailored guidance to improve their performance and strengthen the partnership with their horse.",
+    "mission-text3": "Our platform was born from a simple observation: while competition score sheets contain valuable feedback, riders often struggle to translate that feedback into effective training strategies. By harnessing the power of AI, we bridge that gap, turning judge's comments and scores into actionable training plans.",
+    "problem-solving": "The Problem We're Solving",
+    "problem-description": "Dressage riders face unique challenges in their training journey:",
+    "problem1": "Competition feedback is valuable but often inconsistent across judges and competitions",
+    "problem2": "Many riders have limited access to high-quality coaching and structured training programs",
+    "problem3": "It's difficult to objectively track progress and identify patterns across multiple performances",
+    "problem4": "Translating test scores into effective training exercises requires deep expertise",
+    "solution-text": "Our AI-powered platform addresses these challenges by providing objective analysis, personalized recommendations, and structured progress tracking that complements traditional training methods.",
+    "our-approach-title": "Our Approach",
+    "active-riders": "Active Riders",
+    "tests-analyzed-alt": "Tests Analyzed",
+    "user-satisfaction": "User Satisfaction",
+    "core-values": "Our Core Values",
+    
+    // Additional FAQ
+    "questions-title": "Still have questions?",
+    
+    // Testimonials
+    "what-users-say": "What Our Users Say",
+    "testimonials-desc": "Hear from riders who have transformed their dressage training with our AI platform",
+    "amateur-rider": "Amateur Dressage Rider",
+    "professional-trainer": "Professional Trainer",
+    "fei-competitor": "FEI Level Competitor",
+    "testimonial1": "AI Dressage Trainer has completely transformed my training approach. The personalized recommendations helped me improve my scores by 12% in just three months!",
+    "testimonial2": "As a trainer working with multiple students, this platform has been invaluable. The AI analysis spots patterns I might miss, and the exercise recommendations are spot on.",
+    "testimonial3": "The detailed breakdown of my test scores has helped me focus my training on specific movements. The AI recommendations are surprisingly insightful.",
+    "ready-transform": "Ready to Transform Your Dressage Training?",
+    "join-riders": "Join hundreds of riders who have improved their performance with AI-powered analysis and personalized training recommendations.",
+    "start-free-trial-btn": "Start Free Trial",
+    "advanced-ai-analysis": "Advanced AI Analysis",
+    "upload-feedback": "Upload your score sheets for instant AI-powered feedback",
+    "personalized-training": "Personalized Training",
+    "tailored-exercises": "Get tailored exercises based on your specific needs",
+    "progress-tracking": "Progress Tracking",
+    "monitor-improvement": "Monitor your improvement with detailed analytics",
+    "comprehensive-library": "Comprehensive Library",
+    "exercise-access": "Access to 200+ dressage training exercises",
+    
+    // Performance stats
+    "performance-overview": "Performance Overview",
+    "average-score": "Average Score",
+    "tests-analyzed-title": "Tests Analyzed",
+    "strongest-movement": "Strongest Movement", 
+    "focus-area": "Focus Area",
+    "not-available": "Not Available",
+    "no-data-yet": "No data yet",
+    "upload-first-test": "Upload your first test",
+    
+    // Dashboard header
+    "welcome": "Welcome, ",
+    "track-progress": "Track your progress and upload new dressage tests",
+    
+    // Benefits section
+    "what-you-benefit": "What You Benefit From",
+    "performance-analysis": "Performance Analysis",
+    "performance-analysis-desc": "Get instant, AI-powered feedback and trends from your dressage and jumping videos.",
+    "personalized-training-title": "Personalized Training",
+    "personalized-training-desc": "Unlock personalized training suggestions tailored to your performance and goals.",
+    "horse-management": "Horse Management",
+    "horse-management-desc": "Easily track and manage progress for each of your horses in one place.",
+    "user-dashboard": "User Dashboard",
+    "user-dashboard-desc": "View all your rides, progress, and insights in one simple, personalized dashboard.",
+    "event-management": "Event Management", 
+    "event-management-desc": "Organize your events and give trainers direct access to your performance dashboard.",
+    "coach-collaboration": "Coach Collaboration",
+    "coach-collaboration-desc": "Connect with your coach to share feedback, track progress, and train smarter together."
   },
   es: {
     // Navigation
@@ -278,7 +378,107 @@ const defaultTranslations = {
     "privacy": "Política de Privacidad",
     "contact-us": "Contáctanos",
     "newsletter-signup": "Suscríbete a nuestro boletín",
-    "all-rights": "Todos los derechos reservados."
+    "all-rights": "Todos los derechos reservados.",
+    
+    // Core values
+    "innovation": "Innovación",
+    "innovation-desc": "Ampliando los límites de lo posible en el entrenamiento ecuestre",
+    "precision": "Precisión",
+    "precision-desc": "Proporcionando análisis y recomendaciones precisos y confiables",
+    "community": "Comunidad",
+    "community-desc": "Construyendo una red de apoyo de jinetes y entrenadores",
+    "tradition": "Tradición",
+    "tradition-desc": "Respetando los principios clásicos mientras adoptamos la tecnología",
+    
+    // Team section
+    "meet-our-team": "Conoce a Nuestro Equipo",
+    "team-description": "Somos un equipo dedicado de expertos en doma e especialistas en IA apasionados por transformar el entrenamiento de doma.",
+    "view-linkedin": "Ver Perfil de LinkedIn",
+    "our-approach": "Nuestro Enfoque",
+    "data-driven": "Basado en Datos",
+    "data-driven-desc": "Utilizamos análisis de datos avanzados para proporcionar a los jinetes información procesable para mejorar.",
+    "personalized": "Personalizado",
+    "personalized-desc": "Cada jinete recibe planes de entrenamiento personalizados adaptados a sus objetivos y desafíos específicos.",
+    "accessible": "Accesible",
+    "accessible-desc": "Hacemos que el entrenamiento de doma de nivel élite sea accesible para jinetes de todo el mundo, independientemente de la ubicación.",
+    "experience-ai-training": "Experimenta el Entrenamiento de Doma con IA",
+    "have-questions": "¿Tienes preguntas sobre nuestra plataforma o quieres aprender más sobre cómo AI Dressage Trainer puede ayudarte a lograr tus objetivos de equitación? Ponte en contacto con nuestro equipo.",
+    "start-free-trial": "Comenzar Prueba Gratuita",
+    "send-message": "Enviar un Mensaje",
+    
+    // Mission section
+    "about-ai-trainer": "Acerca del Entrenador de Doma con IA",
+    "mission-description": "Estamos en una misión de transformar el entrenamiento de doma a través del poder de la inteligencia artificial.",
+    "our-vision": "Nuestra Visión",
+    "mission-vision": "Nuestra Misión y Visión",
+    "mission-text1": "En AI Dressage Trainer, creemos que la tecnología puede mejorar la tradición consagrada del entrenamiento de doma. Nuestra misión es democratizar el acceso a la educación de doma de nivel élite aprovechando la inteligencia artificial para proporcionar información personalizada y basada en datos a jinetes de todos los niveles.",
+    "mission-text2": "Visualizamos un mundo donde cada jinete de doma, independientemente de la ubicación o los recursos, puede recibir orientación personalizada para mejorar su rendimiento y fortalecer la asociación con su caballo.",
+    "mission-text3": "Nuestra plataforma nació de una observación simple: aunque las hojas de puntuación de competición contienen comentarios valiosos, los jinetes a menudo luchan por traducir esos comentarios en estrategias de entrenamiento efectivas. Al aprovechar el poder de la IA, cerramos esa brecha, convirtiendo los comentarios y puntuaciones de los jueces en planes de entrenamiento accionables.",
+    "problem-solving": "El Problema que Estamos Resolviendo",
+    "problem-description": "Los jinetes de doma enfrentan desafíos únicos en su viaje de entrenamiento:",
+    "problem1": "Los comentarios de competición son valiosos pero a menudo inconsistentes entre jueces y competiciones",
+    "problem2": "Muchos jinetes tienen acceso limitado a entrenamiento de alta calidad y programas de entrenamiento estructurados",
+    "problem3": "Es difícil rastrear objetivamente el progreso e identificar patrones en múltiples actuaciones",
+    "problem4": "Traducir las puntuaciones de las pruebas en ejercicios de entrenamiento efectivos requiere experiencia profunda",
+    "solution-text": "Nuestra plataforma impulsada por IA aborda estos desafíos proporcionando análisis objetivo, recomendaciones personalizadas y seguimiento de progreso estructurado que complementa los métodos de entrenamiento tradicionales.",
+    "our-approach-title": "Nuestro Enfoque",
+    "active-riders": "Jinetes Activos",
+    "tests-analyzed-alt": "Pruebas Analizadas",
+    "user-satisfaction": "Satisfacción del Usuario",
+    "core-values": "Nuestros Valores Fundamentales",
+    
+    // Additional FAQ
+    "questions-title-alt": "¿Todavía tienes preguntas?",
+    
+    // Testimonials
+    "what-users-say": "Lo que Dicen Nuestros Usuarios",
+    "testimonials-desc": "Escucha a los jinetes que han transformado su entrenamiento de doma con nuestra plataforma de IA",
+    "amateur-rider": "Jinete de Doma Aficionada",
+    "professional-trainer": "Entrenador Profesional",
+    "fei-competitor": "Competidora Nivel FEI",
+    "testimonial1": "AI Dressage Trainer ha transformado completamente mi enfoque de entrenamiento. Las recomendaciones personalizadas me ayudaron a mejorar mis puntuaciones en un 12% en solo tres meses!",
+    "testimonial2": "Como entrenador trabajando con múltiples estudiantes, esta plataforma ha sido invaluable. El análisis de IA detecta patrones que podría pasar por alto, y las recomendaciones de ejercicios son muy acertadas.",
+    "testimonial3": "El desglose detallado de mis puntuaciones de prueba me ha ayudado a enfocar mi entrenamiento en movimientos específicos. Las recomendaciones de IA son sorprendentemente perspicaces.",
+    "ready-transform": "¿Estás listo para transformar tu entrenamiento de doma?",
+    "join-riders": "Únase a cientos de ciclistas que han mejorado su rendimiento con análisis impulsados por IA y recomendaciones de entrenamiento personalizadas.",
+    "start-free-trial-btn": "Comience una prueba gratuita",
+    "advanced-ai-analysis": "Análisis avanzado de IA",
+    "upload-feedback": "Sube tus hojas de puntuación para recibir comentarios instantáneos impulsados por IA",
+    "personalized-training": "Entrenamiento personalizado",
+    "tailored-exercises": "Obtenga ejercicios personalizados según sus necesidades específicas",
+    "progress-tracking": "Seguimiento del progreso",
+    "monitor-improvement": "Monitorea tu mejora con análisis detallados",
+    "comprehensive-library": "Biblioteca completa",
+    "exercise-access": "Acceso a más de 200 ejercicios de entrenamiento de doma",
+    
+    // Performance stats
+    "performance-overview": "Resumen de Rendimiento",
+    "average-score": "Puntuación Media",
+    "tests-analyzed-title": "Pruebas Analizadas",
+    "strongest-movement": "Movimiento Más Fuerte", 
+    "focus-area": "Área de Enfoque",
+    "not-available": "No Disponible",
+    "no-data-yet": "Sin datos aún",
+    "upload-first-test": "Sube tu primera prueba",
+    
+    // Dashboard header
+    "welcome": "Bienvenido, ",
+    "track-progress": "Sigue tu progreso y sube nuevas pruebas de doma",
+    
+    // Benefits section
+    "what-you-benefit": "De qué se beneficia",
+    "performance-analysis": "Análisis de Rendimiento",
+    "performance-analysis-desc": "Obtén retroalimentación instantánea e insights impulsados por IA de tus videos de doma y salto.",
+    "personalized-training-title": "Entrenamiento Personalizado",
+    "personalized-training-desc": "Desbloquea sugerencias de entrenamiento personalizadas adaptadas a tu rendimiento y objetivos.",
+    "horse-management": "Gestión de Caballos",
+    "horse-management-desc": "Rastrea y gestiona fácilmente el progreso de cada uno de tus caballos en un solo lugar.",
+    "user-dashboard": "Panel de Usuario",
+    "user-dashboard-desc": "Ve todas tus montas, progreso e insights en un panel simple y personalizado.",
+    "event-management": "Gestión de Eventos", 
+    "event-management-desc": "Organiza tus eventos y da a los entrenadores acceso directo a tu panel de rendimiento.",
+    "coach-collaboration": "Colaboración con Entrenador",
+    "coach-collaboration-desc": "Conéctate con tu entrenador para compartir retroalimentación, rastrear progreso y entrenar de manera más inteligente juntos."
   }
 };
 

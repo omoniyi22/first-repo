@@ -146,7 +146,7 @@ const PricingFaq = () => {
           className="text-center max-w-2xl mx-auto mt-12"
         >
           <h3 className="text-xl font-medium text-navy-900 mb-4">
-            {t["questions-title"]}
+            {t["questions-title-alt"] || t["still-questions"]}
           </h3>
           <p className="text-gray-700 mb-6">{t["questions-text"]}</p>
           <div className="flex justify-center">
@@ -158,7 +158,7 @@ const PricingFaq = () => {
             <Link to="mailto:info@equineaintelligence.com">
               <Button variant="primary">
                 <MessageCircle className="w-5 h-5" />
-                Contact Support
+                {t["contact-support"]}
               </Button>
             </Link>
           </div>

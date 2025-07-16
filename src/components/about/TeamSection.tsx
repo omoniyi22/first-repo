@@ -2,6 +2,7 @@
 import AnimatedSection from '../ui/AnimatedSection';
 import { Linkedin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface TeamMember {
   name: string;
@@ -12,6 +13,9 @@ interface TeamMember {
 }
 
 const TeamSection = () => {
+  const { language, translations } = useLanguage();
+  const t = translations[language];
+  
   const teamMembers: TeamMember[] = [
     {
       name: "Jenny Stanley",
@@ -33,10 +37,10 @@ const TeamSection = () => {
       <div className="container mx-auto px-6">
         <AnimatedSection animation="fade-in" className="text-center max-w-3xl mx-auto mb-12">
           <h2 className="text-3xl md:text-4xl font-serif font-semibold text-purple-900 mb-4">
-            Meet Our Team
+            {t["meet-our-team"]}
           </h2>
           <p className="text-lg text-navy-700">
-            We're a dedicated team of dressage experts and AI specialists passionate about transforming dressage training.
+            {t["team-description"]}
           </p>
         </AnimatedSection>
         
@@ -79,7 +83,7 @@ const TeamSection = () => {
                           aria-label={`${member.name}'s LinkedIn profile`}
                         >
                           <Linkedin className="h-5 w-5 mr-1" />
-                          <span className="text-sm">View LinkedIn Profile</span>
+                          <span className="text-sm">{t["view-linkedin"]}</span>
                         </a>
                       </div>
                     )}
@@ -93,7 +97,7 @@ const TeamSection = () => {
         <AnimatedSection animation="fade-in" className="mb-12">
           <div className="bg-white rounded-xl p-8 md:p-12 shadow-sm">
             <h3 className="text-2xl md:text-3xl font-serif font-semibold text-navy-900 mb-6 text-center">
-              Our Approach
+              {t["our-approach"]}
             </h3>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -103,9 +107,9 @@ const TeamSection = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                   </svg>
                 </div>
-                <h4 className="text-lg font-medium mb-2 text-center text-navy-900">Data-Driven</h4>
+                <h4 className="text-lg font-medium mb-2 text-center text-navy-900">{t["data-driven"]}</h4>
                 <p className="text-navy-700 text-sm text-center">
-                  We utilize advanced data analytics to provide riders with actionable insights for improvement.
+                  {t["data-driven-desc"]}
                 </p>
               </div>
               
@@ -115,9 +119,9 @@ const TeamSection = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
                   </svg>
                 </div>
-                <h4 className="text-lg font-medium mb-2 text-center text-navy-900">Personalized</h4>
+                <h4 className="text-lg font-medium mb-2 text-center text-navy-900">{t["personalized"]}</h4>
                 <p className="text-navy-700 text-sm text-center">
-                  Every rider receives custom training plans tailored to their specific goals and challenges.
+                  {t["personalized-desc"]}
                 </p>
               </div>
               
@@ -127,9 +131,9 @@ const TeamSection = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
-                <h4 className="text-lg font-medium mb-2 text-center text-navy-900">Accessible</h4>
+                <h4 className="text-lg font-medium mb-2 text-center text-navy-900">{t["accessible"]}</h4>
                 <p className="text-navy-700 text-sm text-center">
-                  We make elite-level dressage training accessible to riders worldwide, regardless of location.
+                  {t["accessible-desc"]}
                 </p>
               </div>
             </div>
@@ -139,7 +143,7 @@ const TeamSection = () => {
         <AnimatedSection animation="fade-in">
           <div className="bg-gradient-to-br from-navy-800 to-purple-900 rounded-xl p-8 md:p-12 text-center">
             <h3 className="text-2xl md:text-3xl font-serif font-semibold text-white mb-6">
-              Experience AI Dressage Training
+              {t["experience-ai-training"]}
             </h3>
             
             <div className="md:flex justify-center items-center space-y-6 md:space-y-0 md:space-x-8">
@@ -153,20 +157,20 @@ const TeamSection = () => {
               
               <div className="md:w-1/2 text-left">
                 <p className="text-navy-100 mb-6">
-                  Have questions about our platform or want to learn more about how AI Dressage Trainer can help you achieve your riding goals? Get in touch with our team.
+                  {t["have-questions"]}
                 </p>
                 
                 <div className="flex flex-col sm:flex-row gap-4">
                   <Button 
                     className="bg-gradient-to-r from-purple-600 to-blue-500 text-white hover:from-purple-700 hover:to-blue-600 px-6 py-3"
                   >
-                    Start Free Trial
+                    {t["start-free-trial"]}
                   </Button>
                   
                   <Button 
                     className="border border-white text-white hover:bg-navy-700 bg-transparent px-6 py-3"
                   >
-                    Send a Message
+                    {t["send-message"]}
                   </Button>
                 </div>
               </div>
