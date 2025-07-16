@@ -36,8 +36,7 @@ const BenefitCard = ({ title, description, icon }: BenefitCardProps) => {
 };
 
 const BenefitsSection = () => {
-  const { language, translations } = useLanguage();
-  const t = translations[language];
+  const { language } = useLanguage();
 
   const benefits = [
     {
@@ -101,7 +100,7 @@ const BenefitsSection = () => {
     <AnimatedSection animation="fade-in" className="py-20 bg-white">
       <div className="container mx-auto px-6">
         <h2 className="text-3xl md:text-4xl font-serif font-medium text-center mb-16 text-purple-900">
-          {t["what-you-benefit"]}
+          {language === "en" ? "What You Benefit From" : "De qué se beneficia"}
         </h2>
 
         <div className="flex justify-around flex-wrap gap-6">
