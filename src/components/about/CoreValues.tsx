@@ -1,5 +1,6 @@
 
 import { Book, ShieldCheck, Users, Lightbulb } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ValueItemProps {
   icon: React.ReactNode;
@@ -20,26 +21,29 @@ const ValueItem = ({ icon, title, description }: ValueItemProps) => {
 };
 
 const CoreValues = () => {
+  const { language, translations } = useLanguage();
+  const t = translations[language];
+
   const values = [
     {
       icon: <Lightbulb className="h-8 w-8 text-purple-700" />,
-      title: "Innovation",
-      description: "Pushing the boundaries of what's possible in equestrian training"
+      title: t["innovation"],
+      description: t["innovation-desc"]
     },
     {
       icon: <ShieldCheck className="h-8 w-8 text-purple-700" />,
-      title: "Precision",
-      description: "Delivering accurate, reliable analysis and recommendations"
+      title: t["precision"],
+      description: t["precision-desc"]
     },
     {
       icon: <Users className="h-8 w-8 text-purple-700" />,
-      title: "Community",
-      description: "Building a supportive network of riders and trainers"
+      title: t["community"],
+      description: t["community-desc"]
     },
     {
       icon: <Book className="h-8 w-8 text-purple-700" />,
-      title: "Tradition",
-      description: "Respecting classical principles while embracing technology"
+      title: t["tradition"],
+      description: t["tradition-desc"]
     }
   ];
 
@@ -47,7 +51,7 @@ const CoreValues = () => {
     <div className="py-12 bg-white">
       <div className="container mx-auto px-6">
         <h2 className="text-3xl font-serif font-semibold text-center text-purple-900 mb-12">
-          Our Core Values
+          {t["our-core-values"]}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {values.map((value, index) => (

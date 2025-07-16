@@ -303,7 +303,7 @@ const Navbar = () => {
                     className="w-52 bg-white py-1.5 px-1 rounded-md shadow-md"
                   >
                     <DropdownMenuLabel className="font-sans text-sm px-2.5 py-1.5">
-                      My Account
+                      {t["my-account"]}
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
@@ -327,7 +327,7 @@ const Navbar = () => {
                         className="cursor-pointer font-sans text-sm px-2.5 py-1.5 rounded-sm"
                       >
                         <LayoutDashboard className="h-4 w-4 mr-2" />
-                        <span>Admin Dashboard</span>
+                        <span>{t["admin-dashboard"]}</span>
                       </DropdownMenuItem>
                     )}
 
@@ -354,7 +354,7 @@ const Navbar = () => {
                     variant="outline"
                     className="border-white hover:border-purple-800 text-white bg-transparent hover:bg-gradient-to-r hover:from-purple-800 hover:to-blue-700 hover:text-white transition-all font-sans text-sm"
                   >
-                    Log In
+                    {t["log-in"]}
                   </Button>
                 </Link>
               </>
@@ -372,7 +372,7 @@ const Navbar = () => {
             <button
               className="ml-4"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+              aria-label={isMobileMenuOpen ? t["close-menu"] : t["open-menu"]}
             >
               {isMobileMenuOpen ? (
                 <X className="h-6 w-6 text-white" />
@@ -494,7 +494,7 @@ const Navbar = () => {
                       isActive("/admin") ? "text-purple-300" : ""
                     }`}
                   >
-                    Admin Dashboard
+                    {t["admin-dashboard"]}
                   </Link>
                 )}
               </>
@@ -528,7 +528,7 @@ const Navbar = () => {
                       variant="outline"
                       className="w-full border-white text-white bg-transparent hover:bg-gradient-to-r hover:from-purple-800 hover:to-blue-700 hover:text-white hover:border-transparent transition-all"
                     >
-                      Log In
+                      {t["log-in"]}
                     </Button>
                   </Link>
                 </>

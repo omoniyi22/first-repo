@@ -143,7 +143,57 @@ const defaultTranslations = {
     "privacy": "Privacy Policy",
     "contact-us": "Contact Us",
     "newsletter-signup": "Subscribe to our newsletter",
-    "all-rights": "All rights reserved."
+    "all-rights": "All rights reserved.",
+
+    // Additional UI Elements
+    "log-in": "Log In",
+    "admin-dashboard": "Admin Dashboard",
+    "my-account": "My Account",
+    "toggle-theme": "Toggle theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System",
+    "close-menu": "Close menu",
+    "open-menu": "Open menu",
+    "page-not-found": "Oops! Page not found",
+    "return-to-home": "Return to Home",
+    "our-core-values": "Our Core Values",
+    "innovation": "Innovation",
+    "innovation-desc": "Pushing the boundaries of what's possible in equestrian training",
+    "precision": "Precision", 
+    "precision-desc": "Delivering accurate, reliable analysis and recommendations",
+    "community": "Community",
+    "community-desc": "Building a supportive network of riders and trainers",
+    "tradition": "Tradition",
+    "tradition-desc": "Respecting classical principles while embracing technology",
+
+    // DisciplineSpecificTabs - Dressage
+    "elevating-dressage": "Elevating Your Dressage Journey",
+    "dressage-demands": "Dressage demands precision, harmony, and consistent improvement. AI Dressage tackles the specific challenges faced by dressage riders.",
+    "inconsistent-test-scores": "Inconsistent Test Scores",
+    "inconsistent-test-desc": "Dressage riders often experience frustrating score fluctuations without understanding why. AI Dressage analyzes your test sheets to identify patterns and specific movements affecting your overall performance.",
+    "difficulty-interpreting": "Difficulty Interpreting Judge Comments",
+    "difficulty-interpreting-desc": "Judge feedback can be cryptic or overwhelming. Our system synthesizes comments across multiple tests to reveal actionable insights about your technical execution.",
+    "position-flaws": "Position Flaws During Movements",
+    "position-flaws-desc": "Small alignment issues can significantly impact movement quality. Our video analysis identifies position inconsistencies at critical moments in your ride.",
+    "gait-quality": "Gait Quality Assessment",
+    "gait-quality-desc": "It's challenging to objectively evaluate the quality of your horse's gaits while riding. AI Dressage provides detailed analysis of rhythm, impulsion, and other key qualities across all gaits.",
+    "training-plateaus": "Training Progression Plateaus",
+    "training-plateaus-desc": "Many riders struggle to break through scoring plateaus. Our system identifies the highest-impact areas for improvement and suggests targeted exercises to elevate your performance.",
+
+    // DisciplineSpecificTabs - Jumping  
+    "elevating-jumping": "Elevating Your Show Jumping Excellence",
+    "jumping-demands": "Show jumping requires split-second timing, precision, and mental toughness. AI Jump addresses the unique challenges that show jumping athletes face.",
+    "approach-distance": "Approach and Distance Inconsistency",
+    "approach-distance-desc": "Finding the perfect distance to each fence is crucial but challenging. Our AI analyzes your approach patterns to help you develop more consistent striding and takeoff points.",
+    "position-faults": "Position Faults at Critical Moments",
+    "position-faults-desc": "Rider position affects both safety and performance over fences. AI Jump identifies position changes during takeoff, flight, and landing that impact your effectiveness.",
+    "course-strategy": "Course Strategy Optimization",
+    "course-strategy-desc": "Walking courses effectively requires experience and strategy. Our system helps you analyze course design patterns and develop optimal riding plans for different track layouts.",
+    "fault-pattern": "Fault Pattern Recognition",
+    "fault-pattern-desc": "Understanding why faults occur is key to preventing them. AI Jump tracks fault patterns across different fence types and course conditions to reveal improvement opportunities.",
+    "jump-type-difficulties": "Jump Type Difficulties",
+    "jump-type-difficulties-desc": "Every horse and rider combination has strengths and challenges with different fence types. Our analysis identifies which obstacles need focused attention in your training program."
   },
   es: {
     // Navigation
@@ -278,7 +328,57 @@ const defaultTranslations = {
     "privacy": "Política de Privacidad",
     "contact-us": "Contáctanos",
     "newsletter-signup": "Suscríbete a nuestro boletín",
-    "all-rights": "Todos los derechos reservados."
+    "all-rights": "Todos los derechos reservados.",
+
+    // Additional UI Elements
+    "log-in": "Iniciar Sesión",
+    "admin-dashboard": "Panel de Administración",
+    "my-account": "Mi Cuenta",
+    "toggle-theme": "Cambiar tema",
+    "light": "Claro",
+    "dark": "Oscuro",
+    "system": "Sistema",
+    "close-menu": "Cerrar menú",
+    "open-menu": "Abrir menú",
+    "page-not-found": "¡Ups! Página no encontrada",
+    "return-to-home": "Volver al Inicio",
+    "our-core-values": "Nuestros Valores Fundamentales",
+    "innovation": "Innovación",
+    "innovation-desc": "Superando los límites de lo posible en el entrenamiento ecuestre",
+    "precision": "Precisión",
+    "precision-desc": "Entregando análisis y recomendaciones precisos y confiables",
+    "community": "Comunidad",
+    "community-desc": "Construyendo una red de apoyo de jinetes y entrenadores",
+    "tradition": "Tradición",
+    "tradition-desc": "Respetando los principios clásicos mientras abrazamos la tecnología",
+
+    // DisciplineSpecificTabs - Dressage
+    "elevating-dressage": "Elevando Tu Trayectoria en Doma",
+    "dressage-demands": "La doma exige precisión, armonía y mejora constante. AI Dressage aborda los desafíos específicos que enfrentan los jinetes de doma.",
+    "inconsistent-test-scores": "Puntuaciones de Prueba Inconsistentes",
+    "inconsistent-test-desc": "Los jinetes de doma a menudo experimentan fluctuaciones frustrantes en las puntuaciones sin entender por qué. AI Dressage analiza tus hojas de puntuación para identificar patrones y movimientos específicos que afectan tu rendimiento general.",
+    "difficulty-interpreting": "Dificultad para Interpretar Comentarios de Jueces",
+    "difficulty-interpreting-desc": "Los comentarios de los jueces pueden ser crípticos o abrumadores. Nuestro sistema sintetiza comentarios de múltiples pruebas para revelar información práctica sobre tu ejecución técnica.",
+    "position-flaws": "Fallas de Posición Durante Movimientos",
+    "position-flaws-desc": "Pequeños problemas de alineación pueden impactar significativamente la calidad del movimiento. Nuestro análisis de video identifica inconsistencias de posición en momentos críticos de tu monta.",
+    "gait-quality": "Evaluación de Calidad de Aires",
+    "gait-quality-desc": "Es desafiante evaluar objetivamente la calidad de los aires de tu caballo mientras montas. AI Dressage proporciona análisis detallado de ritmo, impulsión y otras cualidades clave en todos los aires.",
+    "training-plateaus": "Mesetas de Progresión de Entrenamiento",
+    "training-plateaus-desc": "Muchos jinetes luchan por superar las mesetas de puntuación. Nuestro sistema identifica las áreas de mayor impacto para la mejora y sugiere ejercicios específicos para elevar tu rendimiento.",
+
+    // DisciplineSpecificTabs - Jumping  
+    "elevating-jumping": "Elevando Tu Excelencia en Salto",
+    "jumping-demands": "El salto requiere sincronización de fracción de segundo, precisión y fortaleza mental. AI Jump aborda los desafíos únicos que enfrentan los atletas de salto.",
+    "approach-distance": "Inconsistencia de Aproximación y Distancia",
+    "approach-distance-desc": "Encontrar la distancia perfecta a cada valla es crucial pero desafiante. Nuestra IA analiza tus patrones de aproximación para ayudarte a desarrollar trancos más consistentes y puntos de despegue.",
+    "position-faults": "Fallas de Posición en Momentos Críticos",
+    "position-faults-desc": "La posición del jinete afecta tanto la seguridad como el rendimiento sobre las vallas. AI Jump identifica cambios de posición durante el despegue, vuelo y aterrizaje que impactan tu efectividad.",
+    "course-strategy": "Optimización de Estrategia de Recorrido",
+    "course-strategy-desc": "Caminar recorridos efectivamente requiere experiencia y estrategia. Nuestro sistema te ayuda a analizar patrones de diseño de recorridos y desarrollar planes de monta óptimos para diferentes trazados.",
+    "fault-pattern": "Reconocimiento de Patrones de Fallas",
+    "fault-pattern-desc": "Entender por qué ocurren las fallas es clave para prevenirlas. AI Jump rastrea patrones de fallas a través de diferentes tipos de vallas y condiciones de recorrido para revelar oportunidades de mejora.",
+    "jump-type-difficulties": "Dificultades con Tipos de Saltos",
+    "jump-type-difficulties-desc": "Cada combinación de caballo y jinete tiene fortalezas y desafíos con diferentes tipos de vallas. Nuestro análisis identifica qué obstáculos necesitan atención enfocada en tu programa de entrenamiento."
   }
 };
 
