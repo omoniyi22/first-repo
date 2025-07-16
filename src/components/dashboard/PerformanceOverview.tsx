@@ -24,6 +24,7 @@ import {
 } from "recharts";
 import { useEffect, useState } from "react";
 import MovementRadarChart from "../profile/MovementRadarChart";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface TestData {
   id: string;
@@ -44,6 +45,7 @@ const PerformanceOverview = () => {
   const [currentMonthTestsCount, setCurrentMonthTestsCount] = useState(0);
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
+  const { language } = useLanguage();
 
   // NEW state variables for strongest movement and focus area
   const [strongestMovement, setStrongestMovement] = useState("Trot");
@@ -872,7 +874,9 @@ const PerformanceOverview = () => {
   return (
     <div className="mb-8">
       <h2 className="text-xl font-serif font-semibold text-gray-900 mb-4">
-        Performance Overview
+        {language === "en"
+          ? "Performance Overview"
+          : "Descripción general del rendimiento"}
       </h2>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">

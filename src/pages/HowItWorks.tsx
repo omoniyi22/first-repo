@@ -9,8 +9,11 @@ import DisciplineSelector from "@/components/howitworks/DisciplineSelector";
 import PrivacySection from "@/components/howitworks/PrivacySection";
 import BenefitsSection from "@/components/howitworks/BenefitsSection";
 import FaqSection from "@/components/howitworks/FaqSection";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const HowItWorks = () => {
+  const { language } = useLanguage();
+
   // Initialize scroll reveal for animations
   useEffect(() => {
     const initScrollReveal = () => {
@@ -65,30 +68,28 @@ const HowItWorks = () => {
             {/* Left Column - Text Content */}
             <div className="order-2 md:order-1 lg:w-4/5 lg:mx-auto">
               <h1 className="text-4xl md:text-5xl font-serif font-semibold text-navy-900 mb-6">
-                How AI Equestrian Works
+                {language === "en"
+                  ? "How AI Equestrian Works"
+                  : "Cómo funciona la IA ecuestre"}
               </h1>
               <p className="text-lg text-gray-700 mb-8">
-                Our AI-powered platform analyzes your riding performance,
-                identifies areas for improvement, and provides personalized
-                training recommendations to help you achieve your equestrian
-                goals. Our AI-powered platform analyzes your riding performance,
-                identifies areas for improvement, and provides personalized
-                training recommendations to help you achieve your equestrian
-                goals.
+                {language === "en"
+                  ? "Our AI-powered platform analyzes your riding performance, identifies areas for improvement, and provides personalized training recommendations to help you achieve your equestrian goals. Our AI-powered platform analyzes your riding performance, identifies areas for improvement, and provides personalized training recommendations to help you achieve your equestrian goals."
+                  : "Nuestra plataforma con IA analiza tu rendimiento ecuestre, identifica áreas de mejora y te ofrece recomendaciones de entrenamiento personalizadas para ayudarte a alcanzar tus objetivos ecuestres."}
               </p>
               {/* <Link to="/sign-in?signup=true">
                 <Button 
-                  variant="primary" 
-                  className="hover:bg-purple-700 hover:shadow-lg transition-all"
+                variant="primary" 
+                className="hover:bg-purple-700 hover:shadow-lg transition-all"
                 >
-                  Get Started
+                Get Started
                 </Button>
-              </Link> */}
+                </Link> */}
               {/* <div className="hidden md:block mt-12">
                 <div className="w-10 h-20 border-2 border-purple-600 rounded-full flex items-end justify-center p-2">
-                  <span className="bg-purple-600 font-semibold rounded-full w-1 h-8"></span>
+                <span className="bg-purple-600 font-semibold rounded-full w-1 h-8"></span>
                 </div>
-              </div> */}
+                </div> */}
             </div>
 
             {/* Right Column - Image with AI Analysis */}
@@ -103,21 +104,25 @@ const HowItWorks = () => {
                 {/* AI Analysis Overlays */}
                 <div className="absolute top-[20%] right-[15%] bg-white p-3 rounded-lg shadow-md text-sm max-w-[200px]">
                   <p className="text-gray-800">
-                    You're leaning forward by 7 degrees, sit tall and engage
-                    your core.
+                    {language === "en"
+                      ? "You're leaning forward by 7 degrees, sit tall and engage your core."
+                      : "Inclinate hacia delante 7 grados, siéntate erguido y contrae el centro del cuerpo."}
                   </p>
                 </div>
 
                 <div className="absolute bottom-[30%] left-[10%] bg-white p-3 rounded-lg shadow-md text-sm max-w-[200px]">
                   <p className="text-gray-800">
-                    Release properly, give your horse freedom over the fence.
+                    {language === "en"
+                      ? "Release properly, give your horse freedom over the fence."
+                      : "Suelte adecuadamente y dale libertad a tu caballo sobre la valla."}
                   </p>
                 </div>
 
                 <div className="absolute top-[60%] right-[10%] bg-white p-3 rounded-lg shadow-md text-sm max-w-[200px]">
                   <p className="text-gray-800">
-                    Your jump approach speed is slightly high — try slowing down
-                    for better control.
+                    {language === "en"
+                      ? "Your jump approach speed is slightly high — try slowing down for better control."
+                      : "Tu velocidad de aproximación al salto es levemente alta: intenta reducir la velocidad para tener un mejor control."}
                   </p>
                 </div>
               </div>
@@ -130,11 +135,14 @@ const HowItWorks = () => {
         <AnimatedSection animation="fade-in" className="py-16 bg-white">
           <div className="container mx-auto px-6">
             <h2 className="text-3xl md:text-4xl font-serif font-medium text-center mb-12 text-purple-900">
-              How AI Equestrian Works
+              {language === "en"
+                ? "How AI Equestrian Works"
+                : "Cómo funciona la IA ecuestre"}
             </h2>
             <p className="text-center text-gray-700 max-w-3xl mx-auto mb-16">
-              Choose your equestrian discipline to learn how our AI-powered
-              training solutions can help you improve your performance.
+              {language === "en"
+                ? "Choose your equestrian discipline to learn how our AI-powered training solutions can help you improve your performance."
+                : "Elija su disciplina ecuestre para aprender cómo nuestras soluciones de entrenamiento impulsadas por IA pueden ayudarlo a mejorar su rendimiento."}
             </p>
 
             <DisciplineSelector />

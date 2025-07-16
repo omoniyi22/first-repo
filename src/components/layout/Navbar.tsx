@@ -213,19 +213,23 @@ const Navbar = () => {
                       to="/how-it-works"
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-700"
                     >
-                      AI Equestrian
+                      {language === "en" ? "AI Equestrian" : "IA Ecuestre"}
+
+                      
                     </Link>
                     <Link
                       to="/dressage/how-it-works"
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-700"
-                    >
-                      AI Dressage
+                      >
+                      {language === "en" ? "AI Dressage" : "Doma clásica IA"}
+                      
                     </Link>
                     <Link
                       to="/jumping/how-it-works"
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700"
-                    >
-                      AI Jumping
+                      >
+                      {language === "en" ? "AI Jumping" : "Salto de IA"}
+                      
                     </Link>
                   </div>
                 </div>
@@ -303,7 +307,7 @@ const Navbar = () => {
                     className="w-52 bg-white py-1.5 px-1 rounded-md shadow-md"
                   >
                     <DropdownMenuLabel className="font-sans text-sm px-2.5 py-1.5">
-                      My Account
+                      {language === "en" ? "My Account" : "Mi cuenta"}
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
@@ -327,7 +331,11 @@ const Navbar = () => {
                         className="cursor-pointer font-sans text-sm px-2.5 py-1.5 rounded-sm"
                       >
                         <LayoutDashboard className="h-4 w-4 mr-2" />
-                        <span>Admin Dashboard</span>
+                        <span>
+                          {language === "en"
+                            ? "Admin Dashboard"
+                            : "Panel de administración"}
+                        </span>
                       </DropdownMenuItem>
                     )}
 
@@ -354,7 +362,7 @@ const Navbar = () => {
                     variant="outline"
                     className="border-white hover:border-purple-800 text-white bg-transparent hover:bg-gradient-to-r hover:from-purple-800 hover:to-blue-700 hover:text-white transition-all font-sans text-sm"
                   >
-                    Log In
+                    {language === "en" ? "Log In" : "Acceso"}
                   </Button>
                 </Link>
               </>
@@ -409,7 +417,7 @@ const Navbar = () => {
                     isActive("/how-it-works") ? "text-purple-300" : ""
                   }`}
                 >
-                  AI Equestrian
+                  {language === "en" ? "AI Equestrian" : "IA Ecuestre"}
                 </Link>
                 <Link
                   to="/dressage/how-it-works"
@@ -417,7 +425,7 @@ const Navbar = () => {
                     isActive("/dressage/how-it-works") ? "text-purple-300" : ""
                   }`}
                 >
-                  AI Dressage
+                  {language === "en" ? "AI Dressage" : "Doma clásica IA"}
                 </Link>
                 <Link
                   to="/jumping/how-it-works"
@@ -425,7 +433,7 @@ const Navbar = () => {
                     isActive("/jumping/how-it-works") ? "text-blue-300" : ""
                   }`}
                 >
-                  AI Jumping
+                  {language === "en" ? "AI Jumping" : "Salto de IA"}
                 </Link>
               </div>
             </div>
@@ -494,7 +502,9 @@ const Navbar = () => {
                       isActive("/admin") ? "text-purple-300" : ""
                     }`}
                   >
-                    Admin Dashboard
+                    {language === "en"
+                      ? "Admin Dashboard"
+                      : "Panel de administración"}
                   </Link>
                 )}
               </>
@@ -528,7 +538,7 @@ const Navbar = () => {
                       variant="outline"
                       className="w-full border-white text-white bg-transparent hover:bg-gradient-to-r hover:from-purple-800 hover:to-blue-700 hover:text-white hover:border-transparent transition-all"
                     >
-                      Log In
+                      {language === "en" ? "Log In" : "Acceso"}
                     </Button>
                   </Link>
                 </>

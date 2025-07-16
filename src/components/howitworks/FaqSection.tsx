@@ -3,6 +3,7 @@ import { ChevronDown, MessageCircle } from "lucide-react";
 import AnimatedSection from "../ui/AnimatedSection";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface FaqItemProps {
   question: string;
@@ -38,7 +39,8 @@ const FaqItem = ({ question, answer, isOpen, toggleOpen }: FaqItemProps) => {
 };
 
 const FaqSection = ({ pageName }: { pageName?: string }) => {
-  console.log("🚀 ~ FaqSection ~ pageName:", pageName);
+  const { language } = useLanguage();
+
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   // Sample FAQ data
@@ -106,11 +108,14 @@ const FaqSection = ({ pageName }: { pageName?: string }) => {
           className="text-center max-w-3xl mx-auto mb-16"
         >
           <h2 className="text-3xl md:text-4xl font-serif font-semibold text-purple-900 mb-4">
-            Frequently Asked Questions
+            {language === "en"
+              ? "Frequently Asked Questions"
+              : "Preguntas frecuentes"}
           </h2>
           <p className="text-lg text-gray-700">
-            Have questions about AI Equestrian? Find answers to the most common
-            questions below.
+            {language === "en"
+              ? "Have questions about AI Equestrian? Find answers to the most common questions below."
+              : "¿Tienes preguntas sobre AI Equestrian? Encuentra respuestas a las preguntas más frecuentes a continuación."}
           </p>
         </AnimatedSection>
 
@@ -131,16 +136,21 @@ const FaqSection = ({ pageName }: { pageName?: string }) => {
           className="text-center max-w-2xl mx-auto mt-12"
         >
           <h3 className="text-xl font-medium text-gray-900 mb-4">
-            Still have questions?
+            {language === "en"
+              ? "Still have questions?"
+              : "¿Aún tienes preguntas?"}
           </h3>
           <p className="text-gray-700 mb-6">
-            If you couldn't find the answer to your question, please don't
-            hesitate to reach out to our support team.
+            {language === "en"
+              ? "If you couldn't find the answer to your question, please don't hesitate to reach out to our support team."
+              : "Si no puede encontrar la respuesta a su pregunta, no dude en comunicarse con nuestro equipo de soporte."}
           </p>
           <Link to="mailto:info@equineaintelligence.com">
             <Button variant="primary" className={btnBg}>
               <MessageCircle className="w-5 h-5" />
-              Contact Support
+              {language === "en"
+                ? "Contact Support"
+                : "Contactar con soporte técnico"}
             </Button>
           </Link>
         </AnimatedSection>
