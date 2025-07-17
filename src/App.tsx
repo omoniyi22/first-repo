@@ -54,7 +54,7 @@ import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
 // In a real app, this should be loaded from your backend
 import { HelmetProvider } from "react-helmet-async";
 //import WhatsAppButton from "./components/home/WhatsAppButton";
-import TawktoWidget from "./components/Tawkto";
+// import TawktoWidget from "./components/Tawkto";
 import AiCourseBuilder from "./pages/AiCourseBuilder";
 import ScrollToTop from "./components/layout/ScrollToTop";
 import PublicAnalysis from "./pages/PublicAnalysis";
@@ -154,7 +154,7 @@ function App() {
                   {/* 404 page */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
-                {isPublicPage && <TawktoWidget />}
+                {/* {isPublicPage && <TawktoWidget />} */}
                 <Toaster />
                 <SonnerToaster />
                 {/* </Router> */}
