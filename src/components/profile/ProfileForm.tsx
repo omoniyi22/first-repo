@@ -1,4 +1,3 @@
-
 import {
   Select,
   SelectContent,
@@ -12,6 +11,7 @@ import {
   getGoverningBodyByCountry,
 } from "@/data/countriesData";
 import { useEffect } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ProfileFormProps {
   displayName: string;
@@ -46,6 +46,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
   governingBody,
   setGoverningBody,
 }) => {
+  const { language } = useLanguage();
   // AUTO-UPDATE GOVERNING BODY WHEN COUNTRY CHANGES
   useEffect(() => {
     if (region) {
@@ -63,7 +64,9 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
   return (
     <div className="flex-1">
       <h1 className="text-3xl font-serif font-semibold text-gray-900 mb-4">
-        Welcome to Your Profile
+        {language === "en"
+          ? "Welcome to Your Profile"
+          : "Bienvenido a tu perfil"}
       </h1>
 
       {/* Form Grid */}
@@ -74,7 +77,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
             htmlFor="display-name"
             className="text-sm font-medium text-gray-700"
           >
-            Display Name
+            {language === "en" ? "Display Name" : "Nombre para mostrar"}
           </label>
           <Input
             id="display-name"
@@ -90,15 +93,19 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
             htmlFor="discipline"
             className="text-sm font-medium text-gray-700"
           >
-            Primary Discipline
+            {language === "en" ? "Primary Discipline" : "Disciplina primaria"}
           </label>
           <Select value={discipline} onValueChange={setDiscipline}>
             <SelectTrigger id="discipline" className="w-full">
               <SelectValue placeholder="Select your primary discipline" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="dressage">Dressage</SelectItem>
-              <SelectItem value="jumping">Jumping</SelectItem>
+              <SelectItem value="dressage">
+                {language === "en" ? "Dressage" : "Entrenamiento de caballos"}
+              </SelectItem>
+              <SelectItem value="jumping">
+                {language === "en" ? "Jumping" : "Saltar"}
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -109,7 +116,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
             htmlFor="rider-category"
             className="text-sm font-medium text-gray-700"
           >
-            Rider Category
+            {language === "en" ? "Rider Category" : "Categoría de jinete"}
           </label>
           <Select value={riderCategory} onValueChange={setRiderCategory}>
             <SelectTrigger id="rider-category" className="w-full">
@@ -117,13 +124,21 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="Junior Rider (Under 18)">
-                Junior Rider (Under 18)
+                {language === "en"
+                  ? "Junior Rider (Under 18)"
+                  : "Jinete Junior (menor de 18 años)"}
               </SelectItem>
               <SelectItem value="Young Rider (18-21)">
-                Young Rider (18-21)
+                {language === "en"
+                  ? "Young Rider (18-21)"
+                  : "Jinete joven (18-21)"}
               </SelectItem>
-              <SelectItem value="Adult Amateur">Adult Amateur</SelectItem>
-              <SelectItem value="Professional">Professional</SelectItem>
+              <SelectItem value="Adult Amateur">
+                {language === "en" ? "Adult Amateur" : "Adulto amateur"}
+              </SelectItem>
+              <SelectItem value="Professional">
+                {language === "en" ? "Professional" : "Profesional"}
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -131,7 +146,9 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
         {/* Stable Affiliation */}
         <div className="space-y-2">
           <label htmlFor="stable" className="text-sm font-medium text-gray-700">
-            Stable/Barn Affiliation
+            {language === "en"
+              ? "Stable/Barn Affiliation"
+              : "Afiliación a establo/granero"}
           </label>
           <Input
             id="stable"
@@ -144,7 +161,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
         {/* Region/Country */}
         <div className="space-y-2">
           <label htmlFor="region" className="text-sm font-medium text-gray-700">
-            Region/Country
+            {language === "en" ? "Region/Country" : "Región/País"}
           </label>
           <Select value={region} onValueChange={setRegion}>
             <SelectTrigger id="region" className="w-full">
@@ -166,7 +183,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
             htmlFor="governing-body"
             className="text-sm font-medium text-gray-700"
           >
-            Governing Body
+            {language === "en" ? "Governing Body" : "Órgano rector"}
           </label>
           <Input
             id="governing-body"
@@ -180,7 +197,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
         {/* Coach/Trainer */}
         <div className="space-y-2">
           <label htmlFor="coach" className="text-sm font-medium text-gray-700">
-            Coach/Trainer
+            {language === "en" ? "Coach/Trainer" : "Entrenador/Instructor"}
           </label>
           <Input
             id="coach"

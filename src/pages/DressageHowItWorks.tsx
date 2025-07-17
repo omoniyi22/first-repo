@@ -13,8 +13,10 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Link } from "react-router-dom";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const DressageHowItWorks = () => {
+  const { language } = useLanguage();
   // Initialize scroll reveal for animations
   useEffect(() => {
     const initScrollReveal = () => {
@@ -94,11 +96,14 @@ const DressageHowItWorks = () => {
           <div className="absolute inset-0 flex items-center">
             <div className="container mx-auto px-6">
               <h1 className="text-4xl md:text-5xl font-serif font-bold text-white max-w-2xl drop-shadow-lg text-shadow-lg">
-                How AI Dressage Analysis Works
+                {language === "en"
+                  ? "How AI Dressage Analysis Works"
+                  : "Cómo funciona el análisis de doma con IA"}
               </h1>
               <p className="text-xl text-white/90 max-w-xl mt-4 drop-shadow-lg text-shadow-md">
-                Understand the process behind our AI-powered equestrian dressage
-                analysis
+                {language === "en"
+                  ? "Understand the process behind our AI-powered equestrian dressage analysis"
+                  : "Comprenda el proceso detrás de nuestro análisis de doma ecuestre impulsado por IA"}
               </p>
             </div>
           </div>

@@ -55,44 +55,84 @@ const FaqSection = ({ pageName }: { pageName?: string }) => {
     pageName == "JumpingHowItWorks" ? "bg-blue-600 hover:bg-blue-600" : "";
   const faqs = [
     {
-      question: "How accurate is the AI analysis of score sheets?",
+      question:
+        language === "en"
+          ? "How accurate is the AI analysis of score sheets?"
+          : "¿Qué tan precisa es el análisis de hojas de puntuación con IA?",
       answer:
-        "Our AI system has been trained on thousands of dressage tests and has achieved over 98% accuracy in reading and interpreting score sheets. The system is continuously learning and improving with each new score sheet processed.",
+        language === "en"
+          ? "Our AI system has been trained on thousands of dressage tests and has achieved over 98% accuracy in reading and interpreting score sheets. The system is continuously learning and improving with each new score sheet processed."
+          : "Nuestro sistema de IA ha sido entrenado con miles de pruebas de doma clásica y ha alcanzado una precisión de más del 98% al leer e interpretar hojas de puntuación. El sistema sigue aprendiendo y mejorando con cada hoja procesada.",
     },
     {
-      question: "What dressage test formats are supported?",
+      question:
+        language === "en"
+          ? "What dressage test formats are supported?"
+          : "¿Qué formatos de prueba de doma son compatibles?",
       answer:
-        "We support all major dressage test formats including FEI, USDF, British Dressage, Equestrian Australia, and many others. If you have a specific format not listed, please contact us and we'll work to add support for it.",
+        language === "en"
+          ? "We support all major dressage test formats including FEI, USDF, British Dressage, Equestrian Australia, and many others. If you have a specific format not listed, please contact us and we'll work to add support for it."
+          : "Admitimos todos los formatos principales de pruebas de doma, incluyendo FEI, USDF, British Dressage, Equestrian Australia, entre otros. Si tienes un formato específico que no aparece en la lista, contáctanos y trabajaremos para añadirlo.",
     },
     {
-      question: "How do I upload my score sheets?",
+      question:
+        language === "en"
+          ? "How do I upload my score sheets?"
+          : "¿Cómo subo mis hojas de puntuación?",
       answer:
-        "You can either take a photo of your score sheet using your smartphone or upload a digital copy (PDF, JPEG, PNG). Our system will automatically process and analyze the sheet regardless of the format.",
+        language === "en"
+          ? "You can either take a photo of your score sheet using your smartphone or upload a digital copy (PDF, JPEG, PNG). Our system will automatically process and analyze the sheet regardless of the format."
+          : "Puedes tomar una foto de tu hoja de puntuación con tu smartphone o subir una copia digital (PDF, JPEG, PNG). Nuestro sistema la procesará y analizará automáticamente sin importar el formato.",
     },
     {
-      question: "Can I track multiple horses in my account?",
+      question:
+        language === "en"
+          ? "Can I track multiple horses in my account?"
+          : "¿Puedo hacer seguimiento de varios caballos en mi cuenta?",
       answer:
-        "Yes, our Premium and Professional plans allow you to create and track multiple horse profiles. This lets you manage and analyze the progress of different horses separately.",
+        language === "en"
+          ? "Yes, our Premium and Professional plans allow you to create and track multiple horse profiles. This lets you manage and analyze the progress of different horses separately."
+          : "Sí, nuestros planes Premium y Profesional te permiten crear y seguir múltiples perfiles de caballos. Esto te permite gestionar y analizar el progreso de cada caballo por separado.",
     },
     {
-      question: "How are the training recommendations generated?",
+      question:
+        language === "en"
+          ? "How are the training recommendations generated?"
+          : "¿Cómo se generan las recomendaciones de entrenamiento?",
       answer:
-        "Our AI analyzes your scores and identifies patterns and areas for improvement. It then matches these with our database of exercises developed by FEI-level trainers and competitors. Recommendations are tailored to your specific needs and level.",
+        language === "en"
+          ? "Our AI analyzes your scores and identifies patterns and areas for improvement. It then matches these with our database of exercises developed by FEI-level trainers and competitors. Recommendations are tailored to your specific needs and level."
+          : "Nuestra IA analiza tus puntuaciones e identifica patrones y áreas de mejora. Luego, las relaciona con nuestra base de datos de ejercicios desarrollados por entrenadores y competidores de nivel FEI. Las recomendaciones se adaptan a tus necesidades y nivel específicos.",
     },
     {
-      question: "Is my data secure and private?",
+      question:
+        language === "en"
+          ? "Is my data secure and private?"
+          : "¿Mis datos están seguros y son privados?",
       answer:
-        "Absolutely. We take data privacy very seriously. All your score sheets and performance data are encrypted and stored securely. We never share your personal data with third parties without your explicit consent.",
+        language === "en"
+          ? "Absolutely. We take data privacy very seriously. All your score sheets and performance data are encrypted and stored securely. We never share your personal data with third parties without your explicit consent."
+          : "Absolutamente. Nos tomamos muy en serio la privacidad de los datos. Todas tus hojas de puntuación y datos de rendimiento están encriptados y almacenados de forma segura. Nunca compartimos tus datos personales con terceros sin tu consentimiento explícito.",
     },
     {
-      question: "Can I share my results with my trainer?",
+      question:
+        language === "en"
+          ? "Can I share my results with my trainer?"
+          : "¿Puedo compartir mis resultados con mi entrenador?",
       answer:
-        "Yes, our platform allows you to share your analysis results and training recommendations with your trainer. You can either grant them access to your account or send them specific reports via email.",
+        language === "en"
+          ? "Yes, our platform allows you to share your analysis results and training recommendations with your trainer. You can either grant them access to your account or send them specific reports via email."
+          : "Sí, nuestra plataforma te permite compartir tus resultados de análisis y recomendaciones de entrenamiento con tu entrenador. Puedes otorgarles acceso a tu cuenta o enviarles informes específicos por correo electrónico.",
     },
     {
-      question: "How often should I upload new score sheets?",
+      question:
+        language === "en"
+          ? "How often should I upload new score sheets?"
+          : "¿Con qué frecuencia debo subir nuevas hojas de puntuación?",
       answer:
-        "For best results, we recommend uploading each new test you ride, whether from competitions or training sessions. This provides the most comprehensive data for our AI to analyze trends and progress over time.",
+        language === "en"
+          ? "For best results, we recommend uploading each new test you ride, whether from competitions or training sessions. This provides the most comprehensive data for our AI to analyze trends and progress over time."
+          : "Para obtener los mejores resultados, te recomendamos subir cada nueva prueba que realices, ya sea en competiciones o entrenamientos. Esto proporciona los datos más completos para que nuestra IA analice tendencias y avances a lo largo del tiempo.",
     },
   ];
 

@@ -1,23 +1,32 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Instagram, Mail } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const Footer = () => {
+  const { language } = useLanguage();
   return (
     <footer className="bg-gradient-to-br from-purple-600 to-purple-800 text-white py-16">
       <div className="container mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           {/* First Section - About */}
           <div>
-            <h4 className="text-2xl font-serif mb-3">AI Equestrian</h4>
-            <p className="mb-2 text-white">Riding Intelligence, Redefined</p>
+            <h4 className="text-2xl font-serif mb-3">
+              {language === "en" ? "AI Equestrian" : "IA Ecuestre"}
+            </h4>
+            <p className="mb-2 text-white">
+              {language === "en"
+                ? "Riding Intelligence, Redefined"
+                : "La inteligencia de conducción, redefinida"}
+            </p>
             <p className="text-white/90 mb-6">
-              AI Equestrian is dedicated to revolutionizing equestrian training
-              through the power of artificial intelligence.
+              {language === "en"
+                ? "AI Equestrian is dedicated to revolutionizing equestrian training through the power of artificial intelligence."
+                : "AI Equestrian se dedica a revolucionar el entrenamiento ecuestre a través del poder de la inteligencia artificial."}
             </p>
             <div>
               <Link to="/about" className="text-white hover:underline">
-                Learn More
+                {language === "en" ? "Learn More" : "Más información"}
               </Link>
             </div>
           </div>
@@ -27,22 +36,22 @@ const Footer = () => {
             <ul className="space-y-3">
               <li>
                 <Link to="/" className="text-white hover:underline">
-                  Home
+                  {language === "en" ? "Home" : "Hogar"}
                 </Link>
               </li>
               <li>
                 <Link to="/how-it-works" className="text-white hover:underline">
-                  How It Works
+                  {language === "en" ? "How It Works" : "Cómo funciona"}
                 </Link>
               </li>
               <li>
                 <Link to="/pricing" className="text-white hover:underline">
-                  Pricing
+                  {language === "en" ? "Pricing" : "Precios"}
                 </Link>
               </li>
               <li>
                 <Link to="/blog" className="text-white hover:underline">
-                  Blog
+                  {language === "en" ? "Blog" : "Blog"}
                 </Link>
               </li>
               <li>
@@ -50,7 +59,7 @@ const Footer = () => {
                   to="mailto:info@equineaintelligence.com"
                   className="text-white hover:underline"
                 >
-                  Contact
+                  {language === "en" ? "Contact" : "Contacto"}
                 </Link>
               </li>
             </ul>
@@ -58,7 +67,9 @@ const Footer = () => {
 
           {/* Third Section - Connect With Us */}
           <div>
-            <h4 className="text-2xl font-serif mb-3">Connect With Us</h4>
+            <h4 className="text-2xl font-serif mb-3">
+              {language === "en" ? "Connect With Us" : "Conéctate con nosotros"}
+            </h4>
 
             <div className="space-y-3 mb-4">
               <div className="flex items-center">
@@ -85,8 +96,9 @@ const Footer = () => {
             </div>
 
             <p className="text-white/90">
-              Follow us for updates and insights into AI-powered equestrian
-              training.
+              {language === "en"
+                ? "Follow us for updates and insights into AI-powered equestrian training."
+                : "Síganos para obtener actualizaciones e información sobre el entrenamiento ecuestre impulsado por IA."}
             </p>
           </div>
         </div>
@@ -98,15 +110,20 @@ const Footer = () => {
         <div className="flex flex-col md:flex-row md:justify-between items-center">
           <div className="mb-4 md:mb-0">
             <p className="text-white/80">
-              &copy;2025 AI Equestrian. All rights reserved
+              &copy;
+              {language === "en"
+                ? "2025 AI Equestrian. All rights reserved"
+                : "2025 AI Equestrian. Todos los derechos reservados."}
             </p>
           </div>
           <div className="flex space-x-6">
             <Link to="/terms" className="text-white hover:underline">
-              Terms & Conditions
+              {language === "en"
+                ? "Terms & Conditions"
+                : "Términos y condiciones"}
             </Link>
             <Link to="/privacy" className="text-white hover:underline">
-              Privacy Policy
+              {language === "en" ? "Privacy Policy" : "política de privacidad"}
             </Link>
           </div>
         </div>

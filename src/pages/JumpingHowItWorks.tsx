@@ -14,8 +14,10 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Link } from "react-router-dom";
 import FaqSection from "@/components/howitworks/FaqSection";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const JumpingHowItWorks = () => {
+  const { language } = useLanguage();
   // Initialize scroll reveal for animations
   useEffect(() => {
     const initScrollReveal = () => {
@@ -95,11 +97,14 @@ const JumpingHowItWorks = () => {
           <div className="absolute inset-0 flex items-center">
             <div className="container mx-auto px-6">
               <h1 className="text-4xl md:text-5xl font-serif font-bold text-white max-w-2xl drop-shadow-lg text-shadow-lg">
-                How AI Jumping Analysis Works
+                {language === "en"
+                  ? "How AI Jumping Analysis Works"
+                  : "Cómo funciona el análisis de saltos de IA"}
               </h1>
               <p className="text-xl text-white/90 max-w-xl mt-4 drop-shadow-lg text-shadow-md">
-                Understand the process behind our AI-powered equestrian jumping
-                analysis
+                {language === "en"
+                  ? "Understand the process behind our AI-powered equestrian jumping analysis"
+                  : "Comprenda el proceso detrás de nuestro análisis de salto ecuestre impulsado por IA"}
               </p>
             </div>
           </div>

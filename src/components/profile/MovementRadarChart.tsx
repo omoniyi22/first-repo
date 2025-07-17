@@ -12,13 +12,14 @@ import {
   Legend,
 } from "recharts";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const MovementRadarChart = () => {
   const { user } = useAuth();
   const [performanceData, setPerformanceData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [userDiscipline, setUserDiscipline] = useState("");
-
+  const { language } = useLanguage();
   useEffect(() => {
     const fetchUserData = async () => {
       if (!user) return;
@@ -440,10 +441,14 @@ const MovementRadarChart = () => {
     return (
       <Card className="p-4 border border-gray-100">
         <h3 className="text-lg font-medium text-gray-900 mb-2">
-          Movement Scores
+          {language === "en" ? "Movement Scores" : "Puntuaciones de movimiento"}
         </h3>
         <div className="h-80 w-full flex items-center justify-center">
-          <div className="text-gray-500">Loading performance data...</div>
+          <div className="text-gray-500">
+            {language === "en"
+              ? "Loading performance data..."
+              : "Cargando datos de rendimiento..."}
+          </div>
         </div>
       </Card>
     );
@@ -452,7 +457,7 @@ const MovementRadarChart = () => {
   return (
     <Card className="p-4 border border-gray-100">
       <h3 className="text-lg font-medium text-gray-900 mb-2">
-        Movement Scores
+        {language === "en" ? "Movement Scores" : "Puntuaciones de movimiento"}
       </h3>
       <div className="h-80 w-full flex items-center justify-center">
         <ResponsiveContainer className="!h-[70%] w-full sm:!h-full ">

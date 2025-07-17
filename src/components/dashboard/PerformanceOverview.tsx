@@ -811,36 +811,48 @@ const PerformanceOverview = () => {
       title: `${
         userDiscipline
           ? userDiscipline === "dressage"
-            ? "Average Score"
-            : "Clear Round"
+            ? language === "en"
+              ? "Average Score"
+              : "Puntuación promedio"
+            : language === "en"
+            ? "Clear Round"
+            : "Ronda limpia"
           : "Loading..."
       }`,
       value: `${averageScore.toFixed(1)}%`,
       change: `${formatPercentageChange(scorePercentageChange)}`,
       positive: true,
       icon: <TrendingUp className="h-6 w-6 text-white" />,
-      gradient: "bg-gradient-to-r from-[#a28bfb] to-[#7759eb]", // AI Dressage gradient
+      gradient: "bg-gradient-to-r from-[#a28bfb] to-[#7759eb]",
     },
     {
       title: `${
         userDiscipline
           ? userDiscipline === "dressage"
-            ? "Tests Analyzed"
-            : "Videos Analyzed"
+            ? language === "en"
+              ? "Tests Analyzed"
+              : "Pruebas analizadas"
+            : language === "en"
+            ? "Videos Analyzed"
+            : "Videos analizados"
           : "Loading..."
       }`,
       value: tests.length.toString(),
       change: `${formatCountChange(currentMonthTestsCount)}`,
       positive: true,
       icon: <FileText className="h-6 w-6 text-white" />,
-      gradient: "bg-gradient-to-r from-[#5e92fa] to-[#3d78ec]", // AI Jump gradient
+      gradient: "bg-gradient-to-r from-[#5e92fa] to-[#3d78ec]",
     },
     {
       title: `${
         userDiscipline
           ? userDiscipline === "dressage"
-            ? "Strongest Movement"
-            : "Average Faults per Round"
+            ? language === "en"
+              ? "Strongest Movement"
+              : "Movimiento más fuerte"
+            : language === "en"
+            ? "Average Faults per Round"
+            : "Faltas promedio por ronda"
           : "Loading..."
       }`,
       value: strongestMovement,
@@ -848,22 +860,16 @@ const PerformanceOverview = () => {
       change: "",
       positive: true,
       icon: <Award className="h-6 w-6 text-white" />,
-      gradient: "bg-gradient-to-r from-[#f57cb5] to-[#d80669]", // Purple gradient
+      gradient: "bg-gradient-to-r from-[#f57cb5] to-[#d80669]",
     },
     {
-      title: `${
-        userDiscipline
-          ? userDiscipline === "dressage"
-            ? "Focus Area"
-            : "Focus Area"
-          : "Loading..."
-      }`,
+      title: language === "en" ? "Focus Area" : "Área de enfoque",
       value: focusArea,
       subValue: focusAreaDetails,
       change: "",
       positive: false,
       icon: <Star className="h-6 w-6 text-white" />,
-      gradient: "bg-gradient-to-r from-[#ffd565] to-[#ff831d]", // Blue gradient
+      gradient: "bg-gradient-to-r from-[#ffd565] to-[#ff831d]",
     },
   ];
 
@@ -917,7 +923,7 @@ const PerformanceOverview = () => {
         {/* Score Trend Chart */}
         <Card className="p-4 border border-gray-100">
           <h3 className="text-lg font-medium text-gray-900 mb-2">
-            Score Trend
+            {language === "en" ? "Score Trend" : "Tendencia de puntuación"}
           </h3>
           <div className="h-80 w-full">
             <ChartContainer

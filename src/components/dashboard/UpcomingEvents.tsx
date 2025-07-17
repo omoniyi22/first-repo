@@ -27,6 +27,7 @@ import { getImagePath } from "@/utils/imageUtils";
 import EventForm from "./EventForm";
 import { useAuth } from "@/contexts/AuthContext";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const UpcomingEvents = () => {
   const [showAddEventForm, setShowAddEventForm] = useState(false);
@@ -38,6 +39,7 @@ const UpcomingEvents = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
+  const { language } = useLanguage();
 
   // Fetch events from Supabase
   useEffect(() => {
@@ -191,11 +193,11 @@ const UpcomingEvents = () => {
     <div>
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-serif font-semibold text-gray-900">
-          Upcoming Events
+          {language === "en" ? "Upcoming Events" : "Próximos eventos"}
         </h2>
         <Button size="sm" onClick={() => setShowAddEventForm(true)}>
           <Plus size={16} className="mr-1" />
-          Add
+          {language === "en" ? "Add" : "Agregar"}
         </Button>
       </div>
 
@@ -304,10 +306,16 @@ const UpcomingEvents = () => {
         ) : (
           <div className="flex flex-col items-center justify-center py-6">
             <CalendarIcon className="h-10 w-10 text-gray-300 mb-2" />
-            <p className="text-gray-600">No upcoming events</p>
+            <p className="text-gray-600">
+              {language === "en"
+                ? "No upcoming events"
+                : "No hay eventos próximos"}
+            </p>
             {!user && (
               <p className="text-sm text-gray-500 mt-1">
-                Sign in to create events
+                {language === "en"
+                  ? "Sign in to create events"
+                  : "Inicia sesión para crear eventos"}
               </p>
             )}
           </div>
@@ -319,7 +327,7 @@ const UpcomingEvents = () => {
         <DialogContent className="sm:max-w-md max-h-[95vh] overflow-hidden">
           <DialogHeader>
             <DialogTitle className="text-xl font-serif">
-              Add New Event
+              {language === "en" ? "Add New Event" : "Agregar nuevo evento"}
             </DialogTitle>
           </DialogHeader>
           <ScrollArea className="max-h-[80vh] pr-4">
@@ -334,14 +342,16 @@ const UpcomingEvents = () => {
       <Dialog open={showEditEventForm} onOpenChange={setShowEditEventForm}>
         <DialogContent className="sm:max-w-md max-h-[95vh] overflow-hidden">
           <DialogHeader>
-            <DialogTitle className="text-xl font-serif">Edit Event</DialogTitle>
+            <DialogTitle className="text-xl font-serif">
+              {language === "en" ? "" : ""}
+              Edit Event</DialogTitle>
           </DialogHeader>
           <ScrollArea className="max-h-[80vh] pr-4">
             <div className="py-2">
               <EventForm
                 onComplete={handleFormComplete}
                 event={selectedEvent}
-              />
+                />
             </div>
           </ScrollArea>
         </DialogContent>

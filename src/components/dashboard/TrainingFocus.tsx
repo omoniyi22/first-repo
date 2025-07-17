@@ -13,12 +13,13 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import TrainingFocusForm from "./TrainingFocusForm";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const TrainingFocus = () => {
   const [showEditFocusForm, setShowEditFocusForm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [trainingFocus, setTrainingFocus] = useState([]);
-
+  const { language } = useLanguage();
   const { user } = useAuth();
 
   useEffect(() => {
@@ -155,12 +156,14 @@ const TrainingFocus = () => {
       <div>
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-serif font-semibold text-gray-900">
-            Training Focus
+            {language === "en" ? "Training Focus" : "Enfoque de la formación"}
           </h2>
         </div>
         <Card className="border border-gray-100 p-4">
           <div className="text-center py-8 text-gray-500">
-            Loading training recommendations...
+            {language === "en"
+              ? "Loading training recommendations..."
+              : "Cargando recomendaciones de entrenamiento..."}
           </div>
         </Card>
       </div>
@@ -171,14 +174,14 @@ const TrainingFocus = () => {
     <div>
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-serif font-semibold text-gray-900">
-          Training Focus
+          {language === "en" ? "Training Focus" : "Enfoque de la formación"}
         </h2>
         <Button
           size="sm"
           variant="outline"
           onClick={() => setShowEditFocusForm(true)}
         >
-          Edit
+          {language === "en" ? "Edit" : "Editar"}
         </Button>
       </div>
 
@@ -187,9 +190,15 @@ const TrainingFocus = () => {
           {trainingFocus.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
               <Activity className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-              <p>No training recommendations available.</p>
+              <p>
+                {language === "en"
+                  ? "No training recommendations available."
+                  : "No hay recomendaciones de formación disponibles."}
+              </p>
               <p className="text-sm">
-                Upload a dressage test to get personalized training focus.
+                {language === "en"
+                  ? "Upload a dressage test to get personalized training focus."
+                  : "Sube una prueba de doma para obtener un enfoque de entrenamiento personalizado."}
               </p>
             </div>
           ) : (
@@ -209,7 +218,9 @@ const TrainingFocus = () => {
                       </p>
                       <p className="text-sm text-gray-600">
                         <span className="font-medium">
-                          <span className="font-semibold">Exercise:</span>
+                          <span className="font-semibold">
+                            {language === "en" ? "Exercise:" : "Ejercicio:"}
+                          </span>
                         </span>{" "}
                         {focus.tip}
                       </p>
@@ -227,7 +238,9 @@ const TrainingFocus = () => {
         <DialogContent className="sm:max-w-md max-h-[95vh] overflow-hidden">
           <DialogHeader>
             <DialogTitle className="text-xl font-serif">
-              Edit Training Focus
+              {language === "en"
+                ? "Edit Training Focus"
+                : "Editar el enfoque del entrenamiento"}
             </DialogTitle>
           </DialogHeader>
           <ScrollArea className="max-h-[80vh] pr-4">

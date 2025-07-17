@@ -371,15 +371,19 @@ const PricingTiers = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div className="flex flex-col justify-center ">
               <h2 className="text-2xl md:text-3xl font-serif font-semibold text-navy-900 mb-4">
-                Not sure which plan is right for you?
+                {language === "en"
+                  ? "Not sure which plan is right for you?"
+                  : "¿No estás segura de qué plan es adecuado para ti?"}
               </h2>
 
               <div className="space-y-6 mt-8">
                 <p className="text-gray-700">
-                  {`We get it,every athlete’s journey is different. If you’re
-                  unsure which option fits your goals best, just drop us a
-                  message. Whether you're training solo or with a coach, we’ll
-                  help you pick the perfect plan to support your progress. `}
+                  {language === "en"
+                    ? `We get it,every athlete’s journey is different. If you’re
+                    unsure which option fits your goals best, just drop us a
+                    message. Whether you're training solo or with a coach, we’ll
+                    help you pick the perfect plan to support your progress.`
+                    : "Lo entendemos, la trayectoria de cada atleta es diferente. Si no estás seguro de qué opción se adapta mejor a tus objetivos, escríbenos. Tanto si entrenas solo como con un entrenador, te ayudaremos a elegir el plan perfecto para impulsar tu progreso."}
                 </p>
               </div>
             </div>

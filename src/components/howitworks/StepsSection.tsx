@@ -2,24 +2,37 @@ import { useState } from "react";
 import { FilePenLine, BarChart3, BookOpen, Lightbulb } from "lucide-react";
 import AnimatedSection from "../ui/AnimatedSection";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const StepsSection = () => {
   const [activeStep, setActiveStep] = useState(1);
+  const { language } = useLanguage();
 
   const steps = [
     {
       id: 1,
       icon: <FilePenLine className="w-6 h-6" />,
-      title: "Upload Score Sheets",
+      title:
+        language === "en" ? "Upload Score Sheets" : "Sube hojas de puntuación",
       description:
-        "Simply take a photo of your dressage test score sheet or upload a digital copy. Our system supports all major dressage organizations and test levels.",
+        language === "en"
+          ? "Simply take a photo of your dressage test score sheet or upload a digital copy. Our system supports all major dressage organizations and test levels."
+          : "Simplemente toma una foto de tu hoja de puntuación de la prueba de doma o sube una copia digital. Nuestro sistema admite todas las organizaciones y niveles de prueba importantes.",
       image: "/lovable-uploads/upload-score-sheets.png",
-      features: [
-        "Support for FEI, USDF, British Dressage, and other formats",
-        "Simple drag-and-drop or camera upload",
-        "Secure and private data handling",
-        "Automatic test level detection",
-      ],
+      features:
+        language === "en"
+          ? [
+              "Support for FEI, USDF, British Dressage, and other formats",
+              "Simple drag-and-drop or camera upload",
+              "Secure and private data handling",
+              "Automatic test level detection",
+            ]
+          : [
+              "Compatibilidad con FEI, USDF, British Dressage y otros formatos",
+              "Carga sencilla mediante arrastrar y soltar o cámara",
+              "Manejo de datos seguro y privado",
+              "Detección automática del nivel de prueba",
+            ],
     },
     {
       id: 2,
@@ -31,44 +44,81 @@ const StepsSection = () => {
           alt=""
         />
       ),
-      title: "Analyzing your test sheet",
+      title:
+        language === "en"
+          ? "Analyzing your test sheet"
+          : "Analizando tu hoja de prueba",
       description:
-        "Our advanced artificial intelligence analyzes your scores, comments, and performance patterns to identify both strengths and areas for improvement.",
+        language === "en"
+          ? "Our advanced artificial intelligence analyzes your scores, comments, and performance patterns to identify both strengths and areas for improvement."
+          : "Nuestra avanzada inteligencia artificial analiza tus puntuaciones, comentarios y patrones de rendimiento para identificar fortalezas y áreas de mejora.",
       image: "/lovable-uploads/ai-analysis.png",
-      features: [
-        "Detailed breakdown of each movement score",
-        "Pattern recognition across multiple tests",
-        "Judge comment analysis and interpretation",
-        "Comparison to your previous performances",
-      ],
+      features:
+        language === "en"
+          ? [
+              "Detailed breakdown of each movement score",
+              "Pattern recognition across multiple tests",
+              "Judge comment analysis and interpretation",
+              "Comparison to your previous performances",
+            ]
+          : [
+              "Desglose detallado de cada puntuación de movimiento",
+              "Reconocimiento de patrones en múltiples pruebas",
+              "Análisis e interpretación de comentarios del juez",
+              "Comparación con tus actuaciones anteriores",
+            ],
     },
     {
       id: 3,
       icon: <Lightbulb className="w-6 h-6" />,
-      title: "Personalized Recommendations",
+      title:
+        language === "en"
+          ? "Personalized Recommendations"
+          : "Recomendaciones personalizadas",
       description:
-        "Receive tailored training recommendations and exercises specifically designed to address your improvement areas and enhance your strengths.",
+        language === "en"
+          ? "Receive tailored training recommendations and exercises specifically designed to address your improvement areas and enhance your strengths."
+          : "Recibe recomendaciones de entrenamiento personalizadas y ejercicios diseñados específicamente para abordar tus áreas de mejora y potenciar tus fortalezas.",
       image: "/lovable-uploads/personalized-recommendations.png",
-      features: [
-        "Custom exercise selection from our library",
-        "Difficulty progression based on your level",
-        "Focus on movements needing improvement",
-        "Weekly training plans and schedules",
-      ],
+      features:
+        language === "en"
+          ? [
+              "Custom exercise selection from our library",
+              "Difficulty progression based on your level",
+              "Focus on movements needing improvement",
+              "Weekly training plans and schedules",
+            ]
+          : [
+              "Selección de ejercicios personalizados de nuestra biblioteca",
+              "Progresión de dificultad según tu nivel",
+              "Enfoque en los movimientos que necesitan mejora",
+              "Planes y horarios de entrenamiento semanales",
+            ],
     },
     {
       id: 4,
       icon: <BookOpen className="w-6 h-6" />,
-      title: "Progress Tracking",
+      title:
+        language === "en" ? "Progress Tracking" : "Seguimiento del progreso",
       description:
-        "Monitor your improvement over time with comprehensive analytics dashboards and progress reports that show your development as a rider.",
+        language === "en"
+          ? "Monitor your improvement over time with comprehensive analytics dashboards and progress reports that show your development as a rider."
+          : "Supervisa tu progreso con paneles de análisis integrales e informes que muestran tu evolución como jinete.",
       image: "/lovable-uploads/progress-tracking.png",
-      features: [
-        "Visual charts of score improvements",
-        "Achievement tracking and milestones",
-        "Long-term trend analysis",
-        "Score predictions for future competitions",
-      ],
+      features:
+        language === "en"
+          ? [
+              "Visual charts of score improvements",
+              "Achievement tracking and milestones",
+              "Long-term trend analysis",
+              "Score predictions for future competitions",
+            ]
+          : [
+              "Gráficos visuales de mejoras de puntuación",
+              "Seguimiento de logros y hitos",
+              "Análisis de tendencias a largo plazo",
+              "Predicciones de puntuaciones para futuras competiciones",
+            ],
     },
   ];
 
@@ -83,12 +133,14 @@ const StepsSection = () => {
           className="text-center max-w-3xl mx-auto mb-16"
         >
           <h1 className="text-4xl md:text-5xl font-serif font-semibold text-purple-900 mb-6">
-            How AI Dressage Trainer Works
+            {language === "en"
+              ? "How AI Dressage Trainer Works"
+              : "Cómo funciona el entrenador de doma con IA"}
           </h1>
           <p className="text-lg text-gray-700">
-            Our innovative platform combines cutting-edge AI technology with
-            expert dressage knowledge to deliver personalized training
-            recommendations that improve your performance.
+            {language === "en"
+              ? "Our innovative platform combines cutting-edge AI technology with expert dressage knowledge to deliver personalized training recommendations that improve your performance."
+              : "Nuestra innovadora plataforma combina tecnología de inteligencia artificial de última generación con conocimiento experto en doma para ofrecer recomendaciones de entrenamiento personalizadas que mejoran su rendimiento."}
           </p>
         </AnimatedSection>
 
@@ -181,7 +233,9 @@ const StepsSection = () => {
                 </p>
 
                 <h3 className="text-lg font-medium text-gray-900 mb-4">
-                  Key Features:
+                  {language === "en"
+                    ? "Key Features:"
+                    : "Características principales:"}
                 </h3>
 
                 <ul className="space-y-3">
@@ -216,17 +270,20 @@ const StepsSection = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             <div>
               <h2 className="text-2xl md:text-3xl font-serif font-semibold text-purple-900 mb-6">
-                See the Platform in Action
+                {language === "en"
+                  ? "See the Platform in Action"
+                  : "Vea la plataforma en acción"}
               </h2>
 
               <p className="text-gray-700 mb-8">
-                Watch our demo to see how AI Dressage Trainer can transform your
-                training approach with powerful analysis and personalized
-                recommendations.
+                {language === "en"
+                  ? "Watch our demo to see how AI Dressage Trainer can transform your training approach with powerful analysis and personalized recommendations."
+                  : "Vea nuestra demostración para ver cómo AI Dressage Trainer puede transformar su enfoque de entrenamiento con análisis poderosos y recomendaciones personalizadas."}
               </p>
 
               <Button variant="primary" className="flex items-center">
-                Watch Demo
+                {language === "en" ? "Watch Demo" : "Ver demostración"}
+
                 <svg
                   className="ml-2 h-5 w-5"
                   fill="none"
@@ -269,7 +326,11 @@ const StepsSection = () => {
                       />
                     </svg>
                   </div>
-                  <p className="text-gray-600 font-medium">Platform Demo</p>
+                  <p className="text-gray-600 font-medium">
+                    {language === "en"
+                      ? "Platform Demo"
+                      : "Demostración de la plataforma"}
+                  </p>
                 </div>
               </div>
             </div>

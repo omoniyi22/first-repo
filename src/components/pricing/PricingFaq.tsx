@@ -158,7 +158,9 @@ const PricingFaq = () => {
             <Link to="mailto:info@equineaintelligence.com">
               <Button variant="primary">
                 <MessageCircle className="w-5 h-5" />
-                Contact Support
+                {language == "en"
+                  ? "Contact Support"
+                  : "Contactar con soporte técnico"}
               </Button>
             </Link>
           </div>

@@ -444,16 +444,18 @@ const Goals = () => {
             {t["goals"]}
           </h2>
           <p className="text-sm text-gray-600 mt-1">
-            Track your progress and achieve your dreams
+            {language === "en" ? "Track your progress and achieve your dreams" : "Sigue tu progreso y alcanza tus sueños"}
+            
           </p>
         </div>
         <Button
           size="sm"
           variant="outline"
           onClick={() => setShowAddGoalForm(true)}
-        >
+          >
           <Plus size={16} className="mr-1" />
-          Add Goal
+          
+          {language === "en" ? "Add Goal" : "Añadir objetivo"}
         </Button>
       </div>
 
@@ -463,8 +465,8 @@ const Goals = () => {
             "Short-term Goals",
             groupedGoals.shortTerm,
             language === "en"
-              ? "No short-term goals set"
-              : "No hay objetivos a corto plazo establecidos"
+            ? "No short-term goals set"
+            : "No hay objetivos a corto plazo establecidos"
           )}
 
         {groupedGoals.mediumTerm.length >= 1 &&
@@ -472,8 +474,8 @@ const Goals = () => {
             "Medium-term Goals",
             groupedGoals.mediumTerm,
             language === "en"
-              ? "No medium-term goals set"
-              : "No hay objetivos a medio plazo establecidos"
+            ? "No medium-term goals set"
+            : "No hay objetivos a medio plazo establecidos"
           )}
 
         {groupedGoals.longTerm.length >= 1 &&
@@ -481,8 +483,8 @@ const Goals = () => {
             "Long-term Goals",
             groupedGoals.longTerm,
             language === "en"
-              ? "No long-term goals set"
-              : "No hay objetivos a largo plazo establecidos"
+            ? "No long-term goals set"
+            : "No hay objetivos a largo plazo establecidos"
           )}
       </div>
 
@@ -500,7 +502,7 @@ const Goals = () => {
                 goal={goals.find((g) => g.id === editingGoalId)!}
                 onComplete={handleGoalsUpdate}
                 onDelete={handleDeleteGoal}
-              />
+                />
             </ScrollArea>
           )}
         </DialogContent>
@@ -520,7 +522,7 @@ const Goals = () => {
                 handleGoalsUpdate();
                 setShowAddGoalForm(false);
               }}
-            />
+              />
           </ScrollArea>
         </DialogContent>
       </Dialog>

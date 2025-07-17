@@ -15,8 +15,10 @@ import AnimatedSection from "@/components/ui/AnimatedSection";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router-dom";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const About = () => {
+  const { language } = useLanguage();
   // Initialize scroll reveal for animations
   useEffect(() => {
     const initScrollReveal = () => {
@@ -87,12 +89,14 @@ const About = () => {
           <div className="container mx-auto px-6">
             <div className="max-w-4xl mx-auto text-center mb-12 reveal-scroll">
               <h2 className="text-3xl md:text-4xl font-serif font-semibold mb-4 text-blue-900">
-                Partnerships & Sponsorships
+                {language === "en"
+                  ? "Partnerships & Sponsorships"
+                  : "Asociaciones y patrocinios"}
               </h2>
               <p className="text-lg text-gray-700">
-                We're proud to collaborate with leading equestrian organizations
-                and brands to advance the sport and support riders at all
-                levels.
+                {language === "en"
+                  ? "We're proud to collaborate with leading equestrian organizations and brands to advance the sport and support riders at all levels."
+                  : "Estamos orgullosos de colaborar con las principales organizaciones y marcas ecuestres para promover el deporte y apoyar a los jinetes en todos los niveles."}
               </p>
             </div>
 
@@ -101,15 +105,14 @@ const About = () => {
               <Card className="border border-purple-200 bg-white">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-xl text-center font-serif text-blue-800">
-                    TLA Stables
+                    {language === "en" ? "TLA Stables" : "Establos TLA"}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="flex flex-col justify-between min-h-[300px] text-center">
                   <p className="text-gray-700 mb-4">
-                    We specialise in training, sourcing, and selling top-quality
-                    showjumping horses to clients around the world. With a
-                    passion for excellence and a proven track record, we match
-                    talented horses with ambitious riders at every level.
+                    {language === "en"
+                      ? "We specialise in training, sourcing, and selling top-quality showjumping horses to clients around the world. With a passion for excellence and a proven track record, we match talented horses with ambitious riders at every level."
+                      : "Nos especializamos en el entrenamiento, la búsqueda y la venta de caballos de salto de alta calidad a clientes de todo el mundo. Con pasión por la excelencia y una trayectoria comprobada, conectamos caballos talentosos con jinetes ambiciosos de todos los niveles."}
                   </p>
                   <div className="h-20 w-20 bg-purple-100 rounded-full mx-auto flex items-center justify-center overflow-hidden">
                     <a
@@ -130,13 +133,16 @@ const About = () => {
               <Card className="border border-purple-200 bg-white">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-xl text-center font-serif text-blue-800">
-                    Elite Equine Equipment
+                    {language === "en"
+                      ? "Elite Equine Equipment"
+                      : "Equipos equinos de élite"}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="flex flex-col justify-between min-h-[300px] text-center">
                   <p className="text-gray-700 mb-4">
-                    Premium equipment manufacturer partnering to integrate
-                    technology with traditional training tools.
+                    {language === "en"
+                      ? "Premium equipment manufacturer partnering to integrate technology with traditional training tools."
+                      : "Fabricante de equipos premium que se asocia para integrar la tecnología con herramientas de capacitación tradicionales."}
                   </p>
                   <div className="h-20 w-20 rounded-full mx-auto flex items-center justify-center p-2 overflow-hidden">
                     <a href="https://appetitecreative.com/" target="_blank">
@@ -154,22 +160,17 @@ const About = () => {
               <Card className="border border-purple-200 bg-white">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-xl text-center font-serif text-blue-800">
-                    Horse Care
+                    {language === "en" ? "Horse Care" : "Cuidado de caballos"}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="flex flex-col justify-between min-h-[300px] text-center">
                   <p className="text-gray-700 mb-4">
-                    Horse Organics- Founded in August 2019, Horse Organics is a
-                    family-driven venture born from our deep love for horses.
-                    Starting with a single product, our commitment to excellence
-                    in horse care has led to a curated line of over five
-                    exceptional products
+                    {language === "en"
+                      ? "Horse Organics- Founded in August 2019, Horse Organics is a family-driven venture born from our deep love for horses. Starting with a single product, our commitment to excellence in horse care has led to a curated line of over five exceptional products"
+                      : "Horse Organics: Fundada en agosto de 2019, Horse Organics es una empresa familiar que nació de nuestro profundo amor por los caballos. A partir de un solo producto, nuestro compromiso con la excelencia en el cuidado equino ha dado lugar a una línea selecta de más de cinco productos excepcionales."}
                   </p>
                   <div className="h-20 w-20 rounded-full mx-auto flex items-center justify-center">
-                    <a
-                      href="https://horscare.com/shop"
-                      target="_blank"
-                    >
+                    <a href="https://horscare.com/shop" target="_blank">
                       <img
                         src="/lovable-uploads/horse-organic.png"
                         alt=""
@@ -183,18 +184,22 @@ const About = () => {
 
             <div className="mt-12 text-center reveal-scroll">
               <h3 className="text-xl font-medium mb-4 text-purple-800">
-                Interested in partnering with AI Equestrian?
+                {language === "en"
+                  ? "Interested in partnering with AI Equestrian?"
+                  : "¿Interesada en asociarse con AI Equestrian?"}
               </h3>
               <p className="text-gray-700 mb-6 max-w-2xl mx-auto">
-                We're always looking to collaborate with organizations and
-                brands that share our vision for the future of equestrian
-                training.
+                {language === "en"
+                  ? "We're always looking to collaborate with organizations and brands that share our vision for the future of equestrian training."
+                  : "Siempre buscamos colaborar con organizaciones y marcas que compartan nuestra visión del futuro del entrenamiento ecuestre."}
               </p>
               <Link
                 to="mailto:info@equineaintelligence.com"
                 className="inline-flex items-center py-3 px-6 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-lg transition-colors duration-300 font-medium self-start mt-4"
               >
-                Contact for Partnership Opportunities
+                {language === "en"
+                  ? "Contact for Partnership Opportunities"
+                  : "Contacto para oportunidades de asociación"}
               </Link>
             </div>
           </div>
