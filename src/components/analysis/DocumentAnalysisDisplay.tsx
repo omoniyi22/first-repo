@@ -187,6 +187,7 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
 
   const diagrams = useMemo(() => {
     if (!!resultData) {
+      console.log("AnalysisData", resultData);
       return resultData[language]["weaknesses-svg"];
     } else {
       return [];
@@ -864,82 +865,13 @@ Let me know what you think!`;
         </Card>
       )}
       <Card className="p-4 sm:p-6">
-        <div className="flex items-center justify-between mb-3 sm:mb-4">
+        <div className="flex flex-col lg:flex-row gap-4 items-center justify-between mb-3 sm:mb-4">
           <h4 className="text-lg sm:text-xl font-semibold">
             {language === "en" ? "Recommendations" : "Recomendaciones"}
           </h4>
-        </div>
-        <ul className="space-y-2 sm:space-y-5">
-          {resultData[language]?.recommendations?.map(
-            (recommendation, index) => (
-              <li
-                key={index}
-                className="text-sm sm:text-base bg-[#f1f5f9] p-2 md:p-5 rounded-lg flex gap-2 md:gap-5"
-              >
-                <img
-                  src="/lovable-uploads/1000010999.png"
-                  alt="Horse and rider jumping over competition obstacle"
-                  className="w-8 h-8 object-cover object-center"
-                />
-                <div className="">
-                  <b>{recommendation["exercise"]} </b> -{" "}
-                  {recommendation["goal"]}
-                  <br />
-                  <b>
-                    {language === "en" ? "To improve:" : "Para mejorar:"}
-                  </b>{" "}
-                  {recommendation["setup"]}
-                  <br />
-                  <b>{language === "en" ? "Method:" : ":"}</b>
-                  <br />
-                  <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
-                    {recommendation["method"].map((method, key) => (
-                      <li key={key}>{method}</li>
-                    ))}
-                  </ul>
-                  <b>{language === "en" ? "Key Points:" : ":"}</b>
-                  <br />
-                  {recommendation["keyPoints"] &&
-                  typeof recommendation["keyPoints"] == "string" ? (
-                    <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
-                      <li>{recommendation["keyPoints"]}</li>
-                    </ul>
-                  ) : (
-                    <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
-                      {recommendation["keyPoints"].map((point, key) => (
-                        <li key={key}>{point}</li>
-                      ))}
-                    </ul>
-                  )}
-                  <b>{language === "en" ? "Watch For:" : ":"}</b>{" "}
-                  <span>{recommendation["watchFor"]}</span>
-                  <br />
-                  <b>{language === "en" ? "Goal:" : ":"}</b>{" "}
-                  <span>{recommendation["goal"]}</span>
-                  <br />
-                  <b>{language === "en" ? "Quick Fix:" : ":"}</b>{" "}
-                  <span>{recommendation["quickFix"]}</span>
-                  <br />
-                </div>
-              </li>
-            )
-          ) || "No Recommendations!"}
-        </ul>
-      </Card>
-
-      <Card className="p-4 sm:p-6">
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-3 sm:mb-4">
-            <h3 className="text-xl font-semibold mb-4">
-              Recommended Exercises
-            </h3>
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#F1F5F9] backdrop-blur-sm">
-              <ArrowDown className="h-6 w-6 text-[#7658EB]" />
-            </div>
-          </div>
           <div className="mb-6 bg-white p-4 rounded shadow border">
             <h4 className="font-semibold text-gray-800 text-center mb-6">
-              GAITS
+              Key/Legend
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 gap-2 text-sm">
               {Object.entries(COLOR_LEGEND).map(([label, color]) => (
@@ -959,87 +891,108 @@ Let me know what you think!`;
               ))}
             </div>
           </div>
-          <div className="grid md:grid-cols-2 gap-6">
-            {diagrams?.map((weakness, index) => (
-              <Card
-                key={index}
-                className="bg-white rounded-lg shadow-md overflow-hidden"
-              >
-                <div className="p-4 bg-blue-50 border-b">
-                  <h3 className="font-semibold text-blue-800">
-                    {weakness.title}
-                  </h3>
-                  <p className="text-sm text-red-600">
-                    Weakness: {weakness.weakness}
-                  </p>
-                </div>
-
-                <div className="p-4 flex justify-center">
-                  <div
-                    className="svg-container"
-                    dangerouslySetInnerHTML={{
-                      __html: generateWeaknessSvg(weakness),
-                    }}
-                  />
-                </div>
-
-                <div className="p-4 bg-gray-50 border-t h-full">
-                  <p className="text-sm font-medium text-gray-700">
-                    Instructions:{" "}
-                    <span className="text-sm text-gray-400">{`(${weakness.type})`}</span>
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    {weakness.instruction}
-                  </p>
-                  <p className="text-xs mt-2 text-gray-500">
-                    Positions: {weakness.positions.join(", ")} | Arena:{" "}
-                    {weakness.size}
-                  </p>
-                </div>
-              </Card>
-            ))}
-          </div>
-          <Card className="w-full bg-gradient-to-r from-[#7658EB] to-[#3C78EB] text-white p-6 mt-6 flex items-center justify-between rounded-lg shadow-lg flex-col-reverse sm:flex-row gap-5 sm:gap-0">
-            <div className="">
-              <h2 className="text-xl font-medium">
-                Want more guidance?
-                <br />
-                Download the RideAlong Podcast and ride with us.
-              </h2>
-              <Button
-                className="bg-white text-[#2C1A5C] hover:bg-white mt-4"
-                onClick={async () => {
-                  await getPromptForTTS();
-                }}
-              >
-                Get Your Ride-Along Podcast
-              </Button>
-            </div>
-            <div className="relative w-36 h-36 rounded-full overflow-hidden flex items-center justify-center">
-              {/* Blurred background layer */}
-              {/* <div
-                  className="absolute inset-0"
-                  style={{
-                    backgroundImage: `url('${"/lovable-uploads/report-cta.png"}')`,
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                    backgroundRepeat: "no-repeat",
-                    filter: "blur(2px)",
-                    zIndex: 0,
-                  }}
-                ></div> */}
-
-              <div className="relative z-10 w-28 h-28 rounded-full bg-[#3f77eb]/20 backdrop-blur-sm flex items-center justify-center">
-                <img
-                  src={"/lovable-uploads/report-cta.png"}
-                  alt="Horse and rider jumping over competition obstacle"
-                  className="w-full h-full object-cover object-center rounded-full"
-                />
-              </div>
-            </div>
-          </Card>
         </div>
+        <ul className="space-y-2 sm:space-y-5">
+          {resultData[language]?.recommendations?.map(
+            (recommendation, index) => (
+              <li
+                key={index}
+                className="text-sm sm:text-base bg-[#f1f5f9] p-2 md:p-5 rounded-lg flex gap-2 md:gap-5"
+              >
+                <img
+                  src="/lovable-uploads/1000010999.png"
+                  alt="Horse and rider jumping over competition obstacle"
+                  className="w-8 h-8 object-cover object-center"
+                />
+                <div className="flex flex-col lg:flex-row gap-8">
+                  <div>
+                    <b>{recommendation["exercise"]} </b> -{" "}
+                    {recommendation["goal"]}
+                    <br />
+                    <b>
+                      {language === "en" ? "To improve:" : "Para mejorar:"}
+                    </b>{" "}
+                    {recommendation["setup"]}
+                    <br />
+                    <b>{language === "en" ? "Method:" : ":"}</b>
+                    <br />
+                    <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
+                      {recommendation["method"].map((method, key) => (
+                        <li key={key}>{method}</li>
+                      ))}
+                    </ul>
+                    <b>{language === "en" ? "Key Points:" : ":"}</b>
+                    <br />
+                    {recommendation["keyPoints"] &&
+                    typeof recommendation["keyPoints"] == "string" ? (
+                      <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
+                        <li>{recommendation["keyPoints"]}</li>
+                      </ul>
+                    ) : (
+                      <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
+                        {recommendation["keyPoints"].map((point, key) => (
+                          <li key={key}>{point}</li>
+                        ))}
+                      </ul>
+                    )}
+                    <b>{language === "en" ? "Watch For:" : ":"}</b>{" "}
+                    <span>{recommendation["watchFor"]}</span>
+                    <br />
+                    <b>{language === "en" ? "Goal:" : ":"}</b>{" "}
+                    <span>{recommendation["goal"]}</span>
+                    <br />
+                    <b>{language === "en" ? "Quick Fix:" : ":"}</b>{" "}
+                    <span>{recommendation["quickFix"]}</span>
+                    <br />
+                  </div>
+                  
+                  <div className="bg-white py-8 rounded-xl" style={{maxWidth: 400}}>
+                      {
+                        diagrams[index] && (
+                          <div className="flex flex-col justify-center align-center">
+                            <p className="text-xs mt-2 text-gray-800 -mb-16 px-8">
+                              Title: <b>{diagrams[index].title}</b>
+                              <br/><br/>
+                              {diagrams[index].instruction}
+                            </p>
+                            <div
+                              className="svg-container mx-auto"
+                              dangerouslySetInnerHTML={{
+                                __html: generateWeaknessSvg(diagrams[index]),
+                              }}
+                            />
+                            <p className="text-xs mt-2 text-gray-500 text-center -mt-16">
+                              Positions: {diagrams[index].positions.join(", ")} | Arena:{" "}
+                              {diagrams[index].size}
+                            </p>
+                          </div>
+                        )
+                      }
+                  </div>
+                </div>
+              </li>
+            )
+          ) || "No Recommendations!"}
+        </ul>
+        <Card className="w-full bg-gradient-to-r from-[#7658EB] to-[#3C78EB] text-white p-6 mt-6 flex items-center justify-between rounded-lg shadow-lg flex-col-reverse sm:flex-row gap-5 sm:gap-0">
+          <div className="">
+            <h2 className="text-xl font-medium">
+              Want more guidance?
+              <br />
+              Download the RideAlong Podcast and ride with us.
+            </h2>
+            <Button
+              className="bg-white text-[#2C1A5C] hover:bg-white mt-4"
+              onClick={async () => {
+                await getPromptForTTS();
+              }}
+            >
+              Get Your Ride-Along Podcast
+            </Button>
+          </div>
+        </Card>
       </Card>
+
       <Card className="p-4 sm:p-6 border-0">
         <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-4 mb-3 sm:mb-4">
           <Button

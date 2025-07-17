@@ -65,36 +65,36 @@ const arenaTemplates = {
 
 const accuracyCircleExercisePos = {
   small: {
-    A: { x: 205, y: 440 },
-    C: { x: 205, y: 160 },
-    H: { x: 160, y: 160 },
+    A: { x: 205, y: 445 },
+    C: { x: 205, y: 155 },
+    H: { x: 160, y: 155 },
     E: { x: 160, y: 300 },
-    K: { x: 160, y: 440 },
-    G: { x: 205, y: 160 },
+    K: { x: 160, y: 445 },
+    G: { x: 205, y: 155 },
     X: { x: 205, y: 300 },
-    D: { x: 205, y: 440 },
-    M: { x: 240, y: 160 },
+    D: { x: 205, y: 445 },
+    M: { x: 240, y: 155 },
     B: { x: 240, y: 300 },
-    F: { x: 240, y: 440 },
+    F: { x: 240, y: 445 },
   },
   large: {
-    A: { x: 205, y: 640 },
-    C: { x: 205, y: 160 },
-    H: { x: 160, y: 160 },
-    S: { x: 160, y: 275 },
-    E: { x: 160, y: 400 },
-    V: { x: 160, y: 525 },
-    K: { x: 160, y: 640 },
-    G: { x: 205, y: 160 },
-    I: { x: 205, y: 275 },
-    X: { x: 205, y: 400 },
-    L: { x: 205, y: 525 },
-    D: { x: 205, y: 640 },
-    M: { x: 240, y: 160 },
-    R: { x: 240, y: 275 },
-    B: { x: 240, y: 400 },
-    P: { x: 240, y: 525 },
-    F: { x: 240, y: 640 },
+    A: { x: 205, y: 645 },
+    C: { x: 205, y: 155 },
+    H: { x: 160, y: 155 },
+    S: { x: 160, y: 270 },
+    E: { x: 160, y: 395 },
+    V: { x: 160, y: 520 },
+    K: { x: 160, y: 645 },
+    G: { x: 205, y: 155 },
+    I: { x: 205, y: 270 },
+    X: { x: 205, y: 395 },
+    L: { x: 205, y: 520 },
+    D: { x: 205, y: 645 },
+    M: { x: 240, y: 155 },
+    R: { x: 240, y: 270 },
+    B: { x: 240, y: 395 },
+    P: { x: 240, y: 520 },
+    F: { x: 240, y: 645 },
   }
 }
 
@@ -134,12 +134,12 @@ const exercisePos = {
 }
 
 export const COLOR_BY_SPEED = {
-  "Walk": "#00AE23",
-  "Trot": "#FF821C",
-  "Canter": "#3C77EC",
-  "Halt": "#D80568",
-  "Transition": "#D80568",
-  "Free Walk": "#7658EB",
+  "Walk": "#3AD55A",
+  "Trot": "#FFD766",
+  "Canter": "#5E92FA",
+  "Halt": "#F67DB5",
+  "Transition": "#F67DB5",
+  "Free Walk": "#A38DFC",
 };
 
 export const COLOR_LEGEND = {
@@ -215,10 +215,10 @@ function generateArrowOverlays(points: { x: number, y: number }[], color: string
 
 const exerciseGenerators = {
   contact: (arena: ArenaTemplate, positions: string[], exPositions: object, speed: string) => {
-    const allChars = positions.flatMap(pos => pos.split(''));
+    const allChars = ['A', 'F', 'B', 'M', 'C', 'H', 'E', 'K', 'A'];
     const resolvedPoints = getConditionalAxisAlignedPoints(allChars, exPositions, arena);
     const points = resolvedPoints.map(p => `${p.x},${p.y}`).join(' ');
-
+    const isDashed = speed === 'Halt' || speed === 'Transition';
     const circles = allChars.map(char => `
       <circle cx="${exPositions[char]?.x ?? arena.width / 2}"
               cy="${exPositions[char]?.y ?? arena.height / 2}"
@@ -236,6 +236,7 @@ const exerciseGenerators = {
                   stroke="${COLOR_BY_SPEED[speed]}"
                   stroke-width="2"
                   stroke-linecap="round"
+                  ${isDashed ? 'stroke-dasharray="5,5"' : ''}
                 />
         ${arrows}
         ${circles}
@@ -245,7 +246,7 @@ const exerciseGenerators = {
 
   accuracy: (arena: ArenaTemplate, positions: string[], circlePositions: object, speed: string) => {
     const RADIUS = 50;
-
+    const isDashed = speed === 'Halt' || speed === 'Transition';
     const svgParts = positions.map(pos => {
       const center = circlePositions[pos[0]];
       if (!center) return '';
@@ -268,67 +269,110 @@ const exerciseGenerators = {
     };
   },
 
-
-  transitions: (arena: ArenaTemplate, positions: string[], exPosition: object, speed: string) => {
-    const allChars = positions.flatMap(pos => pos.split(''));
-    const resolvedPoints = getConditionalAxisAlignedPoints(allChars, exPosition, arena);
-    const points = resolvedPoints.map(p => `${p.x},${p.y}`).join(' ');
-
-    const circles = allChars.map(char => `
-      <circle cx="${exPosition[char]?.x ?? arena.width / 2}"
-              cy="${exPosition[char]?.y ?? arena.height / 2}"
-              r="4"
-              class="transition-point" />
+  circleExercise: (arena: ArenaTemplate, positions: string[], circlePositions: object, speed: string) => {
+    const color = COLOR_BY_SPEED[speed];
+    const RADIUS = 50;
+    const circles = positions.map(char => `
+      <circle cx="${circlePositions[char]?.x ?? arena.width / 2}"
+        cy="${circlePositions[char]?.y ?? arena.height / 2}"
+        r="${RADIUS}"
+        stroke-width="2"
+        stroke="${COLOR_BY_SPEED[speed]}"
+        fill="none"
+      />
+      <path d="M -5 -5 L 5 0 L -5 5 Z"
+        transform="translate(${circlePositions[char]?.x + RADIUS}, ${circlePositions[char]?.y}) rotate(90)"
+        fill="${color}" />
     `).join('');
-
-    const arrows = generateArrowOverlays(resolvedPoints, COLOR_BY_SPEED[speed]);
-
     return {
       svg: `
-        <polyline points="${points}" 
-                  fill="none"
-                  stroke="${COLOR_BY_SPEED[speed]}"
-                  stroke-width="2"
-                  stroke-linecap="round"
-              />
-        ${arrows}
         ${circles}
-      `,
+      `
     };
   },
 
-  straightness: (arena: ArenaTemplate, positions: string[], exPosition: object, speed: string) => {
-    const allChars = positions.flatMap(pos => pos.split(''));
-    const resolvedPoints = getConditionalAxisAlignedPoints(allChars, exPosition, arena);
-    const points = resolvedPoints.map(p => `${p.x},${p.y}`).join(' ');
+  lateral: (arena: ArenaTemplate, positions: string[], exPositions: object, speed: string) => {
+    const color = COLOR_BY_SPEED[speed];
+    const isDashed = speed === 'Halt' || speed === 'Transition';
+    const pair1 = getConditionalAxisAlignedPoints(['M', 'B'], exPositions, arena);
+    const pair2 = getConditionalAxisAlignedPoints(['H', 'E'], exPositions, arena);
 
-    const circles = allChars.map(char => `
-      <circle cx="${exPosition[char]?.x ?? arena.width / 2}"
-              cy="${exPosition[char]?.y ?? arena.height / 2}"
-              r="4"
-              class="straightness-point" />
-    `).join('');
+    const points1 = pair1.map(p => `${p.x},${p.y}`).join(' ');
+    const points2 = pair2.map(p => `${p.x},${p.y}`).join(' ');
 
-    const arrows = generateArrowOverlays(resolvedPoints, COLOR_BY_SPEED[speed]);
+    const arrows1 = generateArrowOverlays(pair1, color);
+    const arrows2 = generateArrowOverlays(pair2, color);
 
     return {
       svg: `
-        <polyline points="${points}" 
-                  fill="none"
-                  stroke="${COLOR_BY_SPEED[speed]}"
+        <polyline points="${points1}" 
+                  fill="none" 
+                  stroke="${color}" 
                   stroke-width="2"
-                  stroke-linecap="round"
-                   />
-        ${arrows}
-        ${circles}
-      `,
+                  ${isDashed ? 'stroke-dasharray="5,5"' : ''} />
+        <polyline points="${points2}" 
+                  fill="none" 
+                  stroke="${color}" 
+                  stroke-width="2" 
+                  ${isDashed ? 'stroke-dasharray="5,5"' : ''} />
+        ${arrows1}
+        ${arrows2}
+      `
     };
   },
 
-  rhythm: (arena: ArenaTemplate, positions: string[], exPositions: object, speed: string) => {
-    const allChars = positions.flatMap(pos => pos.split(''));
+  flyingChanges: (arena: ArenaTemplate, positions: string[], exPositions: object, speed: string) => {
+    const color = COLOR_BY_SPEED[speed];
+    const isLarge = arena.height > 500;
+    
+    const letters = isLarge 
+      ? ['M', 'H', 'S', 'R', 'B', 'E', 'V', 'P', 'F', 'K']
+      : ['M', 'H', 'E', 'B', 'F', 'K'];
+
+    const points = letters.map(letter => {
+      return exPositions[letter] || { x: arena.width / 2, y: arena.height / 2 };
+    });
+
+    let d = `M ${points[0].x},${points[0].y} `;
+    for (let i = 0; i < points.length - 1; i++) {
+      const curr = points[i];
+      const next = points[i + 1];
+      const midX = (curr.x + next.x) / 2;
+      const midY = (curr.y + next.y) / 2;
+      d += `Q ${curr.x},${curr.y} ${midX},${midY} `;
+    }
+    // Finish the curve with a "T" command to smoothly transition to the last point.
+    d += `T ${points[points.length - 1].x},${points[points.length - 1].y}`;
+
+    // Optionally, display markers for the key waypoints.
+    const markers = letters.map(letter => {
+      const pos = exPositions[letter] || { x: arena.width / 2, y: arena.height / 2 };
+      return `<circle cx="${pos.x}" cy="${pos.y}" r="4" fill="${color}" />`;
+    }).join('');
+
+    return {
+      svg: `
+        <path d="${d}" 
+              fill="none" 
+              stroke="${color}" 
+              stroke-width="2" 
+              stroke-linecap="round" />
+      `
+    };
+  },
+
+  transitions: (arena: ArenaTemplate, positions: string[], exPositions: object, speed: string) => {
+    const allChars = ['A', 'X', 'C'];
     const resolvedPoints = getConditionalAxisAlignedPoints(allChars, exPositions, arena);
     const points = resolvedPoints.map(p => `${p.x},${p.y}`).join(' ');
+    const isDashed = speed === 'Halt' || speed === 'Transition';
+    const circles = allChars.map(char => `
+      <circle cx="${exPositions[char]?.x ?? arena.width / 2}"
+              cy="${exPositions[char]?.y ?? arena.height / 2}"
+              r="4"
+              fill="${COLOR_BY_SPEED[speed]}"
+              />
+    `).join('');
 
     const arrows = generateArrowOverlays(resolvedPoints, COLOR_BY_SPEED[speed]);
 
@@ -339,8 +383,10 @@ const exerciseGenerators = {
                   stroke="${COLOR_BY_SPEED[speed]}"
                   stroke-width="2"
                   stroke-linecap="round"
-                  class="rhythm-line" />
+                  ${isDashed ? 'stroke-dasharray="5,5"' : ''}
+                />
         ${arrows}
+        ${circles}
       `,
     };
   }
@@ -355,28 +401,23 @@ export function generateWeaknessSvg(weakness: WeaknessSvg): string {
   const generator = exerciseGenerators[weakness.type] || exerciseGenerators.accuracy;
 
   let svg;
-  if (weakness.type == "accuracy") {
+  if (weakness.type == "circleExercise" ) {
     console.log(accuracyCircle);
     svg = generator(arena, weakness.positions, accuracyCircle, weakness.speed);
   } else {
     svg = generator(arena, weakness.positions, exercisePosition, weakness.speed);
   }
-  const defaultSvgHeight = arena.height + 200;
-  const calculatedHeight =
-    window.innerHeight && window.innerHeight < 1000
-      ? Math.max(window.innerHeight - 400, 400)
-      : defaultSvgHeight;
 
   return `
     <svg width="${arena.width + 200}" 
-         height="${calculatedHeight}" 
+         height="${arena.height + 200}" 
          viewBox="0 0 ${arena.width + 200} ${arena.height + 200}" 
          xmlns="http://www.w3.org/2000/svg">
       <rect x="100" y="100" 
-            width="${arena.width}" 
-            height="${arena.height}" 
-            fill="#f8f8f8" 
-            stroke="#ccc" />
+        width="${arena.width}" 
+        height="${arena.height}" 
+        fill="#f8f8f8" 
+        stroke="#ccc" />
       
       ${Object.entries(arena.letters).map(([letter, pos]) => `
         <text x="${pos.x}" 

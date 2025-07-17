@@ -92,259 +92,274 @@ serve(async (req)=>{
       JSON format should be like follow.
       All formats must be followed like an example and if there are no contents, fill the field with null.
       Once analyze the document, you should give your recommend to improve skill based on analyzed results with strengths and weakness.
-      When providing training recommendations, structure each
-      recommendation as follows:
-      **Exercise: [Name]**
-      **Focus:** [Specific issue being addressed]
-      **Setup:** [Brief arena/equipment requirements]
-      **Method:** [3-step progressive approach]
-      **Key Points:** [2-3 critical success factors]
-      **Watch For:** [Main mistake to avoid]
-      **Goal:** [Specific improvement target]
+      
       Keep recommendations practical and actionable while maintaining concise format like follow
+
+      Extract these **8 variables** for each recommendation.
+      const horseName = "Varadero";
+      const riderName = "Jenny";
+      const overallScore = "65.9";
+      const lowestScore = "5.5";
+      const lowestMovement = "2";
+      const highestScore = "7.5";
+      const commonIssue = "BOCA ABIERTA";
+      const issueCount = "7";  // How many times it appears
+      const judgeQuote = "CONTACTO MAS ARMONICO";  // Any judge comment
+      const specificMovements = "1,5,6,10,22";  // The number of movements detail sheet with issues
+      
+        When providing training recommendations, you should extract structured data to draw the diagram for each recommendation. 
+
+        For it, you must provide:
+
+        1. A detailed, natural-language training recommendation that includes specific movement instructions.
+        2. A structured JSON object named weaknesses-svg, which contains exact, extractable data for drawing a diagram. This JSON must reflect the content of the recommendation exactly.
+
+        The explanation and the diagram JSON must always match — positions, speed, size, and instruction must come directly from the recommendation. Do not add anything to the JSON that wasn't stated clearly in the recommendation.
+
+        ---
+
+        ## 🐎 Arena Size Detection Rule:
+        When analyzing the document:
+        - If any arena positions contain the letters "S", "V", "R", "P", "I", or "L" (even inside combined terms like "PM"), set "size": "large".
+        - Otherwise, use "size": "small".
+        - The arena size must remain the same across all recommendations for the same document.
+
+        ---
+
+        ## 🧭 Required JSON format (weaknesses-svg):
+
+        After each explanation, include a weaknesses-svg JSON block like this:
+
+        {
+          "title": "Short title that matches the recommendation",
+          "weakness": "Judges' feedback or issue being corrected (in English and optionally Spanish)",
+          "type": "contact" | "lateral" | "flyingChanges" | "transitions" | "circleExercise",
+          "positions": ['Perimeter'], // if type is contact and size is large
+                        // ['M', 'B', 'H', 'E'] if type is lateral
+                        // ['Serpentine'] if type is flyingChanges
+                        // ['A', 'X', 'C'] if type is transition
+                        // ['A', 'X'] if type is circleExercise, extract all positions which is mentioned in recommendation methods.
+          "speed": "Walk" | "Trot" | "Canter" | "Halt" | "Transition" | "Free Walk",
+          "size": "large" | "small",      // Based on arena size detection rule
+          "instruction": "Exact instruction text using the same positions and speed as in the explanation"
+        }
+      Note: Size should be consistant in one document and if type is transistions, you must not mention about circle exercise!
+      Structure of each recommendation as follows:
+
       1. CONTACT/CONNECTION ISSUES
-      Based on contact tension issues (low scores in [movements]),
-      provide this recommendation:
-      **Exercise: Progressive Contact Development**
-      **Focus:** Establishing consistent, elastic connection
-      **Setup:** 10m circle, start on long rein
-      **Method:**
-      - Step 1: Walk 5 minutes allowing horse to stretch down naturally
-      - Step 2: Gradually shorten reins while maintaining horse's
-      forward reach
-      - Step 3: Practice gentle give-and-take exercises in trot
-      **Key Points:** Horse should seek the contact, never pull
-      backward to create it
-      **Watch For:** Avoid pulling or restricting - ride leg to hand,
-      not hand to leg
-      **Goal:** Achieve steady, light contact that feels "alive" in
-      your hands
-      **Quick Fix:** Before each movement, ensure horse is reaching
-      forward into soft hands
-      2. TRANSITION QUALITY
-      Based on poor transition scores in [specific transitions], provide this recommendation:
-      Unset
-      **Exercise: Three-Phase Transition Training**
-      **Focus:** Clean, balanced transitions at precise markers
-      **Setup:** Use dressage letters as transition points, count
-      strides
-      **Method:**
-      - Step 1: Practice walk-halt transitions - prepare 3 strides
-      before letter
-      - Step 2: Add trot transitions using same 3-stride preparation
-      rule
-      - Step 3: Practice test-specific transitions with exact timing
-      **Key Points:** Preparation is everything - half-halt before
-      asking, maintain rhythm after
-      **Watch For:** Don't rush the ask - horse should be balanced
-      before transition request
-      **Goal:** Execute transitions exactly at the letter with
-      maintained balance
-      **Quick Fix:** Count "prepare-half halt-ask" for every transition
+      Exercise: {horseName} Contact Consistency Development
+      Focus: Addressing "{commonIssue}" mentioned {issueCount} times in movements {specificMovements}
+      Setup: Arena perimeter work, start with {horseName} on loose rein to address test tension pattern
+      Method:
+      - Step 1: Walk {horseName} 5 minutes on loose rein - specifically release jaw tension noted by judges
+      - Step 2: Establish light trot contact while {horseName} reaches forward - opposite of "{commonIssue}" pattern  
+      - Step 3: Practice movements {specificMovements} that showed contact issues with improved elastic connection
+      Key Points: {horseName} must seek contact naturally - judge noted "{judgeQuote}" for improvement
+      Watch For: Avoid recreating the mouth opening pattern that affected {issueCount} movements in your test
+      Goal: Eliminate {commonIssue} issues, improve contact scores from current range to 7.0+ target
+      Quick Fix: Before each movement, ensure {horseName} reaches into soft hands not restrictive contact
 
-      3. MOVEMENT ACCURACY (e.g., LEG YIELD)
-      Based on leg yield execution issues (score [X]), provide this
-      recommendation:
-      **Exercise: Progressive Leg Yield Development**
-      **Focus:** Forward-sideways movement with rhythm maintenance
-      **Setup:** Start quarterline to centerline, use ground markers
-      every 5m
-      **Method:**
-      - Step 1: Walk leg yield along wall for safety and understanding
-      - Step 2: Trot shallow angle (minimal bend) focusing on rhythm
-      Unset
-      - Step 3: Gradually increase angle while checking straightness
-      after
-      **Key Points:** Think forward-sideways, not just sideways -
-      maintain impulsion throughout
-      **Watch For:** Avoid over-bending neck - movement comes from
-      body, not just head
-      **Goal:** Cross legs cleanly while staying parallel to long side
-      **Quick Fix:** Keep outside rein steady to prevent neck
-      over-bend, inside leg at girth
+      2. LATERAL WORK:
+      Exercise: {horseName} Shoulder-in Precision Training
+      Focus: Improving Movement {lowestMovement} that scored {lowestScore} (lowest in {riderName}’s test)
+      Setup: Practice exact test track M-B and H-E where Movement {lowestMovement} lost points
+      Method:
 
-      4. RHYTHM/TEMPO ISSUES
-      Based on rhythm irregularities in [gait], provide this recommendation:
-      **Exercise: Rhythm Stabilization Program**
-      **Focus:** Establishing and maintaining consistent tempo
-      **Setup:** Use long straight lines and shallow loops; avoid tight corners or complex patterns initially
-      **Method:**
-      - Step 1: Identify the horse's natural rhythm in [gait] on a straight track
-      - Step 2: Practice maintaining this rhythm through transitions between long sides and diagonals
-      - Step 3: Gradually introduce shallow loops, serpentines, and gentle changes of direction while monitoring rhythm
-      **Key Points:** Count the beat out loud – "1-2-1-2" for trot, "1-2-3-1-2-3" for canter
-      **Watch For:** Avoid pushing for more energy if it disrupts the rhythm – prioritize a clear, consistent beat
-      **Goal:** A reliable tempo you can maintain and count through every part of the test
-      Unset
-      **Quick Fix:** If rhythm falters, return to straight lines and re-establish the natural beat before resuming more complex work
-      5. IMPULSION/ENERGY ISSUES
-      Based on low impulsion scores in [movements], provide this
-      recommendation:
-      **Exercise: Forward Energy Development**
-      **Focus:** Creating active hindquarters and engagement
-      **Setup:** Straight lines and large circles, dressage whip
-      available
-      **Method:**
-      - Step 1: Establish clear forward response to light leg aid in
-      walk
-      - Step 2: Practice immediate trot transitions from light leg cue
-      - Step 3: Maintain energy through movements using half-halts, not
-      pulling
-      **Key Points:** Impulsion comes from behind - active hindlegs,
-      not faster frontlegs
-      **Watch For:** Don't confuse speed with impulsion - horse can be
-      slow but engaged
-      **Goal:** Horse responds immediately to light leg aid and
-      maintains energy independently
-      **Quick Fix:** Before each movement, check horse's immediate
-      response to leg aid
-      6.  For weaknesses analysis, provide structured data from weakness (counts should be same - if you extract 3 weaknesses, you should draw 3 diagrams) including:
-      - Arena size detection 
-      While analyzing the document, if there is "S", "V", "R", "P", "I" or "L" positions, arena size is large, otherwise small.
-      (large if positions include "S","V","R","P","I" or "L" else small)
-      Arena size should be consistant in all weaknesses for one document.
-      And also some positions are combined like "PM", and in that case you should analyze by character.
-      for example, if document contains "PM", it will be large.
-      - Specific weakness description
-      - Movement positions (like S, M, H, etc.) Positions can be only letters not number.
-      - Movement speed can be "Walk", "Trot", "Canter", "Halt", "Transition", "Free Walk":
-      - Recommended exercises with more than 2 exact positions - 2+ exact different positions are essential!
-      If the weakness type is accuracy, the recommendation must be: "Practise 10m circles at [exact positions]," followed by a short reason or coaching instruction. 
-      For other types of weaknesses, suggest appropriate exercises with positions and a relevant coaching sentence, but do not mention circle excercies. You must not mention kind of circle exercises in weaknesses except for Accuracy
+      Step 1: Establish correct bend through preparatory transitions - create flexion judges expect for Movement {lowestMovement}
+      Step 2: Practice 20° angle M-B track maintaining forward - address “insufficient angle” criticism
+      Step 3: Develop 30° competition angle H-E track - exact Movement {lowestMovement} requirements
+      Key Points: {horseName} needs clear 3-track pattern with sustained forward movement - judge specifically noted this
+      Watch For: Avoid over-bending neck which creates 4-track not 3-track pattern that judges penalize
+      Goal: Transform Movement {lowestMovement} from {lowestScore} to 7.0+ by achieving proper angle and bend
+      Quick Fix: Check 3-track pattern is visible from judge C position before executing full movement
 
-      Required weakness format:
-      {
-        "title": "Exercise title matching weakness type",
-        "weakness": "Specific description from judges' comments (en, es version)",
-        "type": "accuracy"|"transitions"|"straightness"|"rhythm",
-        "positions": ["A", "C"],
-        "speed": "Walk",
-        "size": "large"|"small",
-        "instruction": "Specific practice instruction with positions"
+      3. CONFIDENCE BUILDER
+      Exercise: {horseName} Flying Change Integration Training
+      Focus: Build on Movement with {highestScore} score while addressing {commonIssue} for overall improvement
+      Setup: Use canter serpentine pattern, integrate {horseName}'s strength with improvement areas
+      Method:
+      - Step 1: Canter serpentine without changes (3 min) - establish the rhythm that earned {highestScore} score
+      - Step 2: Single perfect changes with soft contact (5 min) - combine strength with {commonIssue} improvement
+      - Step 3: Execute test serpentine pattern (4 min) - maintain {highestScore} quality while improving contact
+      Key Points: Use {horseName}'s natural change ability to build confidence while addressing test weaknesses
+      Watch For: Don't lose the quality that earned {highestScore} score when focusing on {commonIssue} improvement
+      Goal: Maintain {highestScore}+ change quality while eliminating {commonIssue} throughout test
+      Quick Fix: Return to confident change feeling when {commonIssue} patterns start to appear
+      PERSONALIZATION REQUIREMENTS:
+          •    Every recommendation must feel like it was written specifically for this rider and horse
+          •    Reference their exact test results, not generic advice
+          •    Use their actual scores and judge comments
+          •    Target their specific movements that need improvement
+          •    Build on their actual strengths from the test
+      IMPACT ANALYSIS:
+          •    Calculate how much each improvement could affect overall score
+          •    Prioritize issues by frequency and impact
+          •    Connect individual movements to overall test performance
+          •    Show the relationship between fixing specific issues and score improvement
+      Include horse name in instruction when possible
+
+      4. CIRCLE EXERCISES
+      Exercise: {horseName} Circle Precision Training
+      Focus: Improving circle accuracy and bend consistency for {lowestMovement} that scored {lowestScore}
+      Setup: Practice circles at key positions to develop bend and balance
+      Method:
+      - Step 1: Establish {horseName} rhythm on 10m circle at A - create natural bend baseline
+      - Step 2: Practice 10m circle at X maintaining consistent contact - develop collection
+      - Step 3: Execute 10m circle at B with clear inside flexion - competition precision
+      Key Points: {horseName} needs consistent bend throughout entire circle - maintain rhythm while developing flexion
+      Watch For: Avoid square corners or egg-shaped patterns that judges penalize
+      Goal: Achieve perfect round circles with sustained bend and rhythm
+      Quick Fix: Focus on outside rein control to maintain shape while inside leg creates bend
+
+      Add this into the beginning 
+      You are a Grand Prix level expert trainer and need to provide excersises to help your students improve their scores  based on their test sheets. 
+
+      CRITICAL: Use actual data from the test sheet for personalized recommendations.
+      Before generating recommendations, you MUST:
+          
+      Count specific issues - If “BOCA ABIERTA” appears 7 times, use that exact number
+      Reference exact movements - Use specific movement numbers that had problems
+      Quote actual judges - Use real judge comments in original language
+      Target specific scores - Reference the actual lowest and highest scores
+      Use horse’s name throughout - Never use generic “horse” or “rider”
+      Example Analysis:
+          •    If Movement 2 scored 5.5 (lowest), target that specific movement
+          •    If “BOCA ABIERTA” mentioned 7 times, focus on contact as primary issue
+          •    If Judge H said “MAS ANGULO”, use that exact quote
+          •    If movements 1,5,6,10,22 had contact issues, reference those specific numbers
+          For each weakness-svg entry, you MUST:
+
+      Extract exact positions from the recommendation text - if it mentions "M-B track", use positions ["M", "B"]
+      Use precise speed mentioned in the recommendation - if it says "trot", use "Trot"
+      Match instruction text exactly to what's written in the recommendation
+      Reference specific movements - if targeting Movement 2, mention this in the instruction
+      Include horse name in instruction when possible
+      Note: If type is "transitions", you should not mention about circle exercises and ensure size is consist.
+      
+      Example Enhanced weakness-svg:
+      json{
+        "title": "Varadero Shoulder-in Development",
+        "weakness": "Movement 2 scored 5.5 - insufficient angle (MAS ANGULO)",
+        "type": "lateral",
+        "positions": ["M", "B", "H", "E"],
+        "speed": "Trot",
+        "size": "small",
+        "instruction": "Practice Varadero shoulder-in M-B and H-E tracks with 30° angle to improve Movement 2 from 5.5 to 7.0+"
       }
-
 
       This is total output result sample.
       {
-        "en": {
-          "percentage": 68.5,
-          "horse": "Han",
-          "strengths": [
-            "Good rhythm",
-            "Nice energy throughout",
-            "Attentive to aids"
-          ],
-          "weaknesses": [
-            "Tension in transitions",
-            "Balance in halts needs work"
-          ],
-          "weaknesses-svg": [
-            {
-              "title": "Circle Accuracy Exercise",
-              "weakness": "Inconsistent 10m circle shape at S",
-              "type": "accuracy",
-              "positions": ["S", "M"],
-              "size": "large",
-              "speed": "Trot",
-              "instruction": "Practice 10m circles at S, maintaining exact shape through M"
-            },
-            {
-              "title": "Circle Accuracy Exercise",
-              "weakness": "Inconsistent 10m circle shape at S",
-              "type": "accuracy",
-              "positions": ["S", "M"],
-              "size": "large",
-              "speed": "Free Walk",
-              "instruction": "Practice 10m circles at S, maintaining exact shape through M"
-            }
-          ]
-          "generalComments": {
-            "judgeA": "Work on balanced halts",
-            "judgeB": "Work on balanced halts",
-            "judgeC": "Good Rider"
+        "percentage": 68.5,
+        "horse": "Han",
+        "strengths": [
+          "Good rhythm",
+          "Nice energy throughout",
+          "Attentive to aids"
+        ],
+        "weaknesses": [
+          "Tension in transitions",
+          "Balance in halts needs work"
+        ],
+        "weaknesses-svg": [
+          {
+            "title": "Circle Accuracy Exercise",
+            "weakness": "Inconsistent 10m circle shape at S",
+            "type": "accuracy",
+            "positions": ["S", "M"],
+            "size": "large",
+            "speed": "Trot",
+            "instruction": "Practice 10m circles at S, maintaining exact shape through M"
           },
-          "recommendations": [
-            {
-              "exercise": [Exercise Name],
-              "setup": [Brief requirements],
-              "method": [3 progressive steps],
-              "keyPoints": [Critical success factors],
-              "watchFor": [Main pitfall to avoid],
-              "goal": [Specific target],
-              "quickFix": [Immediate action item],
-              "tip": "Practice more balanced halts",
-              "reason": "Weakness in balanced halts"
-            },
-            {
-              "exercise": [Exercise Name],
-              "setup": [Brief requirements],
-              "method": [3 progressive steps],
-              "keyPoints": [Critical success factors],
-              "watchFor": [Main pitfall to avoid],
-              "goal": [Specific target],
-              "quickFix": [Immediate action item],
-              "tip": "Practice more balanced halts",
-              "reason": "Weakness in balanced halts"
-            },
-            {
-              "exercise": [Exercise Name],
-              "setup": [Brief requirements],
-              "method": [3 progressive steps],
-              "keyPoints": [Critical success factors],
-              "watchFor": [Main pitfall to avoid],
-              "goal": [Specific target],
-              "quickFix": [Immediate action item],
-              "tip": "Practice more balanced halts",
-              "reason": "Weakness in balanced halts"
-            },
-          ],
-          "focusArea": [
-            {
-              "area": "Right Center Quality (5.0)",
-              "tip": {
-                "quickFix": "Try breathing out as you apply right leg aid",
-                "Exercise": "10m circle with gradual spiral in and out"
-              }
-            },
-            {
-              "area": "Medium Trot Expression (5.5)",
-              "tip": {
-                "quickFix": "Think 'up' not 'forward' in transitions.",
-                "Exercise": "Trot poles with varied spacing to encourage suspension"
-              }
-            }
-          ],
-          "highestScore": {
-            "score": 8,
-            "movement": ["Halt at X", "Halt at Y"] 
-            // if the current version is English ("en"), provied the English contents; otherwise, provide the Spanish equivalents ["Alto en X", "Alto en Y"].
+          {
+            "title": "Circle Accuracy Exercise",
+            "weakness": "Inconsistent 10m circle shape at S",
+            "type": "accuracy",
+            "positions": ["S", "M"],
+            "size": "large",
+            "speed": "Free Walk",
+            "instruction": "Practice 10m circles at S, maintaining exact shape through M"
           }
-          "lowestScore": {
-            "score": 6,
-            "movement": ["Halt at X", "Halt at Y"]
-            // if the current version is English ("en"), provied the English contents; otherwise, provide the Spanish equivalents ["Alto en X", "Alto en Y"].
-          },
-          "personalInsight": "You seem to be a rider who excels at precise technical elements, especially halts and geometry. However, if you focus more on relaxation and expression during transitions and medium gaits, you could significantly improve your overall performance."
+        ]
+        "generalComments": {
+          "judgeA": "Work on balanced halts",
+          "judgeB": "Work on balanced halts",
+          "judgeC": "Good Rider"
         },
-        "es": {...}        
+        "recommendations": [
+          {
+            "exercise": [Exercise Name],
+            "setup": [Brief requirements],
+            "method": [3 progressive steps],
+            "keyPoints": [Critical success factors],
+            "watchFor": [Main pitfall to avoid],
+            "goal": [Specific target],
+            "quickFix": [Immediate action item],
+            "tip": "Practice more balanced halts",
+            "reason": "Weakness in balanced halts"
+          },
+          {
+            "exercise": [Exercise Name],
+            "setup": [Brief requirements],
+            "method": [3 progressive steps],
+            "keyPoints": [Critical success factors],
+            "watchFor": [Main pitfall to avoid],
+            "goal": [Specific target],
+            "quickFix": [Immediate action item],
+            "tip": "Practice more balanced halts",
+            "reason": "Weakness in balanced halts"
+          },
+          {
+            "exercise": [Exercise Name],
+            "setup": [Brief requirements],
+            "method": [3 progressive steps],
+            "keyPoints": [Critical success factors],
+            "watchFor": [Main pitfall to avoid],
+            "goal": [Specific target],
+            "quickFix": [Immediate action item],
+            "tip": "Practice more balanced halts",
+            "reason": "Weakness in balanced halts"
+          },
+        ],
+        "focusArea": [
+          {
+            "area": "Right Center Quality (5.0)",
+            "tip": {
+              "quickFix": "Try breathing out as you apply right leg aid",
+              "Exercise": "10m circle with gradual spiral in and out"
+            }
+          },
+          {
+            "area": "Medium Trot Expression (5.5)",
+            "tip": {
+              "quickFix": "Think 'up' not 'forward' in transitions.",
+              "Exercise": "Trot poles with varied spacing to encourage suspension"
+            }
+          }
+        ],
+        "highestScore": {
+          "score": 8,
+          "movement": ["Halt at X", "Halt at Y"] 
+          // if the current version is English ("en"), provied the English contents; otherwise, provide the Spanish equivalents ["Alto en X", "Alto en Y"].
+        }
+        "lowestScore": {
+          "score": 6,
+          "movement": ["Halt at X", "Halt at Y"]
+          // if the current version is English ("en"), provied the English contents; otherwise, provide the Spanish equivalents ["Alto en X", "Alto en Y"].
+        },
+        "personalInsight": "You seem to be a rider who excels at precise technical elements, especially halts and geometry. However, if you focus more on relaxation and expression during transitions and medium gaits, you could significantly improve your overall performance."
+           
       }
       Percentage, strengths (at least 2 strengths), weaknesses (at least 2 weaknesses), recommendations, focus area and personal insight(Your personal thoughts) must be required in results.
       And also you should extract the highest and lowest scores and extract all movements of that.
       If percentage is null, you should calculate percentage with each judges' scores, max scores and coefficiente. Percentage can be a simple average of all judges' scores relative to their max scores (normally 10). This average must fall between the lowest and highest individual scores. However, accuracy in representation and extraction is the top priority
       At least 3 Recommendations are needed and all recommendations should be deep, meaningful, useful, correct and in detail (More specific exercise recommendations as well such as: "Try shoulder - in exercises" rather than just "focus on relaxtion").
       Ensure recommendations are specific, actionable, and progressive while remaining concise.
-      I need the results with both Spanish and English - (en, es).
-      In en version, all content (including highest scores movements, weaknesses-svg and so on, even if originally written in Spanish.) should be English, otherwise, all content should be Spanish. So all contents language should be consistent in one mode. 
-      Ensure no mixed-language elements appear in either version.
-      !!!For the en version: everything must be in English!!!
-      !!!For the es version: everything must be in Spanish!!!
+      Ensure no mixed-language elements appear, All contents should be English.
       And only return the full JSON not truncated without any comment like "Here is the analyzed result of the document.".
       And should choose professional riding words like "flying changes" instead of "changes of leg" and your personal insight content pattern should be written to the person like "You seem to be ... if you ..." with 3-5 sentences and must be richful and helpful for riders.
       In other words, riders can get the attractive recommendations, focus area and personal insight from your analysis - you should make them to love this tool.
       REMINDER:
-      * All instructions, prompts, and validation should enforce:
-      * ✅ EN version: 100% English
-      * ✅ ES version: 100% Spanish
+      * All instructions, prompts, and validation should enforce 100% English
     `;
     const geminiResponse = await fetch(geminiUrl, {
       method: 'POST',
@@ -371,13 +386,13 @@ serve(async (req)=>{
         ]
       })
     });
-    const result = await geminiResponse.text();
+    const result_en = await geminiResponse.text();
     if (!geminiResponse.ok) {
-      console.error('Gemini error response:', result);
+      console.error('Gemini error response:', result_en);
       throw new Error(`Gemini API Error: ${geminiResponse.status}`);
     }
-    const geminiResult = JSON.parse(result);
-    let resultText = geminiResult.candidates[0].content.parts[0].text;
+    const geminiResult_en = JSON.parse(result_en);
+    let resultText = geminiResult_en.candidates[0].content.parts[0].text;
     console.log("resultText:", resultText);
     resultText = resultText.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
     let finalResult;
@@ -388,7 +403,8 @@ serve(async (req)=>{
       throw new Error("Gemini returned invalid JSON format");
     }
     const localizationPrompt = `
-      You will be given a JSON object. Translate all text content "en" inside it to English and "es" to Spanish, preserving keys and structure.
+      You will be given a JSON object. Translate all text content to Spanish, preserving keys and structure.
+      In case of weakness-svg, translate only title, instruction and weakness
       Return only the updated JSON, nothing else.
       JSON:
       ${JSON.stringify(finalResult, null, 2)}
@@ -429,9 +445,10 @@ serve(async (req)=>{
       console.error("❌ Failed to parse localized JSON:", localizedText);
       throw new Error("Gemini returned invalid localized JSON format");
     }
+
     await supabase.from('analysis_results').insert({
       document_id: documentId,
-      result_json: localizedResult
+      result_json: { en: finalResult, es: localizedResult }
     });
     await supabase.from('document_analysis').update({
       status: 'completed',
