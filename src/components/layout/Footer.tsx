@@ -117,12 +117,15 @@ const Footer = () => {
             </p>
           </div>
           <div className="flex space-x-6">
-            <Link to="/terms" className="text-white hover:underline">
+            <Link to="/terms" className="text-white hover:underline capitalize">
               {language === "en"
                 ? "Terms & Conditions"
                 : "Términos y condiciones"}
             </Link>
-            <Link to="/privacy" className="text-white hover:underline">
+            <Link
+              to="/privacy"
+              className="text-white hover:underline capitalize"
+            >
               {language === "en" ? "Privacy Policy" : "política de privacidad"}
             </Link>
           </div>

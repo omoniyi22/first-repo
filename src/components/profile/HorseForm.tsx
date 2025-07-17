@@ -21,6 +21,7 @@ import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import MediaSelector from "@/components/admin/media/MediaSelector";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface HorseFormProps {
   onComplete: () => void;
@@ -72,6 +73,7 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
   const [isSaving, setIsSaving] = useState(false);
 
   const isEditing = !!editingHorse;
+  const { language } = useLanguage();
 
   // Reset dressage level when dressage type changes
   useEffect(() => {
@@ -170,22 +172,34 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="horse-name">Horse Name*</Label>
+        <Label htmlFor="horse-name">
+          {language === "es" ? "Nombre del caballo*" : "Horse Name*"}
+        </Label>
         <Input
           id="horse-name"
           value={horseName}
           onChange={(e) => setHorseName(e.target.value)}
-          placeholder="Enter horse's name"
+          placeholder={
+            language === "es"
+              ? "Ingresa el nombre del caballo"
+              : "Enter horse's name"
+          }
           required
         />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="horse-breed">Breed*</Label>
+          <Label htmlFor="horse-breed">
+            {language === "es" ? "Raza*" : "Breed*"}
+          </Label>
           <Select value={breed} onValueChange={setBreed} required>
             <SelectTrigger id="horse-breed">
-              <SelectValue placeholder="Select breed" />
+              <SelectValue
+                placeholder={
+                  language === "es" ? "Selecciona la raza" : "Select breed"
+                }
+              />
             </SelectTrigger>
             <SelectContent>
               {horseBreeds.map((breed) => (
@@ -198,7 +212,9 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="horse-age">Age*</Label>
+          <Label htmlFor="horse-age">
+            {language === "es" ? "Edad*" : "Age*"}
+          </Label>
           <Input
             id="horse-age"
             type="number"
@@ -206,46 +222,50 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
             max="40"
             value={age}
             onChange={(e) => setAge(e.target.value)}
-            placeholder="Enter age"
+            placeholder={language === "es" ? "Ingresa la edad" : "Enter age"}
             required
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="horse-sex">Sex*</Label>
+          <Label htmlFor="horse-sex">
+            {language === "es" ? "Sexo*" : "Sex*"}
+          </Label>
           <Select value={sex} onValueChange={setSex} required>
             <SelectTrigger id="horse-sex">
-              <SelectValue placeholder="Select sex" />
+              <SelectValue
+                placeholder={
+                  language === "es" ? "Selecciona el sexo" : "Select sex"
+                }
+              />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Gelding">Gelding</SelectItem>
-              <SelectItem value="Mare">Mare</SelectItem>
-              <SelectItem value="Stallion">Stallion</SelectItem>
+              <SelectItem value="Gelding">
+                {language === "es" ? "Castrado" : "Gelding"}
+              </SelectItem>
+              <SelectItem value="Mare">
+                {language === "es" ? "Yegua" : "Mare"}
+              </SelectItem>
+              <SelectItem value="Stallion">
+                {language === "es" ? "Semental" : "Stallion"}
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>
 
-        {/* <div className="space-y-2">
-          <Label htmlFor="competition-level">Competition Level</Label>
-          <Select value={level} onValueChange={setLevel}>
-            <SelectTrigger id="competition-level">
-              <SelectValue placeholder="Select level" />
-            </SelectTrigger>
-            <SelectContent>
-              {dressageLevels.map((level) => (
-                <SelectItem key={level} value={level}>
-                  {level}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div> */}
-
         <div className="space-y-2">
-          <Label htmlFor="jumping-level">Jumping Level</Label>
+          <Label htmlFor="jumping-level">
+            {language === "es" ? "Nivel de salto" : "Jumping Level"}
+          </Label>
           <Select value={jumpingLevel} onValueChange={setJumpingLevel}>
             <SelectTrigger id="jumping-level">
-              <SelectValue placeholder="Select jumping height" />
+              <SelectValue
+                placeholder={
+                  language === "es"
+                    ? "Selecciona la altura de salto"
+                    : "Select jumping height"
+                }
+              />
             </SelectTrigger>
             <SelectContent>
               {jumpingLevels.map((level) => (
@@ -258,10 +278,18 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="dressage-type">Dressage Type</Label>
+          <Label htmlFor="dressage-type">
+            {language === "es" ? "Tipo de doma" : "Dressage Type"}
+          </Label>
           <Select value={dressageType} onValueChange={setDressageType}>
             <SelectTrigger id="dressage-type">
-              <SelectValue placeholder="Select dressage type" />
+              <SelectValue
+                placeholder={
+                  language === "es"
+                    ? "Selecciona el tipo de doma"
+                    : "Select dressage type"
+                }
+              />
             </SelectTrigger>
             <SelectContent>
               {dressageTypes.map((type) => (
@@ -274,14 +302,22 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="dressage-level">Dressage Level</Label>
+          <Label htmlFor="dressage-level">
+            {language === "es" ? "Nivel de doma" : "Dressage Level"}
+          </Label>
           <Select
             disabled={!dressageType}
             value={dressageLevel}
             onValueChange={setDressageLevel}
           >
             <SelectTrigger id="dressage-level">
-              <SelectValue placeholder="Select dressage level" />
+              <SelectValue
+                placeholder={
+                  language === "es"
+                    ? "Selecciona el nivel de doma"
+                    : "Select dressage level"
+                }
+              />
             </SelectTrigger>
             <SelectContent>
               {getDressageLevels().map((level) => (
@@ -294,7 +330,11 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="years-owned">Years Owned/Ridden</Label>
+          <Label htmlFor="years-owned">
+            {language === "es"
+              ? "Años de propiedad/monta"
+              : "Years Owned/Ridden"}
+          </Label>
           <Input
             id="years-owned"
             type="number"
@@ -302,52 +342,69 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
             max="40"
             value={yearsOwned}
             onChange={(e) => setYearsOwned(e.target.value)}
-            placeholder="Optional"
+            placeholder={language === "es" ? "Opcional" : "Optional"}
           />
         </div>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="horse-photo">Horse Photo</Label>
-        <MediaSelector 
-          value={photoUrl || ""} 
-          onChange={handleImageSelect}
-        />
+        <Label htmlFor="horse-photo">
+          {language === "es" ? "Foto del caballo" : "Horse Photo"}
+        </Label>
+        <MediaSelector value={photoUrl || ""} onChange={handleImageSelect} />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="strengths">Strengths</Label>
+        <Label htmlFor="strengths">
+          {language === "es" ? "Fortalezas" : "Strengths"}
+        </Label>
         <Input
           id="strengths"
           value={strengths}
           onChange={(e) => setStrengths(e.target.value)}
-          placeholder="What are your horse's strengths? (Optional)"
+          placeholder={
+            language === "es"
+              ? "¿Cuáles son las fortalezas de tu caballo? (Opcional)"
+              : "What are your horse's strengths? (Optional)"
+          }
         />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="weaknesses">Areas for Improvement</Label>
+        <Label htmlFor="weaknesses">
+          {language === "es" ? "Áreas de mejora" : "Areas for Improvement"}
+        </Label>
         <Input
           id="weaknesses"
           value={weaknesses}
           onChange={(e) => setWeaknesses(e.target.value)}
-          placeholder="What areas would you like to improve? (Optional)"
+          placeholder={
+            language === "es"
+              ? "¿Qué áreas te gustaría mejorar? (Opcional)"
+              : "What areas would you like to improve? (Optional)"
+          }
         />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="special-notes">Special Notes</Label>
+        <Label htmlFor="special-notes">
+          {language === "es" ? "Notas especiales" : "Special Notes"}
+        </Label>
         <Input
           id="special-notes"
           value={specialNotes}
           onChange={(e) => setSpecialNotes(e.target.value)}
-          placeholder="Any special notes or care instructions? (Optional)"
+          placeholder={
+            language === "es"
+              ? "¿Notas o instrucciones especiales de cuidado? (Opcional)"
+              : "Any special notes or care instructions? (Optional)"
+          }
         />
       </div>
 
       <div className="flex justify-end gap-4 pt-2">
         <Button type="button" variant="outline" onClick={onComplete}>
-          Cancel
+          {language === "es" ? "Cancelar" : "Cancel"}
         </Button>
         <Button
           type="submit"
@@ -357,10 +414,16 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
           {isSaving ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Saving...
+              {language === "es" ? "Guardando..." : "Saving..."}
             </>
           ) : isEditing ? (
-            "Update Horse"
+            language === "es" ? (
+              "Actualizar caballo"
+            ) : (
+              "Update Horse"
+            )
+          ) : language === "es" ? (
+            "Guardar caballo"
           ) : (
             "Save Horse"
           )}

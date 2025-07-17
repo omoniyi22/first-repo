@@ -11,58 +11,105 @@ const JumpingStepsSection = () => {
     {
       id: 1,
       icon: <FilePenLine className="w-6 h-6" />,
-      title: "Upload Course Maps & Videos",
+      title:
+        language === "en"
+          ? "Upload Course Maps & Videos"
+          : "Sube mapas del recorrido y videos",
       description:
-        "Simply upload photos of your course maps or record your jumping rounds. Our system analyzes both documents and videos to provide comprehensive insights for all competition levels.",
-      image: "/placeholder.svg", // In a real implementation, this would be a real image
-      features: [
-        "Support for international and national jumping competitions",
-        "Easy drag-and-drop or camera upload",
-        "Secure and private data handling",
-        "Automatic jump type and course pattern recognition",
-      ],
+        language === "en"
+          ? "Simply upload photos of your course maps or record your jumping rounds. Our system analyzes both documents and videos to provide comprehensive insights for all competition levels."
+          : "Simplemente sube fotos de tus mapas del recorrido o graba tus rondas de salto. Nuestro sistema analiza tanto los documentos como los videos para ofrecer información completa en todos los niveles de competición.",
+      image: "/placeholder.svg",
+      features:
+        language === "en"
+          ? [
+              "Support for international and national jumping competitions",
+              "Easy drag-and-drop or camera upload",
+              "Secure and private data handling",
+              "Automatic jump type and course pattern recognition",
+            ]
+          : [
+              "Compatibilidad con competiciones de salto nacionales e internacionales",
+              "Carga sencilla mediante arrastrar y soltar o cámara",
+              "Manejo seguro y privado de datos",
+              "Reconocimiento automático del tipo de salto y patrón del recorrido",
+            ],
     },
     {
       id: 2,
       icon: <BarChart3 className="w-6 h-6" />,
-      title: "AI Analysis",
+      title: language === "en" ? "AI Analysis" : "Análisis con IA",
       description:
-        "Our advanced artificial intelligence analyzes your course maps, jumping technique, and performance patterns to identify both strengths and areas for improvement.",
+        language === "en"
+          ? "Our advanced artificial intelligence analyzes your course maps, jumping technique, and performance patterns to identify both strengths and areas for improvement."
+          : "Nuestra avanzada inteligencia artificial analiza tus mapas del recorrido, técnica de salto y patrones de rendimiento para identificar fortalezas y áreas de mejora.",
       image: "/placeholder.svg",
-      features: [
-        "Detailed breakdown of jumping technique",
-        "Pattern recognition across multiple rounds",
-        "Stride length and timing analysis",
-        "Comparison to your previous performances",
-      ],
+      features:
+        language === "en"
+          ? [
+              "Detailed breakdown of jumping technique",
+              "Pattern recognition across multiple rounds",
+              "Stride length and timing analysis",
+              "Comparison to your previous performances",
+            ]
+          : [
+              "Desglose detallado de la técnica de salto",
+              "Reconocimiento de patrones en múltiples rondas",
+              "Análisis de longitud de tranco y sincronización",
+              "Comparación con tus actuaciones anteriores",
+            ],
     },
     {
       id: 3,
       icon: <Lightbulb className="w-6 h-6" />,
-      title: "Personalized Recommendations",
+      title:
+        language === "en"
+          ? "Personalized Recommendations"
+          : "Recomendaciones personalizadas",
       description:
-        "Receive tailored training recommendations and exercises specifically designed to address your improvement areas and enhance your strengths in show jumping.",
+        language === "en"
+          ? "Receive tailored training recommendations and exercises specifically designed to address your improvement areas and enhance your strengths in show jumping."
+          : "Recibe recomendaciones de entrenamiento y ejercicios personalizados específicamente diseñados para mejorar tus áreas débiles y potenciar tus fortalezas en salto ecuestre.",
       image: "/placeholder.svg",
-      features: [
-        "Custom exercise selection from our library",
-        "Difficulty progression based on your level",
-        "Focus on specific jump types needing improvement",
-        "Weekly training plans and schedules",
-      ],
+      features:
+        language === "en"
+          ? [
+              "Custom exercise selection from our library",
+              "Difficulty progression based on your level",
+              "Focus on specific jump types needing improvement",
+              "Weekly training plans and schedules",
+            ]
+          : [
+              "Selección personalizada de ejercicios de nuestra biblioteca",
+              "Progresión de dificultad según tu nivel",
+              "Enfoque en tipos de salto específicos que necesitan mejora",
+              "Planes y horarios de entrenamiento semanales",
+            ],
     },
     {
       id: 4,
       icon: <BookOpen className="w-6 h-6" />,
-      title: "Progress Tracking",
+      title:
+        language === "en" ? "Progress Tracking" : "Seguimiento del progreso",
       description:
-        "Monitor your improvement over time with comprehensive analytics dashboards and progress reports that show your development as a rider.",
+        language === "en"
+          ? "Monitor your improvement over time with comprehensive analytics dashboards and progress reports that show your development as a rider."
+          : "Supervisa tu progreso con el tiempo mediante paneles analíticos integrales e informes que muestran tu desarrollo como jinete.",
       image: "/placeholder.svg",
-      features: [
-        "Visual charts of performance improvements",
-        "Achievement tracking and milestones",
-        "Long-term trend analysis",
-        "Performance predictions for future competitions",
-      ],
+      features:
+        language === "en"
+          ? [
+              "Visual charts of performance improvements",
+              "Achievement tracking and milestones",
+              "Long-term trend analysis",
+              "Performance predictions for future competitions",
+            ]
+          : [
+              "Gráficos visuales de mejoras en el rendimiento",
+              "Seguimiento de logros y hitos",
+              "Análisis de tendencias a largo plazo",
+              "Predicciones de rendimiento para futuras competiciones",
+            ],
     },
   ];
 
