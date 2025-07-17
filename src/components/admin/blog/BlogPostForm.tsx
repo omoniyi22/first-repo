@@ -19,6 +19,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Label } from "@/components/ui/label";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -387,7 +388,7 @@ const BlogPostForm = ({ post, onSave, onCancel }: BlogPostFormProps) => {
           </div>
 
           <div>
-            <FormLabel htmlFor="spanish-title">Title (Spanish)</FormLabel>
+            <Label htmlFor="spanish-title">Title (Spanish)</Label>
             <Input
               id="spanish-title"
               value={spanishTranslation.title}
@@ -397,7 +398,7 @@ const BlogPostForm = ({ post, onSave, onCancel }: BlogPostFormProps) => {
           </div>
 
           <div>
-            <FormLabel htmlFor="spanish-excerpt">Excerpt (Spanish)</FormLabel>
+            <Label htmlFor="spanish-excerpt">Excerpt (Spanish)</Label>
             <Textarea
               id="spanish-excerpt"
               value={spanishTranslation.excerpt}
@@ -408,7 +409,7 @@ const BlogPostForm = ({ post, onSave, onCancel }: BlogPostFormProps) => {
           </div>
 
           <div>
-            <FormLabel htmlFor="spanish-content">Content (Spanish)</FormLabel>
+            <Label htmlFor="spanish-content">Content (Spanish)</Label>
             <Textarea
               id="spanish-content"
               value={spanishTranslation.content}
@@ -419,7 +420,7 @@ const BlogPostForm = ({ post, onSave, onCancel }: BlogPostFormProps) => {
           </div>
 
           <div>
-            <FormLabel htmlFor="spanish-category">Category (Spanish)</FormLabel>
+            <Label htmlFor="spanish-category">Category (Spanish)</Label>
             <Input
               id="spanish-category"
               value={spanishTranslation.category}
