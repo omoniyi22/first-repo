@@ -9,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BlogPost } from "@/data/blogPosts";
 import {
   Form,
@@ -22,6 +23,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import MediaSelector from "../media/MediaSelector";
+import { updateBlogTranslation } from "@/services/blogService";
+import { useToast } from "@/hooks/use-toast";
 
 interface BlogPostFormProps {
   post: BlogPost | null;
@@ -48,6 +51,14 @@ const formSchema = z.object({
 
 const BlogPostForm = ({ post, onSave, onCancel }: BlogPostFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [activeTab, setActiveTab] = useState('english');
+  const [spanishTranslation, setSpanishTranslation] = useState({
+    title: '',
+    excerpt: '',
+    content: '',
+    category: ''
+  });
+  const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -82,6 +93,16 @@ const BlogPostForm = ({ post, onSave, onCancel }: BlogPostFormProps) => {
         slug: post.slug,
         image: post.image,
       });
+
+      // Load Spanish translations if they exist
+      if (post.translations?.es) {
+        setSpanishTranslation({
+          title: post.translations.es.title || '',
+          excerpt: post.translations.es.excerpt || '',
+          content: post.translations.es.content || '',
+          category: post.translations.es.category || ''
+        });
+      }
     }
   }, [post, form]);
 
@@ -117,7 +138,37 @@ const BlogPostForm = ({ post, onSave, onCancel }: BlogPostFormProps) => {
         ...(post && post.supabaseId ? { supabaseId: post.supabaseId } : {}),
       };
 
-      onSave(updatedPost);
+      await onSave(updatedPost);
+
+      // Save Spanish translation if provided and we have a Supabase ID
+      if (post?.supabaseId && (spanishTranslation.title || spanishTranslation.excerpt || spanishTranslation.content)) {
+        try {
+          await updateBlogTranslation(post.supabaseId, 'es', spanishTranslation);
+          toast({
+            title: 'Success',
+            description: 'Blog post and Spanish translation saved successfully.',
+          });
+        } catch (translationError) {
+          console.error('Error saving Spanish translation:', translationError);
+          toast({
+            title: 'Warning',
+            description: 'Blog post saved but Spanish translation failed to save.',
+            variant: 'destructive',
+          });
+        }
+      } else {
+        toast({
+          title: 'Success',
+          description: `Blog post ${post ? 'updated' : 'created'} successfully.`,
+        });
+      }
+    } catch (error) {
+      console.error('Error saving blog post:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to save blog post. Please try again.',
+        variant: 'destructive',
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -135,189 +186,263 @@ const BlogPostForm = ({ post, onSave, onCancel }: BlogPostFormProps) => {
   };
 
   return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(handleSubmit)}
-        className="space-y-6 py-4"
-      >
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <FormField
-            control={form.control}
-            name="title"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Title</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Enter blog post title"
-                    {...field}
-                    onBlur={() => {
-                      field.onBlur();
-                      if (!form.getValues("slug")) {
-                        generateSlug();
-                      }
-                    }}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+      <TabsList className="grid w-full grid-cols-2">
+        <TabsTrigger value="english">English</TabsTrigger>
+        <TabsTrigger value="spanish">Spanish</TabsTrigger>
+      </TabsList>
 
-          <FormField
-            control={form.control}
-            name="slug"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>
-                  Slug
-                  <Button
-                    type="button"
-                    variant="link"
-                    className="h-auto p-0 ml-2"
-                    onClick={generateSlug}
-                  >
-                    Generate from title
-                  </Button>
-                </FormLabel>
-                <FormControl>
-                  <Input placeholder="Enter URL slug" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+      <TabsContent value="english">
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="space-y-6 py-4"
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Title</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Enter blog post title"
+                        {...field}
+                        onBlur={() => {
+                          field.onBlur();
+                          if (!form.getValues("slug")) {
+                            generateSlug();
+                          }
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-        <FormField
-          control={form.control}
-          name="excerpt"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Excerpt</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Enter a short excerpt"
-                  className="resize-none h-20"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+              <FormField
+                control={form.control}
+                name="slug"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Slug
+                      <Button
+                        type="button"
+                        variant="link"
+                        className="h-auto p-0 ml-2"
+                        onClick={generateSlug}
+                      >
+                        Generate from title
+                      </Button>
+                    </FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter URL slug" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
-        <FormField
-          control={form.control}
-          name="content"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Content</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Enter blog content"
-                  className="resize-none h-48"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <FormField
-            control={form.control}
-            name="author"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Author</FormLabel>
-                <FormControl>
-                  <Input placeholder="Author name" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="discipline"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Discipline</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
+            <FormField
+              control={form.control}
+              name="excerpt"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Excerpt</FormLabel>
                   <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select discipline" />
-                    </SelectTrigger>
+                    <Textarea
+                      placeholder="Enter a short excerpt"
+                      className="resize-none h-20"
+                      {...field}
+                    />
                   </FormControl>
-                  <SelectContent>
-                    <SelectItem value="Jumping">Jumping</SelectItem>
-                    <SelectItem value="Dressage">Dressage</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <FormField
-            control={form.control}
-            name="category"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Category</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
+            <FormField
+              control={form.control}
+              name="content"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Content</FormLabel>
                   <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
+                    <Textarea
+                      placeholder="Enter blog content"
+                      className="resize-none h-48"
+                      {...field}
+                    />
                   </FormControl>
-                  <SelectContent>
-                    <SelectItem value="Technology">Technology</SelectItem>
-                    <SelectItem value="Analytics">Analytics</SelectItem>
-                    <SelectItem value="Training">Training</SelectItem>
-                    <SelectItem value="Guides">Guides</SelectItem>
-                    <SelectItem value="Competition">Competition</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-        <FormField
-          control={form.control}
-          name="image"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Featured Image</FormLabel>
-              <FormControl>
-                <MediaSelector value={field.value} onChange={field.onChange} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <FormField
+                control={form.control}
+                name="author"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Author</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Author name" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-        <div className="flex justify-end gap-3">
-          <Button type="button" variant="outline" onClick={onCancel}>
-            Cancel
-          </Button>
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Saving..." : post ? "Update Post" : "Create Post"}
-          </Button>
+              <FormField
+                control={form.control}
+                name="discipline"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Discipline</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select discipline" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="Jumping">Jumping</SelectItem>
+                        <SelectItem value="Dressage">Dressage</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="category"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Category</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select category" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="Technology">Technology</SelectItem>
+                        <SelectItem value="Analytics">Analytics</SelectItem>
+                        <SelectItem value="Training">Training</SelectItem>
+                        <SelectItem value="Guides">Guides</SelectItem>
+                        <SelectItem value="Competition">Competition</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <FormField
+              control={form.control}
+              name="image"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Featured Image</FormLabel>
+                  <FormControl>
+                    <MediaSelector value={field.value} onChange={field.onChange} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="flex justify-end gap-3">
+              <Button type="button" variant="outline" onClick={onCancel}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? "Saving..." : post ? "Update Post" : "Create Post"}
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </TabsContent>
+
+      <TabsContent value="spanish">
+        <div className="space-y-6 py-4">
+          <div className="bg-blue-50 p-4 rounded-lg">
+            <p className="text-sm text-blue-800">
+              <strong>Spanish Translation</strong> - Provide Spanish translations for the blog post content.
+            </p>
+          </div>
+
+          <div>
+            <FormLabel htmlFor="spanish-title">Title (Spanish)</FormLabel>
+            <Input
+              id="spanish-title"
+              value={spanishTranslation.title}
+              onChange={(e) => setSpanishTranslation({ ...spanishTranslation, title: e.target.value })}
+              placeholder="Título del artículo en español..."
+            />
+          </div>
+
+          <div>
+            <FormLabel htmlFor="spanish-excerpt">Excerpt (Spanish)</FormLabel>
+            <Textarea
+              id="spanish-excerpt"
+              value={spanishTranslation.excerpt}
+              onChange={(e) => setSpanishTranslation({ ...spanishTranslation, excerpt: e.target.value })}
+              placeholder="Breve descripción del artículo en español..."
+              className="resize-none h-20"
+            />
+          </div>
+
+          <div>
+            <FormLabel htmlFor="spanish-content">Content (Spanish)</FormLabel>
+            <Textarea
+              id="spanish-content"
+              value={spanishTranslation.content}
+              onChange={(e) => setSpanishTranslation({ ...spanishTranslation, content: e.target.value })}
+              placeholder="Escribe el contenido del artículo en español..."
+              className="resize-none h-48"
+            />
+          </div>
+
+          <div>
+            <FormLabel htmlFor="spanish-category">Category (Spanish)</FormLabel>
+            <Input
+              id="spanish-category"
+              value={spanishTranslation.category}
+              onChange={(e) => setSpanishTranslation({ ...spanishTranslation, category: e.target.value })}
+              placeholder="Categoría en español..."
+            />
+          </div>
+
+          <div className="flex justify-end gap-3">
+            <Button type="button" variant="outline" onClick={onCancel}>
+              Cancel
+            </Button>
+            <Button 
+              type="button" 
+              onClick={() => form.handleSubmit(handleSubmit)()}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Saving...' : post ? 'Update Post & Translation' : 'Create Post & Translation'}
+            </Button>
+          </div>
         </div>
-      </form>
-    </Form>
+      </TabsContent>
+    </Tabs>
   );
 };
 

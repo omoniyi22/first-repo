@@ -33,6 +33,7 @@ import {
   updateBlogPost,
   deleteBlogPost,
   fetchBlogPostBySlug,
+  updateBlogTranslation,
 } from "@/services/blogService";
 import { useToast } from "@/hooks/use-toast";
 

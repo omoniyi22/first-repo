@@ -50,6 +50,14 @@ const defaultTranslations = {
     "read": "Read",
     "read-article": "Read Article",
     
+    // Blog post page
+    "post-not-found": "Post not found",
+    "post-not-found-message": "The blog post you're looking for doesn't exist.",
+    "back-to-blog": "Back to blog",
+    "no-content-available": "No content available",
+    "author-bio": "Blog contributor at AI Equestrian",
+    "related-posts": "Related posts",
+    
     // Coming Soon
     "coming-soon": "Coming Soon",
     "notify-me": "Notify Me",
@@ -184,6 +192,14 @@ const defaultTranslations = {
     "subscribe": "Suscribirse",
     "read": "Leer",
     "read-article": "Leer Artículo",
+    
+    // Blog post page
+    "post-not-found": "Artículo no encontrado",
+    "post-not-found-message": "El artículo del blog que estás buscando no existe.",
+    "back-to-blog": "Volver al blog",
+    "no-content-available": "No hay contenido disponible",
+    "author-bio": "Colaborador del blog en AI Equestrian",
+    "related-posts": "Artículos relacionados",
     
     // Coming Soon
     "coming-soon": "Próximamente",
