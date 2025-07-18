@@ -6,7 +6,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CloudUpload, Loader2, Trash2 } from "lucide-react";
-import { toast } from "sonner";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import DocumentUpload from "@/components/analysis/DocumentUpload";
@@ -22,6 +21,7 @@ import {
   fill_Template_Make_Prompts,
   formatScriptWithStyles,
 } from "@/utils/podcastUtils";
+import { useToast } from "@/hooks/use-toast";
 
 interface DocumentAnalysisItem {
   id: string;
@@ -51,6 +51,8 @@ const Analysis = () => {
   const { isMobile } = useViewport();
   const [isPodcastLoading, setIsPodcastLoading] = useState<boolean>(false);
   const [podcastMsg, setPodcastMsg] = useState<string>("");
+  const [userProfile, setUserProfile] = useState<any>(null);
+  const { toast } = useToast();
 
   const buttonText = {
     en: {
@@ -77,10 +79,11 @@ const Analysis = () => {
   const [isSpinnerLoading, setIsSpinnerLoading] = useState<boolean>(false);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [userDiscipline, setUserDiscipline] = useState<string | null>(null);
+  const [horses, setHorses] = useState<any[]>([]);
 
   useEffect(() => {
     // Redirect to login if not authenticated
-    if (!user) {
+    if (!user?.id) {
       navigate("/sign-in", { state: { from: "/analysis" } });
       return;
     }
@@ -92,14 +95,40 @@ const Analysis = () => {
         // Fetch user profile to get discipline
         const { data: profileData, error: profileError } = await supabase
           .from("profiles")
-          .select("discipline")
+          .select("discipline, region, governing_body")
           .eq("id", user.id)
           .single();
 
         if (profileError && profileError.code !== "PGRST116") {
           console.error("Error fetching profile:", profileError);
         } else if (profileData) {
+          setUserProfile(profileData);
           setUserDiscipline(profileData.discipline);
+        }
+
+        // Fetch horses
+        const { data: horsesData, error: horsesError } = await supabase
+          .from("horses")
+          .select("id, name, breed, age")
+          .eq("user_id", user.id)
+          .order("name");
+
+        if (horsesError) {
+          console.error("Error fetching horses:", horsesError);
+          toast({
+            title:
+              language === "en"
+                ? "Error loading horses"
+                : "Error al cargar caballos",
+            description:
+              language === "en"
+                ? "Could not load your horses. Please try again."
+                : "No se pudieron cargar tus caballos. Inténtalo de nuevo.",
+            variant: "destructive",
+          });
+          setHorses([]);
+        } else {
+          setHorses(horsesData || []);
         }
 
         // Fetch all document analysis records for the current user
@@ -129,17 +158,20 @@ const Analysis = () => {
         setIsLoading(false);
       } catch (error) {
         console.error("Error fetching analysis data:", error);
-        toast.error(
-          language === "en"
-            ? "Failed to load your analyses"
-            : "No se pudieron cargar sus análisis"
-        );
+        toast({
+          title: "",
+          variant: "destructive",
+          description:
+            language === "en"
+              ? "Failed to load your analyses"
+              : "No se pudieron cargar sus análisis",
+        });
         setIsLoading(false);
       }
     };
 
     fetchUserData();
-  }, [user, navigate, language]);
+  }, [user?.id, navigate, language]);
 
   useEffect(() => {
     // If document_id is present in the URL, set it as selected
@@ -262,11 +294,13 @@ const Analysis = () => {
       }
 
       // Success feedback
-      toast.success(
-        language === "en"
-          ? `Successfully deleted ${selectedItems.length} item(s)`
-          : `Se eliminaron ${selectedItems.length} elemento(s) exitosamente`
-      );
+      toast({
+        title: "Successfully",
+        description:
+          language === "en"
+            ? `Successfully deleted ${selectedItems.length} item(s)`
+            : `Se eliminaron ${selectedItems.length} elemento(s) exitosamente`,
+      });
 
       // Reset state
       setSelectedItems([]);
@@ -276,11 +310,17 @@ const Analysis = () => {
 
       // Better error messaging
       const errorMessage = error.message || "Unknown error occurred";
-      toast.error(
-        language === "en"
-          ? `Failed to delete selected items: ${errorMessage}`
-          : `No se pudieron eliminar los elementos seleccionados: ${errorMessage}`
-      );
+      toast({
+        title:
+          language === "en"
+            ? "Something wen wrong"
+            : "Tipo de archivo no válido",
+        description:
+          language === "en"
+            ? `Failed to delete selected items: ${errorMessage}`
+            : `No se pudieron eliminar los elementos seleccionados: ${errorMessage}`,
+        variant: "destructive",
+      });
     } finally {
       setIsDeleting(false);
     }
@@ -713,7 +753,11 @@ const Analysis = () => {
 
             <TabsContent value="upload">
               {userDiscipline === "dressage" ? (
-                <DocumentUpload fetchDocs={fetchDocs} />
+                <DocumentUpload
+                  horsesData={horses}
+                  userProfile={userProfile}
+                  fetchDocs={fetchDocs}
+                />
               ) : (
                 <VideoUpload fetchDocs={fetchDocs} />
               )}

@@ -87,9 +87,15 @@ const jumpingCompetitionTypes = [
 
 interface DocumentUploadProps {
   fetchDocs?: () => void;
+  horsesData: any;
+  userProfile: any;
 }
 
-const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
+const DocumentUpload = ({
+  fetchDocs,
+  userProfile,
+  horsesData,
+}: DocumentUploadProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const { language, translations } = useLanguage();
@@ -104,7 +110,7 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
   // Data states
   const [horses, setHorses] = useState<any[]>([]);
   const [isLoadingHorses, setIsLoadingHorses] = useState<boolean>(true);
-  const [userProfile, setUserProfile] = useState<any>(null);
+
   const [isLoadingProfile, setIsLoadingProfile] = useState<boolean>(true);
   const [dressageLevels, setDressageLevels] = useState<any[]>([]);
 
@@ -127,66 +133,35 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
   // FIXED: Load user profile and set up form properly
   useEffect(() => {
     const fetchUserData = async () => {
-      if (!user) return;
+      if (!user?.id) return;
 
       try {
         setIsLoadingHorses(true);
         setIsLoadingProfile(true);
 
         // Fetch user profile with country and governing body
-        const { data: profileData, error: profileError } = await supabase
-          .from("profiles")
-          .select("discipline, region, governing_body")
-          .eq("id", user.id)
-          .single();
 
-        if (profileError && profileError.code !== "PGRST116") {
-          console.error("Error fetching profile:", profileError);
-        } else if (profileData) {
-          setUserProfile(profileData);
+        if (userProfile) {
+          // setUserProfile(profileData);
 
           // Set discipline in form
-          if (profileData.discipline) {
+          if (userProfile.discipline) {
             form.setValue(
               "discipline",
-              profileData.discipline as "dressage" | "jumping"
+              userProfile.discipline as "dressage" | "jumping"
             );
           }
 
           // FIXED: Load levels based on user's country, not governing body
-          if (profileData.region) {
-            const levels = getLevelsByCountry(profileData.region);
+          if (userProfile.region) {
+            const levels = getLevelsByCountry(userProfile.region);
             setDressageLevels(levels || []);
           } else {
             console.warn("No country found in user profile");
             setDressageLevels([]);
           }
         }
-
-        // Fetch horses
-        const { data: horsesData, error: horsesError } = await supabase
-          .from("horses")
-          .select("id, name, breed, age")
-          .eq("user_id", user.id)
-          .order("name");
-
-        if (horsesError) {
-          console.error("Error fetching horses:", horsesError);
-          toast({
-            title:
-              language === "en"
-                ? "Error loading horses"
-                : "Error al cargar caballos",
-            description:
-              language === "en"
-                ? "Could not load your horses. Please try again."
-                : "No se pudieron cargar tus caballos. Inténtalo de nuevo.",
-            variant: "destructive",
-          });
-          setHorses([]);
-        } else {
-          setHorses(horsesData || []);
-        }
+        setHorses(horsesData || []);
       } catch (error) {
         console.error("Error fetching user data:", error);
         setHorses([]);
@@ -198,7 +173,7 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
     };
 
     fetchUserData();
-  }, [user, language, toast, form]);
+  }, [user?.id]);
 
   // Reset form fields when discipline changes
   useEffect(() => {
@@ -207,7 +182,7 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
     } else {
       form.setValue("testLevel", undefined);
     }
-  }, [discipline, form]);
+  }, [discipline]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
