@@ -58,7 +58,7 @@ import { fetchPdfAsBase64 } from "@/utils/pdfUtils";
 import { convertImagesToPDF, imageToBase64PDF } from "@/utils/img2pdf";
 import * as jsPDF from "jspdf";
 import { useNavigate } from "react-router-dom";
-import { ActivityLogger } from '@/utils/activityTracker';
+import { ActivityLogger } from "@/utils/activityTracker";
 
 const DocumentUploadFormSchema = z.object({
   discipline: z.enum(["dressage", "jumping"]),
@@ -233,7 +233,8 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
           if (
             fileType === "image/jpeg" ||
             fileType === "image/png" ||
-            fileType === "image/webp"
+            fileType === "image/webp" ||
+            fileType === "image/jpg"
           ) {
             validFiles.push(file);
           } else {
@@ -664,8 +665,10 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
                     {language === "en" ? "Test Level" : "Nivel de Prueba"}
                     {userProfile?.region === "United Kingdom" && (
                       <div className="text-[10px] text-yellow-500 mt-[10px] -mb-1">
-                    {language === "en" ? "We've updated British dressage tests to reflect the new 2024 British Dressage system." : "Hemos actualizado las pruebas de doma británica para reflejar el nuevo sistema de doma británica de 2024."}
-                  </div>
+                        {language === "en"
+                          ? "We've updated British dressage tests to reflect the new 2024 British Dressage system."
+                          : "Hemos actualizado las pruebas de doma británica para reflejar el nuevo sistema de doma británica de 2024."}
+                      </div>
                     )}
                   </FormLabel>
                   <Select
@@ -942,13 +945,25 @@ const DocumentUpload = ({ fetchDocs }: DocumentUploadProps) => {
                   });
 
                   try {
-                    const userName = user?.user_metadata?.full_name || user?.email || 'Unknown User';
+                    const userName =
+                      user?.user_metadata?.full_name ||
+                      user?.email ||
+                      "Unknown User";
                     // Get the filename from the last upload
-                    const fileName = selectedFiles.length > 0 ? selectedFiles[0].name : 'Document';
+                    const fileName =
+                      selectedFiles.length > 0
+                        ? selectedFiles[0].name
+                        : "Document";
                     await ActivityLogger.documentAnalyzed(userName, fileName);
-                    console.log('✅ Document analysis activity logged for:', userName);
+                    console.log(
+                      "✅ Document analysis activity logged for:",
+                      userName
+                    );
                   } catch (activityError) {
-                    console.error('Failed to log document activity:', activityError);
+                    console.error(
+                      "Failed to log document activity:",
+                      activityError
+                    );
                   }
 
                   navigate(`/analysis?document_id=${newDocumentId}`);
