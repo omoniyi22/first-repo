@@ -946,7 +946,7 @@ Let me know what you think!`;
                     <br />
                   </div>
                   
-                  <div className="bg-white py-8 rounded-xl" style={{maxWidth: 400}}>
+                  <div className="bg-white py-8 rounded-xl mx-auto" style={{ maxWidth: '300px' }}>
                       {
                         diagrams[index] && (
                           <div className="flex flex-col justify-center align-center">
@@ -989,6 +989,13 @@ Let me know what you think!`;
             >
               Get Your Ride-Along Podcast
             </Button>
+          </div>
+          <div className="relative z-10 w-28 h-28 rounded-full bg-[#3f77eb]/20 backdrop-blur-sm flex items-center justify-center">
+            <img
+              src={"/lovable-uploads/report-cta.png"}
+              alt="Horse and rider jumping over competition obstacle"
+              className="w-full h-full object-cover object-center rounded-full"
+            />
           </div>
         </Card>
       </Card>

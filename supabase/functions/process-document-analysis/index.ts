@@ -359,7 +359,7 @@ serve(async (req)=>{
       And should choose professional riding words like "flying changes" instead of "changes of leg" and your personal insight content pattern should be written to the person like "You seem to be ... if you ..." with 3-5 sentences and must be richful and helpful for riders.
       In other words, riders can get the attractive recommendations, focus area and personal insight from your analysis - you should make them to love this tool.
       REMINDER:
-      * All instructions, prompts, and validation should enforce 100% English
+      * All Contents of Json like generalComments, strengths, weaknesses, instructions, prompts, and validation should enforce 100% English, If there's Spanish content, you must translate it to English
     `;
     const geminiResponse = await fetch(geminiUrl, {
       method: 'POST',
@@ -445,10 +445,12 @@ serve(async (req)=>{
       console.error("❌ Failed to parse localized JSON:", localizedText);
       throw new Error("Gemini returned invalid localized JSON format");
     }
-
     await supabase.from('analysis_results').insert({
       document_id: documentId,
-      result_json: { en: finalResult, es: localizedResult }
+      result_json: {
+        en: finalResult,
+        es: localizedResult
+      }
     });
     await supabase.from('document_analysis').update({
       status: 'completed',

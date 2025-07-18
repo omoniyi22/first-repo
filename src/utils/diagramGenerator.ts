@@ -407,11 +407,17 @@ export function generateWeaknessSvg(weakness: WeaknessSvg): string {
   } else {
     svg = generator(arena, weakness.positions, exercisePosition, weakness.speed);
   }
-
+  const defaultSvgHeight = arena.height + 200;
+  const calculatedHeight =
+    window.innerHeight && window.innerHeight < 1000
+      ? Math.max(window.innerHeight - 400, 400)
+      : defaultSvgHeight;
+  
+  const calculatedWidth = (arena.width + 200) * calculatedHeight / defaultSvgHeight;
   return `
-    <svg width="${arena.width + 200}" 
-         height="${arena.height + 200}" 
-         viewBox="0 0 ${arena.width + 200} ${arena.height + 200}" 
+    <svg width="${calculatedWidth}" 
+         height="${calculatedHeight}" 
+         viewBox="0 0 ${arena.width + 200} ${arena.height}" 
          xmlns="http://www.w3.org/2000/svg">
       <rect x="100" y="100" 
         width="${arena.width}" 
