@@ -79,7 +79,7 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
 
   // Reset dressage level when dressage type changes
   useEffect(() => {
-    if (editingHorse.dressage_type !== dressageType) setDressageLevel("");
+    if (editingHorse?.dressage_type !== dressageType) setDressageLevel("");
     else setDressageLevel(editingHorse.dressage_level);
   }, [dressageType]);
 
