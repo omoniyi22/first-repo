@@ -249,7 +249,7 @@ const DisciplineSpecificTabs = () => {
                     : "text-gray-700 hover:bg-gray-100"
                 }`}
               >
-                {language === "en" ? "AI Jump" : "Salto de IA"}
+                {language === "en" ? "AI Jumping" : "Salto electrónico"}
 
                 {activeTab === "jumping" && (
                   <span className="absolute bottom-0 left-0 w-full h-1 bg-blue-700 rounded-b-lg"></span>

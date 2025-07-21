@@ -754,7 +754,7 @@ const Analysis = () => {
             <TabsContent value="upload">
               {userDiscipline === "dressage" ? (
                 <DocumentUpload
-                  horsesData={horses}
+                  horses={horses}
                   userProfile={userProfile}
                   fetchDocs={fetchDocs}
                 />

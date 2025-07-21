@@ -94,10 +94,11 @@ const FeaturedPost = ({ post }: FeaturedPostProps) => {
                 <div
                   className={`mr-3 ${colorSet.accent} ${colorSet.text} rounded-full h-10 w-10 flex items-center justify-center`}
                 >
-                  {post.author
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")}
+                  <img
+                    src="/lovable-uploads/ddb7f47e-072a-4346-9fd3-a8a055f13bba.png"
+                    alt=""
+                    className="w-full h-full"
+                  />
                 </div>
                 <div>
                   <span className="text-sm font-medium block">

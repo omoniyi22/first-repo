@@ -93,10 +93,11 @@ const BlogPostCard = ({ post, hideAuthor = false }: BlogPostCardProps) => {
                     : "bg-purple-200 text-purple-800"
                 } rounded-full h-8 w-8 flex items-center justify-center text-sm`}
               >
-                {post.author
-                  .split(" ")
-                  .map((n) => n[0])
-                  .join("")}
+                <img
+                  src="/lovable-uploads/ddb7f47e-072a-4346-9fd3-a8a055f13bba.png"
+                  alt=""
+                  className="w-full h-full"
+                />
               </div>
               <div>
                 <span className="text-xs font-medium">{post.author}</span>

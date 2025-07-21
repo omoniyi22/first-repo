@@ -87,14 +87,14 @@ const jumpingCompetitionTypes = [
 
 interface DocumentUploadProps {
   fetchDocs?: () => void;
-  horsesData: any;
+  horses: any;
   userProfile: any;
 }
 
 const DocumentUpload = ({
   fetchDocs,
   userProfile,
-  horsesData,
+  horses,
 }: DocumentUploadProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -108,7 +108,6 @@ const DocumentUpload = ({
   const [isUploading, setIsUploading] = useState<boolean>(false);
 
   // Data states
-  const [horses, setHorses] = useState<any[]>([]);
   const [isLoadingHorses, setIsLoadingHorses] = useState<boolean>(true);
 
   const [isLoadingProfile, setIsLoadingProfile] = useState<boolean>(true);
@@ -161,10 +160,10 @@ const DocumentUpload = ({
             setDressageLevels([]);
           }
         }
-        setHorses(horsesData || []);
+        // setHorses(horses || []);
       } catch (error) {
         console.error("Error fetching user data:", error);
-        setHorses([]);
+        // setHorses([]);
         setDressageLevels([]);
       } finally {
         setIsLoadingHorses(false);

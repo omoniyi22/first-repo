@@ -49,7 +49,7 @@ const Privacy = () => {
           if (!isOpen) handleClose();
         }}
       >
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto bg-white">
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto bg-white scrollbar-hide">
           <DialogHeader>
             <DialogTitle className="text-2xl font-serif text-purple-800">
               {language === "en" ? "Privacy Policy" : "política de privacidad"}
