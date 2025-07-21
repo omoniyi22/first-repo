@@ -99,6 +99,7 @@ const Horses = () => {
 
   const handleDeleteHorse = async () => {
     if (!deleteHorseId) return;
+    console.log("🚀 ~ handleDeleteHorse ~ deleteHorseId:", deleteHorseId);
 
     try {
       setIsDeleting(true);
@@ -216,9 +217,13 @@ const Horses = () => {
                           {horse.breed} • {horse.age} yrs
                         </p>
                         <p className="text-sm text-gray-600 mt-1">
-                          {horse.competition_level || language === "en"
+                          {horse.dressage_level ||
+                            (language === "en"
+                              ? "No level specified"
+                              : "No se especifica ningún nivel")}
+                          {/* {horse.dressage_level || language === "en"
                             ? "No level specified"
-                            : "No se especifica ningún nivel"}
+                            : "No se especifica ningún nivel"} */}
                         </p>
                       </div>
                       <ChevronRight className="text-gray-400" size={18} />

@@ -44,6 +44,7 @@ interface HorseFormProps {
 }
 
 const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
+  console.log("🚀 ~ HorseForm ~ editingHorse:", editingHorse);
   const { user } = useAuth();
   const [horseName, setHorseName] = useState(editingHorse?.name || "");
   const [breed, setBreed] = useState(editingHorse?.breed || "");
@@ -59,6 +60,7 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
   const [dressageLevel, setDressageLevel] = useState(
     editingHorse?.dressage_level || ""
   );
+  console.log("🚀 ~ HorseForm ~ dressageLevel:", dressageLevel);
   const [yearsOwned, setYearsOwned] = useState(
     editingHorse?.years_owned?.toString() || ""
   );
@@ -77,7 +79,8 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
 
   // Reset dressage level when dressage type changes
   useEffect(() => {
-    setDressageLevel("");
+    if (editingHorse.dressage_type !== dressageType) setDressageLevel("");
+    else setDressageLevel(editingHorse.dressage_level);
   }, [dressageType]);
 
   // Get the appropriate dressage levels based on the selected type
