@@ -123,7 +123,7 @@ const EventForm = ({ onComplete, event }: EventFormProps) => {
   return (
     <>
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="space-y-2">
+        <div className="m-2">
           <Label htmlFor="event-title">
             {language === 'en' ? 'Event Title' : 'Título del Evento'} *
           </Label>
@@ -136,7 +136,7 @@ const EventForm = ({ onComplete, event }: EventFormProps) => {
           />
         </div>
         
-        <div className="space-y-2">
+        <div className="m-2">
           <Label htmlFor="event-type">
             {language === 'en' ? 'Event Type' : 'Tipo de Evento'} *
           </Label>
@@ -153,7 +153,7 @@ const EventForm = ({ onComplete, event }: EventFormProps) => {
           </Select>
         </div>
         
-        <div className="space-y-2">
+        <div className="m-2">
           <Label htmlFor="event-date">
             {language === 'en' ? 'Date' : 'Fecha'} *
           </Label>
@@ -183,7 +183,7 @@ const EventForm = ({ onComplete, event }: EventFormProps) => {
           </Popover>
         </div>
         
-        <div className="space-y-2">
+        <div className="m-2">
           <Label htmlFor="discipline">
             {language === 'en' ? 'Discipline' : 'Disciplina'} *
           </Label>
@@ -199,7 +199,7 @@ const EventForm = ({ onComplete, event }: EventFormProps) => {
           </Select>
         </div>
         
-        <div className="space-y-2">
+        <div className="m-2">
           <Label htmlFor="event-location">
             {language === 'en' ? 'Location' : 'Ubicación'}
           </Label>
@@ -211,7 +211,7 @@ const EventForm = ({ onComplete, event }: EventFormProps) => {
           />
         </div>
         
-        <div className="space-y-2">
+        <div className="m-2">
           <Label htmlFor="event-description">
             {language === 'en' ? 'Description' : 'Descripción'}
           </Label>
@@ -224,7 +224,7 @@ const EventForm = ({ onComplete, event }: EventFormProps) => {
           />
         </div>
 
-        <div className="space-y-2">
+        <div className="m-2">
           <Label htmlFor="event-image">
             {language === 'en' ? 'Event Image' : 'Imagen del Evento'}
           </Label>
