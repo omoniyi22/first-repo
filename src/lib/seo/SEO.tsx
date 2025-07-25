@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { SEOProps } from './types';
+import { SEOProps } from './types.ts';
 import { BASE_URL, DEFAULT_TITLE, DEFAULT_DESCRIPTION, DEFAULT_OG_IMAGE } from './constants';
 import { createOrganizationSchema, createProductSchema } from './schemaMarkup';
 
