@@ -113,6 +113,7 @@ function App() {
                     path="/equestrian/about"
                     element={<EquestrianAbout />}
                   />
+
                   {/* <Route path="/dressage/about" element={<DressageAbout />} /> */}
                   {/* <Route path="/jumping/about" element={<JumpingAbout />} /> */}
 
