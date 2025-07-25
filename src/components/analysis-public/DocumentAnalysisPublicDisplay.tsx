@@ -25,7 +25,7 @@ import {
   fill_Template_Make_Prompts,
   formatScriptWithStyles,
 } from "@/utils/podcastUtils";
-import { COLOR_LEGEND, generateWeaknessSvg } from "@/utils/diagramGenerator";
+import { COLOR_LEGEND, diagramExtractor, IExercise } from "@/utils/diagramGenerator";
 
 // Define proper types for the analysis data
 interface MovementScore {
@@ -609,10 +609,32 @@ Let me know what you think!`;
         </Card>
       )}
       <Card className="p-4 sm:p-6">
-        <div className="flex items-center justify-between mb-3 sm:mb-4">
+        <div className="flex flex-col lg:flex-row gap-4 items-center justify-between mb-3 sm:mb-4">
           <h4 className="text-lg sm:text-xl font-semibold">
             {language === "en" ? "Recommendations" : "Recomendaciones"}
           </h4>
+          <div className="mb-6 bg-white p-4 rounded shadow border">
+            <h4 className="font-semibold text-gray-800 text-center mb-6">
+              Key/Legend
+            </h4>
+            <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 gap-2 text-sm">
+              {Object.entries(COLOR_LEGEND).map(([label, color]) => (
+                <div
+                  key={label}
+                  className="flex md:justify-center items-center space-x-2"
+                >
+                  <span
+                    className="inline-block w-4 h-4 rounded-sm"
+                    style={{
+                      backgroundImage: `linear-gradient(to right, ${color.from}, ${color.to})`,
+                    }}
+                  />
+
+                  <span className="text-gray-700">{label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
         <ul className="space-y-2 sm:space-y-5">
           {resultData[language]?.recommendations?.map(
@@ -626,45 +648,51 @@ Let me know what you think!`;
                   alt="Horse and rider jumping over competition obstacle"
                   className="w-8 h-8 object-cover object-center"
                 />
-                <div className="">
-                  <b>{recommendation["exercise"]} </b> -{" "}
-                  {recommendation["goal"]}
-                  <br />
-                  <b>
-                    {language === "en" ? "To improve:" : "Para mejorar:"}
-                  </b>{" "}
-                  {recommendation["setup"]}
-                  <br />
-                  <b>{language === "en" ? "Method:" : ":"}</b>
-                  <br />
-                  <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
-                    {recommendation["method"].map((method, key) => (
-                      <li key={key}>{method}</li>
-                    ))}
-                  </ul>
-                  <b>{language === "en" ? "Key Points:" : ":"}</b>
-                  <br />
-                  {recommendation["keyPoints"] &&
-                  typeof recommendation["keyPoints"] == "string" ? (
+                <div className="flex flex-col lg:flex-row gap-8">
+                  <div>
+                    <b>{recommendation["exercise"]} </b> -{" "}
+                    {recommendation["goal"]}
+                    <br />
+                    <b>
+                      {language === "en" ? "To improve:" : "Para mejorar:"}
+                    </b>{" "}
+                    {recommendation["setup"]}
+                    <br />
+                    <b>{language === "en" ? "Method:" : ":"}</b>
+                    <br />
                     <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
-                      <li>{recommendation["keyPoints"]}</li>
-                    </ul>
-                  ) : (
-                    <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
-                      {recommendation["keyPoints"].map((point, key) => (
-                        <li key={key}>{point}</li>
+                      {recommendation["method"].map((method, key) => (
+                        <li key={key}>{method}</li>
                       ))}
                     </ul>
-                  )}
-                  <b>{language === "en" ? "Watch For:" : ":"}</b>{" "}
-                  <span>{recommendation["watchFor"]}</span>
-                  <br />
-                  <b>{language === "en" ? "Goal:" : ":"}</b>{" "}
-                  <span>{recommendation["goal"]}</span>
-                  <br />
-                  <b>{language === "en" ? "Quick Fix:" : ":"}</b>{" "}
-                  <span>{recommendation["quickFix"]}</span>
-                  <br />
+                    <b>{language === "en" ? "Key Points:" : ":"}</b>
+                    <br />
+                    {recommendation["keyPoints"] &&
+                    typeof recommendation["keyPoints"] == "string" ? (
+                      <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
+                        <li>{recommendation["keyPoints"]}</li>
+                      </ul>
+                    ) : (
+                      <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
+                        {recommendation["keyPoints"].map((point, key) => (
+                          <li key={key}>{point}</li>
+                        ))}
+                      </ul>
+                    )}
+                    <b>{language === "en" ? "Watch For:" : ":"}</b>{" "}
+                    <span>{recommendation["watchFor"]}</span>
+                    <br />
+                    <b>{language === "en" ? "Goal:" : ":"}</b>{" "}
+                    <span>{recommendation["goal"]}</span>
+                    <br />
+                    <b>{language === "en" ? "Quick Fix:" : ":"}</b>{" "}
+                    <span>{recommendation["quickFix"]}</span>
+                    <br />
+                  </div>
+                  
+                  <div className="bg-white py-8 rounded-xl mx-auto" style={{ maxWidth: '300px' }}>
+                      {diagramExtractor(recommendation as unknown as IExercise)}
+                  </div>
                 </div>
               </li>
             )
@@ -704,46 +732,7 @@ Let me know what you think!`;
               ))}
             </div>
           </div>
-          <div className="grid md:grid-cols-2 gap-6">
-            {diagrams?.map((weakness, index) => (
-              <Card
-                key={index}
-                className="bg-white rounded-lg shadow-md overflow-hidden"
-              >
-                <div className="p-4 bg-blue-50 border-b">
-                  <h3 className="font-semibold text-blue-800">
-                    {weakness.title}
-                  </h3>
-                  <p className="text-sm text-red-600">
-                    Weakness: {weakness.weakness}
-                  </p>
-                </div>
-
-                <div className="p-4 flex justify-center">
-                  <div
-                    className="svg-container"
-                    dangerouslySetInnerHTML={{
-                      __html: generateWeaknessSvg(weakness),
-                    }}
-                  />
-                </div>
-
-                <div className="p-4 bg-gray-50 border-t h-full">
-                  <p className="text-sm font-medium text-gray-700">
-                    Instructions:{" "}
-                    <span className="text-sm text-gray-400">{`(${weakness.type})`}</span>
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    {weakness.instruction}
-                  </p>
-                  <p className="text-xs mt-2 text-gray-500">
-                    Positions: {weakness.positions.join(", ")} | Arena:{" "}
-                    {weakness.size}
-                  </p>
-                </div>
-              </Card>
-            ))}
-          </div>
+          
           <Card className="w-full bg-gradient-to-r from-[#7658EB] to-[#3C78EB] text-white p-6 mt-6 flex items-center justify-between rounded-lg shadow-lg flex-col-reverse sm:flex-row gap-5 sm:gap-0">
             <div className="">
               <h2 className="text-xl font-medium">
