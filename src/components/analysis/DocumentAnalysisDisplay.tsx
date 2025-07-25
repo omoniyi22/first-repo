@@ -26,7 +26,7 @@ import {
   fill_Template_Make_Prompts,
   formatScriptWithStyles,
 } from "@/utils/podcastUtils";
-import { COLOR_LEGEND, generateWeaknessSvg } from "@/utils/diagramGenerator";
+import { COLOR_LEGEND, diagramExtractor, IExercise } from "@/utils/diagramGenerator";
 
 // Define proper types for the analysis data
 interface MovementScore {
@@ -184,15 +184,6 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
 
     fetchAnalysis();
   }, [documentId, user, language]);
-
-  const diagrams = useMemo(() => {
-    if (!!resultData) {
-      console.log("AnalysisData", resultData);
-      return resultData[language]["weaknesses-svg"];
-    } else {
-      return [];
-    }
-  }, [resultData]);
 
   useEffect(() => {
     const fetchHorse = async () => {
@@ -947,27 +938,7 @@ Let me know what you think!`;
                   </div>
                   
                   <div className="bg-white py-8 rounded-xl mx-auto" style={{ maxWidth: '300px' }}>
-                      {
-                        diagrams[index] && (
-                          <div className="flex flex-col justify-center align-center">
-                            <p className="text-xs mt-2 text-gray-800 -mb-16 px-8">
-                              Title: <b>{diagrams[index].title}</b>
-                              <br/><br/>
-                              {diagrams[index].instruction}
-                            </p>
-                            <div
-                              className="svg-container mx-auto"
-                              dangerouslySetInnerHTML={{
-                                __html: generateWeaknessSvg(diagrams[index]),
-                              }}
-                            />
-                            <p className="text-xs mt-2 text-gray-500 text-center -mt-16">
-                              Positions: {diagrams[index].positions.join(", ")} | Arena:{" "}
-                              {diagrams[index].size}
-                            </p>
-                          </div>
-                        )
-                      }
+                      {diagramExtractor(recommendation as unknown as IExercise)}
                   </div>
                 </div>
               </li>
