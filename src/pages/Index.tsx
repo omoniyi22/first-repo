@@ -201,7 +201,7 @@ const Index = () => {
                       ? "Upload your dressage score sheets, get AI-powered analysis, and receive personalized training recommendations."
                       : "Sube tus hojas de puntuación de doma, obtén análisis impulsados por IA y recibe recomendaciones de entrenamiento personalizadas."}
                   </p>
-                  <Link to="/dressage" className="block">
+                  <Link to="/dressage/how-it-works" className="block">
                     <Button className="navy-button w-full group flex items-center justify-center gap-2 text-base">
                       {language === "en"
                         ? "Explore Dressage"
@@ -223,7 +223,7 @@ const Index = () => {
                       ? "Analyze your jumping performance, get insights on technique, and improve your show jumping results."
                       : "Analice su rendimiento de salto, obtenga información sobre la técnica y mejore sus resultados en salto."}
                   </p>
-                  <Link to="/jumping" className="block">
+                  <Link to="/jumping/how-it-works" className="block">
                     <Button className="navy-button w-full group flex items-center justify-center gap-2 text-base">
                       {language === "en"
                         ? "Explore Jumping"

@@ -64,10 +64,10 @@ const HowItWorks = () => {
       {/* Hero Section */}
       <div className="">
         <div className="container mx-auto px-6">
-          <div className="grid md:grid-cols-2 gap-8 items-center">
+          <div className="grid md:grid-cols-2 gap-8 items-center min-h-screen">
             {/* Left Column - Text Content */}
-            <div className="order-2 md:order-1 lg:w-4/5 lg:mx-auto">
-              <h1 className="text-4xl md:text-5xl font-serif font-semibold text-navy-900 mb-6">
+            <div className="order-2 md:order-1 lg:w-4/5 lg:mx-auto ">
+              <h1 className="text-4xl md:text-5xl font-serif font-semibold text-purple-900 mb-6 md:mt-20 lg:mt-0">
                 {language === "en"
                   ? "How AI Equestrian Works"
                   : "Cómo funciona la IA ecuestre"}
@@ -93,10 +93,10 @@ const HowItWorks = () => {
             </div>
 
             {/* Right Column - Image with AI Analysis */}
-            <div className="order-1 md:order-2 relative -mt-11 -mr-11">
+            <div className="order-1 md:order-2 relative -mt-11 -mr-11 h-full">
               <div className="rounded-es-[15%] overflow-hidden ">
                 <img
-                  src="/lovable-uploads/how-it-works-image.png"
+                  src="/lovable-uploads/how-it-works-image.jpg"
                   alt="AI analysis of jumping technique with feedback overlays"
                   className="w-auto min-h-[85vh] max-h-[85vh] object-cover"
                 />
@@ -134,11 +134,11 @@ const HowItWorks = () => {
       <main>
         <AnimatedSection animation="fade-in" className="py-16 bg-white">
           <div className="container mx-auto px-6">
-            <h2 className="text-3xl md:text-4xl font-serif font-medium text-center mb-12 text-purple-900">
+            {/* <h2 className="text-3xl md:text-4xl font-serif font-medium text-center mb-12 text-purple-900">
               {language === "en"
                 ? "How AI Equestrian Works"
                 : "Cómo funciona la IA ecuestre"}
-            </h2>
+            </h2> */}
             <p className="text-center text-gray-700 max-w-3xl mx-auto mb-16">
               {language === "en"
                 ? "Choose your equestrian discipline to learn how our AI-powered training solutions can help you improve your performance."

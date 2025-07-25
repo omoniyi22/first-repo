@@ -18,6 +18,7 @@ import { getImagePath, handleImageError } from "@/utils/imageUtils";
 const BlogPostPage = () => {
   const { slug } = useParams<{ slug: string }>();
   const [post, setPost] = useState<BlogPost | null>(null);
+  console.log("🚀 ~ BlogPostPage ~ post:", post);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [relatedPosts, setRelatedPosts] = useState<BlogPost[]>([]);
@@ -215,7 +216,7 @@ const BlogPostPage = () => {
             </div>
 
             {/* Featured image */}
-            <div className="w-full aspect-[16/9] overflow-hidden rounded-lg shadow-md">
+            <div className="w-full aspect-[16/9] overflow-hidden rounded-lg shadow-md mb-[10vh]">
               <img
                 src={getImagePath(post.image)}
                 alt={getLocalizedContent("title", post.title)}
@@ -250,7 +251,11 @@ const BlogPostPage = () => {
             <div className="max-w-4xl mx-auto mb-16 bg-gray-50 rounded-lg p-6 flex items-center">
               <div className="mr-4">
                 <img
-                  src={getImagePath(post.authorImage || "/placeholder.svg")}
+                  src={getImagePath(
+                    (!post.authorImage.includes("placeholder.svg") &&
+                      post.authorImage) ||
+                      "/lovable-uploads/ddb7f47e-072a-4346-9fd3-a8a055f13bba.png"
+                  )}
                   alt={post.author}
                   className="w-16 h-16 rounded-full object-cover"
                   onError={(e) => handleImageError(e)}

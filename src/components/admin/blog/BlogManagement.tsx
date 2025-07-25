@@ -234,7 +234,7 @@ const BlogManagement = () => {
           excerpt: post.excerpt,
           content: content,
           author: post.author,
-          authorImage: post.authorImage || "/placeholder.svg",
+          authorImage: post.authorImage || "/lovable-uploads/ddb7f47e-072a-4346-9fd3-a8a055f13bba.png",
           date: formattedDate,
           discipline: post.discipline,
           category: post.category,

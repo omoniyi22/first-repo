@@ -56,7 +56,7 @@ export const createBlogPost = async (post: Partial<BlogPost>) => {
         discipline: post.discipline || 'Dressage',
         date: post.date || new Date().toISOString().split('T')[0],
         reading_time: post.readingTime || '5 min read',
-        author_image: post.authorImage || '/placeholder.svg'
+        author_image: post.authorImage || '/lovable-uploads/ddb7f47e-072a-4346-9fd3-a8a055f13bba.png'
       }])
       .select()
       .single();
