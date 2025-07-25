@@ -1,6 +1,6 @@
 
-import { SEOProps } from './types';
-import { DEFAULT_TITLE, DEFAULT_DESCRIPTION, DEFAULT_OG_IMAGE } from './constants';
+import { SEOProps } from './types.ts';
+import { DEFAULT_TITLE, DEFAULT_DESCRIPTION, DEFAULT_OG_IMAGE } from './constants.ts';
 
 /**
  * Utility for generating page-specific metadata based on the page type

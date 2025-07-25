@@ -1,5 +1,5 @@
 
-import { BASE_URL } from './constants';
+import { BASE_URL } from './constants.ts';
 
 /**
  * Creates JSON-LD schema markup for the organization
