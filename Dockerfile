@@ -2,22 +2,22 @@
 FROM node:18
 
 # Set working directory
-WORKDIR /src
+WORKDIR /app
 
-# Copy project files
+# Copy everything into the container
 COPY . .
 
 # Install dependencies
 RUN npm install
 
-# Build the app
+# Build the React app
 RUN npm run build
 
-# Install serve
+# Install serve to serve the static files
 RUN npm install -g serve
 
-# Start the app
-CMD ["serve", "-s", "build"]
-
-# Expose default port (3000 or 8080)
+# Expose the port Dokploy will access
 EXPOSE 3000
+
+# Command to run the app
+CMD ["serve", "-s", "build"]
