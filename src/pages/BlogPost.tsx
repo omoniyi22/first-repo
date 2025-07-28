@@ -230,6 +230,7 @@ const BlogPostPage = () => {
               <div className="prose prose-lg max-w-none">
                 {post.content ? (
                   <div
+                    className="flex flex-col gap-3"
                     dangerouslySetInnerHTML={{
                       __html:
                         typeof marked === "function"
