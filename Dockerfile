@@ -1,20 +1,20 @@
-# Step 1: Build the Vite app using pnpm
+# Step 1: Build the Vite app using npm
 FROM node:18 AS builder
-
-# Enable and install pnpm via Corepack
-RUN corepack enable && corepack prepare pnpm@latest --activate
 
 # Set the working directory inside the container
 WORKDIR /app
 
-# Copy all project files
+# Copy package.json and package-lock.json first (for better Docker caching)
+COPY package*.json ./
+
+# Install dependencies using npm
+RUN npm install
+
+# Copy the rest of the project files
 COPY . .
 
-# Install dependencies using pnpm
-RUN pnpm install
-
 # Build the Vite app (uses your existing "build" script)
-RUN pnpm run build
+RUN npm run build
 
 # Step 2: Serve the built app using NGINX
 FROM nginx:stable-alpine
