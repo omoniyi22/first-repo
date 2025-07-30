@@ -57,6 +57,7 @@ const PricingTiers = () => {
     isLoading: subscriptionLoading,
     checkoutPlan,
     openCustomerPortal,
+    planName,
   } = useSubscription();
   const { toast } = useToast();
   const t = translations[language];
@@ -109,6 +110,7 @@ const PricingTiers = () => {
     // Check URL parameters for Stripe return status
     const searchParams = new URLSearchParams(window.location.search);
     if (searchParams.get("success") === "true") {
+      alert("Subscription Successful!");
       toast({
         title:
           language === "en"
@@ -122,7 +124,7 @@ const PricingTiers = () => {
       });
 
       // Clean up the URL
-      window.history.replaceState({}, document.title, window.location.pathname);
+      // window.history.replaceState({}, document.title, window.location.pathname);
     } else if (searchParams.get("canceled") === "true") {
       toast({
         title:
@@ -135,7 +137,7 @@ const PricingTiers = () => {
       });
 
       // Clean up the URL
-      window.history.replaceState({}, document.title, window.location.pathname);
+      // window.history.replaceState({}, document.title, window.location.pathname);
     }
   }, []);
 

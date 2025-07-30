@@ -58,6 +58,7 @@ import { HelmetProvider } from "react-helmet-async";
 import AiCourseBuilder from "./pages/AiCourseBuilder";
 import ScrollToTop from "./components/layout/ScrollToTop";
 import PublicAnalysis from "./pages/PublicAnalysis";
+import AdminPricingPlans from "./pages/AdminPricingPlans";
 
 function App() {
   const location = useLocation();
@@ -147,6 +148,7 @@ function App() {
                     <Route path="dashboard" element={<AdminDashboard />} />
                     <Route path="blog" element={<AdminBlog />} />
                     <Route path="users" element={<AdminUsers />} />
+                    <Route path="pricing-plans" element={<AdminPricingPlans />} />
                     <Route path="content" element={<AdminContent />} />
                     <Route path="media" element={<AdminMedia />} />
                     <Route path="settings" element={<AdminSettings />} />
