@@ -87,7 +87,6 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({
 
       if (error) throw error;
       if (!data?.url) throw new Error("No checkout URL returned");
-      console.log("🚀 ~ checkoutPlan ~ data:", data);
 
       return data.url;
     } catch (error) {

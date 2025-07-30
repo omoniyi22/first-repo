@@ -71,7 +71,7 @@ const PricingTiers = () => {
         const { data: plansData, error: plansError } = await supabase
           .from("pricing_plans")
           .select("*")
-          .order("created_at");
+          .order("created_at", { ascending: true });
 
         if (plansError) {
           console.error("Error fetching pricing plans:", plansError);
