@@ -22,6 +22,7 @@ import {
   formatScriptWithStyles,
 } from "@/utils/podcastUtils";
 import { useToast } from "@/hooks/use-toast";
+import ScrollToTop from "@/components/layout/ScrollToTop";
 
 interface DocumentAnalysisItem {
   id: string;
@@ -186,7 +187,12 @@ const Analysis = () => {
       videos.length > 0 && setSelectedVideoId(document_id);
       setActiveTab("analysis-list");
     }
+    window.scrollTo(0, 0);
   }, [videos, documents, document_id, view]);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [selectedDocumentId, selectedVideoId]);
 
   const fetchDocs = async () => {
     const { data: analysisData, error } = await supabase
@@ -657,6 +663,7 @@ const Analysis = () => {
   if (!isLoading && !userDiscipline) {
     return (
       <div className="min-h-screen flex flex-col">
+        <ScrollToTop />
         <Navbar />
         <main className="flex-grow container mx-auto px-4 pt-24 pb-16">
           <div className="max-w-6xl mx-auto">
@@ -953,6 +960,7 @@ const Analysis = () => {
                                       size="sm"
                                       variant="outline"
                                       onClick={() => {
+                                        // window.scrollTo(0, 0);
                                         doc.status == "completed"
                                           ? setSelectedDocumentId(doc.id)
                                           : analysisDocument(
@@ -1151,7 +1159,10 @@ const Analysis = () => {
                                   <Button
                                     size="sm"
                                     variant="outline"
-                                    onClick={() => setSelectedVideoId(video.id)}
+                                    onClick={() => {
+                                      // window.scrollTo(0, 0);
+                                      setSelectedVideoId(video.id);
+                                    }}
                                     disabled={video.status !== "completed"}
                                     className="text-blue-700 border-blue-200"
                                   >
