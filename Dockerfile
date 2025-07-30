@@ -1,5 +1,5 @@
 # Step 1: Build the Vite app using npm
-FROM node:22 AS builder
+FROM node:18 AS builder
 
 # Set the working directory inside the container
 WORKDIR /app
@@ -19,8 +19,11 @@ RUN npm run build
 # Step 2: Serve the built app using NGINX
 FROM nginx:stable-alpine
 
-# Remove default nginx content
-RUN rm -rf /usr/share/nginx/html/*
+# Remove default nginx config
+RUN rm /etc/nginx/conf.d/default.conf
+
+# Copy our custom nginx config
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copy Vite build output to NGINX's public folder
 COPY --from=builder /app/dist /usr/share/nginx/html
