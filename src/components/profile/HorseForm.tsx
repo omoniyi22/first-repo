@@ -22,6 +22,8 @@ import { Loader2 } from "lucide-react";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import MediaSelector from "@/components/admin/media/MediaSelector";
 import { useLanguage } from "@/contexts/LanguageContext";
+// 🎯 ADD HORSE LIMITS HOOK IMPORT
+import { useHorseLimits } from "@/hooks/useHorseLimits";
 
 interface HorseFormProps {
   onComplete: () => void;
@@ -77,6 +79,9 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
   const isEditing = !!editingHorse;
   const { language } = useLanguage();
 
+  // 🎯 ADD HORSE LIMITS HOOK
+  const horseLimits = useHorseLimits();
+
   // Reset dressage level when dressage type changes
   useEffect(() => {
     if (editingHorse?.dressage_type !== dressageType) setDressageLevel("");
@@ -103,6 +108,15 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
         variant: "destructive",
       });
       return;
+    }
+
+    // 🎯 CHECK HORSE LIMITS BEFORE SUBMITTING (only for new horses, not edits)
+    if (!isEditing) {
+      const canAdd = await horseLimits.checkAndEnforce();
+      if (!canAdd) {
+        // Limits check failed, user was already notified via toast
+        return;
+      }
     }
 
     try {
@@ -137,8 +151,11 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
         if (error) throw error;
 
         toast({
-          title: "Horse updated",
-          description: "Your horse's profile has been updated successfully.",
+          title: language === "es" ? "Caballo actualizado" : "Horse updated",
+          description:
+            language === "es"
+              ? "El perfil de tu caballo ha sido actualizado exitosamente."
+              : "Your horse's profile has been updated successfully.",
         });
       } else {
         // Create new horse
@@ -147,18 +164,25 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
         if (error) throw error;
 
         toast({
-          title: "Horse added",
-          description: "Your new horse has been added successfully.",
+          title: language === "es" ? "Caballo agregado" : "Horse added",
+          description:
+            language === "es"
+              ? "Tu nuevo caballo ha sido agregado exitosamente."
+              : "Your new horse has been added successfully.",
         });
       }
 
+      // 🎯 SUCCESS: Call onComplete which will refresh limits and close form
       onComplete();
     } catch (error: any) {
       console.error("Error saving horse data:", error);
       toast({
-        title: "Save failed",
+        title: language === "es" ? "Error al guardar" : "Save failed",
         description:
-          error.message || "Failed to save horse data. Please try again.",
+          error.message ||
+          (language === "es"
+            ? "Error al guardar los datos del caballo. Por favor, intenta de nuevo."
+            : "Failed to save horse data. Please try again."),
         variant: "destructive",
       });
     } finally {
@@ -172,8 +196,78 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
     // Don't auto-save here, let the user submit the form when they're ready
   };
 
+  // 🎯 SHOW LOADING STATE WHILE CHECKING LIMITS
+  if (!isEditing && horseLimits.loading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <Loader2 className="h-6 w-6 animate-spin text-purple-600 mr-2" />
+        <span className="text-gray-600">
+          {language === "es" ? "Verificando límites..." : "Checking limits..."}
+        </span>
+      </div>
+    );
+  }
+
+  // 🎯 SHOW UPGRADE PROMPT IF USER CAN'T ADD HORSES (only for new horses)
+  if (!isEditing && !horseLimits.loading && !horseLimits.canAddHorse) {
+    return (
+      <div className="text-center py-8">
+        <div className="bg-orange-50 border border-orange-200 rounded-lg p-6">
+          <h3 className="text-lg font-medium text-orange-800 mb-2">
+            {language === "es"
+              ? "Límite de Caballos Alcanzado"
+              : "Horse Limit Reached"}
+          </h3>
+          <p className="text-orange-700 mb-4">
+            {language === "es"
+              ? `Has alcanzado tu límite de caballos (${horseLimits.currentHorses}/${horseLimits.maxHorses}) con el plan ${horseLimits.planName}. Actualiza tu plan para agregar más caballos.`
+              : `You've reached your horse limit (${horseLimits.currentHorses}/${horseLimits.maxHorses}) with the ${horseLimits.planName} plan. Upgrade your plan to add more horses.`}
+          </p>
+          <div className="flex justify-center gap-3">
+            <Button
+              onClick={() => (window.location.href = "/pricing")}
+              className="bg-orange-600 hover:bg-orange-700 text-white"
+            >
+              {language === "es" ? "Ver Planes" : "View Plans"}
+            </Button>
+            <Button variant="outline" onClick={onComplete}>
+              {language === "es" ? "Cerrar" : "Close"}
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {/* 🎯 ADD LIMITS INFO FOR NEW HORSES */}
+      {!isEditing && !horseLimits.loading && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+          <p className="text-sm text-blue-700">
+            {language === "es"
+              ? `Caballos: ${horseLimits.currentHorses}/${
+                  horseLimits.maxHorses === "unlimited"
+                    ? "∞"
+                    : horseLimits.maxHorses
+                } (Plan ${horseLimits.planName})`
+              : `Horses: ${horseLimits.currentHorses}/${
+                  horseLimits.maxHorses === "unlimited"
+                    ? "∞"
+                    : horseLimits.maxHorses
+                } (${horseLimits.planName} Plan)`}
+            {horseLimits.remainingSlots !== "unlimited" &&
+              +horseLimits.remainingSlots > 0 && (
+                <span className="ml-2 text-green-600">
+                  {language === "es"
+                    ? `${horseLimits.remainingSlots} espacios restantes`
+                    : `${horseLimits.remainingSlots} slots remaining`}
+                </span>
+              )}
+          </p>
+        </div>
+      )}
+
       <div className="space-y-2">
         <Label htmlFor="horse-name">
           {language === "es" ? "Nombre del caballo*" : "Horse Name*"}

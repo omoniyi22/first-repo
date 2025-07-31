@@ -2,8 +2,9 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -12,7 +13,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, ChevronRight, Edit, Trash2, Loader2 } from "lucide-react";
+import { Plus, ChevronRight, Edit, Trash2, Loader2, House, AlertTriangle, ArrowRight } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,6 +26,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import HorseForm from "./HorseForm";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useHorseLimits } from "@/hooks/useHorseLimits";
 
 interface Horse {
   id: string;
@@ -55,6 +57,11 @@ const Horses = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const { language } = useLanguage();
+  
+  // 🎯 ADD HORSE LIMITS HOOK
+  const horseLimits = useHorseLimits();
+  // console.log("🚀 ~ Horses ~ horseLimits:", horseLimits)
+
   useEffect(() => {
     if (user) {
       fetchHorses();
@@ -88,6 +95,14 @@ const Horses = () => {
     }
   };
 
+  // 🎯 UPDATED: Check limits before showing add form
+  const handleAddHorse = async () => {
+    const canAdd = await horseLimits.checkAndEnforce();
+    if (canAdd) {
+      setShowAddHorseForm(true);
+    }
+  };
+
   const handleEditHorse = (horse: Horse) => {
     setEditingHorse(horse);
   };
@@ -99,7 +114,6 @@ const Horses = () => {
 
   const handleDeleteHorse = async () => {
     if (!deleteHorseId) return;
-    console.log("🚀 ~ handleDeleteHorse ~ deleteHorseId:", deleteHorseId);
 
     try {
       setIsDeleting(true);
@@ -108,14 +122,16 @@ const Horses = () => {
         .from("horses")
         .delete()
         .eq("id", deleteHorseId)
-        .eq("user_id", user?.id); // Safety check to ensure users can only delete their own horses
+        .eq("user_id", user?.id);
 
       if (error) {
         throw error;
       }
 
-      // Remove the deleted horse from the list
       setHorses(horses.filter((horse) => horse.id !== deleteHorseId));
+      
+      // 🎯 REFRESH LIMITS AFTER DELETION
+      horseLimits.refreshLimits();
 
       toast({
         title: "Horse deleted",
@@ -139,56 +155,182 @@ const Horses = () => {
   const handleFormComplete = () => {
     setShowAddHorseForm(false);
     setEditingHorse(null);
-    fetchHorses(); // Refresh the list
+    fetchHorses();
+    // 🎯 REFRESH LIMITS AFTER ADDING/EDITING
+    horseLimits.refreshLimits();
   };
 
   return (
     <div>
+      {/* 🎯 NEW: Horse Limits Status Card */}
+      {!horseLimits.loading && (
+        <Card className="mb-6 bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <House className="h-5 w-5 text-purple-600" />
+                <span className="text-lg">
+                  {language === "en" ? "Horse Management" : "Gestión de Caballos"}
+                </span>
+              </div>
+              <Badge variant="outline" className="border-purple-300 text-purple-700">
+                {horseLimits.planName} {language === "en" ? "Plan" : "Plan"}
+              </Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between mb-4">
+              <div className="text-center">
+                <p className="text-sm text-gray-600">
+                  {language === "en" ? "Current Horses" : "Caballos Actuales"}
+                </p>
+                <p className="text-2xl font-bold text-purple-700">{horseLimits.currentHorses}</p>
+              </div>
+              <div className="text-center">
+                <p className="text-sm text-gray-600">
+                  {language === "en" ? "Plan Limit" : "Límite del Plan"}
+                </p>
+                <p className="text-2xl font-bold text-gray-700">
+                  {horseLimits.maxHorses === 'unlimited' ? '∞' : horseLimits.maxHorses}
+                </p>
+              </div>
+              <div className="text-center">
+                <p className="text-sm text-gray-600">
+                  {language === "en" ? "Remaining" : "Restantes"}
+                </p>
+                <p className={`text-2xl font-bold ${
+                  horseLimits.canAddHorse ? 'text-green-600' : 'text-red-600'
+                }`}>
+                  {horseLimits.remainingSlots === 'unlimited' ? '∞' : horseLimits.remainingSlots}
+                </p>
+              </div>
+            </div>
+
+            {/* Progress Bar (only for limited plans) */}
+            {horseLimits.maxHorses !== 'unlimited' && (
+              <div className="mb-4">
+                <div className="flex justify-between text-sm text-gray-600 mb-1">
+                  <span>{language === "en" ? "Usage" : "Uso"}</span>
+                  <span>{Math.round((horseLimits.currentHorses / (horseLimits.maxHorses as number)) * 100)}%</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className={`h-2 rounded-full transition-all duration-300 ${
+                      horseLimits.canAddHorse ? 'bg-purple-500' : 'bg-red-500'
+                    }`}
+                    style={{
+                      width: `${Math.min((horseLimits.currentHorses / (horseLimits.maxHorses as number)) * 100, 100)}%`
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Upgrade prompt if at limit */}
+            {!horseLimits.canAddHorse && (
+              <div className="bg-orange-100 border border-orange-200 rounded-lg p-3 flex items-start gap-3">
+                <AlertTriangle className="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-orange-800">
+                    {language === "en" ? "Horse Limit Reached" : "Límite de Caballos Alcanzado"}
+                  </p>
+                  <p className="text-sm text-orange-700 mt-1">
+                    {language === "en" 
+                      ? `You've reached your horse limit (${horseLimits.currentHorses}/${horseLimits.maxHorses}). Upgrade your plan to add more horses.`
+                      : `Has alcanzado tu límite de caballos (${horseLimits.currentHorses}/${horseLimits.maxHorses}). Actualiza tu plan para agregar más caballos.`
+                    }
+                  </p>
+                  <Button
+                    size="sm"
+                    className="mt-2 bg-orange-600 hover:bg-orange-700 text-white"
+                    onClick={() => window.location.href = '/pricing'}
+                  >
+                    {language === "en" ? "Upgrade Plan" : "Actualizar Plan"}
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-serif font-semibold text-gray-900">
           {language === "en" ? "My Horses" : "Mis caballos"}
         </h2>
-        <Button
-          onClick={() => setShowAddHorseForm(true)}
-          className="flex items-center gap-2 bg-purple-700 hover:bg-purple-800"
-        >
-          <Plus size={16} />
-          <span>{language === "en" ? "Add Horse" : "Añadir caballo"}</span>
-        </Button>
+        
+        {/* 🎯 UPDATED: Conditional Add Horse Button */}
+        {horseLimits.canAddHorse ? (
+          <Button
+            onClick={handleAddHorse}
+            className="flex items-center gap-2 bg-purple-700 hover:bg-purple-800"
+            disabled={horseLimits.loading}
+          >
+            <Plus size={16} />
+            <span>{language === "en" ? "Add Horse" : "Añadir caballo"}</span>
+          </Button>
+        ) : (
+          <Button
+            onClick={() => window.location.href = '/pricing'}
+            variant="outline"
+            className="flex items-center gap-2 border-orange-300 text-orange-700 hover:bg-orange-50"
+          >
+            <Plus size={16} />
+            <span>{language === "en" ? "Upgrade to Add More" : "Actualizar para Agregar Más"}</span>
+          </Button>
+        )}
       </div>
 
       {/* Loading state */}
-      {isLoading && (
+      {(isLoading || horseLimits.loading) && (
         <div className="flex justify-center items-center h-40">
           <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
         </div>
       )}
 
       {/* Empty state */}
-      {!isLoading && horses.length === 0 && (
+      {!isLoading && !horseLimits.loading && horses.length === 0 && (
         <Card className="bg-gray-50 border-dashed">
           <CardContent className="flex flex-col items-center justify-center py-10">
-            <p className="text-gray-600 mb-4">
+            <House className="h-12 w-12 text-gray-400 mb-4" />
+            <p className="text-gray-600 mb-4 text-center">
               {language === "en"
                 ? "You haven't added any horses yet."
                 : "Aún no has añadido ningún caballo."}
             </p>
-            <Button
-              onClick={() => setShowAddHorseForm(true)}
-              variant="outline"
-              className="border-purple-300 text-purple-700"
-            >
-              <Plus size={16} className="mr-2" />
-              {language === "en"
-                ? "Add Your First Horse"
-                : "Añade tu primer caballo"}
-            </Button>
+            {horseLimits.canAddHorse ? (
+              <Button
+                onClick={handleAddHorse}
+                variant="outline"
+                className="border-purple-300 text-purple-700"
+              >
+                <Plus size={16} className="mr-2" />
+                {language === "en"
+                  ? "Add Your First Horse"
+                  : "Añade tu primer caballo"}
+              </Button>
+            ) : (
+              <div className="text-center">
+                <p className="text-sm text-gray-500 mb-3">
+                  {language === "en"
+                    ? "Upgrade your plan to start adding horses."
+                    : "Actualiza tu plan para comenzar a agregar caballos."}
+                </p>
+                <Button
+                  onClick={() => window.location.href = '/pricing'}
+                  className="bg-purple-700 hover:bg-purple-800"
+                >
+                  {language === "en" ? "View Plans" : "Ver Planes"}
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
       )}
 
       {/* Horses grid */}
-      {!isLoading && horses.length > 0 && (
+      {!isLoading && !horseLimits.loading && horses.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
           {horses.map((horse) => (
             <Dialog key={horse.id}>
@@ -221,9 +363,6 @@ const Horses = () => {
                             (language === "en"
                               ? "No level specified"
                               : "No se especifica ningún nivel")}
-                          {/* {horse.dressage_level || language === "en"
-                            ? "No level specified"
-                            : "No se especifica ningún nivel"} */}
                         </p>
                       </div>
                       <ChevronRight className="text-gray-400" size={18} />
@@ -317,8 +456,7 @@ const Horses = () => {
                               {language === "en" ? "Age" : "Edad"}
                             </p>
                             <p className="font-medium">
-                              {horse.age}
-                              {language === "en" ? "years" : "años"}
+                              {horse.age} {language === "en" ? "years" : "años"}
                             </p>
                           </div>
                           <div>
@@ -334,9 +472,9 @@ const Horses = () => {
                                 : "Nivel de competencia"}
                             </p>
                             <p className="font-medium">
-                              {horse.competition_level || language === "en"
+                              {horse.competition_level || (language === "en"
                                 ? "Not specified"
-                                : "No especificado"}
+                                : "No especificado")}
                             </p>
                           </div>
                           <div>
@@ -346,9 +484,9 @@ const Horses = () => {
                                 : "Nivel de salto"}
                             </p>
                             <p className="font-medium">
-                              {horse.jumping_level || language === "en"
+                              {horse.jumping_level || (language === "en"
                                 ? "Not specified"
-                                : "No especificado"}
+                                : "No especificado")}
                             </p>
                           </div>
                           {horse.dressage_type && (
@@ -443,7 +581,6 @@ const Horses = () => {
                           : "Historial de Competiciones"}
                       </h3>
                       <div className="space-y-2">
-                        {/* This would be filled with competition history data */}
                         <p className="text-sm text-gray-600 italic">
                           {language === "en"
                             ? "No competition history available yet."
@@ -461,7 +598,6 @@ const Horses = () => {
                           : "Notas de Entrenamiento"}
                       </h3>
                       <div className="space-y-2">
-                        {/* This would be filled with training notes */}
                         <p className="text-sm text-gray-600 italic">
                           {language === "en"
                             ? "No training notes available yet."
@@ -479,7 +615,6 @@ const Horses = () => {
                           : "Registros de Salud"}
                       </h3>
                       <div className="space-y-2">
-                        {/* This would be filled with health records */}
                         <p className="text-sm text-gray-600 italic">
                           {language === "en"
                             ? "No health records available yet."
@@ -494,6 +629,7 @@ const Horses = () => {
           ))}
         </div>
       )}
+
       {/* Add Horse Dialog */}
       <Dialog open={showAddHorseForm} onOpenChange={setShowAddHorseForm}>
         <DialogContent className="sm:max-w-xl max-h-[90vh] overflow-y-auto">

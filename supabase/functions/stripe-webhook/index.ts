@@ -67,6 +67,10 @@ serve(async (req) => {
                 await handlePaymentSucceeded(event.data.object);
                 break;
 
+            case "invoice.payment_failed":
+                await handlePaymentFailed(event.data.object);
+                break;
+
             default:
                 // Log unhandled events for monitoring
                 log("Unhandled event type", { type: event.type });
@@ -147,13 +151,45 @@ async function handleSubscriptionCreated(subscription) {
 // 🎯 Handle subscription updates
 async function handleSubscriptionUpdated(subscription) {
     try {
+        // Check if this is a plan change (different price)
+        const currentItem = subscription.items.data[0];
+        
+        // Get existing subscription to compare
+        const { data: existingSub } = await supabaseAdmin
+            .from("user_subscriptions")
+            .select("plan_id, pricing_plans!inner(stripe_price_id)")
+            .eq("stripe_subscription_id", subscription.id)
+            .single();
+
+        let updateData = {
+            is_active: subscription.status === 'active',
+            is_trial: subscription.status === 'trialing',
+            ends_at: new Date(subscription.current_period_end * 1000).toISOString(),
+            updated_at: new Date().toISOString()
+        };
+
+        // If plan changed, we need to find the new plan_id
+        if (existingSub?.pricing_plans?.stripe_price_id !== currentItem.price.id) {
+            const { data: newPlan } = await supabaseAdmin
+                .from("pricing_plans")
+                .select("id")
+                .eq("stripe_price_id", currentItem.price.id)
+                .single();
+
+            if (newPlan) {
+                updateData.plan_id = newPlan.id;
+                log("Plan change detected", {
+                    subscriptionId: subscription.id,
+                    oldPriceId: existingSub?.pricing_plans?.stripe_price_id,
+                    newPriceId: currentItem.price.id,
+                    newPlanId: newPlan.id
+                });
+            }
+        }
+
         const { error } = await supabaseAdmin
             .from("user_subscriptions")
-            .update({
-                is_active: subscription.status === 'active',
-                is_trial: subscription.status === 'trialing',
-                ends_at: new Date(subscription.current_period_end * 1000).toISOString()
-            })
+            .update(updateData)
             .eq("stripe_subscription_id", subscription.id);
 
         if (error) {
@@ -183,7 +219,9 @@ async function handleSubscriptionDeleted(subscription) {
             .from("user_subscriptions")
             .update({
                 is_active: false,
-                ends_at: new Date().toISOString() // Mark as ended now
+                ends_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+                cancelled_at: new Date().toISOString()
             })
             .eq("stripe_subscription_id", subscription.id);
 
@@ -219,8 +257,9 @@ async function handlePaymentSucceeded(invoice) {
         const { error } = await supabaseAdmin
             .from("user_subscriptions")
             .update({
-                is_active: true, // Ensure subscription is active after successful payment
-                ends_at: new Date(subscription.current_period_end * 1000).toISOString()
+                is_active: true,
+                ends_at: new Date(subscription.current_period_end * 1000).toISOString(),
+                updated_at: new Date().toISOString()
             })
             .eq("stripe_subscription_id", subscription.id);
 
@@ -244,55 +283,177 @@ async function handlePaymentSucceeded(invoice) {
     }
 }
 
-// 🛠️ Helper function to create subscription records
-async function createSubscriptionRecord({ user_id, plan_id, coupon_id, subscription, source }) {
-    // Check if subscription already exists (prevent duplicates)
-    const { data: existing } = await supabaseAdmin
-        .from("user_subscriptions")
-        .select("id")
-        .eq("stripe_subscription_id", subscription.id)
-        .single();
-
-    if (existing) {
-        log("Subscription already exists, skipping creation", {
-            subscriptionId: subscription.id,
-            source
-        });
-        return;
+// 🎯 Handle failed payments
+async function handlePaymentFailed(invoice) {
+    if (!invoice.subscription) {
+        return; // Not a subscription payment
     }
 
-    // Create new subscription record
-    const subscriptionData = {
-        user_id,
-        plan_id,
-        stripe_subscription_id: subscription.id,
-        is_active: subscription.status === 'active',
-        is_trial: subscription.status === 'trialing',
-        coupon_id,
-        started_at: new Date(subscription.created * 1000).toISOString(),
-        ends_at: new Date(subscription.current_period_end * 1000).toISOString(),
-        created_at: new Date().toISOString()
-    };
+    try {
+        const { error } = await supabaseAdmin
+            .from("user_subscriptions")
+            .update({
+                is_active: false, // Deactivate on payment failure
+                updated_at: new Date().toISOString()
+            })
+            .eq("stripe_subscription_id", invoice.subscription);
 
-    const { data, error } = await supabaseAdmin
-        .from("user_subscriptions")
-        .insert(subscriptionData)
-        .select();
+        if (error) {
+            log("Error updating subscription after payment failure", {
+                subscriptionId: invoice.subscription,
+                error: error.message
+            });
+        } else {
+            log("Subscription deactivated due to payment failure", {
+                subscriptionId: invoice.subscription,
+                invoiceId: invoice.id
+            });
+        }
 
-    if (error) {
-        log("Failed to create subscription record", {
-            subscriptionId: subscription.id,
-            error: error.message,
-            source
+    } catch (error) {
+        log("Error in payment failure handler", {
+            invoiceId: invoice.id,
+            error: error.message
         });
-        throw error;
-    } else {
+    }
+}
+
+// 🛠️ Helper function to create subscription records with proper deactivation
+async function createSubscriptionRecord({ user_id, plan_id, coupon_id, subscription, source }) {
+    try {
+        // Check if subscription already exists (prevent duplicates)
+        const { data: existing } = await supabaseAdmin
+            .from("user_subscriptions")
+            .select("id")
+            .eq("stripe_subscription_id", subscription.id)
+            .single();
+
+        if (existing) {
+            log("Subscription already exists, skipping creation", {
+                subscriptionId: subscription.id,
+                source
+            });
+            return;
+        }
+
+        // 🎯 STEP 1: Deactivate all existing active subscriptions for this user
+        const { data: previousSubs, error: deactivateError } = await supabaseAdmin
+            .from("user_subscriptions")
+            .update({
+                is_active: false,
+                ends_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+                deactivation_reason: 'new_subscription_created'
+            })
+            .eq("user_id", user_id)
+            .eq("is_active", true)
+            .select("id, plan_id");
+
+        if (deactivateError) {
+            log("Error deactivating previous subscriptions", {
+                userId: user_id,
+                error: deactivateError.message
+            });
+            // Don't throw here, continue with creation
+        } else if (previousSubs && previousSubs.length > 0) {
+            log("Deactivated previous subscriptions", {
+                userId: user_id,
+                deactivatedCount: previousSubs.length,
+                deactivatedIds: previousSubs.map(s => s.id)
+            });
+        }
+
+        // 🎯 STEP 2: Create new subscription record
+        const subscriptionData = {
+            user_id,
+            plan_id,
+            stripe_subscription_id: subscription.id,
+            is_active: subscription.status === 'active',
+            is_trial: subscription.status === 'trialing',
+            coupon_id,
+            started_at: new Date(subscription.created * 1000).toISOString(),
+            ends_at: new Date(subscription.current_period_end * 1000).toISOString(),
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+        };
+
+        const { data, error } = await supabaseAdmin
+            .from("user_subscriptions")
+            .insert(subscriptionData)
+            .select();
+
+        if (error) {
+            log("Failed to create subscription record", {
+                subscriptionId: subscription.id,
+                error: error.message,
+                source
+            });
+            throw error;
+        }
+
+        // 🎯 STEP 3: Log subscription history
+        await logSubscriptionHistory({
+            user_id,
+            action: 'subscription_created',
+            new_plan_id: plan_id,
+            stripe_subscription_id: subscription.id,
+            source,
+            metadata: {
+                coupon_used: !!coupon_id,
+                trial_period: subscription.status === 'trialing'
+            }
+        });
+
         log("Subscription record created successfully", {
             subscriptionId: subscription.id,
             userId: user_id,
             planId: plan_id,
             couponUsed: !!coupon_id,
+            previousSubsDeactivated: previousSubs?.length || 0,
             source
+        });
+
+        return data[0];
+
+    } catch (error) {
+        log("Error in createSubscriptionRecord", {
+            userId: user_id,
+            subscriptionId: subscription.id,
+            error: error.message
+        });
+        throw error;
+    }
+}
+
+// 🛠️ Helper function to log subscription history
+async function logSubscriptionHistory({ user_id, action, new_plan_id, old_plan_id, stripe_subscription_id, source, metadata = {} }) {
+    try {
+        const { error } = await supabaseAdmin
+            .from("subscription_history")
+            .insert({
+                user_id,
+                action,
+                new_plan_id,
+                old_plan_id: old_plan_id || null,
+                stripe_subscription_id,
+                source,
+                metadata,
+                created_at: new Date().toISOString()
+            });
+
+        if (error) {
+            log("Error logging subscription history", {
+                userId: user_id,
+                action,
+                error: error.message
+            });
+        }
+    } catch (error) {
+        // Don't throw here, logging failure shouldn't break the main flow
+        log("Failed to log subscription history", {
+            userId: user_id,
+            action,
+            error: error.message
         });
     }
 }
