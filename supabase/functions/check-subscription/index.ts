@@ -1,17 +1,13 @@
-
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import Stripe from "https://esm.sh/stripe@14.21.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type"
 };
 
-// Helper logging function
-const logStep = (step: string, details?: any) => {
-  const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
-  console.log(`[CHECK-SUBSCRIPTION] ${step}${detailsStr}`);
+const log = (message, data = null) => {
+  console.log(`[CHECK-SUBSCRIPTION] ${message}${data ? ` - ${JSON.stringify(data)}` : ''}`);
 };
 
 serve(async (req) => {
@@ -20,149 +16,123 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  // Use the service role key to perform database operations
-  const supabaseAdmin = createClient(
-    Deno.env.get("SUPABASE_URL") ?? "",
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-    { auth: { persistSession: false } }
-  );
-
   try {
-    logStep("Function started");
+    // Initialize Supabase clients
+    const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+    );
 
-    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-    if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
-    logStep("Stripe key verified");
+    const supabaseAdmin = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      { auth: { persistSession: false } }
+    );
 
+    // Authenticate user
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) throw new Error("No authorization header provided");
-    logStep("Authorization header found");
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: "No authorization header" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 401
+      });
+    }
 
     const token = authHeader.replace("Bearer ", "");
-    logStep("Authenticating user with token");
+    const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
     
-    const { data: userData, error: userError } = await supabaseAdmin.auth.getUser(token);
-    if (userError) throw new Error(`Authentication error: ${userError.message}`);
-    const user = userData.user;
-    if (!user?.email) throw new Error("User not authenticated or email not available");
-    logStep("User authenticated", { userId: user.id, email: user.email });
-
-    const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
-    const customers = await stripe.customers.list({ email: user.email, limit: 1 });
-    
-    if (customers.data.length === 0) {
-      logStep("No customer found, updating unsubscribed state");
-      
-      // Update the subscribers table with no active subscription
-      await supabaseAdmin.from("subscribers").upsert({
-        email: user.email,
-        user_id: user.id,
-        stripe_customer_id: null,
-        subscribed: false,
-        subscription_tier: null,
-        plan_id: null,
-        plan_name: null,
-        subscription_end: null,
-        updated_at: new Date().toISOString(),
-      }, { onConflict: 'email' });
-      
-      return new Response(JSON.stringify({ subscribed: false }), {
+    if (userError || !userData.user) {
+      return new Response(JSON.stringify({ error: "Authentication failed" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 200,
+        status: 401
       });
     }
 
-    const customerId = customers.data[0].id;
-    logStep("Found Stripe customer", { customerId });
+    const user = userData.user;
 
-    // Get subscriptions without deeply nested expansions that cause the error
-    const subscriptions = await stripe.subscriptions.list({
-      customer: customerId,
-      status: "active",
-      // Limit expand levels to avoid the error
-      expand: ['data.items.data.price'],
-    });
-    
-    const hasActiveSub = subscriptions.data.length > 0;
-    let subscriptionId = null;
-    let planId = null;
-    let planName = null;
-    let subscriptionEnd = null;
+    // 🎯 GET SUBSCRIPTION FROM LOCAL DATABASE
+    const { data: subscription, error: subError } = await supabaseAdmin
+      .from("user_subscriptions")
+      .select(`
+        *,
+        pricing_plans (
+          id,
+          name,
+          monthly_price,
+          annual_price
+        ),
+        coupons (
+          code,
+          discount_percent
+        )
+      `)
+      .eq("user_id", user.id)
+      .eq("is_active", true)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .single();
 
-    if (hasActiveSub) {
-      const subscription = subscriptions.data[0];
-      subscriptionId = subscription.id;
-      subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
-      
-      // Get the plan ID from subscription metadata (safer approach)
-      if (subscription.metadata && subscription.metadata.plan_id) {
-        planId = subscription.metadata.plan_id;
-        
-        // Get plan details from database
-        const { data: plan } = await supabaseAdmin
-          .from("pricing_plans")
-          .select("*")
-          .eq("id", planId)
-          .single();
-          
-        if (plan) {
-          planName = plan.name;
-        }
-      } else {
-        // Fallback: retrieve product info separately to avoid nesting issues
-        const priceId = subscription.items.data[0].price.id;
-        const price = await stripe.prices.retrieve(priceId, { expand: ['product'] });
-        
-        if (price.product && typeof price.product !== 'string') {
-          // Use product name as plan name
-          planName = price.product.name;
-        }
-      }
-      
-      logStep("Active subscription found", { 
-        subscriptionId, 
-        planId,
-        planName,
-        endDate: subscriptionEnd 
+    if (subError && subError.code !== 'PGRST116') {
+      log("Database error", { userId: user.id, error: subError.message });
+      return new Response(JSON.stringify({ error: "Database error" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 500
       });
-    } else {
-      logStep("No active subscription found");
     }
 
-    // Update the subscribers table
-    await supabaseAdmin.from("subscribers").upsert({
-      email: user.email,
-      user_id: user.id,
-      stripe_customer_id: customerId,
-      subscribed: hasActiveSub,
-      subscription_id: subscriptionId,
-      plan_id: planId,
-      plan_name: planName,
-      subscription_end: subscriptionEnd,
-      updated_at: new Date().toISOString(),
-    }, { onConflict: 'email' });
+    // Check if subscription is still valid (not expired)
+    const now = new Date();
+    let isActiveAndValid = false;
+    let daysRemaining = 0;
 
-    logStep("Updated database with subscription info", { 
-      subscribed: hasActiveSub, 
-      planId,
-      planName
+    if (subscription) {
+      const endsAt = new Date(subscription.ends_at);
+      isActiveAndValid = subscription.is_active && endsAt > now;
+      daysRemaining = Math.ceil((endsAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    }
+
+    // Prepare response with subscription details
+    const response = {
+      subscribed: isActiveAndValid,
+      subscription: subscription ? {
+        id: subscription.id,
+        plan_id: subscription.plan_id,
+        plan_name: subscription.pricing_plans?.name,
+        is_trial: subscription.is_trial,
+        is_active: subscription.is_active,
+        started_at: subscription.started_at,
+        ends_at: subscription.ends_at,
+        days_remaining: Math.max(0, daysRemaining),
+        expires_soon: daysRemaining <= 7 && daysRemaining > 0, // Expires within 7 days
+        stripe_subscription_id: subscription.stripe_subscription_id,
+        plan_details: subscription.pricing_plans ? {
+          monthly_price: subscription.pricing_plans.monthly_price,
+          annual_price: subscription.pricing_plans.annual_price
+        } : null,
+        coupon_used: subscription.coupons ? {
+          code: subscription.coupons.code,
+          discount_percent: subscription.coupons.discount_percent
+        } : null
+      } : null
+    };
+
+    log("Subscription check completed", { 
+      userId: user.id, 
+      subscribed: isActiveAndValid,
+      planName: subscription?.pricing_plans?.name,
+      daysRemaining: daysRemaining
     });
-    
-    return new Response(JSON.stringify({
-      subscribed: hasActiveSub,
-      plan_id: planId,
-      plan_name: planName,
-      subscription_end: subscriptionEnd
-    }), {
+
+    return new Response(JSON.stringify(response), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 200,
+      status: 200
     });
+
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    logStep("ERROR", { message: errorMessage });
-    return new Response(JSON.stringify({ error: errorMessage }), {
+    log("Unexpected error", { error: error.message });
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 500,
+      status: 500
     });
   }
 });

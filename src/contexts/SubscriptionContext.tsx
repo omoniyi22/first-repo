@@ -58,7 +58,6 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({
       );
 
       if (error) throw error;
-      console.log("🚀 ~ refreshSubscription ~ data:", data);
 
       setIsSubscribed(!!data.subscribed);
       setPlanId(data.plan_id || null);
@@ -66,11 +65,11 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({
       setSubscriptionEnd(data.subscription_end || null);
     } catch (error) {
       console.error("Error checking subscription:", error);
-      // toast({
-      //   title: 'Error',
-      //   description: 'Failed to check subscription status',
-      //   variant: 'destructive',
-      // });
+      toast({
+        title: "Error",
+        description: "Failed to check subscription status",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }

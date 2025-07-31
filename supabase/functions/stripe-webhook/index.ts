@@ -2,138 +2,150 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.21.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
-// Initialize Stripe with secret key
+// Initialize Stripe
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
     apiVersion: "2023-10-16"
 });
 
-// Initialize Supabase admin client (has permission to write to database)
+// Initialize Supabase admin client
 const supabaseAdmin = createClient(
     Deno.env.get("SUPABASE_URL") ?? "",
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
     { auth: { persistSession: false } }
 );
 
-// Helper logging function
-const logStep = (step, details) => {
-    console.log(`[STRIPE-WEBHOOK] ${step}${details ? ` - ${JSON.stringify(details)}` : ''}`);
+// Simple logging function
+const log = (message, data = null) => {
+    console.log(`[STRIPE-WEBHOOK] ${message}${data ? ` - ${JSON.stringify(data)}` : ''}`);
 };
 
 serve(async (req) => {
     try {
-        logStep("Webhook received");
+        // Only allow POST requests
+        if (req.method !== "POST") {
+            return new Response("Method not allowed", { status: 405 });
+        }
 
-        // Get the raw body and signature from Stripe
+        // Get request data
         const body = await req.text();
         const signature = req.headers.get("stripe-signature");
         const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
 
         if (!signature || !webhookSecret) {
-            throw new Error("Missing webhook signature or secret");
+            log("Missing webhook signature or secret");
+            return new Response("Missing webhook signature or secret", { status: 400 });
         }
 
-        // 🔐 VERIFY WEBHOOK IS FROM STRIPE (SECURITY)
+        // Verify webhook signature
         let event;
         try {
-            event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
-            logStep("Webhook signature verified", { eventType: event.type });
+            event = await stripe.webhooks.constructEventAsync(body, signature, webhookSecret);
         } catch (err) {
-            logStep("Webhook signature verification failed", { error: err.message });
+            log("Webhook signature verification failed", { error: err.message });
             return new Response("Webhook signature verification failed", { status: 400 });
         }
 
-        // 🎯 HANDLE DIFFERENT STRIPE EVENTS
+        // Handle Stripe events
         switch (event.type) {
             case "checkout.session.completed":
-                // 💳 User completed payment - CREATE subscription record
                 await handleCheckoutCompleted(event.data.object);
                 break;
 
             case "customer.subscription.created":
+                await handleSubscriptionCreated(event.data.object);
+                break;
+
             case "customer.subscription.updated":
-                // 🔄 Subscription was created or updated - UPDATE subscription record
                 await handleSubscriptionUpdated(event.data.object);
                 break;
 
             case "customer.subscription.deleted":
-                // ❌ Subscription was cancelled - DEACTIVATE subscription record
                 await handleSubscriptionDeleted(event.data.object);
                 break;
 
             case "invoice.payment_succeeded":
-                // 💰 Payment succeeded - EXTEND subscription period
                 await handlePaymentSucceeded(event.data.object);
                 break;
 
             default:
-                logStep("Unhandled event type", { type: event.type });
+                // Log unhandled events for monitoring
+                log("Unhandled event type", { type: event.type });
         }
 
         return new Response("OK", { status: 200 });
 
     } catch (error) {
-        logStep("Webhook error", { error: error.message });
-        return new Response("Webhook error", { status: 400 });
+        log("Webhook processing error", { error: error.message });
+        return new Response("Webhook error", { status: 500 });
     }
 });
 
-// 🎯 FUNCTION 1: Handle checkout completion (NEW SUBSCRIPTION)
+// 🎯 Handle checkout completion
 async function handleCheckoutCompleted(session) {
-    logStep("Processing checkout completion", { sessionId: session.id });
+    const metadata = session.metadata || {};
+    const { user_id, plan_id, coupon_id } = metadata;
 
-    const metadata = session.metadata;
-    const { user_id, plan_id, coupon_id, billing_mode } = metadata;
-
-    if (!user_id || !plan_id) {
-        logStep("Missing required metadata", { metadata });
+    if (!user_id || !plan_id || !session.subscription) {
+        log("Invalid checkout session", {
+            hasUserId: !!user_id,
+            hasPlanId: !!plan_id,
+            hasSubscription: !!session.subscription
+        });
         return;
     }
 
     try {
-        // Get the subscription details from Stripe
         const subscription = await stripe.subscriptions.retrieve(session.subscription);
 
-        logStep("Retrieved subscription from Stripe", {
-            subscriptionId: subscription.id,
-            status: subscription.status
-        });
-
-        // 💾 CREATE SUBSCRIPTION RECORD IN YOUR DATABASE
-        const subscriptionData = {
+        await createSubscriptionRecord({
             user_id,
             plan_id,
-            stripe_subscription_id: subscription.id,
-            is_active: subscription.status === 'active',
-            is_trial: subscription.status === 'trialing',
             coupon_id: coupon_id || null,
-            started_at: new Date(subscription.created * 1000).toISOString(),
-            ends_at: new Date(subscription.current_period_end * 1000).toISOString(),
-            created_at: new Date().toISOString()
-        };
-
-        const { error } = await supabaseAdmin
-            .from("user_subscriptions")
-            .insert(subscriptionData);
-
-        if (error) {
-            logStep("Error saving subscription", { error: error.message });
-        } else {
-            logStep("Subscription saved successfully", {
-                userId: user_id,
-                planId: plan_id,
-                couponUsed: coupon_id ? 'Yes' : 'No'
-            });
-        }
+            subscription,
+            source: "checkout.session.completed"
+        });
 
     } catch (error) {
-        logStep("Error in handleCheckoutCompleted", { error: error.message });
+        log("Error handling checkout completion", {
+            sessionId: session.id,
+            error: error.message
+        });
     }
 }
 
-// 🎯 FUNCTION 2: Handle subscription updates (SUBSCRIPTION CHANGES)
-async function handleSubscriptionUpdated(subscription) {
-    logStep("Processing subscription update", { subscriptionId: subscription.id });
+// 🎯 Handle subscription creation
+async function handleSubscriptionCreated(subscription) {
+    const metadata = subscription.metadata || {};
+    const { user_id, plan_id, coupon_id } = metadata;
 
+    if (!user_id || !plan_id) {
+        log("Invalid subscription metadata", {
+            subscriptionId: subscription.id,
+            hasUserId: !!user_id,
+            hasPlanId: !!plan_id
+        });
+        return;
+    }
+
+    try {
+        await createSubscriptionRecord({
+            user_id,
+            plan_id,
+            coupon_id: coupon_id || null,
+            subscription,
+            source: "customer.subscription.created"
+        });
+
+    } catch (error) {
+        log("Error handling subscription creation", {
+            subscriptionId: subscription.id,
+            error: error.message
+        });
+    }
+}
+
+// 🎯 Handle subscription updates
+async function handleSubscriptionUpdated(subscription) {
     try {
         const { error } = await supabaseAdmin
             .from("user_subscriptions")
@@ -145,74 +157,142 @@ async function handleSubscriptionUpdated(subscription) {
             .eq("stripe_subscription_id", subscription.id);
 
         if (error) {
-            logStep("Error updating subscription", { error: error.message });
+            log("Error updating subscription", {
+                subscriptionId: subscription.id,
+                error: error.message
+            });
         } else {
-            logStep("Subscription updated successfully", {
+            log("Subscription updated successfully", {
                 subscriptionId: subscription.id,
                 status: subscription.status
             });
         }
 
     } catch (error) {
-        logStep("Error in handleSubscriptionUpdated", { error: error.message });
+        log("Error in subscription update handler", {
+            subscriptionId: subscription.id,
+            error: error.message
+        });
     }
 }
 
-// 🎯 FUNCTION 3: Handle subscription deletion (CANCELLATION)
+// 🎯 Handle subscription cancellation
 async function handleSubscriptionDeleted(subscription) {
-    logStep("Processing subscription deletion", { subscriptionId: subscription.id });
-
     try {
         const { error } = await supabaseAdmin
             .from("user_subscriptions")
-            .update({ is_active: false })
+            .update({
+                is_active: false,
+                ends_at: new Date().toISOString() // Mark as ended now
+            })
             .eq("stripe_subscription_id", subscription.id);
 
         if (error) {
-            logStep("Error deactivating subscription", { error: error.message });
+            log("Error deactivating subscription", {
+                subscriptionId: subscription.id,
+                error: error.message
+            });
         } else {
-            logStep("Subscription deactivated successfully", {
+            log("Subscription deactivated successfully", {
                 subscriptionId: subscription.id
             });
         }
 
     } catch (error) {
-        logStep("Error in handleSubscriptionDeleted", { error: error.message });
+        log("Error in subscription deletion handler", {
+            subscriptionId: subscription.id,
+            error: error.message
+        });
     }
 }
 
-// 🎯 FUNCTION 4: Handle successful payments (RENEWAL)
+// 🎯 Handle successful payments (renewals)
 async function handlePaymentSucceeded(invoice) {
-    logStep("Processing successful payment", { invoiceId: invoice.id });
-
     if (!invoice.subscription) {
-        logStep("No subscription associated with invoice", { invoiceId: invoice.id });
-        return;
+        return; // Not a subscription payment
     }
 
     try {
         // Get updated subscription details
         const subscription = await stripe.subscriptions.retrieve(invoice.subscription);
 
-        // Update subscription end date after successful payment
         const { error } = await supabaseAdmin
             .from("user_subscriptions")
             .update({
-                ends_at: new Date(subscription.current_period_end * 1000).toISOString(),
-                is_active: true // Ensure it's marked as active after payment
+                is_active: true, // Ensure subscription is active after successful payment
+                ends_at: new Date(subscription.current_period_end * 1000).toISOString()
             })
             .eq("stripe_subscription_id", subscription.id);
 
         if (error) {
-            logStep("Error updating subscription after payment", { error: error.message });
+            log("Error updating subscription after payment", {
+                subscriptionId: subscription.id,
+                error: error.message
+            });
         } else {
-            logStep("Subscription extended after payment", {
+            log("Subscription renewed successfully", {
                 subscriptionId: subscription.id,
                 newEndDate: new Date(subscription.current_period_end * 1000).toISOString()
             });
         }
 
     } catch (error) {
-        logStep("Error in handlePaymentSucceeded", { error: error.message });
+        log("Error in payment success handler", {
+            invoiceId: invoice.id,
+            error: error.message
+        });
+    }
+}
+
+// 🛠️ Helper function to create subscription records
+async function createSubscriptionRecord({ user_id, plan_id, coupon_id, subscription, source }) {
+    // Check if subscription already exists (prevent duplicates)
+    const { data: existing } = await supabaseAdmin
+        .from("user_subscriptions")
+        .select("id")
+        .eq("stripe_subscription_id", subscription.id)
+        .single();
+
+    if (existing) {
+        log("Subscription already exists, skipping creation", {
+            subscriptionId: subscription.id,
+            source
+        });
+        return;
+    }
+
+    // Create new subscription record
+    const subscriptionData = {
+        user_id,
+        plan_id,
+        stripe_subscription_id: subscription.id,
+        is_active: subscription.status === 'active',
+        is_trial: subscription.status === 'trialing',
+        coupon_id,
+        started_at: new Date(subscription.created * 1000).toISOString(),
+        ends_at: new Date(subscription.current_period_end * 1000).toISOString(),
+        created_at: new Date().toISOString()
+    };
+
+    const { data, error } = await supabaseAdmin
+        .from("user_subscriptions")
+        .insert(subscriptionData)
+        .select();
+
+    if (error) {
+        log("Failed to create subscription record", {
+            subscriptionId: subscription.id,
+            error: error.message,
+            source
+        });
+        throw error;
+    } else {
+        log("Subscription record created successfully", {
+            subscriptionId: subscription.id,
+            userId: user_id,
+            planId: plan_id,
+            couponUsed: !!coupon_id,
+            source
+        });
     }
 }
