@@ -65,9 +65,7 @@ serve(async (req) => {
             .eq("user_id", user.id)
             .eq("is_active", true)
             .single();
-        console.log("🚀 ~ subscription:", subscription)
-        console.log("🚀 ~ subscription:", subscription.pricing_plans)
-        console.log("🚀 ~ subscription:", subscription.pricing_plans.max_horses)
+       
 
         if (subError && subError.code !== 'PGRST116') {
             log("Database error", { userId: user.id, error: subError.message });

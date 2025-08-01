@@ -14,6 +14,7 @@ import {
   LogOut,
   ArrowLeft,
   NotepadText,
+  Gift,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -52,6 +53,11 @@ const AdminSidebar = () => {
       path: "/admin/pricing-plans",
       label: "Pricing Plans",
       icon: <NotepadText className="w-5 h-5" />,
+    },
+    {
+      path: "/admin/coupons",
+      label: "Coupons",
+      icon: <Gift className="w-5 h-5" />,
     },
     // {
     //   path: '/admin/content',
