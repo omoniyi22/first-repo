@@ -1,5 +1,12 @@
 import { useState, useEffect } from "react";
-import { Check, Tag, AlertCircle, Loader2 } from "lucide-react";
+import {
+  Check,
+  Tag,
+  AlertCircle,
+  Loader2,
+  CheckCircle,
+  Sparkles,
+} from "lucide-react";
 import PricingToggle from "./PricingToggle";
 import AnimatedSection from "../ui/AnimatedSection";
 import { Link } from "react-router-dom";
@@ -58,6 +65,8 @@ const PricingTiers = () => {
   const [checkingOut, setCheckingOut] = useState(false);
   const [showLoginDialog, setShowLoginDialog] = useState(false);
   const [showCouponDialog, setShowCouponDialog] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [subscribedPlanName, setSubscribedPlanName] = useState("");
   const [selectedPlan, setSelectedPlan] = useState<PricingPlan | null>(null);
 
   // Coupon state
@@ -135,17 +144,11 @@ const PricingTiers = () => {
     // Check URL parameters for Stripe return status
     const searchParams = new URLSearchParams(window.location.search);
     if (searchParams.get("success") === "true") {
-      toast({
-        title:
-          language === "en"
-            ? "Subscription Successful!"
-            : "¡Suscripción Exitosa!",
-        description:
-          language === "en"
-            ? "Your subscription has been activated"
-            : "Tu suscripción ha sido activada",
-        variant: "default",
-      });
+      // Show success modal instead of toast
+      const planNameFromUrl =
+        searchParams.get("plan_name") || planName || "your selected plan";
+      setSubscribedPlanName(planNameFromUrl);
+      setShowSuccessModal(true);
 
       // Clean up the URL
       window.history.replaceState({}, document.title, window.location.pathname);
@@ -240,6 +243,11 @@ const PricingTiers = () => {
     setCouponCode("");
     setCouponValidation(null);
     await handleCheckoutWithCoupon();
+  };
+
+  const handleCloseSuccessModal = () => {
+    setShowSuccessModal(false);
+    setSubscribedPlanName("");
   };
 
   if (isLoading || subscriptionLoading) {
@@ -468,6 +476,80 @@ const PricingTiers = () => {
             );
           })}
         </div>
+
+        {/* Success Modal */}
+        <Dialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
+          <DialogContent className="max-w-md">
+            <div className="text-center py-6">
+              {/* Success Icon with Animation */}
+              <div className="mx-auto mb-6 relative">
+                <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto relative">
+                  <CheckCircle className="h-12 w-12 text-green-600" />
+                  <div className="absolute -top-2 -right-2">
+                    <Sparkles className="h-6 w-6 text-yellow-500 animate-pulse" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Success Message */}
+              <DialogHeader className="text-center space-y-3">
+                <DialogTitle className="text-2xl font-serif font-semibold text-green-700">
+                  {language === "en"
+                    ? "🎉 Subscription Successful!"
+                    : "🎉 ¡Suscripción Exitosa!"}
+                </DialogTitle>
+                <DialogDescription className="text-gray-600 text-base leading-relaxed">
+                  {language === "en"
+                    ? `Thank you for subscribing to ${subscribedPlanName}! Your subscription is now active and you can start using all the features immediately.`
+                    : `¡Gracias por suscribirte a ${subscribedPlanName}! Tu suscripción está ahora activa y puedes comenzar a usar todas las funciones inmediatamente.`}
+                </DialogDescription>
+              </DialogHeader>
+
+              {/* Success Details */}
+              <div className="mt-6 p-4 bg-green-50 rounded-lg border border-green-200">
+                <div className="flex items-center justify-center gap-2 text-green-700 font-medium">
+                  <Check className="h-4 w-4" />
+                  <span className="text-sm">
+                    {language === "en"
+                      ? "Your account has been upgraded successfully"
+                      : "Tu cuenta ha sido actualizada exitosamente"}
+                  </span>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-3 mt-8">
+                <Button
+                  onClick={handleCloseSuccessModal}
+                  className="flex-1 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white"
+                >
+                  {language === "en"
+                    ? "Start Using Features"
+                    : "Comenzar a Usar"}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    handleCloseSuccessModal();
+                    openCustomerPortal();
+                  }}
+                  className="flex-1 border-green-300 text-green-700 hover:text-green-700 hover:bg-green-50"
+                >
+                  {language === "en"
+                    ? "Manage Subscription"
+                    : "Gestionar Suscripción"}
+                </Button>
+              </div>
+
+              {/* Thank You Note */}
+              <p className="mt-6 text-sm text-gray-500 italic">
+                {language === "en"
+                  ? "Welcome aboard! We're excited to help you achieve your goals."
+                  : "¡Bienvenido a bordo! Estamos emocionados de ayudarte a alcanzar tus objetivos."}
+              </p>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Login Dialog */}
         <Dialog open={showLoginDialog} onOpenChange={setShowLoginDialog}>
