@@ -483,8 +483,8 @@ const PricingTiers = () => {
             <div className="text-center py-6">
               {/* Success Icon with Animation */}
               <div className="mx-auto mb-6 relative">
-                <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto relative">
-                  <CheckCircle className="h-12 w-12 text-green-600" />
+                <div className="w-20 h-20 bg-purple-50 rounded-full flex items-center justify-center mx-auto relative">
+                  <CheckCircle className="h-12 w-12 text-purple-600" />
                   <div className="absolute -top-2 -right-2">
                     <Sparkles className="h-6 w-6 text-yellow-500 animate-pulse" />
                   </div>
@@ -493,7 +493,7 @@ const PricingTiers = () => {
 
               {/* Success Message */}
               <DialogHeader className="text-center space-y-3">
-                <DialogTitle className="text-2xl font-serif font-semibold text-green-700">
+                <DialogTitle className="text-2xl font-serif font-semibold text-navy-900">
                   {language === "en"
                     ? "🎉 Subscription Successful!"
                     : "🎉 ¡Suscripción Exitosa!"}
@@ -506,8 +506,8 @@ const PricingTiers = () => {
               </DialogHeader>
 
               {/* Success Details */}
-              <div className="mt-6 p-4 bg-green-50 rounded-lg border border-green-200">
-                <div className="flex items-center justify-center gap-2 text-green-700 font-medium">
+              <div className="mt-6 p-4 bg-purple-50 rounded-lg border border-purple-600">
+                <div className="flex items-center justify-center gap-2 text-navy-900 font-medium">
                   <Check className="h-4 w-4" />
                   <span className="text-sm">
                     {language === "en"
@@ -521,7 +521,7 @@ const PricingTiers = () => {
               <div className="flex flex-col sm:flex-row gap-3 mt-8">
                 <Button
                   onClick={handleCloseSuccessModal}
-                  className="flex-1 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white"
+                  className="flex-1 text-white"
                 >
                   {language === "en"
                     ? "Start Using Features"
@@ -533,7 +533,7 @@ const PricingTiers = () => {
                     handleCloseSuccessModal();
                     openCustomerPortal();
                   }}
-                  className="flex-1 border-green-300 text-green-700 hover:text-green-700 hover:bg-green-50"
+                  className="flex-1 border-purple-600 text-purple-700 transition-colors hover:bg-purple-50 hover:text-purple-700"
                 >
                   {language === "en"
                     ? "Manage Subscription"
