@@ -181,6 +181,7 @@ serve(async (req) => {
       metadata: {
         plan_id: planId,
         user_id: user.id,
+        user_email: user.email,
         billing_mode: mode,
         ...(validCoupon && {
           coupon_id: validCoupon.id,
@@ -193,6 +194,7 @@ serve(async (req) => {
       subscription_data: {
         metadata: {
           user_id: user.id,
+          user_email: user.email,
           plan_id: planId,
           billing_mode: mode,
           ...(validCoupon && {

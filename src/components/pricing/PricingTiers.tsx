@@ -508,7 +508,7 @@ const PricingTiers = () => {
               {/* Success Details */}
               <div className="mt-6 p-4 bg-purple-50 rounded-lg border border-purple-600">
                 <div className="flex items-center justify-center gap-2 text-navy-900 font-medium">
-                  <Check className="h-4 w-4" />
+                  <Check className="h-4 w-4 text-purple-600" />
                   <span className="text-sm">
                     {language === "en"
                       ? "Your account has been upgraded successfully"

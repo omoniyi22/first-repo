@@ -87,7 +87,7 @@ serve(async (req) => {
 // 🎯 Handle checkout completion
 async function handleCheckoutCompleted(session) {
     const metadata = session.metadata || {};
-    const { user_id, plan_id, coupon_id } = metadata;
+    const { user_email, user_id, plan_id, coupon_id } = metadata;
 
     if (!user_id || !plan_id || !session.subscription) {
         log("Invalid checkout session", {
@@ -102,6 +102,7 @@ async function handleCheckoutCompleted(session) {
         const subscription = await stripe.subscriptions.retrieve(session.subscription);
 
         await createSubscriptionRecord({
+            user_email,
             user_id,
             plan_id,
             coupon_id: coupon_id || null,
@@ -153,7 +154,7 @@ async function handleSubscriptionUpdated(subscription) {
     try {
         // Check if this is a plan change (different price)
         const currentItem = subscription.items.data[0];
-        
+
         // Get existing subscription to compare
         const { data: existingSub } = await supabaseAdmin
             .from("user_subscriptions")
@@ -319,7 +320,7 @@ async function handlePaymentFailed(invoice) {
 }
 
 // 🛠️ Helper function to create subscription records with proper deactivation
-async function createSubscriptionRecord({ user_id, plan_id, coupon_id, subscription, source }) {
+async function createSubscriptionRecord({ user_email, user_id, plan_id, coupon_id, subscription, source }) {
     try {
         // Check if subscription already exists (prevent duplicates)
         const { data: existing } = await supabaseAdmin
@@ -390,6 +391,28 @@ async function createSubscriptionRecord({ user_id, plan_id, coupon_id, subscript
             });
             throw error;
         }
+
+
+        const userEmail = user_email || subscription.customer_email || "<unknown>";
+        const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY");
+        const response = await fetch("https://uwrmtukgjnsjxcojqmic.functions.supabase.co/send-email", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                to: userEmail,
+                subject: "New Subscription Created",
+                html: "<p>You have successfully created a new subscription!</p>"
+            })
+        });
+        const result = await response.json();
+
+        log("Email sent successfully", {
+            userEmail,
+            response: result
+        });
 
         // 🎯 STEP 3: Log subscription history
         await logSubscriptionHistory({
