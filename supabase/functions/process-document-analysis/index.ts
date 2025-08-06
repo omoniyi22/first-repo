@@ -12,8 +12,8 @@ const corsHeaders = {
 const supabase = createClient(Deno.env.get('SUPABASE_URL') || '', Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '');
 function pemToArrayBuffer(pem) {
   const base64 = pem.replace(/-----BEGIN PRIVATE KEY-----/, '').replace(/-----END PRIVATE KEY-----/, '').replace(/\\n/g, '') // escape newline characters
-  .replace(/\r?\n/g, '') // strip real line breaks
-  .trim();
+    .replace(/\r?\n/g, '') // strip real line breaks
+    .trim();
   return base64Decode(base64).buffer;
 }
 async function getGoogleAccessToken(serviceAccount) {
@@ -55,7 +55,7 @@ async function getGoogleAccessToken(serviceAccount) {
   if (!json.access_token) throw new Error('Failed to get access token');
   return json.access_token;
 }
-serve(async (req)=>{
+serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, {
       headers: corsHeaders
@@ -111,6 +111,7 @@ serve(async (req)=>{
       ## 🐎 Arena Size Detection Rule:
       When analyzing the document:
       - If any arena positions contain the letters "S", "V", "R", "P", "I", or "L" (even inside combined terms like "PM"), set "size": "large".
+      - Ignore case and spaces when checking arena positions. Even if the arena letter is separated from the rest (e.g., "M V" instead of "MV"), still detect it as containing "V".
       - Otherwise, use "size": "small".
       - The arena size must remain the same across all recommendations for the same document.
 
@@ -511,7 +512,7 @@ serve(async (req)=>{
       return;
     }
     // Insert only the first 2 recommendations
-    await Promise.all(localizedResult.en.recommendations.slice(0, 2).map(async (recommendation)=>{
+    await Promise.all(localizedResult.en.recommendations.slice(0, 2).map(async (recommendation) => {
       // Calculate target date after one month
       const oneMonthLater = new Date();
       oneMonthLater.setMonth(oneMonthLater.getMonth() + 1);

@@ -884,7 +884,7 @@ Let me know what you think!`;
           </div>
         </div>
         <ul className="space-y-2 sm:space-y-5">
-          {resultData[language]?.recommendations?.map(
+          {resultData[language]?.recommendations?.slice(0,2).map(
             (recommendation, index) => (
               <li
                 key={index}
