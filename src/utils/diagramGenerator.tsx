@@ -1,3 +1,5 @@
+import { useLanguage } from "@/contexts/LanguageContext";
+
 export interface IExercise {
   exercise: string;
   focus: string;
@@ -18,8 +20,16 @@ export const COLOR_LEGEND = {
   "Halt/Transition": { from: "#F67DB5", to: "#D80568" },
   "Free Walk": { from: "#A38DFC", to: "#7658EB" },
 };
+export const COLOR_LEGEND_ES = {
+  Caminar: { from: "#3AD55A", to: "#00AE23" },
+  Trote: { from: "#FFD766", to: "#FF821C" },
+  "Medio galope": { from: "#5E92FA", to: "#3C77EC" },
+  "Detener/Transición": { from: "#F67DB5", to: "#D80568" },
+  "Paseo libre": { from: "#A38DFC", to: "#7658EB" },
+};
 
 export const diagramExtractor = (recommendation: IExercise) => {
+  const { language } = useLanguage();
   const {
     exercise,
     focus,
@@ -65,7 +75,9 @@ export const diagramExtractor = (recommendation: IExercise) => {
         height={svgHeight}
         alt={`${type} ${size} exercise diagram`}
       />
-      <div>Arena Size: {size}</div>
+      <div>
+        {language === "en" ? "Arena Size:" : "Tamaño de la arena:"} {size}
+      </div>
     </div>
   );
 };

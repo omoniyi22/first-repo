@@ -25,7 +25,12 @@ import {
   fill_Template_Make_Prompts,
   formatScriptWithStyles,
 } from "@/utils/podcastUtils";
-import { COLOR_LEGEND, diagramExtractor, IExercise } from "@/utils/diagramGenerator";
+import {
+  COLOR_LEGEND,
+  COLOR_LEGEND_ES,
+  diagramExtractor,
+  IExercise,
+} from "@/utils/diagramGenerator";
 
 // Define proper types for the analysis data
 interface MovementScore {
@@ -618,7 +623,9 @@ Let me know what you think!`;
               Key/Legend
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 gap-2 text-sm">
-              {Object.entries(COLOR_LEGEND).map(([label, color]) => (
+              {Object.entries(
+                language === "en" ? COLOR_LEGEND : COLOR_LEGEND_ES
+              ).map(([label, color]) => (
                 <div
                   key={label}
                   className="flex md:justify-center items-center space-x-2"
@@ -689,9 +696,12 @@ Let me know what you think!`;
                     <span>{recommendation["quickFix"]}</span>
                     <br />
                   </div>
-                  
-                  <div className="bg-white py-8 rounded-xl mx-auto" style={{ maxWidth: '300px' }}>
-                      {diagramExtractor(recommendation as unknown as IExercise)}
+
+                  <div
+                    className="bg-white py-8 rounded-xl mx-auto"
+                    style={{ maxWidth: "300px" }}
+                  >
+                    {diagramExtractor(recommendation as unknown as IExercise)}
                   </div>
                 </div>
               </li>
@@ -732,7 +742,7 @@ Let me know what you think!`;
               ))}
             </div>
           </div>
-          
+
           <Card className="w-full bg-gradient-to-r from-[#7658EB] to-[#3C78EB] text-white p-6 mt-6 flex items-center justify-between rounded-lg shadow-lg flex-col-reverse sm:flex-row gap-5 sm:gap-0">
             <div className="">
               <h2 className="text-xl font-medium">

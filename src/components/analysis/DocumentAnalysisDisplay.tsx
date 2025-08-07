@@ -27,6 +27,7 @@ import {
 } from "@/utils/podcastUtils";
 import {
   COLOR_LEGEND,
+  COLOR_LEGEND_ES,
   diagramExtractor,
   IExercise,
 } from "@/utils/diagramGenerator";
@@ -869,10 +870,12 @@ Let me know what you think!`;
           </h4>
           <div className="mb-6 bg-white p-4 rounded shadow border">
             <h4 className="font-semibold text-gray-800 text-center mb-6">
-              Key/Legend
+              {language === "en" ? "Key/Legend" : "Clave/Leyenda"}
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 gap-2 text-sm">
-              {Object.entries(COLOR_LEGEND).map(([label, color]) => (
+              {Object.entries(
+                language === "en" ? COLOR_LEGEND : COLOR_LEGEND_ES
+              ).map(([label, color]) => (
                 <div
                   key={label}
                   className="flex md:justify-center items-center space-x-2"
@@ -958,9 +961,13 @@ Let me know what you think!`;
         <Card className="w-full bg-gradient-to-r from-[#7658EB] to-[#3C78EB] text-white p-6 mt-6 flex items-center justify-between rounded-lg shadow-lg flex-col-reverse sm:flex-row gap-5 sm:gap-0">
           <div className="">
             <h2 className="text-xl font-medium">
-              Want more guidance?
+              {language === "en"
+                ? "Want more guidance?"
+                : "¿Quieres más orientación?"}
               <br />
-              Download the RideAlong Podcast and ride with us.
+              {language === "en"
+                ? "Download the RideAlong Podcast and ride with us."
+                : "Descarga el podcast RideAlong y monta con nosotros."}
             </h2>
             <Button
               className="bg-white text-[#2C1A5C] hover:bg-white mt-4"
@@ -968,7 +975,9 @@ Let me know what you think!`;
                 await getPromptForTTS();
               }}
             >
-              Get Your Ride-Along Podcast
+              {language === "en"
+                ? "Get Your Ride-Along Podcast"
+                : "Obtén tu podcast Ride-Along"}
             </Button>
           </div>
           <div className="relative z-10 w-28 h-28 rounded-full bg-[#3f77eb]/20 backdrop-blur-sm flex items-center justify-center">
@@ -989,7 +998,7 @@ Let me know what you think!`;
           >
             {/* <MessageCircle className="h-10 w-10 text-white" /> */}
             <RiWhatsappFill className="!h-7 !w-7 text-white" size={50} />
-            Send Results to Coach
+            {language === "en" ? "Share on WhatsApp" : "Compartir en WhatsApp"}
           </Button>
 
           {/* <Button
@@ -1003,7 +1012,9 @@ Let me know what you think!`;
           </Button> */}
 
           <div className="space-x-2 flex items-center">
-            <p className="text-center">Powered by</p>
+            <p className="text-center">
+              {language === "en" ? "Powered by" : "Desarrollado por"}
+            </p>
             <img
               src="/lovable-uploads/1000010999.png"
               alt="Horse and rider jumping over competition obstacle"
