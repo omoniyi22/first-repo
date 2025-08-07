@@ -71,7 +71,7 @@ const UpcomingEvents = () => {
       setEvents([]);
       setIsLoading(false);
     }
-  }, [toast, showAddEventForm, user]);
+  }, [toast, showAddEventForm, user.id]);
 
   // Format date based on language
   const formatEventDate = (dateStr: string) => {

@@ -87,7 +87,7 @@ const UpcomingEvents = () => {
       setEvents([]);
       setIsLoading(false);
     }
-  }, [toast, showAddEventForm, showEditEventForm, user]);
+  }, [toast, showAddEventForm, showEditEventForm, user.id]);
 
   // Format date based on language
   const formatEventDate = (dateStr: string) => {
@@ -344,14 +344,15 @@ const UpcomingEvents = () => {
           <DialogHeader>
             <DialogTitle className="text-xl font-serif">
               {language === "en" ? "" : ""}
-              Edit Event</DialogTitle>
+              Edit Event
+            </DialogTitle>
           </DialogHeader>
           <ScrollArea className="max-h-[80vh] pr-4">
             <div className="py-2">
               <EventForm
                 onComplete={handleFormComplete}
                 event={selectedEvent}
-                />
+              />
             </div>
           </ScrollArea>
         </DialogContent>

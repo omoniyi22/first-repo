@@ -127,7 +127,7 @@ const TrainingFocus = () => {
     };
 
     fetchDressageData();
-  }, [user]);
+  }, [user.id]);
 
   const getPriorityColor = (priority) => {
     switch (priority) {

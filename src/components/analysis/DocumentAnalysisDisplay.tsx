@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -26,7 +25,11 @@ import {
   fill_Template_Make_Prompts,
   formatScriptWithStyles,
 } from "@/utils/podcastUtils";
-import { COLOR_LEGEND, diagramExtractor, IExercise } from "@/utils/diagramGenerator";
+import {
+  COLOR_LEGEND,
+  diagramExtractor,
+  IExercise,
+} from "@/utils/diagramGenerator";
 
 // Define proper types for the analysis data
 interface MovementScore {
@@ -183,7 +186,7 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
     };
 
     fetchAnalysis();
-  }, [documentId, user, language]);
+  }, [documentId, user.id, language]);
 
   useEffect(() => {
     const fetchHorse = async () => {
@@ -268,7 +271,7 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
       }
     };
     fetchHorse();
-  }, [user, analysis, resultData]);
+  }, [user.id, analysis, resultData]);
 
   const getPromptForTTS = async () => {
     setIsPodcastLoading(true);
@@ -587,7 +590,9 @@ Let me know what you think!`;
                   : "Puntuación no disponible"}
               </p>
             )}
-            <p className="text-white">{resultData[language]["highestScore"].movement[0]}</p>
+            <p className="text-white">
+              {resultData[language]["highestScore"].movement[0]}
+            </p>
           </div>
         </div>
 
@@ -615,7 +620,9 @@ Let me know what you think!`;
                   : "Puntuación no disponible"}
               </p>
             )}
-            <p className="text-white">{resultData[language]["lowestScore"].movement[0]}</p>
+            <p className="text-white">
+              {resultData[language]["lowestScore"].movement[0]}
+            </p>
           </div>
         </div>
       </div>
@@ -884,8 +891,9 @@ Let me know what you think!`;
           </div>
         </div>
         <ul className="space-y-2 sm:space-y-5">
-          {resultData[language]?.recommendations?.slice(0,2).map(
-            (recommendation, index) => (
+          {resultData[language]?.recommendations
+            ?.slice(0, 2)
+            .map((recommendation, index) => (
               <li
                 key={index}
                 className="text-sm sm:text-base bg-[#f1f5f9] p-2 md:p-5 rounded-lg flex gap-2 md:gap-5"
@@ -936,14 +944,16 @@ Let me know what you think!`;
                     <span>{recommendation["quickFix"]}</span>
                     <br />
                   </div>
-                  
-                  <div className="bg-white py-8 rounded-xl mx-auto" style={{ maxWidth: '300px' }}>
-                      {diagramExtractor(recommendation as unknown as IExercise)}
+
+                  <div
+                    className="bg-white py-8 rounded-xl mx-auto"
+                    style={{ maxWidth: "300px" }}
+                  >
+                    {diagramExtractor(recommendation as unknown as IExercise)}
                   </div>
                 </div>
               </li>
-            )
-          ) || "No Recommendations!"}
+            )) || "No Recommendations!"}
         </ul>
         <Card className="w-full bg-gradient-to-r from-[#7658EB] to-[#3C78EB] text-white p-6 mt-6 flex items-center justify-between rounded-lg shadow-lg flex-col-reverse sm:flex-row gap-5 sm:gap-0">
           <div className="">

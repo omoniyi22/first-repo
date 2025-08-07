@@ -32,7 +32,6 @@ export const diagramExtractor = (recommendation: IExercise) => {
     size,
     type,
   } = recommendation;
-  console.log("🚀 ~ diagramExtractor ~ recommendation:", recommendation);
 
   const svgFileName = `${type}-${size}.svg`;
   // Determine SVG dimensions based on size and window width for responsiveness

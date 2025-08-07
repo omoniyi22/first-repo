@@ -1,12 +1,12 @@
-import { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import { Loader2 } from 'lucide-react';
-import ProfileImage from './ProfileImage';
-import ProfileForm from './ProfileForm';
-import ProfileActions from './ProfileActions';
-import { ActivityLogger } from '@/utils/activityTracker'; 
+import { useState, useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { Loader2 } from "lucide-react";
+import ProfileImage from "./ProfileImage";
+import ProfileForm from "./ProfileForm";
+import ProfileActions from "./ProfileActions";
+import { ActivityLogger } from "@/utils/activityTracker";
 
 // Define a type for our profile data
 interface ProfileData {
@@ -27,82 +27,89 @@ const ProfileHeader = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [profilePic, setProfilePic] = useState<string | null>(null);
-  const [displayName, setDisplayName] = useState('');
-  const [riderCategory, setRiderCategory] = useState('Adult Amateur');
-  const [stableAffiliation, setStableAffiliation] = useState('');
-  const [coachName, setCoachName] = useState('');
-  const [region, setRegion] = useState('');
-  const [discipline, setDiscipline] = useState('');
-  const [governingBody, setGoverningBody] = useState('');
+  const [displayName, setDisplayName] = useState("");
+  const [riderCategory, setRiderCategory] = useState("Adult Amateur");
+  const [stableAffiliation, setStableAffiliation] = useState("");
+  const [coachName, setCoachName] = useState("");
+  const [region, setRegion] = useState("");
+  const [discipline, setDiscipline] = useState("");
+  const [governingBody, setGoverningBody] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   // Fetch profile data on component mount
   useEffect(() => {
     const fetchProfileData = async () => {
       if (!user) return;
-      
+
       try {
         setIsLoading(true);
-        
+
         // Get actual profile data from Supabase
         const { data: profile, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
+          .from("profiles")
+          .select("*")
+          .eq("id", user.id)
           .single();
-        
+
         if (error) {
           // Check if this is a "no rows returned" error
-          if (error.code !== 'PGRST116') {
-            console.error('Error fetching profile data:', error);
+          if (error.code !== "PGRST116") {
+            console.error("Error fetching profile data:", error);
             toast({
               title: "Failed to load profile",
               description: "There was an error loading your profile data.",
-              variant: "destructive"
+              variant: "destructive",
             });
           } else {
             // For new users, the trigger should create a profile entry, but just in case
-            console.log('No existing profile found, using default values');
+            console.log("No existing profile found, using default values");
           }
         }
-        
+
         if (profile) {
           // Set state with data from Supabase
-          setDisplayName(profile.display_name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || '');
-          setRiderCategory(profile.rider_category || 'Adult Amateur');
-          setStableAffiliation(profile.stable_affiliation || '');
-          setCoachName(profile.coach_name || '');
-          setRegion(profile.region || '');
-          setDiscipline(profile.discipline || '');
-          setGoverningBody(profile.governing_body || '');
+          setDisplayName(
+            profile.display_name ||
+              user?.user_metadata?.full_name ||
+              user?.email?.split("@")[0] ||
+              ""
+          );
+          setRiderCategory(profile.rider_category || "Adult Amateur");
+          setStableAffiliation(profile.stable_affiliation || "");
+          setCoachName(profile.coach_name || "");
+          setRegion(profile.region || "");
+          setDiscipline(profile.discipline || "");
+          setGoverningBody(profile.governing_body || "");
           setProfilePic(profile.profile_picture_url);
         } else {
           // Set default display name from user metadata if no profile exists
-          setDisplayName(user?.user_metadata?.full_name || user?.email?.split('@')[0] || '');
+          setDisplayName(
+            user?.user_metadata?.full_name || user?.email?.split("@")[0] || ""
+          );
         }
       } catch (error) {
-        console.error('Error in profile data fetch:', error);
+        console.error("Error in profile data fetch:", error);
       } finally {
         setIsLoading(false);
       }
     };
-    
+
     fetchProfileData();
-  }, [user, toast]);
-  
+  }, [user.id, toast]);
+
   const saveProfile = async () => {
     if (!user) {
       toast({
         title: "Authentication required",
         description: "Please sign in to save your profile.",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
-    
+
     setIsSaving(true);
-    
+
     try {
       // Prepare profile data
       const profileData: ProfileData = {
@@ -115,43 +122,46 @@ const ProfileHeader = () => {
         discipline: discipline,
         governing_body: governingBody,
         profile_picture_url: profilePic,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       };
-      
+
       // Save to Supabase
-      const { error } = await supabase
-        .from('profiles')
-        .upsert(profileData, { 
-          onConflict: 'id',
-          ignoreDuplicates: false
-        });
-      
+      const { error } = await supabase.from("profiles").upsert(profileData, {
+        onConflict: "id",
+        ignoreDuplicates: false,
+      });
+
       if (error) {
         throw error;
       }
 
       try {
-      const userName = displayName || user?.user_metadata?.full_name || user?.email || 'Unknown User';
-      await ActivityLogger.profileUpdated(userName);
-      console.log('✅ Profile update activity logged for:', userName);
-    } catch (activityError) {
-      console.error('Failed to log profile activity:', activityError);
-      // Don't throw error - just log it, don't break the profile save flow
-    }
-      
+        const userName =
+          displayName ||
+          user?.user_metadata?.full_name ||
+          user?.email ||
+          "Unknown User";
+        await ActivityLogger.profileUpdated(userName);
+        console.log("✅ Profile update activity logged for:", userName);
+      } catch (activityError) {
+        console.error("Failed to log profile activity:", activityError);
+        // Don't throw error - just log it, don't break the profile save flow
+      }
+
       toast({
         title: "Profile updated",
-        description: "Your profile information has been saved."
+        description: "Your profile information has been saved.",
       });
-      
-      console.log('Profile data saved successfully:', profileData);
+
+      console.log("Profile data saved successfully:", profileData);
     } catch (error: any) {
       toast({
         title: "Save failed",
-        description: error.message || "Failed to save profile. Please try again.",
-        variant: "destructive"
+        description:
+          error.message || "Failed to save profile. Please try again.",
+        variant: "destructive",
       });
-      console.error('Error saving profile:', error);
+      console.error("Error saving profile:", error);
     } finally {
       setIsSaving(false);
     }
@@ -169,11 +179,8 @@ const ProfileHeader = () => {
     <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
       <div className="flex flex-col md:flex-row gap-6">
         {/* Profile Picture */}
-        <ProfileImage 
-          profilePic={profilePic} 
-          setProfilePic={setProfilePic} 
-        />
-        
+        <ProfileImage profilePic={profilePic} setProfilePic={setProfilePic} />
+
         {/* Profile Form */}
         <ProfileForm
           displayName={displayName}
@@ -192,7 +199,7 @@ const ProfileHeader = () => {
           setGoverningBody={setGoverningBody}
         />
       </div>
-      
+
       {/* Action Buttons */}
       <ProfileActions isSaving={isSaving} onSave={saveProfile} />
     </div>

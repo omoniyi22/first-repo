@@ -59,7 +59,7 @@ const Horses = () => {
     if (user) {
       fetchHorses();
     }
-  }, [user]);
+  }, [user.id]);
 
   const fetchHorses = async () => {
     try {
