@@ -968,7 +968,11 @@ Let me know what you think!`;
                     className="bg-white py-8 rounded-xl mx-auto"
                     style={{ maxWidth: "300px" }}
                   >
-                    {diagramExtractor(recommendation as unknown as IExercise)}
+                    {diagramExtractor(
+                      resultData.en?.recommendations[
+                        index
+                      ] as unknown as IExercise
+                    )}
                   </div>
                 </div>
               </li>
