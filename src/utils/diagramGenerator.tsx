@@ -68,7 +68,7 @@ export const diagramExtractor = (recommendation: IExercise) => {
   }
   return (
     <div className="flex flex-col items-center justify-center">
-      <div>{setup}</div>
+      <div className="text-center" >{setup}</div>
       <img
         src={`/exercise-diagrams/${svgFileName}`}
         width={svgWidth}

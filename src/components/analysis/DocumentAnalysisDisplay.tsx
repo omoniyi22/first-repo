@@ -119,7 +119,6 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
   const { user } = useAuth();
   const [analysis, setAnalysis] = useState<DocumentAnalysis | null>(null);
   const [resultData, setResultData] = useState<AnalysisResultData | null>(null);
-  console.log("🚀 ~ DocumentAnalysisDisplay ~ resultData:", resultData)
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [analysisData, setAnalysisData] = useState<any>(null);
@@ -909,43 +908,59 @@ Let me know what you think!`;
                 />
                 <div className="flex flex-col lg:flex-row gap-8">
                   <div>
-                    <b>{recommendation["exercise"]} </b> -{" "}
-                    {recommendation["goal"]}
+                    <div>
+                      <b>{recommendation["exercise"]} </b> -{" "}
+                      {recommendation["goal"]}
+                    </div>
                     <br />
-                    <b>
-                      {language === "en" ? "To improve:" : "Para mejorar:"}
-                    </b>{" "}
-                    {recommendation["setup"]}
+                    <div>
+                      <b>
+                        {language === "en" ? "To improve:" : "Para mejorar:"}
+                      </b>{" "}
+                      {recommendation["setup"]}
+                    </div>
                     <br />
-                    <b>{language === "en" ? "Method:" : ":"}</b>
-                    <br />
-                    <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
-                      {recommendation["method"].map((method, key) => (
-                        <li key={key}>{method}</li>
-                      ))}
-                    </ul>
-                    <b>{language === "en" ? "Key Points:" : ":"}</b>
-                    <br />
-                    {recommendation["keyPoints"] &&
-                    typeof recommendation["keyPoints"] == "string" ? (
+                    <div>
+                      <b>{language === "en" ? "Method:" : ":"}</b>
+                      <br />
                       <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
-                        <li>{recommendation["keyPoints"]}</li>
-                      </ul>
-                    ) : (
-                      <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
-                        {recommendation["keyPoints"].map((point, key) => (
-                          <li key={key}>{point}</li>
+                        {recommendation["method"].map((method, key) => (
+                          <li key={key}>{method}</li>
                         ))}
                       </ul>
-                    )}
-                    <b>{language === "en" ? "Watch For:" : ":"}</b>{" "}
-                    <span>{recommendation["watchFor"]}</span>
+                    </div>
                     <br />
-                    <b>{language === "en" ? "Goal:" : ":"}</b>{" "}
-                    <span>{recommendation["goal"]}</span>
+                    <div>
+                      <b>{language === "en" ? "Key Points:" : ":"}</b>
+                      <br />
+                      {recommendation["keyPoints"] &&
+                      typeof recommendation["keyPoints"] == "string" ? (
+                        <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
+                          <li>{recommendation["keyPoints"]}</li>
+                        </ul>
+                      ) : (
+                        <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
+                          {recommendation["keyPoints"].map((point, key) => (
+                            <li key={key}>{point}</li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
                     <br />
-                    <b>{language === "en" ? "Quick Fix:" : ":"}</b>{" "}
-                    <span>{recommendation["quickFix"]}</span>
+                    <div>
+                      <b>{language === "en" ? "Watch For:" : ":"}</b>{" "}
+                      <span>{recommendation["watchFor"]}</span>
+                    </div>
+                    <br />
+                    <div>
+                      <b>{language === "en" ? "Goal:" : ":"}</b>{" "}
+                      <span>{recommendation["goal"]}</span>
+                    </div>
+                    <br />
+                    <div>
+                      <b>{language === "en" ? "Quick Fix:" : ":"}</b>{" "}
+                      <span>{recommendation["quickFix"]}</span>
+                    </div>
                     <br />
                   </div>
 
