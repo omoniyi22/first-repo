@@ -119,6 +119,7 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
   const { user } = useAuth();
   const [analysis, setAnalysis] = useState<DocumentAnalysis | null>(null);
   const [resultData, setResultData] = useState<AnalysisResultData | null>(null);
+  console.log("🚀 ~ DocumentAnalysisDisplay ~ resultData:", resultData)
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [analysisData, setAnalysisData] = useState<any>(null);
