@@ -94,7 +94,7 @@ serve(async (req) => {
       JSON format should be like follow.
       All formats must be followed like an example and if there are no contents, fill the field with null.
       Once analyze the document, you should give your recommend to improve skill based on analyzed results with strengths and weakness.
-      
+      Recommendations should include all key elements including size, type, and gait to help tailor the training plan.
       Keep recommendations practical and actionable while maintaining concise format like follow
 
       Extract these **8 variables** for each recommendation.
@@ -336,6 +336,7 @@ serve(async (req) => {
             "goal": [Specific target],
             "quickFix": [Immediate action item],
             "size": "Small || Large",
+            "gait": "Walk" || "Trot" || "Canter" || "Walk/Trot" || "Trot/Canter" || etc.
             "type": "Contact-A",
           },
           {
@@ -348,6 +349,7 @@ serve(async (req) => {
             "goal": [Specific target],
             "quickFix": [Immediate action item],
             "size": "Small || Large",
+            "gait": "Walk" || "Trot" || "Canter" || "Walk/Trot" || "Trot/Canter" || etc.
             "type": "Lateral-A",
           },
           {
@@ -360,6 +362,7 @@ serve(async (req) => {
             "goal": [Specific target],
             "quickFix": [Immediate action item],
             "size": "Small || Large",
+            "gait": "Walk" || "Trot" || "Canter" || "Walk/Trot" || "Trot/Canter" || etc.
             "type": "Transition-A",
           }, // Note: Size for each exercise should be consistant in one document.
         ],
@@ -396,6 +399,7 @@ serve(async (req) => {
       And also you should extract the highest and lowest scores and extract all movements of that.
       If percentage is null, you should calculate percentage with each judges' scores, max scores and coefficiente. Percentage can be a simple average of all judges' scores relative to their max scores (normally 10). This average must fall between the lowest and highest individual scores. However, accuracy in representation and extraction is the top priority
       At least 3 Recommendations are needed and all recommendations should be deep, meaningful, useful, correct and in detail (More specific exercise recommendations as well such as: "Try shoulder - in exercises" rather than just "focus on relaxtion").
+      Each recommendation must also include the primary gait type involved in that exercise, such as "Walk", "Trot", or "Canter". If more than one gait is used, use "Walk/Trot", "Trot/Canter", etc. Analyze the setup and method steps to determine which gait(s) the rider should use during the exercise.
       Ensure recommendations are specific, actionable, and progressive while remaining concise.
       Ensure no mixed-language elements appear, All contents should be English.
       And only return the full JSON not truncated without any comment like "Here is the analyzed result of the document.".
