@@ -11,6 +11,7 @@ export interface IExercise {
   quickFix: string;
   size: string;
   type: string;
+  gait: string;
 }
 
 export const COLOR_LEGEND = {
@@ -39,11 +40,15 @@ export const diagramExtractor = (recommendation: IExercise) => {
     watchFor,
     goal,
     quickFix,
+    gait,
     size,
     type,
   } = recommendation;
+  console.log("🚀 ~ diagramExtractor ~ recommendation:", recommendation);
 
-  const svgFileName = `${type}-${size}.svg`;
+  const svgFileName = `${type}-${size.slice(0, 1).toUpperCase()}${size.slice(
+    1
+  )}-${gait}.svg`;
   // Determine SVG dimensions based on size and window width for responsiveness
   let width: number, height: number;
   if (size.toLowerCase() === "large") {
