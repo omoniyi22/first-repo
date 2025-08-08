@@ -106,7 +106,7 @@ serve(async (req) => {
       const issueCount = "7";  // How many times it appears
       const judgeQuote = "CONTACTO MAS ARMONICO";  // Any judge comment
       const specificMovements = "1,5,6,10,22";  // The number of movements detail sheet with issues
-      In each recommendation, you should give 2 exercises with real value instead of {value} - horse name, lowest score, lowest movement.
+      In each recommendation, you should give 3 exercises with real value instead of {value} - horse name, lowest score, lowest movement.
 
       ## 🐎 Arena Size Detection Rule:
       When analyzing the document:
@@ -117,170 +117,179 @@ serve(async (req) => {
 
       ---
 
-     1. CONTACT/CONNECTION ISSUES
-Exercise 1A: Rhythm Stabilization
-Focus: Improving inconsistent rhythm and tempo
- Setup: Use long sides A-K-E-H and K-A-F-B for rhythm work
- Method:
-Step 1: Establish counting rhythm on long sides - consistent 1-2-3-4 beat pattern
-Step 2: Practice tempo transitions within gait - maintain rhythm while adjusting speed
-Step 3: Test rhythm consistency through corners and turns Key Points: {horseName} needs metronome-like consistency - judge noted tempo fluctuations
- Watch For: Avoid rushing through corners or slowing on straightaways
- Goal: Achieve consistent rhythm that scores 7.0+ in future tests
- Quick Fix: Count out loud to maintain steady tempo throughout movement
-Exercise 1B: Forward Drive Development
-Focus: Improving insufficient forward movement
- Setup: Practice on straight lines A-C and C-A with clear forward intention
- Method:
-Step 1: Build forward desire through leg aid acceptance - create willingness to move forward
-Step 2: Practice maintaining forward through transitions - prevent backward thinking
-Step 3: Develop sustained forward energy without rushing Key Points: {horseName} needs clear forward impulse - judge specifically noted lack of energy
- Watch For: Distinguish between forward energy and rushing - maintain quality of gait
- Goal: Transform {lowestMovement} from {lowestScore} to 7.0+ with proper forward drive
- Quick Fix: Use leg aid before every movement to ensure forward preparation
-Exercise 1C: Straightness Correction
-Focus: Improving crookedness and alignment issues
- Setup: Use center line X-G and G-X for straightness training
- Method:
-Step 1: Practice tracking straight on center line - equal weight on both sides
-Step 2: Develop even rein contact and leg pressure - eliminate one-sided dominance
-Step 3: Test straightness through transitions and halts Key Points: {horseName} needs equal engagement from both sides - judge noted deviation
- Watch For: Avoid over-correcting to one side - maintain neutral alignment
- Goal: Achieve straight tracking that improves overall test harmony
- Quick Fix: Check shoulder alignment matches hip alignment before each movement
+      1. CONTACT/CONNECTION ISSUES
 
-2. LATERAL WORK
-Exercise 2A: Shoulder-in Precision Training
-Focus: Improving shoulder-in angle and bend consistency
- Setup: Practice shoulder-in on M-B and H-E tracks where movement lost points
- Method:
-Step 1: Establish correct bend through preparatory transitions - create flexion judges expect
-Step 2: Practice 20° angle M-B track maintaining forward - address "insufficient angle" criticism
-Step 3: Develop 30° competition angle H-E track - exact test requirements Key Points: {horseName} needs clear 3-track pattern with sustained forward movement
- Watch For: Avoid over-bending neck which creates 4-track not 3-track pattern
- Goal: Transform movement from {lowestScore} to 7.0+ by achieving proper angle and bend
- Quick Fix: Check 3-track pattern is visible from judge C position before executing
-Exercise 2B: Leg-yield Clarity Training
-Focus: Improving leg-yield crossing and angle
- Setup: Practice leg-yield from quarter-line to K-E-H rail and F-B-M rail
- Method:
-Step 1: Establish sideways thinking through ground poles - create lateral awareness
-Step 2: Practice maintaining forward-sideways balance - prevent loss of forward momentum
-Step 3: Develop clear crossing pattern with consistent angle Key Points: {horseName} needs visible crossing steps - judge noted insufficient lateral movement
- Watch For: Maintain forward energy while moving sideways - avoid backward steps
- Goal: Achieve clear leg-yield that demonstrates proper lateral education
- Quick Fix: Use inside leg to outside rein connection for better lateral response
-Exercise 2C: Half-pass Development
-Focus: Improving half-pass collection and crossing
- Setup: Practice half-pass from quarter-line: H-quarter to B, then H-quarter to F; and M-quarter to E, then M-quarter to K
- Method:
-Step 1: Build collection through shoulder-fore preparation - create engagement for half-pass
-Step 2: Practice maintaining bend direction while moving sideways
-Step 3: Develop expressive crossing steps with sustained forward energy Key Points: {horseName} needs clear crossing with maintained collection
- Watch For: Avoid leading with quarters - maintain shoulder-leading position
- Goal: Transform half-pass quality from basic to competition level
- Quick Fix: Think shoulder-fore angle before beginning half-pass movement
+        Exercise 1A: Rhythm Stabilization
+        Focus: Improving inconsistent rhythm and tempo
+        Setup: Use long sides A-K-E-H and K-A-F-B for rhythm work
+        Method:
+          Step 1: Establish counting rhythm on long sides - consistent 1-2-3-4 beat pattern
+          Step 2: Practice tempo transitions within gait - maintain rhythm while adjusting speed
+          Step 3: Test rhythm consistency through corners and turns
+        Key Points: {horseName} needs metronome-like consistency - judge noted tempo fluctuations
+        Watch For: Avoid rushing through corners or slowing on straightaways
+        Goal: Achieve consistent rhythm that scores 7.0+ in future tests
+        Quick Fix: Count out loud to maintain steady tempo throughout movement
+        Size: Small || Large
+        Type: Contact-A
 
-3. CONFIDENCE BUILDER (Adaptive Exercises - No Fixed Diagrams)
-Exercise 3A: Simple Success Pattern
-Focus: Building confidence through achievable movements
- Setup: Use familiar movements on comfortable tracks (Based on individual test results)
- Method:
-Step 1: Practice best-scoring movements from recent tests - reinforce success patterns
-Step 2: Build on strengths before addressing weaknesses - maintain positive attitude
-Step 3: Gradually increase difficulty while maintaining success rate Key Points: {horseName} needs confidence boost after difficult test experience
- Watch For: Keep sessions positive and end on successful note
- Goal: Restore confidence and willingness to attempt new movements
- Quick Fix: Return to basic movements if tension appears
-Exercise 3B: Relaxation and Suppleness
-Focus: Reducing tension and improving suppleness
- Setup: Use flowing patterns that encourage relaxation (Personalized based on horse's needs)
- Method:
-Step 1: Begin with loose rein walk to establish calm mental state
-Step 2: Practice rhythmic transitions that promote relaxation
-Step 3: Build suppleness through gentle bending exercises Key Points: {horseName} needs mental relaxation before technical work
- Watch For: Signs of tension - halt exercise if stress appears
- Goal: Achieve relaxed, supple horse ready for productive training
- Quick Fix: Return to walk on loose rein whenever tension builds
-Exercise 3C: Partnership Building
-Focus: Improving rider-horse communication and trust
- Setup: Practice communication exercises that build partnership (Adapted to relationship needs)
- Method:
-Step 1: Work on clear aid application and consistent responses
-Step 2: Practice reward timing to reinforce positive responses
-Step 3: Build trust through consistent, fair training approach Key Points: {horseName} needs clear communication to build confidence
- Watch For: Avoid conflicting aids or unclear signals
- Goal: Establish solid partnership foundation for advanced training
- Quick Fix: Simplify aids and be generous with praise for correct responses
+        Exercise 1B: Forward Drive Development
+        Focus: Improving insufficient forward movement
+        Setup: Practice on straight lines A-C and C-A with clear forward intention
+        Method:
+          Step 1: Build forward desire through leg aid acceptance - create willingness to move forward
+          Step 2: Practice maintaining forward through transitions - prevent backward thinking
+          Step 3: Develop sustained forward energy without rushing
+        Key Points: {horseName} needs clear forward impulse - judge specifically noted lack of energy
+        Watch For: Distinguish between forward energy and rushing - maintain quality of gait
+        Goal: Transform {lowestMovement} from {lowestScore} to 7.0+ with proper forward drive
+        Quick Fix: Use leg aid before every movement to ensure forward preparation
+        Size: Small || Large
+        Type: Contact-B
 
-4. CIRCLE EXERCISES
-Exercise 4A: Circle Bend Development
-Focus: Improving bend consistency and circle accuracy
- Setup: Practice 20m circles at A and C, 15m circles at B and E, and 10m circles at A, C, B, E (X for advanced work)
- Method:
-Step 1: Establish correct bend on 20m circle - create foundation flexion
-Step 2: Maintain bend quality on 15m circle - test bend consistency
-Step 3: Develop precise bend on 10m circle - achieve competition requirements Key Points: {horseName} needs uniform bend from poll to tail throughout circle
- Watch For: Avoid motorcycle lean or falling in/out of circle
- Goal: Achieve accurate circles with consistent bend quality
- Quick Fix: Use outside aids to maintain circle size and inside aids for bend
-Exercise 4B: Circle Suppling Work (Progressive Circles - Use Dotted Lines)
-Focus: Improving suppleness and flexibility through circles
- Setup: Use circles at A, B, E, and C positions for comprehensive suppling
- Method:
-Step 1: Practice large circles (20m) for basic suppling - establish flexibility
-Step 2: Gradually decrease circle size (15m) while maintaining suppleness
-Step 3: Change direction frequently to develop equal suppleness both ways Key Points: {horseName} needs equal suppleness in both directions
- Watch For: Resistance to bending - work gradually to improve flexibility
- Goal: Develop equal suppleness that improves overall test performance
- Quick Fix: Return to larger circles if resistance appears
- Visual: Show progressive circle sizes with solid/dashed/dotted lines
-Exercise 4C: Circle Precision Training (Generic Version)
-Focus: Improving circle geometry and accuracy
- Setup: Practice 20m circles at A and C, 15m circles at B and E, 10m circles at A, C, B, E with precise entry/exit points
- Method:
-Step 1: Use arena markers to check circle accuracy - maintain proper geometry
-Step 2: Practice different circle sizes at same location - develop size control
-Step 3: Execute circles with precise entry and exit points Key Points: {horseName} needs accurate circle geometry for test success
- Watch For: Egg-shaped or square circles - maintain round geometry
- Goal: Achieve precise circles that score 7.0+ in tests
- Quick Fix: Use arena markers as reference points for circle accuracy
+        Exercise 1C: Straightness Correction
+        Focus: Improving crookedness and alignment issues
+        Setup: Use center line X-G and G-X for straightness training
+        Method:
+          Step 1: Practice tracking straight on center line - equal weight on both sides
+          Step 2: Develop even rein contact and leg pressure - eliminate one-sided dominance
+          Step 3: Test straightness through transitions and halts
+        Key Points: {horseName} needs equal engagement from both sides - judge noted deviation
+        Watch For: Avoid over-correcting to one side - maintain neutral alignment
+        Goal: Achieve straight tracking that improves overall test harmony
+        Quick Fix: Check shoulder alignment matches hip alignment before each movement
+        Size: Small || Large
+        Type: Contact-C
 
-5. TRANSITION EXERCISES
-Exercise 5A: Upward Transition Quality
-Focus: Improving upward transition smoothness and preparation
- Setup: Practice upward transitions in two patterns: at corners K, E, H, M, B, F (approach and transition through the turn) and on centerline A-C, C-A (transition at marked points for straightness)
- Method:
-Step 1: Prepare horse mentally and physically before each transition
-Step 2: Apply aids gradually for smooth upward transitions
-Step 3: Maintain quality of new gait immediately after transition Key Points: {horseName} needs smooth, prepared upward transitions
- Watch For: Rushing or resistance during transitions
- Goal: Achieve fluid upward transitions that enhance test flow
- Quick Fix: Use half-halts to prepare horse before transition aids
-Exercise 5B: Downward Transition Balance
-Focus: Improving downward transition balance and engagement
- Setup: Practice downward transitions in two patterns: at corners K, E, H, M, B, F (approach and transition through the turn) and on centerline A-C, C-A (transition at marked points for straightness)
- Method:
-Step 1: Maintain forward thinking while slowing gait
-Step 2: Use seat and breathing to encourage downward transitions
-Step 3: Keep horse engaged and balanced throughout transition Key Points: {horseName} needs to maintain balance during downward transitions
- Watch For: Falling on forehand or losing forward momentum
- Goal: Achieve balanced downward transitions that maintain engagement
- Quick Fix: Use core engagement to support horse through transition
-Exercise 5C: Within-Gait Transitions (Both Directions with Line Styles)
-Focus: Improving collection and extension within gaits
- Setup:
-Direction 1 (Clockwise): Working A-K-E, collect E-H-C, extend C-M-B, working B-F-A
-Direction 2 (Counter-clockwise): Working A-F-B, collect B-M-C, extend C-H-E, working E-K-A
-Method:
-Step 1: Establish clear difference between working and collected gaits
-Step 2: Practice smooth transitions between collection levels
-Step 3: Develop expression in extended gaits while maintaining balance Key Points: {horseName} needs clear differences between gait variations
- Watch For: Loss of rhythm during gait transitions
- Goal: Achieve clear gait variations that demonstrate training level
- Quick Fix: Focus on rhythm consistency during all gait changes
- Visual: Use solid lines (working), dashed lines (collection), dotted lines (extension)
+      2. LATERAL WORK:
 
+      Exercise 2A: Shoulder-in Precision Training
+      Focus: Improving shoulder-in angle and bend consistency
+      Setup: Practice exact test track M-B and H-E where movement lost points
+      Method:
+        Step 1: Establish correct bend through preparatory transitions - create flexion judges expect
+        Step 2: Practice 20° angle M-B track maintaining forward - address "insufficient angle" criticism
+        Step 3: Develop 30° competition angle H-E track - exact test requirements
+      Key Points: {horseName} needs clear 3-track pattern with sustained forward movement
+      Watch For: Avoid over-bending neck which creates 4-track not 3-track pattern
+      Goal: Transform movement from {lowestScore} to 7.0+ by achieving proper angle and bend
+      Quick Fix: Check 3-track pattern is visible from judge C position before executing
+      Size: Small || Large
+      Type: Lateral-A
+
+      Exercise 2B: Leg-yield Clarity Training
+      Focus: Improving leg-yield crossing and angle
+      Setup: Practice quarter-line to rail and rail to quarter-line patterns
+      Method:
+        Step 1: Establish sideways thinking through ground poles - create lateral awareness
+        Step 2: Practice maintaining forward-sideways balance - prevent loss of forward momentum
+        Step 3: Develop clear crossing pattern with consistent angle
+      Key Points: {horseName} needs visible crossing steps - judge noted insufficient lateral movement
+      Watch For: Maintain forward energy while moving sideways - avoid backward steps
+      Goal: Achieve clear leg-yield that demonstrates proper lateral education
+      Quick Fix: Use inside leg to outside rein connection for better lateral response
+      Size: Small || Large
+      Type: Lateral-B
+
+      Exercise 2C: Half-pass Development
+      Focus: Improving half-pass collection and crossing
+      Setup: Practice diagonal lines from quarter-line to rail
+      Method:
+        Step 1: Build collection through shoulder-fore preparation - create engagement for half-pass
+        Step 2: Practice maintaining bend direction while moving sideways
+        Step 3: Develop expressive crossing steps with sustained forward energy
+      Key Points: {horseName} needs clear crossing with maintained collection
+      Watch For: Avoid leading with quarters - maintain shoulder-leading position
+      Goal: Transform half-pass quality from basic to competition level
+      Quick Fix: Think shoulder-fore angle before beginning half-pass movement
+      Size: Small || Large
+      Type: Lateral-C
+
+      4. CIRCLE EXERCISES
+      Exercise 4A: Circle Bend Development
+      Focus: Improving bend consistency and circle accuracy
+      Setup: Practice 20m, 15m, and 10m circles at designated points
+      Method:
+        Step 1: Establish correct bend on 20m circle - create foundation flexion
+        Step 2: Maintain bend quality on 15m circle - test bend consistency
+        Step 3: Develop precise bend on 10m circle - achieve competition requirements
+      Key Points: {horseName} needs uniform bend from poll to tail throughout circle
+      Watch For: Avoid motorcycle lean or falling in/out of circle
+      Goal: Achieve accurate circles with consistent bend quality
+      Quick Fix: Use outside aids to maintain circle size and inside aids for bend
+      Size: Small || Large
+      Type: Circle-A
+
+      Exercise 4B: Circle Suppling Work
+      Focus: Improving suppleness and flexibility through circles
+      Setup: Use circles at A, B, E, and C positions for comprehensive suppling
+      Method:
+        Step 1: Practice large circles for basic suppling - establish flexibility
+        Step 2: Gradually decrease circle size while maintaining suppleness
+        Step 3: Change direction frequently to develop equal suppleness both ways
+      Key Points: {horseName} needs equal suppleness in both directions
+      Watch For: Resistance to bending - work gradually to improve flexibility
+      Goal: Develop equal suppleness that improves overall test performance
+      Quick Fix: Return to larger circles if resistance appears
+      Size: Small || Large
+      Type: Circle-B
+
+      Exercise 4C: Circle Precision Training
+      Focus: Improving circle geometry and accuracy
+      Setup: Practice exact circle positions required in dressage tests
+      Method:
+        Step 1: Use arena markers to check circle accuracy - maintain proper geometry
+        Step 2: Practice different circle sizes at same location - develop size control
+        Step 3: Execute circles with precise entry and exit points
+      Key Points: {horseName} needs accurate circle geometry for test success
+      Watch For: Egg-shaped or square circles - maintain round geometry
+      Goal: Achieve precise circles that score 7.0+ in tests
+      Quick Fix: Use arena markers as reference points for circle accuracy
+      Size: Small || Large
+      Type: Circle-C
+
+      // 5. TRANSITION EXERCISES
+      // Exercise 5A: Upward Transition Quality
+      // Focus: Improving upward transition smoothness and preparation
+      // Setup: Practice transitions on straight lines and through corners
+      // Method:
+      //   Step 1: Prepare horse mentally and physically before each transition
+      //   Step 2: Apply aids gradually for smooth upward transitions
+      //   Step 3: Maintain quality of new gait immediately after transition
+      // Key Points: {horseName} needs smooth, prepared upward transitions
+      // Watch For: Rushing or resistance during transitions
+      // Goal: Achieve fluid upward transitions that enhance test flow
+      // Quick Fix: Use half-halts to prepare horse before transition aids
+      // Size: Small || Large
+      // Type: Transition-A
+
+      // Exercise 5B: Downward Transition Balance
+      // Focus: Improving downward transition balance and engagement
+      // Setup: Practice downward transitions maintaining forward energy
+      // Method:
+      //   Step 1: Maintain forward thinking while slowing gait
+      //   Step 2: Use seat and breathing to encourage downward transitions
+      //   Step 3: Keep horse engaged and balanced throughout transition
+      // Key Points: {horseName} needs to maintain balance during downward transitions
+      // Watch For: Falling on forehand or losing forward momentum
+      // Goal: Achieve balanced downward transitions that maintain engagement
+      // Quick Fix: Use core engagement to support horse through transition
+      // Size: Small || Large
+      // Type: Transition-B
+
+      // Exercise 5C: Within-Gait Transitions
+      // Focus: Improving collection and extension within gaits
+      // Setup: Practice lengthening and collecting on long sides
+      // Method:
+      //   Step 1: Establish clear difference between working and collected gaits
+      //   Step 2: Practice smooth transitions between collection levels
+      //   Step 3: Develop expression in extended gaits while maintaining balance
+      // Key Points: {horseName} needs clear differences between gait variations
+      // Watch For: Loss of rhythm during gait transitions
+      // Goal: Achieve clear gait variations that demonstrate training level
+      // Quick Fix: Focus on rhythm consistency during all gait changes
+      // Size: Small || Large
+      // Type: Transition-C
 
       AI SELECTION CRITERIA
       Use Contact/Connection Issues (1A-1C) when:
@@ -298,10 +307,10 @@ Step 3: Develop expression in extended gaits while maintaining balance Key Point
         - Comments mention bend or suppleness issues
         - Horse needs improved balance and geometry
 
-      Use Transition Exercises (5A-5C) when:
-         - Test comments focus on transition quality
-         - Horse needs improved balance or preparation
-         - Collection and extension need development
+      // Use Transition Exercises (5A-5C) when:
+      //   - Test comments focus on transition quality
+      //   - Horse needs improved balance or preparation
+      //   - Collection and extension need development
       
       While extracting exercise name, you should remove exercise keys like 1A, 2B and so on.
 
@@ -428,13 +437,11 @@ Step 3: Develop expression in extended gaits while maintaining balance Key Point
       })
     });
     const result_en = await geminiResponse.text();
-    console.log("🚀 ~ result_en:", result_en)
     if (!geminiResponse.ok) {
       console.error('Gemini error response:', result_en);
       throw new Error(`Gemini API Error: ${geminiResponse.status}`);
     }
     const geminiResult_en = JSON.parse(result_en);
-    console.log("🚀 ~ geminiResult_en:", geminiResult_en)
     let resultText = geminiResult_en.candidates[0].content.parts[0].text;
     console.log("resultText:", resultText);
     resultText = resultText.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');

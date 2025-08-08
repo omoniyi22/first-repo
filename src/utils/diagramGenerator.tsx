@@ -43,7 +43,7 @@ export const diagramExtractor = (recommendation: IExercise) => {
     type,
   } = recommendation;
 
-  const svgFileName = `${type}-${size}.svg`;
+  const svgFileName = `${type}-${size.slice(0, 1).toUpperCase()}${size.slice(1)}.svg`;
   // Determine SVG dimensions based on size and window width for responsiveness
   let width: number, height: number;
   if (size.toLowerCase() === "large") {
