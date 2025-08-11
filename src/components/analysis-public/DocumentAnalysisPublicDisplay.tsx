@@ -754,11 +754,13 @@ Let me know what you think!`;
                 className="bg-white text-[#2C1A5C] hover:bg-white mt-4"
                 disabled
               >
-                Get Your Ride-Along Podcast
+                {language === "en"
+                  ? "Download Now – Your Personal Training Session"
+                  : "Descarga ahora: Tu sesión de entrenamiento personal"}
               </Button>
             </div>
             <div className="relative w-36 h-36 rounded-full overflow-hidden flex items-center justify-center">
-              <div className="relative z-10 w-28 h-28 rounded-full bg-[#3f77eb]/20 backdrop-blur-sm flex items-center justify-center">
+              <div className="relative z-10 w-40 h-40 rounded-full bg-[#3f77eb]/20 backdrop-blur-sm flex items-center justify-center">
                 <img
                   src={"/lovable-uploads/report-cta.png"}
                   alt="Horse and rider jumping over competition obstacle"

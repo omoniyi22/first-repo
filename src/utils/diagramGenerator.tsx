@@ -44,7 +44,6 @@ export const diagramExtractor = (recommendation: IExercise) => {
     size,
     type,
   } = recommendation;
-  console.log("🚀 ~ diagramExtractor ~ recommendation:", recommendation);
 
   const svgFileName = `${type}-${size.slice(0, 1).toUpperCase()}${size.slice(
     1
