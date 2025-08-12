@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -26,12 +26,41 @@ import * as z from "zod";
 import MediaSelector from "../media/MediaSelector";
 import { updateBlogTranslation } from "@/services/blogService";
 import { useToast } from "@/hooks/use-toast";
+import { CheckCircle, XCircle, Loader2 } from "lucide-react";
+import { supabase } from "@/lib/supabase"; // Replace with your Supabase client import
 
 interface BlogPostFormProps {
   post: BlogPost | null;
   onSave: (post: BlogPost) => void;
   onCancel: () => void;
 }
+
+// Supabase function to check if slug exists
+const checkSlugExists = async (slug: string, currentPostId?: number | string): Promise<{ exists: boolean; error?: string }> => {
+  try {
+    let query = supabase
+      .from('blog_posts') // Replace 'blog_posts' with your actual table name
+      .select('id')
+      .eq('slug', slug);
+
+    // Exclude current post when editing (if we have a Supabase ID)
+    if (currentPostId) {
+      query = query.neq('id', currentPostId);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error('Supabase error checking slug:', error);
+      return { exists: false, error: error.message || 'Failed to check slug availability' };
+    }
+
+    return { exists: data && data.length > 0 };
+  } catch (error) {
+    console.error('Error checking slug:', error);
+    return { exists: false, error: error.message || 'Failed to check slug availability' };
+  }
+};
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -59,6 +88,20 @@ const BlogPostForm = ({ post, onSave, onCancel }: BlogPostFormProps) => {
     content: '',
     category: ''
   });
+  
+  // Slug validation states
+  const [slugValidation, setSlugValidation] = useState<{
+    isChecking: boolean;
+    isValid: boolean | null;
+    message: string;
+    hasError: boolean;
+  }>({
+    isChecking: false,
+    isValid: null,
+    message: '',
+    hasError: false
+  });
+
   const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -80,6 +123,74 @@ const BlogPostForm = ({ post, onSave, onCancel }: BlogPostFormProps) => {
     },
   });
 
+  // Debounced slug validation function
+  const validateSlug = useCallback(
+    debounce(async (slug: string) => {
+      if (!slug.trim()) {
+        setSlugValidation({
+          isChecking: false,
+          isValid: null,
+          message: '',
+          hasError: false
+        });
+        return;
+      }
+
+      setSlugValidation(prev => ({ ...prev, isChecking: true }));
+      
+      try {
+        // Use supabaseId if available, otherwise use regular id
+        const postId = post?.supabaseId || post?.id;
+        const result = await checkSlugExists(slug, postId);
+        
+        if (result.error) {
+          setSlugValidation({
+            isChecking: false,
+            isValid: null,
+            message: `Error: ${result.error}`,
+            hasError: true
+          });
+        } else if (result.exists) {
+          setSlugValidation({
+            isChecking: false,
+            isValid: false,
+            message: 'This slug is already taken. Please choose a different one.',
+            hasError: false
+          });
+          form.setError('slug', {
+            type: 'manual',
+            message: 'This slug is already taken'
+          });
+        } else {
+          setSlugValidation({
+            isChecking: false,
+            isValid: true,
+            message: 'Slug is available',
+            hasError: false
+          });
+          form.clearErrors('slug');
+        }
+      } catch (error) {
+        setSlugValidation({
+          isChecking: false,
+          isValid: null,
+          message: 'Error checking slug availability',
+          hasError: true
+        });
+      }
+    }, 500),
+    [post?.supabaseId, post?.id, form]
+  );
+
+  // Watch slug changes for real-time validation
+  const slugValue = form.watch('slug');
+  
+  useEffect(() => {
+    if (slugValue) {
+      validateSlug(slugValue);
+    }
+  }, [slugValue, validateSlug]);
+
   // Update the form values when the post prop changes
   useEffect(() => {
     if (post) {
@@ -87,12 +198,20 @@ const BlogPostForm = ({ post, onSave, onCancel }: BlogPostFormProps) => {
       form.reset({
         title: post.title,
         excerpt: post.excerpt,
-        content: post.content ?? "", // Use nullish coalescing operator to handle null or undefined
+        content: post.content ?? "",
         author: post.author,
         discipline: post.discipline,
         category: post.category,
         slug: post.slug,
         image: post.image,
+      });
+
+      // Reset slug validation when editing existing post
+      setSlugValidation({
+        isChecking: false,
+        isValid: null,
+        message: '',
+        hasError: false
       });
 
       // Load Spanish translations if they exist
@@ -108,18 +227,76 @@ const BlogPostForm = ({ post, onSave, onCancel }: BlogPostFormProps) => {
   }, [post, form]);
 
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
+    // Prevent submission if slug validation has errors or is invalid
+    if (slugValidation.hasError) {
+      toast({
+        title: 'Validation Error',
+        description: 'Please fix the slug validation error before saving.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (slugValidation.isValid === false) {
+      toast({
+        title: 'Invalid Slug',
+        description: 'Please choose a different slug before saving.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // If we haven't validated the slug yet (e.g., user typed and immediately clicked save)
+    if (slugValidation.isValid === null && values.slug) {
+      toast({
+        title: 'Validating Slug',
+        description: 'Please wait while we validate the slug...',
+      });
+      
+      // Trigger validation and wait for it
+      const postId = post?.supabaseId || post?.id;
+      const result = await checkSlugExists(values.slug, postId);
+      
+      if (result.error) {
+        toast({
+          title: 'Validation Error',
+          description: `Could not validate slug: ${result.error}`,
+          variant: 'destructive',
+        });
+        return;
+      }
+      
+      if (result.exists) {
+        toast({
+          title: 'Invalid Slug',
+          description: 'This slug is already taken. Please choose a different one.',
+          variant: 'destructive',
+        });
+        setSlugValidation({
+          isChecking: false,
+          isValid: false,
+          message: 'This slug is already taken. Please choose a different one.',
+          hasError: false
+        });
+        form.setError('slug', {
+          type: 'manual',
+          message: 'This slug is already taken'
+        });
+        return;
+      }
+    }
+
     setIsSubmitting(true);
     try {
       console.log("Submitting blog post form with values:", values);
 
-      // Ensure content is not null/undefined
       const content = values.content || "";
 
       const updatedPost: BlogPost = {
-        id: post?.id || Math.floor(Math.random() * 1000), // Will be replaced with real ID from Supabase
+        id: post?.id || Math.floor(Math.random() * 1000),
         title: values.title,
         excerpt: values.excerpt,
-        content: content, // Use the validated content
+        content: content,
         author: values.author,
         date:
           post?.date ||
@@ -135,7 +312,6 @@ const BlogPostForm = ({ post, onSave, onCancel }: BlogPostFormProps) => {
         readingTime: post?.readingTime || "5 min read",
         authorImage: post?.authorImage || "/placeholder.svg",
         translations: post?.translations || {},
-        // Keep the Supabase ID if we're editing
         ...(post && post.supabaseId ? { supabaseId: post.supabaseId } : {}),
       };
 
@@ -165,11 +341,36 @@ const BlogPostForm = ({ post, onSave, onCancel }: BlogPostFormProps) => {
       }
     } catch (error) {
       console.error('Error saving blog post:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to save blog post. Please try again.',
-        variant: 'destructive',
-      });
+      
+      // Check if it's a duplicate slug error from Supabase
+      if (error.code === '23505' || 
+          (error.message && error.message.includes('duplicate key value violates unique constraint')) ||
+          (error.message && error.message.includes('blog_posts_slug_key'))) {
+        toast({
+          title: 'Duplicate Slug Error',
+          description: 'This slug is already taken. Please choose a different one and try again.',
+          variant: 'destructive',
+        });
+        
+        // Update validation state to show error
+        setSlugValidation({
+          isChecking: false,
+          isValid: false,
+          message: 'This slug is already taken. Please choose a different one.',
+          hasError: false
+        });
+        
+        form.setError('slug', {
+          type: 'manual',
+          message: 'This slug is already taken'
+        });
+      } else {
+        toast({
+          title: 'Error',
+          description: 'Failed to save blog post. Please try again.',
+          variant: 'destructive',
+        });
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -184,6 +385,22 @@ const BlogPostForm = ({ post, onSave, onCancel }: BlogPostFormProps) => {
         .replace(/\s+/g, "-");
       form.setValue("slug", slug);
     }
+  };
+
+  const getSlugValidationIcon = () => {
+    if (slugValidation.isChecking) {
+      return <Loader2 className="h-4 w-4 animate-spin text-gray-500" />;
+    }
+    if (slugValidation.hasError) {
+      return <XCircle className="h-4 w-4 text-orange-500" />;
+    }
+    if (slugValidation.isValid === true) {
+      return <CheckCircle className="h-4 w-4 text-green-500" />;
+    }
+    if (slugValidation.isValid === false) {
+      return <XCircle className="h-4 w-4 text-red-500" />;
+    }
+    return null;
   };
 
   return (
@@ -240,9 +457,31 @@ const BlogPostForm = ({ post, onSave, onCancel }: BlogPostFormProps) => {
                       </Button>
                     </FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter URL slug" {...field} />
+                      <div className="relative">
+                        <Input 
+                          placeholder="Enter URL slug" 
+                          {...field}
+                          className={`pr-10 ${
+                            slugValidation.isValid === false ? 'border-red-500 focus:border-red-500' :
+                            slugValidation.isValid === true ? 'border-green-500 focus:border-green-500' :
+                            slugValidation.hasError ? 'border-orange-500 focus:border-orange-500' : ''
+                          }`}
+                        />
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                          {getSlugValidationIcon()}
+                        </div>
+                      </div>
                     </FormControl>
-                    <FormMessage />
+                    {slugValidation.message && (
+                      <p className={`text-sm mt-1 ${
+                        slugValidation.isValid === false ? 'text-red-500' : 
+                        slugValidation.isValid === true ? 'text-green-500' : 
+                        slugValidation.hasError ? 'text-orange-500' : 'text-gray-500'
+                      }`}>
+                        {slugValidation.message}
+                      </p>
+                    )}
+                    {/* <FormMessage /> */}
                   </FormItem>
                 )}
               />
@@ -371,7 +610,10 @@ const BlogPostForm = ({ post, onSave, onCancel }: BlogPostFormProps) => {
               <Button type="button" variant="outline" onClick={onCancel}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button 
+                type="submit" 
+                disabled={isSubmitting || slugValidation.isValid === false || slugValidation.isChecking || slugValidation.hasError}
+              >
                 {isSubmitting ? "Saving..." : post ? "Update Post" : "Create Post"}
               </Button>
             </div>
@@ -436,7 +678,7 @@ const BlogPostForm = ({ post, onSave, onCancel }: BlogPostFormProps) => {
             <Button 
               type="button" 
               onClick={() => form.handleSubmit(handleSubmit)()}
-              disabled={isSubmitting}
+              disabled={isSubmitting || slugValidation.isValid === false || slugValidation.isChecking || slugValidation.hasError}
             >
               {isSubmitting ? 'Saving...' : post ? 'Update Post & Translation' : 'Create Post & Translation'}
             </Button>
@@ -446,5 +688,17 @@ const BlogPostForm = ({ post, onSave, onCancel }: BlogPostFormProps) => {
     </Tabs>
   );
 };
+
+// Debounce utility function
+function debounce<T extends (...args: any[]) => any>(
+  func: T,
+  wait: number
+): (...args: Parameters<T>) => void {
+  let timeout: NodeJS.Timeout;
+  return (...args: Parameters<T>) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func(...args), wait);
+  };
+}
 
 export default BlogPostForm;
