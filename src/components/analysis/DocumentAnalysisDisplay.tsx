@@ -841,7 +841,7 @@ Let me know what you think!`;
             {resultData[language]["focusArea"].map((item, index) => (
               <li key={index} className="list-none font-semibold">
                 <div className="flex items-center space-x-2 mb-2">
-                  <span className="!w-8 !h-8 flex justify-center items-center rounded-full bg-gradient-to-r from-[#7658EB] to-[#3C78EB] text-white">
+                  <span className="!min-w-8 !min-h-8 flex justify-center items-center rounded-full bg-gradient-to-r from-[#7658EB] to-[#3C78EB] text-white">
                     {index + 1}
                   </span>
                   <p className="text-lg font-semibold py-2">{item.area}</p>
