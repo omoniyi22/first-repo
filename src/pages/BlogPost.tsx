@@ -18,7 +18,6 @@ import { getImagePath, handleImageError } from "@/utils/imageUtils";
 const BlogPostPage = () => {
   const { slug } = useParams<{ slug: string }>();
   const [post, setPost] = useState<BlogPost | null>(null);
-  console.log("🚀 ~ BlogPostPage ~ post:", post);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [relatedPosts, setRelatedPosts] = useState<BlogPost[]>([]);

@@ -1,10 +1,19 @@
 import { useState, useEffect } from "react";
-import { Check } from "lucide-react";
+import {
+  Check,
+  Tag,
+  AlertCircle,
+  Loader2,
+  CheckCircle,
+  Sparkles,
+} from "lucide-react";
 import PricingToggle from "./PricingToggle";
 import AnimatedSection from "../ui/AnimatedSection";
 import { Link } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import EmailSignupForm from "./EmailSignupForm";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Badge } from "@/components/ui/badge";
@@ -19,6 +28,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 interface PricingPlan {
   id: string;
@@ -48,6 +64,19 @@ const PricingTiers = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [checkingOut, setCheckingOut] = useState(false);
   const [showLoginDialog, setShowLoginDialog] = useState(false);
+  const [showCouponDialog, setShowCouponDialog] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [subscribedPlanName, setSubscribedPlanName] = useState("");
+  const [selectedPlan, setSelectedPlan] = useState<PricingPlan | null>(null);
+
+  // Coupon state
+  const [couponCode, setCouponCode] = useState("");
+  const [couponValidation, setCouponValidation] = useState<{
+    valid: boolean;
+    discount_percent?: number;
+    error?: string;
+  } | null>(null);
+  const [validatingCoupon, setValidatingCoupon] = useState(false);
 
   const { language, translations } = useLanguage();
   const { session } = useAuth();
@@ -57,6 +86,12 @@ const PricingTiers = () => {
     isLoading: subscriptionLoading,
     checkoutPlan,
     openCustomerPortal,
+    planName,
+    subscriptionDetails,
+    daysRemaining,
+    expiresSoon,
+    couponUsed,
+    validateCoupon,
   } = useSubscription();
   const { toast } = useToast();
   const t = translations[language];
@@ -70,7 +105,7 @@ const PricingTiers = () => {
         const { data: plansData, error: plansError } = await supabase
           .from("pricing_plans")
           .select("*")
-          .order("created_at");
+          .order("created_at", { ascending: true });
 
         if (plansError) {
           console.error("Error fetching pricing plans:", plansError);
@@ -109,17 +144,11 @@ const PricingTiers = () => {
     // Check URL parameters for Stripe return status
     const searchParams = new URLSearchParams(window.location.search);
     if (searchParams.get("success") === "true") {
-      toast({
-        title:
-          language === "en"
-            ? "Subscription Successful!"
-            : "¡Suscripción Exitosa!",
-        description:
-          language === "en"
-            ? "Your subscription has been activated"
-            : "Tu suscripción ha sido activada",
-        variant: "default",
-      });
+      // Show success modal instead of toast
+      const planNameFromUrl =
+        searchParams.get("plan_name") || planName || "your selected plan";
+      setSubscribedPlanName(planNameFromUrl);
+      setShowSuccessModal(true);
 
       // Clean up the URL
       window.history.replaceState({}, document.title, window.location.pathname);
@@ -139,8 +168,34 @@ const PricingTiers = () => {
     }
   }, []);
 
+  // Real-time coupon validation with debounce
+  useEffect(() => {
+    if (!couponCode.trim()) {
+      setCouponValidation(null);
+      return;
+    }
+
+    const timeoutId = setTimeout(async () => {
+      setValidatingCoupon(true);
+      const result = await validateCoupon(couponCode);
+      setCouponValidation(result);
+      setValidatingCoupon(false);
+    }, 500); // Wait 500ms after user stops typing
+
+    return () => clearTimeout(timeoutId);
+  }, [couponCode, validateCoupon]);
+
   const handleToggle = (annual: boolean) => {
     setIsAnnual(annual);
+  };
+
+  const calculateDiscountedPrice = (originalPrice: number) => {
+    if (!couponValidation?.valid || !couponValidation.discount_percent) {
+      return originalPrice;
+    }
+
+    const discount = (originalPrice * couponValidation.discount_percent) / 100;
+    return originalPrice - discount;
   };
 
   const handlePlanSelect = async (plan: PricingPlan) => {
@@ -155,11 +210,20 @@ const PricingTiers = () => {
       return;
     }
 
+    // Show coupon dialog before checkout
+    setSelectedPlan(plan);
+    setShowCouponDialog(true);
+  };
+
+  const handleCheckoutWithCoupon = async () => {
+    if (!selectedPlan) return;
+
     try {
       setCheckingOut(true);
       const checkoutUrl = await checkoutPlan(
-        plan.id,
-        isAnnual ? "annual" : "monthly"
+        selectedPlan.id,
+        isAnnual ? "annual" : "monthly",
+        couponCode.trim() || undefined
       );
 
       if (checkoutUrl) {
@@ -168,7 +232,22 @@ const PricingTiers = () => {
       }
     } finally {
       setCheckingOut(false);
+      setShowCouponDialog(false);
+      setCouponCode("");
+      setCouponValidation(null);
+      setSelectedPlan(null);
     }
+  };
+
+  const handleSkipCoupon = async () => {
+    setCouponCode("");
+    setCouponValidation(null);
+    await handleCheckoutWithCoupon();
+  };
+
+  const handleCloseSuccessModal = () => {
+    setShowSuccessModal(false);
+    setSubscribedPlanName("");
   };
 
   if (isLoading || subscriptionLoading) {
@@ -195,6 +274,73 @@ const PricingTiers = () => {
           </h1>
           <p className="text-lg text-gray-700">{t["try-free"]}</p>
         </AnimatedSection>
+
+        {/* Current Subscription Status */}
+        {isSubscribed && subscriptionDetails && (
+          <AnimatedSection animation="fade-in" className="mb-8">
+            <Card className="max-w-2xl mx-auto">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Check className="h-5 w-5 text-green-600" />
+                  {language === "en"
+                    ? "Active Subscription"
+                    : "Suscripción Activa"}
+                </CardTitle>
+                <CardDescription>
+                  {language === "en"
+                    ? `You're currently subscribed to ${subscriptionDetails.plan_name}`
+                    : `Actualmente estás suscrito a ${subscriptionDetails.plan_name}`}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                  <div>
+                    <p className="font-medium text-gray-900">
+                      {language === "en" ? "Days Remaining" : "Días Restantes"}
+                    </p>
+                    <p
+                      className={`text-lg font-bold ${
+                        expiresSoon ? "text-orange-600" : "text-green-600"
+                      }`}
+                    >
+                      {daysRemaining}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-900">
+                      {language === "en" ? "Expires" : "Expira"}
+                    </p>
+                    <p className="text-gray-700">
+                      {new Date(
+                        subscriptionDetails.ends_at
+                      ).toLocaleDateString()}
+                    </p>
+                  </div>
+                  {couponUsed && (
+                    <div>
+                      <p className="font-medium text-gray-900">
+                        {language === "en" ? "Coupon Used" : "Cupón Usado"}
+                      </p>
+                      <p className="text-purple-600 font-medium">
+                        {couponUsed.code} ({couponUsed.discount_percent}% off)
+                      </p>
+                    </div>
+                  )}
+                </div>
+                {expiresSoon && (
+                  <div className="mt-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                    <p className="text-orange-800 text-sm flex items-center gap-2">
+                      <AlertCircle className="h-4 w-4" />
+                      {language === "en"
+                        ? "Your subscription expires soon. Consider renewing to avoid interruption."
+                        : "Tu suscripción expira pronto. Considera renovar para evitar interrupciones."}
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </AnimatedSection>
+        )}
 
         <PricingToggle onChange={handleToggle} />
 
@@ -331,6 +477,81 @@ const PricingTiers = () => {
           })}
         </div>
 
+        {/* Success Modal */}
+        <Dialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
+          <DialogContent className="max-w-md">
+            <div className="text-center py-6">
+              {/* Success Icon with Animation */}
+              <div className="mx-auto mb-6 relative">
+                <div className="w-20 h-20 bg-purple-50 rounded-full flex items-center justify-center mx-auto relative">
+                  <CheckCircle className="h-12 w-12 text-purple-600" />
+                  <div className="absolute -top-2 -right-2">
+                    <Sparkles className="h-6 w-6 text-yellow-500 animate-pulse" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Success Message */}
+              <DialogHeader className="text-center space-y-3">
+                <DialogTitle className="text-2xl font-serif font-semibold text-navy-900">
+                  {language === "en"
+                    ? "🎉 Subscription Successful!"
+                    : "🎉 ¡Suscripción Exitosa!"}
+                </DialogTitle>
+                <DialogDescription className="text-gray-600 text-base leading-relaxed">
+                  {language === "en"
+                    ? `Thank you for subscribing to ${subscribedPlanName}! Your subscription is now active and you can start using all the features immediately.`
+                    : `¡Gracias por suscribirte a ${subscribedPlanName}! Tu suscripción está ahora activa y puedes comenzar a usar todas las funciones inmediatamente.`}
+                </DialogDescription>
+              </DialogHeader>
+
+              {/* Success Details */}
+              <div className="mt-6 p-4 bg-purple-50 rounded-lg border border-purple-600">
+                <div className="flex items-center justify-center gap-2 text-navy-900 font-medium">
+                  <Check className="h-4 w-4 text-purple-600" />
+                  <span className="text-sm">
+                    {language === "en"
+                      ? "Your account has been upgraded successfully"
+                      : "Tu cuenta ha sido actualizada exitosamente"}
+                  </span>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-3 mt-8">
+                <Button
+                  onClick={handleCloseSuccessModal}
+                  className="flex-1 text-white"
+                >
+                  {language === "en"
+                    ? "Start Using Features"
+                    : "Comenzar a Usar"}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    handleCloseSuccessModal();
+                    openCustomerPortal();
+                  }}
+                  className="flex-1 border-purple-600 text-purple-700 transition-colors hover:bg-purple-50 hover:text-purple-700"
+                >
+                  {language === "en"
+                    ? "Manage Subscription"
+                    : "Gestionar Suscripción"}
+                </Button>
+              </div>
+
+              {/* Thank You Note */}
+              <p className="mt-6 text-sm text-gray-500 italic">
+                {language === "en"
+                  ? "Welcome aboard! We're excited to help you achieve your goals."
+                  : "¡Bienvenido a bordo! Estamos emocionados de ayudarte a alcanzar tus objetivos."}
+              </p>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Login Dialog */}
         <Dialog open={showLoginDialog} onOpenChange={setShowLoginDialog}>
           <DialogContent>
             <DialogHeader>
@@ -364,6 +585,152 @@ const PricingTiers = () => {
           </DialogContent>
         </Dialog>
 
+        {/* Coupon Dialog */}
+        <Dialog open={showCouponDialog} onOpenChange={setShowCouponDialog}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Tag className="h-5 w-5 text-purple-600" />
+                {language === "en"
+                  ? "Have a coupon code?"
+                  : "¿Tienes un código de cupón?"}
+              </DialogTitle>
+              <DialogDescription>
+                {language === "en"
+                  ? "Enter your coupon code to apply a discount to your subscription."
+                  : "Ingresa tu código de cupón para aplicar un descuento a tu suscripción."}
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4">
+              {selectedPlan && (
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h4 className="font-medium text-gray-900 mb-2">
+                    {selectedPlan.name}
+                  </h4>
+                  <div className="flex items-baseline gap-2">
+                    {couponValidation?.valid ? (
+                      <>
+                        <span className="text-lg text-gray-500 line-through">
+                          £
+                          {isAnnual
+                            ? selectedPlan.annual_price
+                            : selectedPlan.monthly_price}
+                        </span>
+                        <span className="text-2xl font-bold text-green-600 ">
+                          £
+                          {calculateDiscountedPrice(
+                            isAnnual
+                              ? selectedPlan.annual_price
+                              : selectedPlan.monthly_price
+                          ).toFixed(2)}
+                        </span>
+                        <span className="text-sm text-green-600 font-medium">
+                          ({couponValidation.discount_percent}% off)
+                        </span>
+                      </>
+                    ) : (
+                      <span className="text-2xl font-bold text-gray-900">
+                        £
+                        {isAnnual
+                          ? selectedPlan.annual_price
+                          : selectedPlan.monthly_price}
+                      </span>
+                    )}
+                    <span className="text-gray-600">
+                      /{language === "en" ? "month" : "mes"}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <Label htmlFor="coupon">
+                  {language === "en"
+                    ? "Coupon Code (Optional)"
+                    : "Código de Cupón (Opcional)"}
+                </Label>
+                <div className="relative">
+                  <Input
+                    id="coupon"
+                    type="text"
+                    placeholder={
+                      language === "en"
+                        ? "Enter coupon code"
+                        : "Ingresa código de cupón"
+                    }
+                    value={couponCode}
+                    onChange={(e) =>
+                      setCouponCode(e.target.value.toUpperCase())
+                    }
+                    className={`pr-10 ${
+                      couponValidation?.valid
+                        ? "border-green-500"
+                        : couponValidation?.error
+                        ? "border-red-500"
+                        : ""
+                    }`}
+                  />
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    {validatingCoupon && (
+                      <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
+                    )}
+                    {!validatingCoupon && couponValidation?.valid && (
+                      <Check className="h-4 w-4 text-green-500" />
+                    )}
+                    {!validatingCoupon && couponValidation?.error && (
+                      <AlertCircle className="h-4 w-4 text-red-500" />
+                    )}
+                  </div>
+                </div>
+
+                {couponValidation?.valid && (
+                  <p className="text-sm text-green-600 flex items-center gap-1">
+                    <Check className="h-3 w-3" />
+                    {language === "en"
+                      ? `Coupon applied! ${couponValidation.discount_percent}% discount`
+                      : `¡Cupón aplicado! ${couponValidation.discount_percent}% descuento`}
+                  </p>
+                )}
+
+                {couponValidation?.error && (
+                  <p className="text-sm text-red-600 flex items-center gap-1">
+                    <AlertCircle className="h-3 w-3" />
+                    {couponValidation.error}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="flex justify-end space-x-2 mt-6">
+              <Button
+                variant="outline"
+                onClick={handleSkipCoupon}
+                disabled={checkingOut}
+              >
+                {language === "en" ? "Skip" : "Omitir"}
+              </Button>
+              <Button
+                onClick={handleCheckoutWithCoupon}
+                disabled={
+                  checkingOut || (couponCode && !couponValidation?.valid)
+                }
+              >
+                {checkingOut ? (
+                  <div className="flex items-center">
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    {language === "en" ? "Processing..." : "Procesando..."}
+                  </div>
+                ) : language === "en" ? (
+                  "Continue to Checkout"
+                ) : (
+                  "Continuar al Pago"
+                )}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
         <AnimatedSection
           animation="fade-in"
           className="mt-20 bg-purple-50 rounded-xl p-8 md:p-12"
@@ -379,9 +746,9 @@ const PricingTiers = () => {
               <div className="space-y-6 mt-8">
                 <p className="text-gray-700">
                   {language === "en"
-                    ? `We get it,every athlete’s journey is different. If you’re
+                    ? `We get it,every athlete's journey is different. If you're
                     unsure which option fits your goals best, just drop us a
-                    message. Whether you're training solo or with a coach, we’ll
+                    message. Whether you're training solo or with a coach, we'll
                     help you pick the perfect plan to support your progress.`
                     : "Lo entendemos, la trayectoria de cada atleta es diferente. Si no estás seguro de qué opción se adapta mejor a tus objetivos, escríbenos. Tanto si entrenas solo como con un entrenador, te ayudaremos a elegir el plan perfecto para impulsar tu progreso."}
                 </p>

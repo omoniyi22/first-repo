@@ -65,7 +65,6 @@ const MovementRadarChart = () => {
         if (error) throw error;
 
         processDressageData(data);
-        // console.log("🚀 ~ fetchDressageData ~ data:", data)
       } catch (error) {
         console.error("Error fetching dressage data:", error);
         setLoading(false);

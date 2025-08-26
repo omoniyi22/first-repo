@@ -135,7 +135,6 @@ const DocumentAnalysisPublicDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
           .select("*")
           .eq("id", documentId)
           .maybeSingle();
-        console.log("🚀 ~ fetchAnalysis ~ documentData:", documentData);
 
         if (documentError) throw documentError;
 

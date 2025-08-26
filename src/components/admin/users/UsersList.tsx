@@ -37,7 +37,6 @@ interface UsersListProps {
 }
 
 const UsersList = ({ users, onUpdateUser, loading }: UsersListProps) => {
-  console.log("🚀 ~ UsersList ~ users:", users)
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const isMountedRef = useRef(true);

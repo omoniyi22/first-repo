@@ -13,6 +13,8 @@ import {
   ChevronRight,
   LogOut,
   ArrowLeft,
+  NotepadText,
+  Gift,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -47,6 +49,16 @@ const AdminSidebar = () => {
       label: "User Management",
       icon: <Users className="w-5 h-5" />,
     },
+    {
+      path: "/admin/pricing-plans",
+      label: "Pricing Plans",
+      icon: <NotepadText className="w-5 h-5" />,
+    },
+    {
+      path: "/admin/coupons",
+      label: "Coupons",
+      icon: <Gift className="w-5 h-5" />,
+    },
     // {
     //   path: '/admin/content',
     //   label: 'Content',
@@ -58,9 +70,9 @@ const AdminSidebar = () => {
     //   icon: <ImageIcon className="w-5 h-5" />,
     // },
     // {
-    //   path: '/admin/settings',
-    //   label: 'Settings',
-    //   icon: <Settings className="w-5 h-5" />
+    //   path: "/admin/settings",
+    //   label: "Settings",
+    //   icon: <Settings className="w-5 h-5" />,
     // },
   ];
 
