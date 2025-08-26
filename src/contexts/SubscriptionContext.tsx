@@ -258,7 +258,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({
   // Check subscription when authentication state changes
   useEffect(() => {
     refreshSubscription();
-  }, [session]);
+  }, [session?.user?.id]);
 
   // Set up a periodic refresh
   useEffect(() => {
@@ -281,7 +281,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({
     return () => {
       window.removeEventListener("popstate", handleRouteChange);
     };
-  }, [session]);
+  }, [session?.user?.id]);
 
   const contextValue = {
     isSubscribed,

@@ -60,7 +60,6 @@ const Horses = () => {
   
   // 🎯 ADD HORSE LIMITS HOOK
   const horseLimits = useHorseLimits();
-  // console.log("🚀 ~ Horses ~ horseLimits:", horseLimits)
 
   useEffect(() => {
     if (user) {

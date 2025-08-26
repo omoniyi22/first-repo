@@ -25,6 +25,7 @@ interface PricingPlan {
   tagline_es: string;
   is_highlighted: boolean;
   max_horses: number;
+  max_documents_monthly: number;
   created_at: string;
   updated_at: string;
 }
@@ -39,6 +40,7 @@ const CreatePlanDialog = ({ isCreating, setIsCreating, fetchPricingData }) => {
     tagline_es: "",
     is_highlighted: false,
     max_horses: 1,
+    max_documents_monthly: 3,
   });
 
   // CREATE NEW PLAN
@@ -63,6 +65,7 @@ const CreatePlanDialog = ({ isCreating, setIsCreating, fetchPricingData }) => {
           tagline_es: newPlan.tagline_es || "",
           is_highlighted: newPlan.is_highlighted || false,
           max_horses: newPlan.max_horses || 1,
+          max_documents_monthly: newPlan.max_documents_monthly || 3,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         })
@@ -98,6 +101,7 @@ const CreatePlanDialog = ({ isCreating, setIsCreating, fetchPricingData }) => {
       tagline_es: "",
       is_highlighted: false,
       max_horses: 1,
+      max_documents_monthly: 3,
     });
   };
 
@@ -156,6 +160,25 @@ const CreatePlanDialog = ({ isCreating, setIsCreating, fetchPricingData }) => {
                 />
                 <p className="text-xs text-gray-500">
                   Use -1 for unlimited horses
+                </p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="new-max-docs">Max Documents/Month *</Label>
+                <Input
+                  id="new-max-docs"
+                  type="number"
+                  min="-1"
+                  max="999"
+                  value={newPlan.max_documents_monthly || 3}
+                  onChange={(e) =>
+                    setNewPlan({
+                      ...newPlan,
+                      max_documents_monthly: parseInt(e.target.value) || 3,
+                    })
+                  }
+                />
+                <p className="text-xs text-gray-500">
+                  Use -1 for unlimited documents
                 </p>
               </div>
             </div>

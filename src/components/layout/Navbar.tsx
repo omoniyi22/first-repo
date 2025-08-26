@@ -84,7 +84,7 @@ const Navbar = () => {
     };
 
     checkAdminStatus();
-  }, [user]);
+  }, [user?.id]);
 
   // Close mobile menu when route changes
   useEffect(() => {

@@ -8,8 +8,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
+import { useDocumentLimits } from "@/hooks/useDocumentLimits";
+
 import {
   Dialog,
   DialogTrigger,
@@ -41,6 +43,9 @@ import {
   File,
   X,
   Loader2,
+  ArrowRight,
+  FileText,
+  AlertTriangle,
 } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -59,6 +64,7 @@ import { convertImagesToPDF, imageToBase64PDF } from "@/utils/img2pdf";
 import * as jsPDF from "jspdf";
 import { useNavigate } from "react-router-dom";
 import { ActivityLogger } from "@/utils/activityTracker";
+import { Badge } from "../ui/badge";
 
 const DocumentUploadFormSchema = z.object({
   discipline: z.enum(["dressage", "jumping"]),
@@ -118,6 +124,9 @@ const DocumentUpload = ({
   const [newDocumentId, setNewDocumentId] = useState<string | null>(null);
   const [base64Image, setBase64Image] = useState<any>("");
   const [isShowSpinner, setIsShowSpinner] = useState<boolean>(false);
+
+  const documentLimits = useDocumentLimits();
+  console.log("Hook data:", documentLimits);
 
   const form = useForm<DocumentUploadFormValues>({
     resolver: zodResolver(DocumentUploadFormSchema),
@@ -249,6 +258,10 @@ const DocumentUpload = ({
   };
 
   const onSubmit = async (data: DocumentUploadFormValues) => {
+    const canUpload = await documentLimits.checkAndEnforce();
+    if (!canUpload) {
+      return;
+    }
     if (selectedFiles.length === 0 || !user) {
       toast({
         title:
@@ -417,6 +430,7 @@ const DocumentUpload = ({
 
       setUploadProgress(90);
       fetchDocs && fetchDocs();
+      documentLimits.refreshLimits();
 
       // Set the base64 image for preview
       setBase64Image(pdfBase64);
@@ -475,6 +489,128 @@ const DocumentUpload = ({
               ? "Profile Setup Required"
               : "Configuración de Perfil Requerida"}
           </h2>
+          {!documentLimits.loading && (
+            <Card className="mb-6 bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <FileText className="h-5 w-5 text-blue-600" />
+                    <span className="text-lg">
+                      {language === "en"
+                        ? "Document Upload"
+                        : "Subida de Documentos"}
+                    </span>
+                  </div>
+                  <Badge
+                    variant="outline"
+                    className="border-blue-300 text-blue-700"
+                  >
+                    {documentLimits.planName}{" "}
+                    {language === "en" ? "Plan" : "Plan"}
+                  </Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="text-center">
+                    <p className="text-sm text-gray-600">
+                      {language === "en" ? "This Month" : "Este Mes"}
+                    </p>
+                    <p className="text-2xl font-bold text-blue-700">
+                      {documentLimits.currentDocuments}
+                    </p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-sm text-gray-600">
+                      {language === "en" ? "Plan Limit" : "Límite del Plan"}
+                    </p>
+                    <p className="text-2xl font-bold text-gray-700">
+                      {documentLimits.maxDocuments === "unlimited"
+                        ? "∞"
+                        : documentLimits.maxDocuments}
+                    </p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-sm text-gray-600">
+                      {language === "en" ? "Remaining" : "Restantes"}
+                    </p>
+                    <p
+                      className={`text-2xl font-bold ${
+                        documentLimits.canUploadDocument
+                          ? "text-green-600"
+                          : "text-red-600"
+                      }`}
+                    >
+                      {documentLimits.remainingDocuments === "unlimited"
+                        ? "∞"
+                        : documentLimits.remainingDocuments}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Progress Bar (only for limited plans) */}
+                {documentLimits.maxDocuments !== "unlimited" && (
+                  <div className="mb-4">
+                    <div className="flex justify-between text-sm text-gray-600 mb-1">
+                      <span>{language === "en" ? "Usage" : "Uso"}</span>
+                      <span>
+                        {Math.round(
+                          (documentLimits.currentDocuments /
+                            (documentLimits.maxDocuments as number)) *
+                            100
+                        )}
+                        %
+                      </span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div
+                        className={`h-2 rounded-full transition-all duration-300 ${
+                          documentLimits.canUploadDocument
+                            ? "bg-blue-500"
+                            : "bg-red-500"
+                        }`}
+                        style={{
+                          width: `${Math.min(
+                            (documentLimits.currentDocuments /
+                              (documentLimits.maxDocuments as number)) *
+                              100,
+                            100
+                          )}%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Upgrade prompt if at limit */}
+                {!documentLimits.canUploadDocument && (
+                  <div className="bg-orange-100 border border-orange-200 rounded-lg p-3 flex items-start gap-3">
+                    <AlertTriangle className="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-orange-800">
+                        {language === "en"
+                          ? "Document Limit Reached"
+                          : "Límite de Documentos Alcanzado"}
+                      </p>
+                      <p className="text-sm text-orange-700 mt-1">
+                        {language === "en"
+                          ? `You've reached your monthly document limit (${documentLimits.currentDocuments}/${documentLimits.maxDocuments}). Upgrade your plan to upload more documents.`
+                          : `Has alcanzado tu límite mensual de documentos (${documentLimits.currentDocuments}/${documentLimits.maxDocuments}). Actualiza tu plan para subir más documentos.`}
+                      </p>
+                      <Button
+                        size="sm"
+                        className="mt-2 bg-orange-600 hover:bg-orange-700 text-white"
+                        onClick={() => (window.location.href = "/pricing")}
+                      >
+                        {language === "en" ? "Upgrade Plan" : "Actualizar Plan"}
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
           <p className="text-gray-600 mb-4">
             {language === "en"
               ? "Please complete your profile setup by selecting your country before uploading documents."
@@ -870,10 +1006,15 @@ const DocumentUpload = ({
                 !selectedFiles ||
                 isUploading ||
                 horses.length === 0 ||
-                dressageLevels.length === 0
+                dressageLevels.length === 0 ||
+                !documentLimits.canUploadDocument
               }
             >
-              {isUploading
+              {!documentLimits.canUploadDocument
+                ? language === "en"
+                  ? "Upgrade to Upload"
+                  : "Actualizar para Subir"
+                : isUploading
                 ? language === "en"
                   ? "Uploading..."
                   : "Subiendo..."

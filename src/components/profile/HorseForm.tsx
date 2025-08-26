@@ -46,7 +46,6 @@ interface HorseFormProps {
 }
 
 const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
-  console.log("🚀 ~ HorseForm ~ editingHorse:", editingHorse);
   const { user } = useAuth();
   const [horseName, setHorseName] = useState(editingHorse?.name || "");
   const [breed, setBreed] = useState(editingHorse?.breed || "");
@@ -62,7 +61,6 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
   const [dressageLevel, setDressageLevel] = useState(
     editingHorse?.dressage_level || ""
   );
-  console.log("🚀 ~ HorseForm ~ dressageLevel:", dressageLevel);
   const [yearsOwned, setYearsOwned] = useState(
     editingHorse?.years_owned?.toString() || ""
   );

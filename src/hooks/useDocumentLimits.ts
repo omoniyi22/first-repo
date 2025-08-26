@@ -1,21 +1,20 @@
-// ===== STEP 3: CREATE useHorseLimits HOOK =====
-// hooks/useHorseLimits.ts
+// src/hooks/useDocumentLimits.ts
 
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 
-interface HorseLimits {
-    canAddHorse: boolean;
-    currentHorses: number;
-    maxHorses: string | number;
+interface DocumentLimits {
+    canUploadDocument: boolean;
+    currentDocuments: number;
+    maxDocuments: string | number;
     planName: string;
-    remainingSlots: string | number;
+    remainingDocuments: string | number;
 }
 
-export const useHorseLimits = () => {
-    const [limits, setLimits] = useState<HorseLimits | null>(null);
+export const useDocumentLimits = () => {
+    const [limits, setLimits] = useState<DocumentLimits | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const { session } = useAuth();
@@ -24,11 +23,11 @@ export const useHorseLimits = () => {
     const checkLimits = useCallback(async () => {
         if (!session) {
             setLimits({
-                canAddHorse: false,
-                currentHorses: 0,
-                maxHorses: 0,
+                canUploadDocument: false,
+                currentDocuments: 0,
+                maxDocuments: 0,
                 planName: 'Free',
-                remainingSlots: 0
+                remainingDocuments: 0
             });
             setLoading(false);
             return;
@@ -38,7 +37,7 @@ export const useHorseLimits = () => {
             setLoading(true);
             setError(null);
 
-            const { data, error: limitsError } = await supabase.functions.invoke('check-horse-limits');
+            const { data, error: limitsError } = await supabase.functions.invoke('check-document-limits');
 
             if (limitsError) {
                 throw limitsError;
@@ -46,30 +45,30 @@ export const useHorseLimits = () => {
 
             setLimits(data);
         } catch (err) {
-            console.error('Error checking horse limits:', err);
-            setError(err instanceof Error ? err.message : 'Failed to check horse limits');
+            console.error('Error checking document limits:', err);
+            setError(err instanceof Error ? err.message : 'Failed to check document limits');
         } finally {
             setLoading(false);
         }
-    }, [session]);
+    }, [session?.user?.id]);
 
     useEffect(() => {
         checkLimits();
     }, [checkLimits]);
 
-    // Function to check if user can add a horse and show appropriate message
+    // Function to check if user can upload a document and show appropriate message
     const checkAndEnforce = async (): Promise<boolean> => {
         if (!limits) {
             await checkLimits();
             return false;
         }
 
-        if (!limits.canAddHorse) {
-            const maxText = limits.maxHorses === 'unlimited' ? 'unlimited' : `${limits.maxHorses}`;
+        if (!limits.canUploadDocument) {
+            const maxText = limits.maxDocuments === 'unlimited' ? 'unlimited' : `${limits.maxDocuments}`;
 
             toast({
-                title: "Horse Limit Reached",
-                description: `You've reached your horse limit (${limits.currentHorses}/${maxText}). Upgrade your plan to add more horses.`,
+                title: "Document Limit Reached",
+                description: `You've reached your monthly document limit (${limits.currentDocuments}/${maxText}). Upgrade your plan to upload more documents.`,
                 variant: "destructive",
             });
 
@@ -90,10 +89,10 @@ export const useHorseLimits = () => {
         checkAndEnforce,
         refreshLimits,
         // Convenient direct access to common properties
-        canAddHorse: limits?.canAddHorse ?? false,
-        currentHorses: limits?.currentHorses ?? 0,
-        maxHorses: limits?.maxHorses ?? 0,
+        canUploadDocument: limits?.canUploadDocument ?? false,
+        currentDocuments: limits?.currentDocuments ?? 0,
+        maxDocuments: limits?.maxDocuments ?? 0,
         planName: limits?.planName ?? 'Free',
-        remainingSlots: limits?.remainingSlots ?? 0
+        remainingDocuments: limits?.remainingDocuments ?? 0
     };
 };
