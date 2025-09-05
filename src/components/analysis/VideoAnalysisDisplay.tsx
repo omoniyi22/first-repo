@@ -14,6 +14,7 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { RiWhatsappFill } from "react-icons/ri";
 
 interface VideoAnalysisData {
   id: string;
@@ -120,7 +121,7 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
     };
 
     fetchAnalysis();
-  }, [videoId, user, language]);
+  }, [videoId, user.id, language]);
 
   // Video player controls
   const togglePlayPause = () => {
@@ -228,7 +229,7 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
 
   if (isLoading) {
     return (
-      <div className="sticky w-screen h-screen flex justify-center items-center p-12">
+      <div className="sticky w-full h-screen flex justify-center items-center p-12">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
         <span className="ml-2">
           {language === "en"
@@ -313,44 +314,11 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
 
   // For the demo, we'll show a basic video player with the video URL
   return (
-    <div>
+    <Card className="space-y-6 sm:space-y-8 p-4 sm:p-6">
       <Card className="p-6 bg-white">
-        <div className="mb-6">
-          <h2 className="text-2xl font-serif font-semibold">
-            {language === "en" ? "Video Analysis" : "Análisis de Video"}
-          </h2>
-          <div className="flex flex-wrap gap-2 text-sm text-gray-500 mt-2">
-            <span>{analysis.horse_name}</span>
-            <span>•</span>
-            <span>{new Date(analysis.document_date).toLocaleDateString()}</span>
-            <span>•</span>
-            <span>
-              {analysis.discipline === "dressage"
-                ? language === "en"
-                  ? "Dressage"
-                  : "Doma"
-                : language === "en"
-                ? "Jumping"
-                : "Salto"}
-              {analysis.video_type && (
-                <>
-                  {" - "}
-                  {analysis.video_type === "training"
-                    ? language === "en"
-                      ? "Training"
-                      : "Entrenamiento"
-                    : language === "en"
-                    ? "Competition"
-                    : "Competición"}
-                </>
-              )}
-            </span>
-          </div>
-        </div>
-
         {/* Video player */}
         <div className="mb-6">
-          <div className="relative bg-black rounded-lg overflow-hidden aspect-video">
+          <div className="relative bg-black overflow-hidden aspect-video">
             {videoError ? (
               <div className="absolute inset-0 flex flex-col items-center justify-center text-white bg-gray-900 bg-opacity-80 p-4">
                 <AlertCircle className="h-12 w-12 mb-2 text-red-400" />
@@ -444,284 +412,257 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
             </div>
           </div>
         </div>
-
-        {/* Notes and tags section */}
-        <div className="mt-8">
-          <div className="p-4 bg-gray-50 rounded-lg">
-            {analysis.notes && (
-              <div className="mt-4 p-4 bg-white rounded border">
-                <h4 className="font-medium mb-1">
-                  {language === "en" ? "Your Notes" : "Tus Notas"}
-                </h4>
-                <p className="text-gray-700">{analysis.notes}</p>
-              </div>
-            )}
-          </div>
-
-          {analysis.tags && analysis.tags.length > 0 && (
-            <div className="mt-4">
-              <h4 className="text-sm font-medium mb-2">
-                {language === "en" ? "Tags" : "Etiquetas"}
-              </h4>
-              <div className="flex flex-wrap gap-2">
-                {analysis.tags.map((tag, index) => (
-                  <span
-                    key={index}
-                    className={`text-xs px-2 py-1 rounded-full ${
-                      analysis.discipline === "dressage"
-                        ? "bg-purple-100 text-purple-700"
-                        : "bg-blue-100 text-blue-700"
-                    }`}
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
       </Card>
-      <div className="grid grid-cols-2 gap-2">
-        <Card className="my-4 p-4 sm:p-6">
-          <h3 className="text-xl sm:text-2xl font-semibold mb-2 sm:mb-4">
-            {language === "en" ? "Analysis Results" : "Resultados del Análisis"}
-          </h3>
-          <div>
-            <p className="py-1 font-semibold">
-              {language === "en" ? "Time:" : "Tiempo:"}{" "}
-              <span className="font-normal">
-                {formatTime(duration)}
-                {/* {analysisResult[language].round_summary["Time"]} Seconds */}
-              </span>
-            </p>
-            <p className="py-1 font-semibold">
-              {language === "en" ? "Total Faults:" : "Faltas Totales:"}{" "}
-              <span className="font-normal">
-                {analysisResult[language].round_summary["Total faults"]}
-              </span>
-            </p>
-            <p className="py-1 font-semibold">
-              {language === "en" ? "Clear Jumps:" : "Saltos Limpios:"}{" "}
-              <span className="font-normal">
-                {analysisResult[language].round_summary["Clear jumps"]}
-              </span>
-            </p>
-          </div>
-        </Card>
-        <Card className="my-4 p-4 sm:p-6">
-          <h3 className="text-xl sm:text-2xl font-semibold mb-2 sm:mb-4">
-            {language === "en" ? "Course Analysis" : "Resultados del Análisis"}
-          </h3>
-          <div>
-            <p className="py-1 font-semibold">
-              {language === "en" ? "Course Map:" : "Mapa del Recorrido:"}{" "}
-              <span className="font-normal">
-                {analysisResult[language].course_analysis["Course Map"]}
-              </span>
-            </p>
-            <p className="py-1 font-semibold">
-              {language === "en"
-                ? "Jump Types Identified:"
-                : "Tipos de Saltos Identificados:"}{" "}
-              <span className="font-normal">
-                {
-                  analysisResult[language].course_analysis[
-                    "Jump types identified"
-                  ]
-                }
-              </span>
-            </p>
-            <p className="py-1 font-semibold">
-              {language === "en"
-                ? "Course difficulty:"
-                : "Dificultad del Recorrido:"}{" "}
-              <span className="font-normal">
-                {analysisResult[language].course_analysis["Course difficulty"]}
-              </span>
-            </p>
-          </div>
-        </Card>
+
+      {/* Analysis Results */}
+
+      <div className="text-start">
+        <h2 className="text-xl font-semibold ">
+          {language === "en" ? "Analysis Results" : "Resultados del análisis"}
+        </h2>
       </div>
-      <Card className="my-4 p-4 sm:p-6">
-        <h3 className="text-xl sm:text-2xl font-semibold mb-2 sm:mb-4">
-          {language === "en"
-            ? "Personalised Insight"
-            : "Perspectiva personalizada"}
-        </h3>
-        <div>
-          <p className="py-1">{analysisResult[language].personalInsight}</p>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+        {/* Total Score Card */}
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#7658EB] to-[#3C78EB] p-6 text-white shadow-lg w-full h-full">
+          <div className="w-full h-full flex flex-col justify-between">
+            <h3 className="text-lg font-medium opacity-90 mb-8">
+              {language === "en" ? "Course Stats" : "Estadísticas del curso"}
+            </h3>
+            <p className="text-base text-white mt-auto">
+              10 Jumps Total | Average Height: 1.3m
+            </p>
+          </div>
+        </div>
+
+        {/* Highest Score Card */}
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#7658EB] to-[#3C78EB] p-6 text-white shadow-lg">
+          <div className="w-full h-full flex flex-col justify-between">
+            <h3 className="text-lg font-medium opacity-90 mb-8">
+              {language === "en" ? "Points System" : "Estadísticas del curso"}
+            </h3>
+            <p className="text-base text-white mt-auto">4 Points Lost</p>
+          </div>
+        </div>
+
+        {/* Lowest Score Card */}
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#5E92FA] to-[#3C77EC] p-6 text-white shadow-lg">
+          <div className="w-full h-full flex flex-col justify-between">
+            <h3 className="text-lg font-medium opacity-90 mb-8">
+              {language === "en" ? "Clear Rate" : "Estadísticas del curso"}
+            </h3>
+            <p className="text-base text-white mt-auto">
+              8/10 Jumps Clear (80%)
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Biomechanical Analysis */}
+      <Card className="p-4 sm:p-6 ">
+        <div className="flex items-center justify-between mb-3 sm:mb-4 ">
+          <h4 className="text-lg sm:text-xl font-semibold">
+            {language === "en"
+              ? "Biomechanical Analysis"
+              : "Análisis biomecánico"}
+          </h4>
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f1f5f9] backdrop-blur-sm">
+            <img src="/public/icon/Search-Document.svg" alt="" />
+          </div>
+        </div>
+        <div className="w-full bg-[#F1F5F9] rounded-lg p-6">
+          <h3 className="text-lg font-semibold">Rider Position Stability</h3>
+          <ul className="mb-4 list-disc pl-5">
+            <li>Maintained secure seat through 7/10 jumps</li>
+          </ul>
+          <h3 className="text-lg font-semibold">Horse Takeoff Analysis</h3>
+          <ul className="mb-4 list-disc pl-5">
+            <li>Average front leg extension: 98° (Optimal: 119°)</li>
+          </ul>
+          <h3 className="text-lg font-semibold">Landing Form</h3>
+          <ul className="mb-4 list-disc pl-5">
+            <li>Consistent hind leg engagement on clear</li>
+          </ul>
+          <h3 className="text-lg font-semibold">Jumps Approach</h3>
+          <ul className="mb-4 list-disc pl-5">
+            <li>
+              Quality Straight approaches: 80% | Angled approaches: 60% success
+            </li>
+          </ul>
         </div>
       </Card>
 
-      <div className="grid grid-cols-2 gap-2">
-        <Card className="my-4 p-4 sm:p-6">
-          <h3 className="text-xl sm:text-2xl font-semibold mb-2 sm:mb-4">
-            {language === "en"
-              ? "Jump by jump Analysis"
-              : "Análisis Salto por Salto"}
-          </h3>
-          <div className="overflow-x-auto">
-            <table className="min-w-full border border-gray-300 rounded-lg">
-              <thead className="bg-gray-100">
-                <tr>
-                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">
-                    {language === "en" ? "Jump #" : "Salto #"}
-                  </th>
-                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">
-                    {language === "en" ? "Type" : "Tipo"}
-                  </th>
-                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">
-                    {language === "en" ? "Result" : "Resultado"}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {analysisResult[language].jump_by_jump_results.map(
-                  (jump, index) => (
-                    <tr key={index} className="border-t border-gray-200">
-                      <td className="px-4 py-2 text-sm">
-                        {jump["Jump number"]}
-                      </td>
-                      <td className="px-4 py-2 text-sm capitalize">
-                        {jump["Jump type"]}
-                      </td>
-                      <td className="px-4 py-2 text-sm">{jump["Result"]}</td>
-                    </tr>
-                  )
-                )}
-              </tbody>
-            </table>
-          </div>
-        </Card>
-        <div className="flex flex-col">
-          <Card className="my-4 p-4 sm:p-6">
-            <h3 className="text-xl sm:text-2xl font-semibold mb-2 sm:mb-4">
-              {language === "en" ? "Best Jump" : "Mejor Salto"}
-            </h3>
-            <div>
-              <p className="mb-2">
-                <b>Jump Number </b>#
-                {
-                  analysisResult[language].performance_highlights.best_jump
-                    .jump_number
-                }
-              </p>
-              <ul className="pl-6">
-                {analysisResult[
-                  language
-                ].performance_highlights.best_jump.strengths.map(
-                  (item, index) => (
-                    <li key={index} className="list-disc">
-                      {item}
-                    </li>
-                  )
-                )}
-              </ul>
-            </div>
-          </Card>
-          <Card className="my-4 p-4 sm:p-6 flex-grow">
-            <h3 className="text-xl sm:text-2xl font-semibold mb-2 sm:mb-4">
-              {language === "en" ? "Focus Area" : "Área de Mejora"}
-            </h3>
-            <div>
-              {analysisResult[
-                language
-              ].performance_highlights.area_for_improvement.map(
-                (area, index) => (
-                  <div className="my-4" key={index}>
-                    <p className="mb-2">
-                      <b> Weakness of Jump</b> #{area.jump_number}
-                    </p>
-                    <ul className="pl-6 mb-4">
-                      {area.weakness.map((item, i) => (
-                        <li key={i} className="list-disc">
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
-                    <b>
-                      <p className="mb-2">To Improve:</p>
-                    </b>
-                    <ul className="pl-6 mb-2">
-                      {area.tip.map((item, i) => (
-                        <li key={i} className="list-disc">
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
-                    <hr />
-                  </div>
+      {/* Jump by jump Analysis */}
+      <Card className="my-4 overflow-hidden">
+        {/* <h3 className="text-xl sm:text-2xl font-semibold mb-2 sm:mb-4">
+          {language === "en"
+            ? "Jump by jump Analysis"
+            : "Análisis Salto por Salto"}
+        </h3> */}
+        <div className="overflow-x-auto">
+          <table className="min-w-full border border-gray-300 rounded-lg">
+            <thead className="bg-[#f1f5f9]">
+              <tr>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">
+                  {language === "en" ? "Individual Jump Analysis" : "Salto #"}
+                </th>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">
+                  {language === "en" ? "Result Badge" : "Tipo"}
+                </th>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">
+                  {language === "en" ? "Technical Insight" : "Resultado"}
+                </th>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">
+                  {language === "en" ? "Biomechanical Data" : "Resultado"}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {analysisResult[language].jump_by_jump_results.map(
+                (jump, index) => (
+                  <tr key={index} className="border-none border-gray-200">
+                    <td className="px-4 py-2 text-sm border border-gray-200">
+                      Jump {jump["Jump number"]}
+                    </td>
+                    <td className="px-4 py-2 text-sm border border-gray-200">{jump["Result"]}</td>
+                    <td className="px-4 py-2 text-sm border border-gray-200 capitalize">
+                      {jump["Jump type"]}
+                    </td>
+                    <td className="px-4 py-2 text-sm border border-gray-200 capitalize">
+                      {jump["Jump type"]}
+                    </td>
+                  </tr>
                 )
               )}
-            </div>
-          </Card>
-        </div>
-      </div>
-      <Card className="p-4 sm:p-6 mb-4">
-        <h4 className="text-xl sm:text-2xl font-semibold mb-2 sm:mb-4">
-          {language === "en" ? "Jump Analysis" : "Resultados del Análisis"}
-        </h4>
-        <div>
-          <p className="py-1 font-semibold">
-            {language === "en"
-              ? "Pattern Recognition:"
-              : "Reconocimiento de Patrones:"}{" "}
-            <span className="font-normal">
-              {analysisResult[language].jump_analysis["pattern_recognition"]}
-            </span>
-          </p>
-          <p className="py-1 font-semibold">
-            {language === "en" ? "Approach analysis:" : "Análisis del Enfoque:"}{" "}
-            <span className="font-normal">
-              {analysisResult[language].jump_analysis["approach_analysis"]}
-            </span>
-          </p>
-          <p className="py-1 font-semibold">
-            {language === "en"
-              ? "Technical Recommendations:"
-              : "Recomendaciones Técnicas:"}{" "}
-            <span className="font-normal">
-              {
-                analysisResult[language].jump_analysis[
-                  "technical_recommendations"
-                ]
-              }
-            </span>
-          </p>
-          <p className="py-1 font-semibold">
-            {language === "en"
-              ? "Course Strategy Insight:"
-              : "Estrategia del Recorrido:"}{" "}
-            <span className="font-normal">
-              {
-                analysisResult[language].jump_analysis[
-                  "course_strategy_insight"
-                ]
-              }
-            </span>
-          </p>
+            </tbody>
+          </table>
         </div>
       </Card>
-      <Card className="p-4 sm:p-6">
-        <h4 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
-          {language === "en" ? "Recommendations" : "Recomendaciones"}
-        </h4>
-        <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
-          {analysisResult[language]?.recommendations?.map(
-            (recommendation, index) => (
-              <li key={index} className="text-sm sm:text-base">
-                {recommendation["tip"]}
-                <br />
-                <b>
-                  {language === "en" ? "To improve:" : "Para mejorar:"}
-                </b>{" "}
-                {recommendation["reason"]}
-              </li>
-            )
-          ) || "No Recommendations!"}
-        </ul>
+
+      {/* Pattern Recognition */}
+      <Card className="p-4 sm:p-6 ">
+        <div className="flex items-center justify-between mb-3 sm:mb-4 ">
+          <h4 className="text-lg sm:text-xl font-semibold">
+            {language === "en"
+              ? "Pattern Recognition"
+              : "Reconocimiento de patrones"}
+          </h4>
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f1f5f9] backdrop-blur-sm">
+            <img src="/public/icon/eye.svg" alt="" />
+          </div>
+        </div>
+        <div className="w-full p-6">
+          <ul className="mb-4 list-disc pl-5">
+            <li>
+              <b>Success Rate by Height: 1.2m:</b>
+              100% | 1.3m: 70% | 1.4m: 50%
+            </li>
+            <li>
+              <b>Failure Patterns:</b> 3 of 4 faults occurred on unstable
+              approach angles
+            </li>
+            <li>
+              <b>Session Comparison:</b> 20% improvement from last session
+            </li>
+          </ul>
+        </div>
       </Card>
-    </div>
+
+      {/* Personalised Training */}
+      <Card className="p-4 sm:p-6 ">
+        <div className="flex items-center justify-between mb-3 sm:mb-4 ">
+          <h4 className="text-lg sm:text-xl font-semibold">
+            {language === "en"
+              ? "Personalised Training"
+              : "Entrenamiento personalizado"}
+          </h4>
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f1f5f9] backdrop-blur-sm">
+            <img src="/public/icon/Space-Shuttle.svg" alt="" />
+          </div>
+        </div>
+        <Card className="w-full p-6 bg-[#F1F5F9]">
+          <ul className="mb-4 list-disc pl-5">
+            <li>
+              <b>This Week's Focus:</b>
+              Practice grid work - 4 bounces to improve rhythm
+            </li>
+            <li>
+              <b>Biomechanical Goal:</b> Increase takeoff impulsion - front leg
+              extension needs 21
+            </li>
+            <li>
+              <b>Next Session Plan:</b> Work on approach consistency with ground
+              pole exercises
+            </li>
+          </ul>
+        </Card>
+      </Card>
+
+      {/* Want more guidance? */}
+      <Card className="w-full bg-gradient-to-r from-[#7658EB] to-[#3C78EB] text-white p-6 mt-6 flex items-center justify-between rounded-lg shadow-lg flex-col-reverse sm:flex-row gap-5 sm:gap-0">
+        <div className="">
+          <h2 className="text-xl font-medium">
+            Based on today's analysis, we've created a 20-minute
+            <br />
+            exercise routine focusing on approach rhythm
+          </h2>
+          <Button
+            className="bg-white text-[#2C1A5C] h-auto hover:bg-white mt-4 text-wrap"
+            onClick={async () => {
+              // await getPromptForTTS();
+            }}
+          >
+            {language === "en"
+              ? "Get Your Ride-Along Podcast"
+              : "Obtén tu podcast Ride-Along"}
+          </Button>
+        </div>
+        <div className="relative z-10 w-40 h-40 rounded-full bg-[#3f77eb]/20 backdrop-blur-sm flex items-center justify-center">
+          <img
+            src={"/lovable-uploads/report-cta.png"}
+            alt="Horse and rider jumping over competition obstacle"
+            className="w-full h-full object-cover object-center rounded-full"
+          />
+        </div>
+      </Card>
+
+
+      {/* WhatsApp Share Button */}
+
+      <Card className="p-4 sm:p-6 border-0">
+        <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-4 mb-3 sm:mb-4">
+          <Button
+            className="bg-gradient-to-r from-[#3AD55A] to-[#00AE23] flex items-center"
+            // onClick={handleWhatsAppShare}
+          >
+            {/* <MessageCircle className="h-10 w-10 text-white" /> */}
+            <RiWhatsappFill className="!h-7 !w-7 text-white" size={50} />
+            {language === "en" ? "Send Results to Coach" : "Compartir en WhatsApp"}
+          </Button>
+
+          {/* <Button
+            className="bg-purple-600 hover:bg-purple-600 flex flex-col items-center p-8"
+            onClick={async () => {
+              await getPromptForTTS();
+            }}
+          >
+            <CloudDownload className="!h-7 !w-7 text-white " />
+            Get your personal ride along training class here
+          </Button> */}
+
+          <div className="space-x-2 flex items-center">
+            <p className="text-center">
+              {language === "en" ? "Powered by" : "Desarrollado por"}
+            </p>
+            <img
+              src="/lovable-uploads/1000010999.png"
+              alt="Horse and rider jumping over competition obstacle"
+              className="w-12 h-12 object-cover object-center"
+            />
+          </div>
+        </div>
+      </Card>
+    </Card>
   );
 };
 
