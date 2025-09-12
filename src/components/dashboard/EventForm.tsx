@@ -145,10 +145,13 @@ const EventForm = ({ onComplete, event }: EventFormProps) => {
               <SelectValue placeholder={language === 'en' ? 'Select type' : 'Seleccionar tipo'} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Competition">{language === 'en' ? 'Competition' : 'Competición'}</SelectItem>
-              <SelectItem value="Training">{language === 'en' ? 'Training' : 'Entrenamiento'}</SelectItem>
-              <SelectItem value="Clinic">{language === 'en' ? 'Clinic' : 'Clínica'}</SelectItem>
-              <SelectItem value="Other">{language === 'en' ? 'Other' : 'Otro'}</SelectItem>
+              <SelectItem value="competition">{language === 'en' ? 'Competition' : 'Competición'}</SelectItem>
+              <SelectItem value="training">{language === 'en' ? 'Training' : 'Entrenamiento'}</SelectItem>
+              <SelectItem value="clinic">{language === 'en' ? 'Clinic' : 'Clínica'}</SelectItem>
+              <SelectItem value="farrier">{language === 'en' ? 'Farrier' : 'Herradora'}</SelectItem>
+              <SelectItem value="worming">{language === 'en' ? 'Worming' : 'Desparasitación'}</SelectItem>
+              <SelectItem value="dentist">{language === 'en' ? 'Dentist' : 'Dentista'}</SelectItem>
+              <SelectItem value="other">{language === 'en' ? 'Other' : 'Otro'}</SelectItem>
             </SelectContent>
           </Select>
         </div>
