@@ -458,6 +458,34 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
         </div>
       </div>
 
+      {/* Personalised Insight */}
+      <Card className="p-4 sm:p-6  bg-gradient-to-r from-[#7658EB] to-[#3C78EB]">
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
+          <h4 className="text-lg sm:text-xl font-semibold text-white">
+            {language === "en"
+              ? "Personalised Insight"
+              : "Perspectiva personalizada"}
+          </h4>
+
+          <img
+            src="/lovable-uploads/transpareant-logo.png"
+            alt="Horse and rider jumping over competition obstacle"
+            className="w-12 h-12 object-cover object-center"
+          />
+        </div>
+        <div className="max-w-[900px]">
+          <p className="text-white text-base">
+            You seem to be a rider who excels at flying changes and maintains a
+            well-ridden posture. However, you could significantly improve your
+            overall performance by focusing on establishing a more consistent
+            and relaxed contact with Varadero. Additionally, incorporating
+            exercises that promote suppleness and bend, particularly during
+            lateral movements and circles, would likely enhance Varadero's
+            overall harmony and balance.
+          </p>
+        </div>
+      </Card>
+
       {/* Biomechanical Analysis */}
       <Card className="p-4 sm:p-6 ">
         <div className="flex items-center justify-between mb-3 sm:mb-4 ">
@@ -503,16 +531,16 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
           <table className="min-w-full border border-gray-300 rounded-lg">
             <thead className="bg-[#f1f5f9]">
               <tr>
-                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">
+                <th className="px-4 py-2 text-left text-sm text-gray-700 font-bold">
                   {language === "en" ? "Individual Jump Analysis" : "Salto #"}
                 </th>
-                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">
+                <th className="px-4 py-2 text-left text-sm text-gray-700 font-bold">
                   {language === "en" ? "Result Badge" : "Tipo"}
                 </th>
-                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">
+                <th className="px-4 py-2 text-left text-sm text-gray-700 font-bold">
                   {language === "en" ? "Technical Insight" : "Resultado"}
                 </th>
-                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">
+                <th className="px-4 py-2 text-left text-sm text-gray-700 font-bold">
                   {language === "en" ? "Biomechanical Data" : "Resultado"}
                 </th>
               </tr>
@@ -521,10 +549,12 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
               {analysisResult[language].jump_by_jump_results.map(
                 (jump, index) => (
                   <tr key={index} className="border-none border-gray-200">
-                    <td className="px-4 py-2 text-sm border border-gray-200">
+                    <td className="px-4 py-2 text-sm border border-gray-200 capitalize">
                       Jump {jump["Jump number"]}
                     </td>
-                    <td className="px-4 py-2 text-sm border border-gray-200">{jump["Result"]}</td>
+                    <td className="px-4 py-2 text-sm border border-gray-200 uppercase">
+                      {jump["Result"]}
+                    </td>
                     <td className="px-4 py-2 text-sm border border-gray-200 capitalize">
                       {jump["Jump type"]}
                     </td>
@@ -626,7 +656,6 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
         </div>
       </Card>
 
-
       {/* WhatsApp Share Button */}
 
       <Card className="p-4 sm:p-6 border-0">
@@ -637,7 +666,9 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
           >
             {/* <MessageCircle className="h-10 w-10 text-white" /> */}
             <RiWhatsappFill className="!h-7 !w-7 text-white" size={50} />
-            {language === "en" ? "Send Results to Coach" : "Compartir en WhatsApp"}
+            {language === "en"
+              ? "Send Results to Coach"
+              : "Compartir en WhatsApp"}
           </Button>
 
           {/* <Button

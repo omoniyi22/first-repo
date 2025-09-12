@@ -730,7 +730,7 @@ const Analysis = () => {
                     ? "Upload Document"
                     : "Subir Documento"
                   : language === "en"
-                  ? "Upload Video"
+                  ? "Upload Video (MP4, MOV, etc.)"
                   : "Subir Video"}
               </TabsTrigger>
               <TabsTrigger
