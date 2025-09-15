@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -31,7 +30,17 @@ const EventForm = ({ onComplete, event }: EventFormProps) => {
   const [location, setLocation] = useState(event?.location || '');
   const [description, setDescription] = useState(event?.description || '');
   const [discipline, setDiscipline] = useState<'Jumping' | 'Dressage' | 'Both'>(event?.discipline as 'Jumping' | 'Dressage' | 'Both' || 'Dressage');
-  const [date, setDate] = useState<Date | undefined>(event?.eventDate ? new Date(event.eventDate) : undefined);
+  
+  // Fix date handling to preserve time
+  const [date, setDate] = useState<Date | undefined>(
+    event?.eventDate ? new Date(event.eventDate) : undefined
+  );
+  const [time, setTime] = useState<string>(
+    event?.eventDate 
+      ? format(new Date(event.eventDate), 'HH:mm')
+      : '09:00'
+  );
+  
   const [imageUrl, setImageUrl] = useState(event?.imageUrl || '');
   const [showMediaSelector, setShowMediaSelector] = useState(false);
   
@@ -69,10 +78,15 @@ const EventForm = ({ onComplete, event }: EventFormProps) => {
     setIsSubmitting(true);
     
     try {
+      // Combine date and time properly
+      const eventDateTime = new Date(date);
+      const [hours, minutes] = time.split(':');
+      eventDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+
       const eventData = {
         title: eventTitle,
         eventType,
-        eventDate: date.toISOString(),
+        eventDate: eventDateTime.toISOString(), // This preserves the exact date and time
         location,
         description,
         discipline,
@@ -151,6 +165,7 @@ const EventForm = ({ onComplete, event }: EventFormProps) => {
               <SelectItem value="farrier">{language === 'en' ? 'Farrier' : 'Herradora'}</SelectItem>
               <SelectItem value="worming">{language === 'en' ? 'Worming' : 'Desparasitación'}</SelectItem>
               <SelectItem value="dentist">{language === 'en' ? 'Dentist' : 'Dentista'}</SelectItem>
+              <SelectItem value="vaccination">{language === 'en' ? 'Vaccination' : 'Vacunación'}</SelectItem>
               <SelectItem value="other">{language === 'en' ? 'Other' : 'Otro'}</SelectItem>
             </SelectContent>
           </Select>
@@ -181,9 +196,29 @@ const EventForm = ({ onComplete, event }: EventFormProps) => {
                 onSelect={setDate}
                 initialFocus
                 className="pointer-events-auto"
+                disabled={(date) => {
+                  // Disable past dates (but allow today)
+                  const today = new Date();
+                  today.setHours(0, 0, 0, 0);
+                  return date < today;
+                }}
               />
             </PopoverContent>
           </Popover>
+        </div>
+
+        {/* Add time picker */}
+        <div className="m-2">
+          <Label htmlFor="event-time">
+            {language === 'en' ? 'Time' : 'Hora'} *
+          </Label>
+          <Input
+            id="event-time"
+            type="time"
+            value={time}
+            onChange={(e) => setTime(e.target.value)}
+            className="w-full"
+          />
         </div>
         
         <div className="m-2">

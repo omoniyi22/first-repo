@@ -248,8 +248,8 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
 
       let horseId: string;
 
+      // 1. Simple horse operations only
       if (isEditing && editingHorse) {
-        // Update existing horse
         const { error } = await supabase
           .from("horses")
           .update(horseData)
@@ -258,80 +258,7 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
 
         if (error) throw error;
         horseId = editingHorse.id;
-
-        // Handle care schedule updates for existing horse
-        const { data: existingSchedules } = await supabase
-          .from("horse_care_schedules")
-          .select("*")
-          .eq("horse_id", horseId);
-
-        const existingScheduleMap = new Map(
-          existingSchedules?.map((s) => [s.care_type, s]) || []
-        );
-
-        const updatePromises = [];
-
-        // Process each care type
-        Object.entries(careSchedules).forEach(([careType, careData]) => {
-          const existingSchedule = existingScheduleMap.get(careType);
-
-          if (careData.enabled && careData.last_visit_date) {
-            const nextDueDate = calculateNextDueDate(
-              careData.last_visit_date,
-              careData.frequency_months
-            );
-
-            const scheduleData = {
-              frequency_months: careData.frequency_months,
-              last_visit_date: careData.last_visit_date,
-              next_due_date: nextDueDate,
-              notes: careData.notes,
-            };
-
-            if (existingSchedule) {
-              // Update existing schedule
-              updatePromises.push(
-                supabase
-                  .from("horse_care_schedules")
-                  .update(scheduleData)
-                  .eq("id", existingSchedule.id)
-              );
-            } else {
-              // Create new schedule
-              updatePromises.push(
-                supabase.from("horse_care_schedules").insert({
-                  horse_id: horseId,
-                  care_type: careType,
-                  created_by: user.id,
-                  ...scheduleData,
-                })
-              );
-            }
-          } else if (existingSchedule) {
-            // Care type was disabled, delete existing schedule
-            updatePromises.push(
-              supabase
-                .from("horse_care_schedules")
-                .delete()
-                .eq("id", existingSchedule.id)
-            );
-          }
-        });
-
-        // Execute all schedule updates
-        if (updatePromises.length > 0) {
-          await Promise.allSettled(updatePromises);
-        }
-
-        toast({
-          title: language === "es" ? "Caballo actualizado" : "Horse updated",
-          description:
-            language === "es"
-              ? "El perfil de tu caballo ha sido actualizado exitosamente."
-              : "Your horse's profile has been updated successfully.",
-        });
       } else {
-        // Create new horse
         const { data: newHorse, error } = await supabase
           .from("horses")
           .insert([horseData])
@@ -340,93 +267,63 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
 
         if (error) throw error;
         horseId = newHorse.id;
+      }
 
-        // Create care schedules for new horse
-        const careSchedulesToCreate = [];
+      // 2. Call Edge Function for complex care schedule processing
+      const {
+        data: { session },
+        error: sessionError,
+      } = await supabase.auth.getSession();
 
-        Object.entries(careSchedules).forEach(([careType, careData]) => {
-          if (careData.enabled && careData.last_visit_date) {
-            const nextDueDate = calculateNextDueDate(
-              careData.last_visit_date,
-              careData.frequency_months
-            );
+      if (sessionError || !session) {
+        throw new Error("Authentication session not found");
+      }
 
-            careSchedulesToCreate.push({
-              horse_id: horseId,
-              care_type: careType,
-              frequency_months: careData.frequency_months,
-              last_visit_date: careData.last_visit_date,
-              next_due_date: nextDueDate,
-              notes: careData.notes,
-              created_by: user.id,
-            });
-          }
-        });
-
-        // Insert care schedules and create events (your existing logic)
-        if (careSchedulesToCreate.length > 0) {
-          const { data: createdSchedules, error: scheduleError } =
-            await supabase
-              .from("horse_care_schedules")
-              .insert(careSchedulesToCreate)
-              .select();
-
-          if (scheduleError) {
-            console.error("Error creating care schedules:", scheduleError);
-            toast({
-              title: language === "es" ? "Advertencia" : "Warning",
-              description:
-                language === "es"
-                  ? "El caballo fue guardado pero hubo un problema con los horarios de cuidado."
-                  : "Horse was saved but there was an issue with care schedules.",
-              variant: "destructive",
-            });
-          } else {
-            // Your existing event creation logic here...
-            const eventsToCreate = [];
-
-            createdSchedules.forEach((schedule: any) => {
-              const eventDateTime = new Date(schedule.next_due_date);
-              eventDateTime.setHours(9, 0, 0, 0);
-
-              eventsToCreate.push({
-                horse_id: horseId,
-                user_id: user.id,
-                title: `${horseName} - ${
-                  schedule.care_type.charAt(0).toUpperCase() +
-                  schedule.care_type.slice(1)
-                } Visit`,
-                description: `Scheduled ${schedule.care_type} appointment for ${horseName}`,
-                event_date: eventDateTime.toISOString(),
-                event_type: schedule.care_type,
-                discipline: "Both",
-                location: "",
-                care_schedule_id: schedule.id,
-                is_recurring: true,
-                is_completed: false,
-              });
-            });
-
-            // Rest of your event and notification creation logic...
-            if (eventsToCreate.length > 0) {
-              const { data: createdEvents, error: eventsError } = await supabase
-                .from("events")
-                .insert(eventsToCreate)
-                .select();
-
-              if (!eventsError && createdEvents) {
-                // Your email notification logic here...
-              }
-            }
-          }
+      const response = await fetch(
+        `${supabase.supabaseUrl}/functions/v1/manage-horse-care`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+            "Content-Type": "application/json",
+            apikey: supabase.supabaseKey,
+          },
+          body: JSON.stringify({
+            action: isEditing
+              ? "update_care_schedules"
+              : "create_care_schedules",
+            horse_id: horseId,
+            horse_name: horseName,
+            care_schedules: careSchedules,
+            user_id: user.id,
+            user_email: user.email,
+          }),
         }
+      );
 
+      const result = await response.json();
+
+      // 3. Handle response
+      if (response.ok) {
         toast({
-          title: language === "es" ? "Caballo agregado" : "Horse added",
+          title: language === "es" ? "Éxito" : "Success",
+          description: isEditing
+            ? language === "es"
+              ? "Caballo y horarios actualizados exitosamente."
+              : "Horse and schedules updated successfully."
+            : language === "es"
+            ? "Caballo y horarios creados exitosamente."
+            : "Horse and schedules created successfully.",
+        });
+      } else {
+        console.error("Edge function error:", result);
+        toast({
+          title: language === "es" ? "Advertencia" : "Warning",
           description:
             language === "es"
-              ? "Tu nuevo caballo ha sido agregado exitosamente."
-              : "Your new horse has been added successfully.",
+              ? "El caballo fue guardado pero hubo problemas con los horarios de cuidado."
+              : "Horse was saved but there were issues with care schedules.",
+          variant: "destructive",
         });
       }
 

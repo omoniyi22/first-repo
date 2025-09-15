@@ -1,7 +1,15 @@
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CalendarIcon, MapPin, Clock, Plus, Edit, Trash2 } from "lucide-react";
+import {
+  CalendarIcon,
+  MapPin,
+  Clock,
+  Plus,
+  Edit,
+  Trash2,
+  CheckCircle,
+} from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -28,6 +36,7 @@ import EventForm from "./EventForm";
 import { useAuth } from "@/contexts/AuthContext";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { supabase } from "@/integrations/supabase/client";
 
 const UpcomingEvents = () => {
   const [showAddEventForm, setShowAddEventForm] = useState(false);
@@ -66,7 +75,7 @@ const UpcomingEvents = () => {
             (a, b) =>
               new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime()
           )
-          .slice(0, 4);
+          .slice(0, 5);
 
         setEvents(upcomingEvents);
       } catch (error) {
@@ -189,6 +198,85 @@ const UpcomingEvents = () => {
     setSelectedEvent(null);
   };
 
+  // Add this function inside your UpcomingEvents component
+  const handleCompleteEvent = async (event: Event) => {
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session) {
+        toast({
+          title: "Authentication required",
+          description: "Please sign in to complete events",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const response = await fetch(
+        `${supabase.supabaseUrl}/functions/v1/complete-horse-event`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+            "Content-Type": "application/json",
+            apikey: supabase.supabaseKey,
+          },
+          body: JSON.stringify({
+            event_id: event.id,
+            completed_by: user.id,
+            actual_completion_date: new Date().toISOString(),
+          }),
+        }
+      );
+
+      const result = await response.json();
+
+      if (response.ok) {
+        toast({
+          title: language === "en" ? "Event Completed!" : "¡Evento Completado!",
+          description:
+            language === "en"
+              ? `${event.title} completed. Next appointment scheduled for ${result.data.next_due_date}.`
+              : `${event.title} completado. Próxima cita programada para ${result.data.next_due_date}.`,
+        });
+
+        // Refresh events list
+        const userId = user?.id;
+        if (userId) {
+          const today = new Date().toISOString();
+          const eventsData = await fetchEvents(userId);
+          const upcomingEvents = eventsData
+            .filter((event) => new Date(event.eventDate) >= new Date(today))
+            .sort(
+              (a, b) =>
+                new Date(a.eventDate).getTime() -
+                new Date(b.eventDate).getTime()
+            )
+            .slice(0, 4);
+          setEvents(upcomingEvents);
+        }
+      } else {
+        toast({
+          title: language === "en" ? "Error" : "Error",
+          description: result.error || "Failed to complete event",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Error completing event:", error);
+      toast({
+        title: language === "en" ? "Error" : "Error",
+        description:
+          language === "en"
+            ? "Failed to complete event"
+            : "Error al completar evento",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
@@ -256,6 +344,24 @@ const UpcomingEvents = () => {
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
+
+                        {/* NEW: Add complete button for recurring events */}
+                        {event.is_recurring && !event.is_completed && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleCompleteEvent(event)}
+                            className="h-8 w-8 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
+                            title={
+                              language === "en"
+                                ? "Mark Complete"
+                                : "Marcar Completo"
+                            }
+                          >
+                            <CheckCircle className="h-4 w-4" />
+                          </Button>
+                        )}
+
                         <Button
                           size="sm"
                           variant="ghost"
