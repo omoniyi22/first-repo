@@ -42,6 +42,7 @@ serve(async (req) => {
           title,
           event_date,
           event_type,
+          care_schedule_id,
           horses (name, user_id)
         )
       `)
@@ -84,23 +85,42 @@ serve(async (req) => {
       
       try {
         const event = notification.events
-        const horse = event?.horses
 
-        if (!event || !horse) {
-          results.errors.push(`Missing event or horse data for notification ${notification.id}`)
+        if (!event) {
+          results.errors.push(`Missing event data for notification ${notification.id}`)
           await supabase
             .from('email_notifications')
             .update({
               delivery_status: 'failed',
-              failure_reason: 'Missing event or horse data'
+              failure_reason: 'Missing event data'
             })
             .eq('id', notification.id)
           results.emails_failed++
           continue
         }
 
-        // Generate email content
-        const emailContent = generateEmailContent(notification, event, horse.name)
+        // Determine if this is a horse care event or manual event
+        const isHorseCareEvent = !!event.care_schedule_id
+        const horse = event?.horses
+
+        // For horse care events, we need horse data
+        if (isHorseCareEvent && !horse) {
+          results.errors.push(`Missing horse data for horse care notification ${notification.id}`)
+          await supabase
+            .from('email_notifications')
+            .update({
+              delivery_status: 'failed',
+              failure_reason: 'Missing horse data for horse care event'
+            })
+            .eq('id', notification.id)
+          results.emails_failed++
+          continue
+        }
+
+        // Generate email content based on event type
+        const emailContent = isHorseCareEvent 
+          ? generateHorseCareEmailContent(notification, event, horse.name)
+          : generateManualEventEmailContent(notification, event)
 
         // Send email
         const emailSent = await sendEmail({
@@ -194,8 +214,8 @@ serve(async (req) => {
   }
 })
 
-// Generate email content based on notification type
-function generateEmailContent(notification: any, event: any, horseName: string) {
+// Generate email content for horse care events
+function generateHorseCareEmailContent(notification: any, event: any, horseName: string) {
   const eventDate = new Date(event.event_date).toLocaleDateString('en-US', {
     weekday: 'long',
     year: 'numeric',
@@ -240,7 +260,7 @@ function generateEmailContent(notification: any, event: any, horseName: string) 
       <style>
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f8fafc; }
         .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); overflow: hidden; }
-        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 32px 20px; text-align: center; }
+        .header { background: linear-gradient(135deg, #a28bfb 0%, #7759eb 100%); color: white; padding: 32px 20px; text-align: center; }
         .header h1 { margin: 0; font-size: 28px; font-weight: 600; }
         .header p { margin: 8px 0 0 0; opacity: 0.9; font-size: 16px; }
         .content { padding: 32px 20px; }
@@ -252,7 +272,7 @@ function generateEmailContent(notification: any, event: any, horseName: string) 
         .detail-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b; margin-bottom: 4px; }
         .detail-value { font-weight: 600; color: #1a202c; }
         .urgency-banner { background: #fef3c7; border: 1px solid #f59e0b; color: #92400e; padding: 16px; border-radius: 8px; margin: 24px 0; text-align: center; font-weight: 500; }
-        .button { display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: 600; margin: 20px 0; transition: transform 0.2s; }
+        .button { display: inline-block; background: linear-gradient(135deg, #a28bfb 0%, #7759eb 100%); color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: 600; margin: 20px 0; transition: transform 0.2s; }
         .button:hover { transform: translateY(-1px); }
         .footer { background-color: #f8fafc; color: #64748b; font-size: 14px; padding: 24px 20px; text-align: center; border-top: 1px solid #e2e8f0; }
         .footer p { margin: 8px 0; }
@@ -302,7 +322,7 @@ function generateEmailContent(notification: any, event: any, horseName: string) 
           <p>Don't forget to book your appointment if you haven't already! Keeping up with regular care helps ensure your horse stays healthy and performs at their best.</p>
           
           <div style="text-align: center; margin: 32px 0;">
-            <a href="https://your-app-domain.com/horses" class="button">Manage My Horses</a>
+            <a href="https://equineaintelligence.com/profile-setup" style="color: white;" class="button">Manage My Horses</a>
           </div>
           
           <p>Best regards,<br><strong>Your Horse Management Team</strong></p>
@@ -333,13 +353,170 @@ APPOINTMENT DETAILS:
 
 Don't forget to book your appointment if you haven't already! Keeping up with regular care helps ensure your horse stays healthy and performs at their best.
 
-Visit your dashboard: https://your-app-domain.com/horses
+Visit your dashboard: https://equineaintelligence.com/dashboard
 
 Best regards,
 Your Horse Management Team
 
 ---
 This is an automated reminder from your horse care management system.
+If you have any questions, please contact our support team.
+  `
+
+  return { html, text }
+}
+
+// Generate email content for manual events (no horse data)
+function generateManualEventEmailContent(notification: any, event: any) {
+  const eventDate = new Date(event.event_date).toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })
+  const eventTime = new Date(event.event_date).toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
+  })
+  const eventType = event.event_type.charAt(0).toUpperCase() + event.event_type.slice(1)
+  
+  let timeframe = ''
+  let urgency = ''
+  let emoji = ''
+  
+  switch (notification.notification_type) {
+    case '3_weeks':
+      timeframe = 'in 3 weeks'
+      urgency = 'plenty of time to prepare'
+      emoji = '📅'
+      break
+    case '1_week':
+      timeframe = 'in 1 week'
+      urgency = 'time to prepare'
+      emoji = '⏰'
+      break
+    case 'same_day':
+      timeframe = 'today'
+      urgency = 'don\'t forget!'
+      emoji = '🔔'
+      break
+    default:
+      timeframe = 'soon'
+      urgency = 'please check your schedule'
+      emoji = '📋'
+  }
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Event Reminder</title>
+      <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f8fafc; }
+        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #a28bfb 0%, #7759eb 100%); color: white; padding: 32px 20px; text-align: center; }
+        .header h1 { margin: 0; font-size: 28px; font-weight: 600; }
+        .header p { margin: 8px 0 0 0; opacity: 0.9; font-size: 16px; }
+        .content { padding: 32px 20px; }
+        .greeting { font-size: 18px; margin-bottom: 24px; }
+        .highlight { background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); padding: 24px; border-radius: 8px; margin: 24px 0; border-left: 4px solid #667eea; }
+        .highlight h3 { margin: 0 0 16px 0; color: #1a202c; font-size: 18px; }
+        .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+        .detail-item { padding: 12px; background: white; border-radius: 6px; border: 1px solid #e2e8f0; }
+        .detail-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b; margin-bottom: 4px; }
+        .detail-value { font-weight: 600; color: #1a202c; }
+        .urgency-banner { background: #fef3c7; border: 1px solid #f59e0b; color: #92400e; padding: 16px; border-radius: 8px; margin: 24px 0; text-align: center; font-weight: 500; }
+        .button { display: inline-block; background: linear-gradient(135deg, #a28bfb 0%, #7759eb 100%); color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: 600; margin: 20px 0; transition: transform 0.2s; }
+        .button:hover { transform: translateY(-1px); }
+        .footer { background-color: #f8fafc; color: #64748b; font-size: 14px; padding: 24px 20px; text-align: center; border-top: 1px solid #e2e8f0; }
+        .footer p { margin: 8px 0; }
+        @media (max-width: 600px) {
+          .detail-grid { grid-template-columns: 1fr; }
+          .content { padding: 24px 16px; }
+          .header { padding: 24px 16px; }
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>${emoji} Event Reminder</h1>
+          <p>Stay organized and never miss an event</p>
+        </div>
+        <div class="content">
+          <div class="greeting">Hello!</div>
+          <p>This is a friendly reminder that you have <strong>${event.title}</strong> scheduled <strong>${timeframe}</strong>.</p>
+          
+          <div class="highlight">
+            <h3>📋 Event Details</h3>
+            <div class="detail-grid">
+              <div class="detail-item">
+                <div class="detail-label">Event</div>
+                <div class="detail-value">${event.title}</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Type</div>
+                <div class="detail-value">${eventType}</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Date</div>
+                <div class="detail-value">${eventDate}</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Time</div>
+                <div class="detail-value">${eventTime}</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="urgency-banner">
+            ${emoji} ${urgency.charAt(0).toUpperCase() + urgency.slice(1)}
+          </div>
+          
+          <p>Make sure you're prepared and don't forget to check any additional details or requirements for this event.</p>
+          
+          <div style="text-align: center; margin: 32px 0;">
+            <a href="https://equineaintelligence.com/events" style="color: white;" class="button">View My Events</a>
+          </div>
+          
+          <p>Best regards,<br><strong>Your Event Management Team</strong></p>
+        </div>
+        <div class="footer">
+          <p>This is an automated reminder from your event management system.</p>
+          <p>If you have any questions, please contact our support team.</p>
+          <p style="margin-top: 16px; font-size: 12px;">© 2024 Event Management System. All rights reserved.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `
+
+  const text = `
+${emoji} EVENT REMINDER
+
+Hello!
+
+This is a friendly reminder that you have ${event.title} scheduled ${timeframe}.
+
+EVENT DETAILS:
+- Event: ${event.title}
+- Type: ${eventType}
+- Date: ${eventDate}
+- Time: ${eventTime}
+- Status: ${urgency}
+
+Make sure you're prepared and don't forget to check any additional details or requirements for this event.
+
+Visit your dashboard: https://equineaintelligence.com/dashboard
+
+Best regards,
+Your Event Management Team
+
+---
+This is an automated reminder from your event management system.
 If you have any questions, please contact our support team.
   `
 
@@ -371,13 +548,13 @@ async function sendEmail(emailData: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Horse Care Reminders <noreply@equineaintelligence.com>',
+        from: 'Event Reminders <noreply@equineaintelligence.com>',
         to: [emailData.to],
         subject: emailData.subject,
         html: emailData.html,
         text: emailData.text,
         headers: {
-          'X-Entity-Ref-ID': `horse-care-${Date.now()}`
+          'X-Entity-Ref-ID': `event-reminder-${Date.now()}`
         }
       })
     })

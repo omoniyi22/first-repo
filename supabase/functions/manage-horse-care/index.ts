@@ -327,9 +327,49 @@ async function updateCareSchedules(
                 .eq('is_completed', false)
                 .select()
 
-              if (!eventUpdateError) {
-                results.events_updated += (updatedEvents?.length || 0)
-              } else {
+              if (!eventUpdateError && updatedEvents && updatedEvents.length > 0) {
+                results.events_updated += updatedEvents.length
+                console.log(`Updated ${updatedEvents.length} events for ${careType}`)
+
+                // UPDATE NOTIFICATIONS FOR EACH UPDATED EVENT
+                for (const updatedEvent of updatedEvents) {
+                  try {
+                    // 1. Delete old unsent notifications for this event
+                    const { data: deletedNotifications, error: deleteNotificationsError } = await supabase
+                      .from('email_notifications')
+                      .delete()
+                      .eq('event_id', updatedEvent.id)
+                      .eq('is_sent', false)
+                      .select()
+
+                    if (deleteNotificationsError) {
+                      console.error(`Error deleting notifications for event ${updatedEvent.id}:`, deleteNotificationsError)
+                      results.errors.push(`Failed to delete notifications for ${careType} event: ${deleteNotificationsError.message}`)
+                    } else {
+                      results.notifications_deleted += (deletedNotifications?.length || 0)
+                      console.log(`Deleted ${deletedNotifications?.length || 0} old notifications for ${careType} event`)
+                    }
+
+                    // 2. Create new notifications with updated dates
+                    const newNotificationsCount = await createEmailNotifications(
+                      supabase,
+                      updatedEvent,
+                      horseId,
+                      userId,
+                      userEmail,
+                      horseName
+                    )
+
+                    results.notifications_created += newNotificationsCount
+                    console.log(`Created ${newNotificationsCount} new notifications for ${careType} event`)
+
+                  } catch (notificationError) {
+                    console.error(`Error updating notifications for event ${updatedEvent.id}:`, notificationError)
+                    results.errors.push(`Error updating notifications for ${careType}: ${notificationError.message}`)
+                  }
+                }
+
+              } else if (eventUpdateError) {
                 results.errors.push(`Failed to update events for ${careType}: ${eventUpdateError.message}`)
               }
             }

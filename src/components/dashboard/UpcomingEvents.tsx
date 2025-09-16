@@ -56,8 +56,10 @@ const UpcomingEvents = () => {
       try {
         setIsLoading(true);
 
-        // Get current date to filter only upcoming events
-        const today = new Date().toISOString();
+        // Get current date
+        const today = new Date();
+        const yesterday = new Date(today);
+        yesterday.setDate(today.getDate() - 1);
 
         const userId = user?.id;
         if (!userId) {
@@ -68,9 +70,9 @@ const UpcomingEvents = () => {
 
         const eventsData = await fetchEvents(userId);
 
-        // Filter to only upcoming events and limit to 4
+        // Filter to only upcoming events and limit to 5
         const upcomingEvents = eventsData
-          .filter((event) => new Date(event.eventDate) >= new Date(today))
+          .filter((event) => new Date(event.eventDate) >= yesterday)
           .sort(
             (a, b) =>
               new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime()
