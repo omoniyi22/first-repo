@@ -206,7 +206,7 @@ async function createEventWithNotifications(supabase: any, body: RequestBody) {
   )
 }
 
-// Handle update operation
+// FIXED: Handle update operation for BOTH manual and recurring events
 async function updateEventWithNotifications(supabase: any, body: RequestBody) {
   const { 
     event_id,
@@ -239,10 +239,10 @@ async function updateEventWithNotifications(supabase: any, body: RequestBody) {
     errors: [] as string[]
   }
 
-  // 1. Get existing event to compare dates
+  // 1. Get existing event to compare dates and check if it's completed
   const { data: existingEvent, error: fetchError } = await supabase
     .from('events')
-    .select('event_date, care_schedule_id')
+    .select('event_date, care_schedule_id, is_completed')
     .eq('id', event_id)
     .eq('user_id', userId)
     .single()
@@ -261,7 +261,22 @@ async function updateEventWithNotifications(supabase: any, body: RequestBody) {
     )
   }
 
-  // 2. Update the event
+  // 2. Check if event is already completed
+  if (existingEvent.is_completed) {
+    return new Response(
+      JSON.stringify({ 
+        success: false, 
+        error: 'Cannot update completed events',
+        message: 'This event has already been completed and cannot be modified.'
+      }),
+      { 
+        status: 400, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      }
+    )
+  }
+
+  // 3. Update the event
   const eventData = {
     title,
     event_type: eventType,
@@ -299,15 +314,18 @@ async function updateEventWithNotifications(supabase: any, body: RequestBody) {
   results.event_updated = true
   console.log(`Event updated successfully: ${event_id}`)
 
-  // 3. Check if this is a manual event and if date changed
+  // 4. FIXED: Update notifications for ALL events when date changes (not just manual ones)
   const dateChanged = existingEvent.event_date !== eventDate
   const isManualEvent = !existingEvent.care_schedule_id
+  const isRecurringEvent = !!existingEvent.care_schedule_id
 
-  if (dateChanged && isManualEvent && user_email) {
-    console.log('Date changed for manual event - updating notifications')
+  console.log('Event type check:', { dateChanged, isManualEvent, isRecurringEvent })
+
+  if (dateChanged && user_email) {
+    console.log('Date changed - updating notifications for both manual and recurring events')
     
     try {
-      // Delete existing unsent notifications
+      // Delete existing unsent notifications for ANY event type
       const { data: deletedNotifications, error: deleteError } = await supabase
         .from('email_notifications')
         .delete()
@@ -323,7 +341,7 @@ async function updateEventWithNotifications(supabase: any, body: RequestBody) {
         console.log(`Deleted ${results.notifications_deleted} old notifications`)
       }
 
-      // Create new notifications with standard pattern
+      // Create new notifications with standard pattern for ANY event type
       const newNotificationsCount = await createStandardNotifications(
         supabase,
         event_id,
@@ -335,6 +353,30 @@ async function updateEventWithNotifications(supabase: any, body: RequestBody) {
       
       results.notifications_updated = newNotificationsCount
       console.log(`Created ${newNotificationsCount} updated notifications`)
+
+      // 5. ADDITIONAL: Update care schedule if this is a recurring event
+      if (isRecurringEvent) {
+        console.log('Updating care schedule for recurring event')
+        try {
+          const { error: scheduleUpdateError } = await supabase
+            .from('horse_care_schedules')
+            .update({
+              next_due_date: new Date(eventDate).toISOString().split('T')[0]
+            })
+            .eq('id', existingEvent.care_schedule_id)
+
+          if (scheduleUpdateError) {
+            console.error('Error updating care schedule:', scheduleUpdateError)
+            results.errors.push(`Failed to update care schedule: ${scheduleUpdateError.message}`)
+          } else {
+            console.log('Care schedule updated successfully')
+          }
+        } catch (scheduleError) {
+          console.error('Care schedule update failed:', scheduleError)
+          results.errors.push(`Care schedule update failed: ${scheduleError.message}`)
+        }
+      }
+
     } catch (notificationError) {
       console.error('Error updating notifications:', notificationError)
       results.errors.push(`Failed to update notifications: ${notificationError.message}`)
@@ -350,6 +392,7 @@ async function updateEventWithNotifications(supabase: any, body: RequestBody) {
         event_title: title,
         event_date: eventDate,
         date_changed: dateChanged,
+        is_recurring_event: isRecurringEvent,
         notifications_updated: results.notifications_updated,
         notifications_deleted: results.notifications_deleted
       },

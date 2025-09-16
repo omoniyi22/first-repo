@@ -22,7 +22,14 @@ import {
   dressageTypes,
 } from "@/lib/dressageOptions";
 import { Label } from "@/components/ui/label";
-import { Loader2, Heart, Stethoscope, Scissors, Shield } from "lucide-react";
+import {
+  Loader2,
+  Heart,
+  Stethoscope,
+  Scissors,
+  Shield,
+  Syringe,
+} from "lucide-react";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import MediaSelector from "@/components/admin/media/MediaSelector";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -48,10 +55,11 @@ interface HorseFormProps {
   } | null;
 }
 
-// Care schedule interface
+// Updated care schedule interface to support both weeks and months
 interface CareSchedule {
   enabled: boolean;
-  frequency_months: number;
+  frequency: number; // Can be weeks or months depending on care type
+  frequency_unit: "weeks" | "months";
   last_visit_date: string;
   notes: string;
 }
@@ -59,8 +67,8 @@ interface CareSchedule {
 interface CareSchedules {
   farrier: CareSchedule;
   vaccination: CareSchedule;
+  boosters: CareSchedule;
   dentist: CareSchedule;
-  worming: CareSchedule;
 }
 
 const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
@@ -97,29 +105,33 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
   );
   const [isSaving, setIsSaving] = useState(false);
 
-  // NEW: Care schedule state
+  // Updated care schedule state with client requirements
   const [careSchedules, setCareSchedules] = useState<CareSchedules>({
     farrier: {
       enabled: false,
-      frequency_months: 6,
+      frequency: 6,
+      frequency_unit: "weeks",
       last_visit_date: "",
       notes: "",
     },
     vaccination: {
       enabled: false,
-      frequency_months: 12,
+      frequency: 12,
+      frequency_unit: "months",
+      last_visit_date: "",
+      notes: "",
+    },
+    boosters: {
+      enabled: false,
+      frequency: 6,
+      frequency_unit: "months",
       last_visit_date: "",
       notes: "",
     },
     dentist: {
       enabled: false,
-      frequency_months: 6,
-      last_visit_date: "",
-      notes: "",
-    },
-    worming: {
-      enabled: false,
-      frequency_months: 3,
+      frequency: 6,
+      frequency_unit: "months",
       last_visit_date: "",
       notes: "",
     },
@@ -131,7 +143,7 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
     else setDressageLevel(editingHorse?.dressage_level || "");
   }, [dressageType]);
 
-  // Add this useEffect after your existing useEffects
+  // Load existing care schedules for editing
   useEffect(() => {
     const loadExistingCareSchedules = async () => {
       if (isEditing && editingHorse) {
@@ -150,7 +162,9 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
               if (updatedSchedules[schedule.care_type as keyof CareSchedules]) {
                 updatedSchedules[schedule.care_type as keyof CareSchedules] = {
                   enabled: true,
-                  frequency_months: schedule.frequency_months,
+                  frequency:
+                    schedule.frequency || schedule.frequency_months || 6,
+                  frequency_unit: schedule.frequency_unit || "months",
                   last_visit_date: schedule.last_visit_date,
                   notes: schedule.notes || "",
                 };
@@ -193,15 +207,22 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
     }));
   };
 
-  // Calculate next due date
+  // Updated calculation to handle weeks vs months
   const calculateNextDueDate = (
     lastVisitDate: string,
-    frequencyMonths: number
+    frequency: number,
+    frequencyUnit: "weeks" | "months"
   ): string => {
     if (!lastVisitDate) return "";
     const lastVisit = new Date(lastVisitDate);
     const nextDue = new Date(lastVisit);
-    nextDue.setMonth(nextDue.getMonth() + frequencyMonths);
+
+    if (frequencyUnit === "weeks") {
+      nextDue.setDate(nextDue.getDate() + frequency * 7);
+    } else {
+      nextDue.setMonth(nextDue.getMonth() + frequency);
+    }
+
     return nextDue.toISOString().split("T")[0];
   };
 
@@ -627,7 +648,7 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
         </CardContent>
       </Card>
 
-      {/* NEW: Care Schedules Section */}
+      {/* Updated Care Schedules Section */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -641,7 +662,7 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
           </p>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Farrier Care */}
+          {/* Farrier Care - Updated with client requirements */}
           <CareScheduleSection
             careType="farrier"
             icon={<Scissors className="h-5 w-5" />}
@@ -653,54 +674,92 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
             }
             careData={careSchedules.farrier}
             language={language}
+            horseName={horseName}
             onUpdate={(field, value) =>
               updateCareSchedule("farrier", field, value)
             }
             frequencyOptions={[
               {
                 value: 4,
-                label: language === "es" ? "Cada 4 meses" : "Every 4 months",
+                label: language === "es" ? "Cada 4 semanas" : "Every 4 weeks",
               },
               {
                 value: 6,
-                label: language === "es" ? "Cada 6 meses" : "Every 6 months",
+                label: language === "es" ? "Cada 6 semanas" : "Every 6 weeks",
               },
               {
                 value: 8,
-                label: language === "es" ? "Cada 8 meses" : "Every 8 months",
+                label: language === "es" ? "Cada 8 semanas" : "Every 8 weeks",
+              },
+              {
+                value: 10,
+                label: language === "es" ? "Cada 10 semanas" : "Every 10 weeks",
+              },
+              {
+                value: 12,
+                label: language === "es" ? "Cada 12 semanas" : "Every 12 weeks",
               },
             ]}
+            showFrequencySelection={true}
           />
 
           <Separator />
 
-          {/* Vaccination */}
+          {/* Vaccination - Updated with client requirements */}
           <CareScheduleSection
             careType="vaccination"
-            icon={<Shield className="h-5 w-5" />}
-            title={language === "es" ? "Vacunación" : "Vaccination"}
+            icon={<Syringe className="h-5 w-5" />}
+            title={
+              language === "es" ? "Vacunación Anual" : "Annual Vaccination"
+            }
             description={
               language === "es"
-                ? "Vacunas contra la gripe y otras"
-                : "Flu shots and other vaccinations"
+                ? "Vacuna anual contra la gripe"
+                : "Annual flu vaccination"
             }
             careData={careSchedules.vaccination}
             language={language}
+            horseName={horseName}
             onUpdate={(field, value) =>
               updateCareSchedule("vaccination", field, value)
             }
-            frequencyOptions={[
-              {
-                value: 6,
-                label: language === "es" ? "Cada 6 meses" : "Every 6 months",
-              },
-              { value: 12, label: language === "es" ? "Anual" : "Yearly" },
-            ]}
+            frequencyOptions={[]}
+            showFrequencySelection={false}
+            fixedFrequencyText={
+              language === "es" ? "Anual (12 meses)" : "Yearly (12 months)"
+            }
           />
 
           <Separator />
 
-          {/* Dental Care */}
+          {/* Boosters - New care type */}
+          <CareScheduleSection
+            careType="boosters"
+            icon={<Shield className="h-5 w-5" />}
+            title={
+              language === "es" ? "Refuerzos Semestrales" : "Bi-annual Boosters"
+            }
+            description={
+              language === "es"
+                ? "Refuerzos cada 6 meses"
+                : "Booster shots every 6 months"
+            }
+            careData={careSchedules.boosters}
+            language={language}
+            horseName={horseName}
+            onUpdate={(field, value) =>
+              updateCareSchedule("boosters", field, value)
+            }
+            frequencyOptions={[]}
+            showFrequencySelection={false}
+            fixedFrequencyText={
+              language === "es" ? "Cada 6 meses" : "Every 6 months"
+            }
+          />
+
+          <Separator />
+
+          {/* Dental Care - Keep existing */}
           <CareScheduleSection
             careType="dentist"
             icon={<Heart className="h-5 w-5" />}
@@ -712,6 +771,7 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
             }
             careData={careSchedules.dentist}
             language={language}
+            horseName={horseName}
             onUpdate={(field, value) =>
               updateCareSchedule("dentist", field, value)
             }
@@ -722,36 +782,10 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
               },
               { value: 12, label: language === "es" ? "Anual" : "Yearly" },
             ]}
+            showFrequencySelection={true}
           />
 
           <Separator />
-
-          {/* Worming */}
-          <CareScheduleSection
-            careType="worming"
-            icon={<Shield className="h-5 w-5" />}
-            title={language === "es" ? "Desparasitación" : "Worming"}
-            description={
-              language === "es"
-                ? "Tratamientos de prevención de parásitos"
-                : "Parasite prevention treatments"
-            }
-            careData={careSchedules.worming}
-            language={language}
-            onUpdate={(field, value) =>
-              updateCareSchedule("worming", field, value)
-            }
-            frequencyOptions={[
-              {
-                value: 3,
-                label: language === "es" ? "Cada 3 meses" : "Every 3 months",
-              },
-              {
-                value: 6,
-                label: language === "es" ? "Cada 6 meses" : "Every 6 months",
-              },
-            ]}
-          />
         </CardContent>
       </Card>
 
@@ -775,23 +809,6 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
                 language === "es"
                   ? "¿Cuáles son las fortalezas de tu caballo?"
                   : "What are your horse's strengths?"
-              }
-              rows={2}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="weaknesses">
-              {language === "es" ? "Áreas de mejora" : "Areas for Improvement"}
-            </Label>
-            <Textarea
-              id="weaknesses"
-              value={weaknesses}
-              onChange={(e) => setWeaknesses(e.target.value)}
-              placeholder={
-                language === "es"
-                  ? "¿Qué áreas te gustaría mejorar?"
-                  : "What areas would you like to improve?"
               }
               rows={2}
             />
@@ -848,7 +865,7 @@ const HorseForm = ({ onComplete, editingHorse = null }: HorseFormProps) => {
   );
 };
 
-// Care Schedule Section Component
+// Updated Care Schedule Section Component
 interface CareScheduleSectionProps {
   careType: string;
   icon: React.ReactNode;
@@ -856,8 +873,11 @@ interface CareScheduleSectionProps {
   description: string;
   careData: CareSchedule;
   language: string;
+  horseName: string;
   onUpdate: (field: keyof CareSchedule, value: any) => void;
   frequencyOptions: { value: number; label: string }[];
+  showFrequencySelection: boolean;
+  fixedFrequencyText?: string;
 }
 
 const CareScheduleSection = ({
@@ -867,9 +887,75 @@ const CareScheduleSection = ({
   description,
   careData,
   language,
+  horseName,
   onUpdate,
   frequencyOptions,
+  showFrequencySelection,
+  fixedFrequencyText,
 }: CareScheduleSectionProps) => {
+  // Get the appropriate question text based on care type and client requirements
+  const getQuestionText = () => {
+    switch (careType) {
+      case "farrier":
+        return language === "es"
+          ? `¿Con qué frecuencia necesita ${
+              horseName || "el caballo"
+            } visitas del herrador?`
+          : `How often does ${horseName || "the horse"} need farrier visits?`;
+      case "vaccination":
+        return language === "es"
+          ? "¿Cuándo fue la última inyección contra la gripe?"
+          : "When was the last flu injection?";
+      case "boosters":
+        return language === "es"
+          ? "¿Cuándo fue el último refuerzo?"
+          : "When was the last booster?";
+      case "dentist":
+        return language === "es"
+          ? "¿Con qué frecuencia necesita cuidado dental?"
+          : "How often does dental care need to be done?";
+
+      default:
+        return language === "es" ? "¿Con qué frecuencia?" : "How often?";
+    }
+  };
+
+  const getLastVisitText = () => {
+    switch (careType) {
+      case "farrier":
+        return language === "es"
+          ? "¿Cuándo fue la última visita del herrador?"
+          : "When was the last farrier visit?";
+      case "vaccination":
+        return language === "es"
+          ? "¿Cuándo fue la última vacunación?"
+          : "When was the last vaccination?";
+      case "boosters":
+        return language === "es"
+          ? "¿Cuándo fue el último refuerzo?"
+          : "When was the last booster?";
+      default:
+        return language === "es"
+          ? "¿Cuándo fue la última visita?"
+          : "When was the last visit?";
+    }
+  };
+
+  // Calculate next due date with proper unit handling
+  const calculateNextDueDate = () => {
+    if (!careData.last_visit_date) return "";
+    const lastVisit = new Date(careData.last_visit_date);
+    const nextDue = new Date(lastVisit);
+
+    if (careData.frequency_unit === "weeks") {
+      nextDue.setDate(nextDue.getDate() + careData.frequency * 7);
+    } else {
+      nextDue.setMonth(nextDue.getMonth() + careData.frequency);
+    }
+
+    return nextDue.toLocaleDateString();
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3">
@@ -895,38 +981,43 @@ const CareScheduleSection = ({
       {careData.enabled && (
         <div className="ml-8 space-y-4 p-4 bg-gray-50 rounded-lg">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>
-                {language === "es" ? "¿Con qué frecuencia?" : "How often?"}
-              </Label>
-              <Select
-                value={careData.frequency_months.toString()}
-                onValueChange={(value) =>
-                  onUpdate("frequency_months", parseInt(value))
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {frequencyOptions.map((option) => (
-                    <SelectItem
-                      key={option.value}
-                      value={option.value.toString()}
-                    >
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            {showFrequencySelection ? (
+              <div className="space-y-2">
+                <Label>{getQuestionText()}</Label>
+                <Select
+                  value={careData.frequency.toString()}
+                  onValueChange={(value) =>
+                    onUpdate("frequency", parseInt(value))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {frequencyOptions.map((option) => (
+                      <SelectItem
+                        key={option.value}
+                        value={option.value.toString()}
+                      >
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <Label>{getQuestionText()}</Label>
+                <div className="p-2 bg-blue-50 border border-blue-200 rounded-md">
+                  <span className="text-sm text-blue-700 font-medium">
+                    {fixedFrequencyText}
+                  </span>
+                </div>
+              </div>
+            )}
 
             <div className="space-y-2">
-              <Label>
-                {language === "es"
-                  ? "¿Cuándo fue la última visita?"
-                  : "When was the last visit?"}
-              </Label>
+              <Label>{getLastVisitText()}</Label>
               <Input
                 type="date"
                 value={careData.last_visit_date}
@@ -963,16 +1054,7 @@ const CareScheduleSection = ({
                     ? "Próxima visita programada:"
                     : "Next visit scheduled:"}
                 </strong>{" "}
-                {new Date(careData.last_visit_date).toLocaleDateString() !==
-                  "Invalid Date" &&
-                  (() => {
-                    const lastVisit = new Date(careData.last_visit_date);
-                    const nextDue = new Date(lastVisit);
-                    nextDue.setMonth(
-                      nextDue.getMonth() + careData.frequency_months
-                    );
-                    return nextDue.toLocaleDateString();
-                  })()}
+                {calculateNextDueDate()}
               </p>
             </div>
           )}

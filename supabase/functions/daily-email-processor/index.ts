@@ -214,7 +214,49 @@ serve(async (req) => {
   }
 })
 
-// Generate email content for horse care events
+// Updated helper function to get proper care type display names and descriptions
+function getCareTypeInfo(eventType: string) {
+  switch (eventType) {
+    case 'farrier':
+      return {
+        displayName: 'Farrier',
+        description: 'hoof trimming and shoeing',
+        icon: '🔨'
+      }
+    case 'vaccination':
+      return {
+        displayName: 'Annual Vaccination',
+        description: 'yearly flu vaccination',
+        icon: '💉'
+      }
+    case 'boosters':
+      return {
+        displayName: 'Booster Shot',
+        description: 'bi-annual booster vaccination',
+        icon: '🛡️'
+      }
+    case 'dentist':
+      return {
+        displayName: 'Dental Care',
+        description: 'dental checkup and floating',
+        icon: '🦷'
+      }
+    case 'worming':
+      return {
+        displayName: 'Worming Treatment',
+        description: 'parasite prevention treatment',
+        icon: '💊'
+      }
+    default:
+      return {
+        displayName: eventType.charAt(0).toUpperCase() + eventType.slice(1),
+        description: 'care appointment',
+        icon: '📋'
+      }
+  }
+}
+
+// Generate email content for horse care events - Updated with client requirements
 function generateHorseCareEmailContent(notification: any, event: any, horseName: string) {
   const eventDate = new Date(event.event_date).toLocaleDateString('en-US', {
     weekday: 'long',
@@ -222,7 +264,8 @@ function generateHorseCareEmailContent(notification: any, event: any, horseName:
     month: 'long',
     day: 'numeric'
   })
-  const careType = event.event_type.charAt(0).toUpperCase() + event.event_type.slice(1)
+  
+  const careInfo = getCareTypeInfo(event.event_type)
   
   let timeframe = ''
   let urgency = ''
@@ -250,6 +293,36 @@ function generateHorseCareEmailContent(notification: any, event: any, horseName:
       emoji = '📋'
   }
 
+  // Customize messaging based on care type
+  let customMessage = ''
+  let actionText = ''
+  
+  switch (event.event_type) {
+    case 'farrier':
+      customMessage = `${horseName}'s hooves need regular care to maintain their health and performance. Regular farrier visits help prevent lameness and ensure proper hoof balance.`
+      actionText = 'Book your farrier appointment'
+      break
+    case 'vaccination':
+      customMessage = `Annual vaccinations are crucial for protecting ${horseName} against serious diseases like influenza and tetanus.`
+      actionText = 'Schedule vaccination appointment'
+      break
+    case 'boosters':
+      customMessage = `Booster shots help maintain ${horseName}'s immunity between annual vaccinations, providing ongoing protection against disease.`
+      actionText = 'Book booster appointment'
+      break
+    case 'dentist':
+      customMessage = `Regular dental care ensures ${horseName} can eat comfortably and perform at their best. Dental issues can affect performance and overall health.`
+      actionText = 'Schedule dental appointment'
+      break
+    case 'worming':
+      customMessage = `Regular worming treatments help keep ${horseName} healthy by preventing parasitic infections that can affect their condition and performance.`
+      actionText = 'Arrange worming treatment'
+      break
+    default:
+      customMessage = `Regular care helps ensure ${horseName} stays healthy and performs at their best.`
+      actionText = 'Book your appointment'
+  }
+
   const html = `
     <!DOCTYPE html>
     <html>
@@ -272,6 +345,7 @@ function generateHorseCareEmailContent(notification: any, event: any, horseName:
         .detail-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b; margin-bottom: 4px; }
         .detail-value { font-weight: 600; color: #1a202c; }
         .urgency-banner { background: #fef3c7; border: 1px solid #f59e0b; color: #92400e; padding: 16px; border-radius: 8px; margin: 24px 0; text-align: center; font-weight: 500; }
+        .info-box { background: #f0f9ff; border: 1px solid #0ea5e9; color: #0c4a6e; padding: 16px; border-radius: 8px; margin: 24px 0; }
         .button { display: inline-block; background: linear-gradient(135deg, #a28bfb 0%, #7759eb 100%); color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: 600; margin: 20px 0; transition: transform 0.2s; }
         .button:hover { transform: translateY(-1px); }
         .footer { background-color: #f8fafc; color: #64748b; font-size: 14px; padding: 24px 20px; text-align: center; border-top: 1px solid #e2e8f0; }
@@ -286,15 +360,15 @@ function generateHorseCareEmailContent(notification: any, event: any, horseName:
     <body>
       <div class="container">
         <div class="header">
-          <h1>${emoji} Horse Care Reminder</h1>
+          <h1>${emoji} ${careInfo.displayName} Reminder</h1>
           <p>Keep your horse healthy and happy</p>
         </div>
         <div class="content">
           <div class="greeting">Hello!</div>
-          <p>This is a friendly reminder that <strong>${horseName}</strong> has a <strong>${careType}</strong> appointment due <strong>${timeframe}</strong>.</p>
+          <p>This is a friendly reminder that <strong>${horseName}</strong> has a <strong>${careInfo.displayName}</strong> appointment due <strong>${timeframe}</strong>.</p>
           
           <div class="highlight">
-            <h3>📋 Appointment Details</h3>
+            <h3>${careInfo.icon} Appointment Details</h3>
             <div class="detail-grid">
               <div class="detail-item">
                 <div class="detail-label">Horse Name</div>
@@ -302,7 +376,7 @@ function generateHorseCareEmailContent(notification: any, event: any, horseName:
               </div>
               <div class="detail-item">
                 <div class="detail-label">Service Type</div>
-                <div class="detail-value">${careType}</div>
+                <div class="detail-value">${careInfo.displayName}</div>
               </div>
               <div class="detail-item">
                 <div class="detail-label">Due Date</div>
@@ -315,11 +389,15 @@ function generateHorseCareEmailContent(notification: any, event: any, horseName:
             </div>
           </div>
           
+          <div class="info-box">
+            <p><strong>Why this matters:</strong> ${customMessage}</p>
+          </div>
+          
           <div class="urgency-banner">
             ${emoji} ${urgency.charAt(0).toUpperCase() + urgency.slice(1)}
           </div>
           
-          <p>Don't forget to book your appointment if you haven't already! Keeping up with regular care helps ensure your horse stays healthy and performs at their best.</p>
+          <p><strong>${actionText}</strong> if you haven't already! Regular care appointments help ensure ${horseName} stays healthy and performs at their best.</p>
           
           <div style="text-align: center; margin: 32px 0;">
             <a href="https://equineaintelligence.com/profile-setup" style="color: white;" class="button">Manage My Horses</a>
@@ -338,20 +416,23 @@ function generateHorseCareEmailContent(notification: any, event: any, horseName:
   `
 
   const text = `
-${emoji} HORSE CARE REMINDER
+${emoji} ${careInfo.displayName.toUpperCase()} REMINDER
 
 Hello!
 
-This is a friendly reminder that ${horseName} has a ${careType} appointment due ${timeframe}.
+This is a friendly reminder that ${horseName} has a ${careInfo.displayName} appointment due ${timeframe}.
 
 APPOINTMENT DETAILS:
 - Horse: ${horseName}
-- Service: ${careType}
+- Service: ${careInfo.displayName}
 - Due Date: ${eventDate}
 - Timeline: ${timeframe}
 - Status: ${urgency}
 
-Don't forget to book your appointment if you haven't already! Keeping up with regular care helps ensure your horse stays healthy and performs at their best.
+WHY THIS MATTERS:
+${customMessage}
+
+${actionText.toUpperCase()} if you haven't already! Regular care appointments help ensure ${horseName} stays healthy and performs at their best.
 
 Visit your dashboard: https://equineaintelligence.com/dashboard
 
@@ -366,7 +447,7 @@ If you have any questions, please contact our support team.
   return { html, text }
 }
 
-// Generate email content for manual events (no horse data)
+// Generate email content for manual events (no horse data) - Keep existing
 function generateManualEventEmailContent(notification: any, event: any) {
   const eventDate = new Date(event.event_date).toLocaleDateString('en-US', {
     weekday: 'long',
@@ -523,7 +604,7 @@ If you have any questions, please contact our support team.
   return { html, text }
 }
 
-// Email sending function using Resend
+// Email sending function using Resend - Keep existing
 async function sendEmail(emailData: {
   to: string
   subject: string

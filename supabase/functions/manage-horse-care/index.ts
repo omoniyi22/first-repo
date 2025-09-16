@@ -8,9 +8,11 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+// Updated interface to support new frequency structure
 interface CareSchedule {
   enabled: boolean;
-  frequency_months: number;
+  frequency: number;  // Changed from frequency_months
+  frequency_unit: 'weeks' | 'months';  // New field
   last_visit_date: string;
   notes: string;
 }
@@ -22,6 +24,7 @@ interface RequestBody {
   care_schedules: {
     farrier: CareSchedule;
     vaccination: CareSchedule;
+    boosters: CareSchedule;  // New care type
     dentist: CareSchedule;
     worming: CareSchedule;
   };
@@ -113,12 +116,17 @@ async function createCareSchedules(
     
     Object.entries(careSchedules).forEach(([careType, careData]: [string, any]) => {
       if (careData.enabled && careData.last_visit_date) {
-        const nextDueDate = calculateNextDueDate(careData.last_visit_date, careData.frequency_months)
+        const nextDueDate = calculateNextDueDate(
+          careData.last_visit_date, 
+          careData.frequency, 
+          careData.frequency_unit
+        )
 
         careSchedulesToCreate.push({
           horse_id: horseId,
           care_type: careType,
-          frequency_months: careData.frequency_months,
+          frequency: careData.frequency,
+          frequency_unit: careData.frequency_unit,
           last_visit_date: careData.last_visit_date,
           next_due_date: nextDueDate,
           notes: careData.notes,
@@ -173,12 +181,15 @@ async function createCareSchedules(
         const eventDateTime = new Date(schedule.next_due_date)
         eventDateTime.setHours(9, 0, 0, 0)
 
+        // Format title based on care type
+        const title = getCareTypeTitle(schedule.care_type, horseName)
+
         const { data: event, error: eventError } = await supabase
           .from('events')
           .insert({
             horse_id: horseId,
             user_id: userId,
-            title: `${horseName} - ${schedule.care_type.charAt(0).toUpperCase() + schedule.care_type.slice(1)} Visit`,
+            title: title,
             description: `Scheduled ${schedule.care_type} appointment for ${horseName}`,
             event_date: eventDateTime.toISOString(),
             event_type: schedule.care_type,
@@ -282,16 +293,21 @@ async function updateCareSchedules(
       existingSchedules?.map((s: any) => [s.care_type, s]) || []
     )
 
-    // Process each care type
+    // Process each care type (including new boosters type)
     for (const [careType, careData] of Object.entries(careSchedules) as [string, any][]) {
       const existingSchedule = existingScheduleMap.get(careType)
 
       try {
         if (careData.enabled && careData.last_visit_date) {
-          const nextDueDate = calculateNextDueDate(careData.last_visit_date, careData.frequency_months)
+          const nextDueDate = calculateNextDueDate(
+            careData.last_visit_date, 
+            careData.frequency, 
+            careData.frequency_unit
+          )
 
           const scheduleData = {
-            frequency_months: careData.frequency_months,
+            frequency: careData.frequency,
+            frequency_unit: careData.frequency_unit,
             last_visit_date: careData.last_visit_date,
             next_due_date: nextDueDate,
             notes: careData.notes,
@@ -316,11 +332,13 @@ async function updateCareSchedules(
               const eventDateTime = new Date(nextDueDate)
               eventDateTime.setHours(9, 0, 0, 0)
 
+              const title = getCareTypeTitle(careType, horseName)
+
               const { data: updatedEvents, error: eventUpdateError } = await supabase
                 .from('events')
                 .update({
                   event_date: eventDateTime.toISOString(),
-                  title: `${horseName} - ${careType.charAt(0).toUpperCase() + careType.slice(1)} Visit`,
+                  title: title,
                   description: `Scheduled ${careType} appointment for ${horseName}`
                 })
                 .eq('care_schedule_id', existingSchedule.id)
@@ -398,12 +416,14 @@ async function updateCareSchedules(
             const eventDateTime = new Date(nextDueDate)
             eventDateTime.setHours(9, 0, 0, 0)
 
+            const title = getCareTypeTitle(careType, horseName)
+
             const { data: newEvent, error: eventError } = await supabase
               .from('events')
               .insert({
                 horse_id: horseId,
                 user_id: userId,
-                title: `${horseName} - ${careType.charAt(0).toUpperCase() + careType.slice(1)} Visit`,
+                title: title,
                 description: `Scheduled ${careType} appointment for ${horseName}`,
                 event_date: eventDateTime.toISOString(),
                 event_type: careType,
@@ -535,12 +555,40 @@ async function updateCareSchedules(
   }
 }
 
-// Helper function to calculate next due date
-function calculateNextDueDate(lastVisitDate: string, frequencyMonths: number): string {
+// Updated helper function to calculate next due date with weeks/months support
+function calculateNextDueDate(
+  lastVisitDate: string, 
+  frequency: number, 
+  frequencyUnit: 'weeks' | 'months'
+): string {
   const lastVisit = new Date(lastVisitDate)
   const nextDue = new Date(lastVisit)
-  nextDue.setMonth(nextDue.getMonth() + frequencyMonths)
+  
+  if (frequencyUnit === 'weeks') {
+    nextDue.setDate(nextDue.getDate() + (frequency * 7))
+  } else {
+    nextDue.setMonth(nextDue.getMonth() + frequency)
+  }
+  
   return nextDue.toISOString().split('T')[0]
+}
+
+// Helper function to get proper title for different care types
+function getCareTypeTitle(careType: string, horseName: string): string {
+  switch (careType) {
+    case 'farrier':
+      return `${horseName} - Farrier Visit`
+    case 'vaccination':
+      return `${horseName} - Annual Vaccination`
+    case 'boosters':
+      return `${horseName} - Booster Shot`
+    case 'dentist':
+      return `${horseName} - Dental Care`
+    case 'worming':
+      return `${horseName} - Worming Treatment`
+    default:
+      return `${horseName} - ${careType.charAt(0).toUpperCase() + careType.slice(1)} Visit`
+  }
 }
 
 // Helper function to create email notifications

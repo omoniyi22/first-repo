@@ -46,20 +46,43 @@ const UpcomingEvents = () => {
   const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isCompleting, setIsCompleting] = useState<string | null>(null); // Track which event is being completed
   const { toast } = useToast();
   const { user } = useAuth();
   const { language } = useLanguage();
+
+  // Helper function to refresh events
+  const refreshEvents = async () => {
+    if (!user?.id) return;
+
+    try {
+      // Get current date (yesterday to include today's events)
+      const today = new Date();
+      const yesterday = new Date(today);
+      yesterday.setDate(today.getDate() - 1);
+
+      const eventsData = await fetchEvents(user.id);
+
+      // Filter to only upcoming events and limit to 5
+      const upcomingEvents = eventsData
+        .filter((event) => new Date(event.eventDate) >= yesterday)
+        .sort(
+          (a, b) =>
+            new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime()
+        )
+        .slice(0, 5);
+
+      setEvents(upcomingEvents);
+    } catch (error) {
+      console.error("Failed to refresh events:", error);
+    }
+  };
 
   // Fetch events from Supabase
   useEffect(() => {
     const fetchUserEvents = async () => {
       try {
         setIsLoading(true);
-
-        // Get current date
-        const today = new Date();
-        const yesterday = new Date(today);
-        yesterday.setDate(today.getDate() - 1);
 
         const userId = user?.id;
         if (!userId) {
@@ -68,18 +91,7 @@ const UpcomingEvents = () => {
           return;
         }
 
-        const eventsData = await fetchEvents(userId);
-
-        // Filter to only upcoming events and limit to 5
-        const upcomingEvents = eventsData
-          .filter((event) => new Date(event.eventDate) >= yesterday)
-          .sort(
-            (a, b) =>
-              new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime()
-          )
-          .slice(0, 5);
-
-        setEvents(upcomingEvents);
+        await refreshEvents();
       } catch (error) {
         console.error("Failed to load events:", error);
         toast({
@@ -98,7 +110,7 @@ const UpcomingEvents = () => {
       setEvents([]);
       setIsLoading(false);
     }
-  }, [toast, showAddEventForm, showEditEventForm, user.id]);
+  }, [toast, showAddEventForm, showEditEventForm, user?.id]);
 
   // Format date based on language
   const formatEventDate = (dateStr: string) => {
@@ -166,19 +178,7 @@ const UpcomingEvents = () => {
       });
 
       // Refresh events list
-      const userId = user?.id;
-      if (userId) {
-        const today = new Date().toISOString();
-        const eventsData = await fetchEvents(userId);
-        const upcomingEvents = eventsData
-          .filter((event) => new Date(event.eventDate) >= new Date(today))
-          .sort(
-            (a, b) =>
-              new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime()
-          )
-          .slice(0, 4);
-        setEvents(upcomingEvents);
-      }
+      await refreshEvents();
 
       setShowDeleteDialog(false);
       setSelectedEvent(null);
@@ -200,8 +200,12 @@ const UpcomingEvents = () => {
     setSelectedEvent(null);
   };
 
-  // Add this function inside your UpcomingEvents component
+  // IMPROVED: Complete event function with better error handling and feedback
   const handleCompleteEvent = async (event: Event) => {
+    if (!event.id || isCompleting) return;
+
+    setIsCompleting(event.id);
+    
     try {
       const {
         data: { session },
@@ -209,12 +213,16 @@ const UpcomingEvents = () => {
 
       if (!session) {
         toast({
-          title: "Authentication required",
-          description: "Please sign in to complete events",
+          title: language === "en" ? "Authentication required" : "Autenticación requerida",
+          description: language === "en" 
+            ? "Please sign in to complete events" 
+            : "Por favor inicie sesión para completar eventos",
           variant: "destructive",
         });
         return;
       }
+
+      console.log('Completing event:', event.id);
 
       const response = await fetch(
         `${supabase.supabaseUrl}/functions/v1/complete-horse-event`,
@@ -234,35 +242,28 @@ const UpcomingEvents = () => {
       );
 
       const result = await response.json();
+      console.log('Complete event response:', result);
 
-      if (response.ok) {
+      if (response.ok && result.success) {
+        const nextDueDate = new Date(result.data.next_due_date).toLocaleDateString();
+        
         toast({
           title: language === "en" ? "Event Completed!" : "¡Evento Completado!",
           description:
             language === "en"
-              ? `${event.title} completed. Next appointment scheduled for ${result.data.next_due_date}.`
-              : `${event.title} completado. Próxima cita programada para ${result.data.next_due_date}.`,
+              ? `${event.title} completed successfully. Next appointment scheduled for ${nextDueDate}.`
+              : `${event.title} completado exitosamente. Próxima cita programada para ${nextDueDate}.`,
         });
 
-        // Refresh events list
-        const userId = user?.id;
-        if (userId) {
-          const today = new Date().toISOString();
-          const eventsData = await fetchEvents(userId);
-          const upcomingEvents = eventsData
-            .filter((event) => new Date(event.eventDate) >= new Date(today))
-            .sort(
-              (a, b) =>
-                new Date(a.eventDate).getTime() -
-                new Date(b.eventDate).getTime()
-            )
-            .slice(0, 4);
-          setEvents(upcomingEvents);
-        }
+        // Refresh events list to show updated state
+        await refreshEvents();
       } else {
+        console.error('Complete event failed:', result);
         toast({
           title: language === "en" ? "Error" : "Error",
-          description: result.error || "Failed to complete event",
+          description: result.error || (language === "en" 
+            ? "Failed to complete event" 
+            : "Error al completar evento"),
           variant: "destructive",
         });
       }
@@ -272,10 +273,12 @@ const UpcomingEvents = () => {
         title: language === "en" ? "Error" : "Error",
         description:
           language === "en"
-            ? "Failed to complete event"
-            : "Error al completar evento",
+            ? "Failed to complete event. Please try again."
+            : "Error al completar evento. Por favor intenta de nuevo.",
         variant: "destructive",
       });
+    } finally {
+      setIsCompleting(null);
     }
   };
 
@@ -336,6 +339,11 @@ const UpcomingEvents = () => {
                     <div className="flex justify-between items-start mb-1">
                       <h3 className="font-medium text-gray-900 flex-1">
                         {event.title}
+                        {event.is_completed && (
+                          <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                            {language === "en" ? "Completed" : "Completado"}
+                          </span>
+                        )}
                       </h3>
                       <div className="flex gap-1 ml-2">
                         <Button
@@ -343,24 +351,30 @@ const UpcomingEvents = () => {
                           variant="ghost"
                           onClick={() => handleEditEvent(event)}
                           className="h-8 w-8 p-0"
+                          disabled={isCompleting === event.id}
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
 
-                        {/* NEW: Add complete button for recurring events */}
+                        {/* Complete button for recurring events */}
                         {event.is_recurring && !event.is_completed && (
                           <Button
                             size="sm"
                             variant="ghost"
                             onClick={() => handleCompleteEvent(event)}
                             className="h-8 w-8 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
+                            disabled={isCompleting === event.id}
                             title={
                               language === "en"
                                 ? "Mark Complete"
                                 : "Marcar Completo"
                             }
                           >
-                            <CheckCircle className="h-4 w-4" />
+                            {isCompleting === event.id ? (
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-600"></div>
+                            ) : (
+                              <CheckCircle className="h-4 w-4" />
+                            )}
                           </Button>
                         )}
 
@@ -369,6 +383,7 @@ const UpcomingEvents = () => {
                           variant="ghost"
                           onClick={() => handleDeleteEvent(event)}
                           className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                          disabled={isCompleting === event.id}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -384,6 +399,11 @@ const UpcomingEvents = () => {
                       >
                         {event.eventType}
                       </span>
+                      {event.is_recurring && (
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-700">
+                          {language === "en" ? "Recurring" : "Recurrente"}
+                        </span>
+                      )}
                     </div>
 
                     <div className="flex items-center text-sm text-gray-600 mb-1">
@@ -451,8 +471,7 @@ const UpcomingEvents = () => {
         <DialogContent className="sm:max-w-md max-h-[95vh] overflow-hidden">
           <DialogHeader>
             <DialogTitle className="text-xl font-serif">
-              {language === "en" ? "" : ""}
-              Edit Event
+              {language === "en" ? "Edit Event" : "Editar Evento"}
             </DialogTitle>
           </DialogHeader>
           <ScrollArea className="max-h-[80vh] pr-4">

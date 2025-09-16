@@ -310,14 +310,14 @@ const EventForm = ({ onComplete, event }: EventFormProps) => {
               <SelectItem value="farrier">
                 {language === "en" ? "Farrier" : "Herradora"}
               </SelectItem>
-              <SelectItem value="worming">
-                {language === "en" ? "Worming" : "Desparasitación"}
-              </SelectItem>
               <SelectItem value="dentist">
                 {language === "en" ? "Dentist" : "Dentista"}
               </SelectItem>
               <SelectItem value="vaccination">
                 {language === "en" ? "Vaccination" : "Vacunación"}
+              </SelectItem>
+              <SelectItem value="boosters">
+                {language === "en" ? "Boosters" : "Refuerzos"}
               </SelectItem>
               <SelectItem value="other">
                 {language === "en" ? "Other" : "Otro"}
