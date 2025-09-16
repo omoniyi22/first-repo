@@ -14,6 +14,12 @@ export interface Event {
   createdAt?: string;
   updatedAt?: string;
   userId?: string;
+  // ADD these new fields:
+  is_recurring?: boolean;
+  is_completed?: boolean;
+  care_schedule_id?: string;
+  completed_at?: string;
+  completed_by?: string;
 }
 
 export const fetchEvents = async (userId?: string): Promise<Event[]> => {
@@ -22,16 +28,17 @@ export const fetchEvents = async (userId?: string): Promise<Event[]> => {
       .from('events')
       .select('*')
       .order('event_date', { ascending: true });
-    
+
     // If userId is provided, filter events by user
     if (userId) {
       query = query.eq('user_id', userId);
     }
-    
+
     const { data, error } = await query;
-    
+    console.log("🚀 ~ fetchEvents ~ data:", data)
+
     if (error) throw error;
-    
+
     return data.map(transformDatabaseEventToEvent);
   } catch (error) {
     console.error('Error fetching events:', error);
@@ -46,9 +53,9 @@ export const fetchEventById = async (id: string): Promise<Event | null> => {
       .select('*')
       .eq('id', id)
       .single();
-    
+
     if (error) throw error;
-    
+
     return transformDatabaseEventToEvent(data);
   } catch (error) {
     console.error(`Error fetching event with id "${id}":`, error);
@@ -60,11 +67,11 @@ export const createEvent = async (event: Omit<Event, 'id' | 'createdAt' | 'updat
   try {
     // Get current user
     const { data: { user } } = await supabase.auth.getUser();
-    
+
     if (!user && !event.userId) {
       throw new Error('User not authenticated');
     }
-    
+
     const { data, error } = await supabase
       .from('events')
       .insert([{
@@ -80,9 +87,9 @@ export const createEvent = async (event: Omit<Event, 'id' | 'createdAt' | 'updat
       }])
       .select()
       .single();
-    
+
     if (error) throw error;
-    
+
     return transformDatabaseEventToEvent(data);
   } catch (error) {
     console.error('Error creating event:', error);
@@ -103,21 +110,21 @@ export const updateEvent = async (id: string, event: Partial<Event>) => {
       image_url: event.imageUrl,
       is_featured: event.isFeatured
     };
-    
+
     // Filter out undefined values
     Object.keys(dbEvent).forEach(key => {
       if (dbEvent[key] === undefined) delete dbEvent[key];
     });
-    
+
     const { data, error } = await supabase
       .from('events')
       .update(dbEvent)
       .eq('id', id)
       .select()
       .single();
-    
+
     if (error) throw error;
-    
+
     return transformDatabaseEventToEvent(data);
   } catch (error) {
     console.error(`Error updating event with id "${id}":`, error);
@@ -131,9 +138,9 @@ export const deleteEvent = async (id: string) => {
       .from('events')
       .delete()
       .eq('id', id);
-    
+
     if (error) throw error;
-    
+
     return true;
   } catch (error) {
     console.error(`Error deleting event with id "${id}":`, error);
@@ -144,7 +151,7 @@ export const deleteEvent = async (id: string) => {
 // Utility functions
 const transformDatabaseEventToEvent = (dbEvent: any): Event => {
   if (!dbEvent) return null as any;
-  
+
   return {
     id: dbEvent.id,
     title: dbEvent.title,
@@ -157,6 +164,12 @@ const transformDatabaseEventToEvent = (dbEvent: any): Event => {
     isFeatured: dbEvent.is_featured,
     createdAt: dbEvent.created_at,
     updatedAt: dbEvent.updated_at,
-    userId: dbEvent.user_id
+    userId: dbEvent.user_id,
+    is_recurring: dbEvent.is_recurring,
+    is_completed: dbEvent.is_completed,
+    care_schedule_id: dbEvent.care_schedule_id,
+    completed_at: dbEvent.completed_at,
+    completed_by: dbEvent.completed_by,
+
   };
 };

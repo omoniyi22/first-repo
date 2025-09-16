@@ -1,0 +1,4 @@
+version: 1
+functions:
+  daily-email-processor:
+    verify_jwt: false
