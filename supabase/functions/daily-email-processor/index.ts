@@ -256,7 +256,7 @@ function getCareTypeInfo(eventType: string) {
   }
 }
 
-// Generate email content for horse care events - Updated with client requirements
+// Generate email content for horse care events - Updated with new branding and logo
 function generateHorseCareEmailContent(notification: any, event: any, horseName: string) {
   const eventDate = new Date(event.event_date).toLocaleDateString('en-US', {
     weekday: 'long',
@@ -360,6 +360,9 @@ function generateHorseCareEmailContent(notification: any, event: any, horseName:
     <body>
       <div class="container">
         <div class="header">
+          <div style="margin-bottom: 16px;">
+            <img src="https://equineaintelligence.com/lovable-uploads/ddb7f47e-072a-4346-9fd3-a8a055f13bba.png" alt="AI Equestrian Logo" style="height: 60px; width: auto;">
+          </div>
           <h1>${emoji} ${careInfo.displayName} Reminder</h1>
           <p>Keep your horse healthy and happy</p>
         </div>
@@ -404,11 +407,20 @@ function generateHorseCareEmailContent(notification: any, event: any, horseName:
           </div>
           
           <p>Best regards,<br><strong>Your Horse Management Team</strong></p>
+          
+          <div style="margin: 16px 0;">
+            <img src="https://equineaintelligence.com/lovable-uploads/ddb7f47e-072a-4346-9fd3-a8a055f13bba.png" alt="AI Equestrian Logo" style="height: 40px; width: auto;">
+          </div>
         </div>
         <div class="footer">
+          <div style="margin-bottom: 16px;">
+            <a href="https://instagram.com/ai_equestrian" style="color: #64748b; text-decoration: none; font-size: 14px;">
+              📷 Follow us on Instagram @ai_equestrian
+            </a>
+          </div>
           <p>This is an automated reminder from your horse care management system.</p>
           <p>If you have any questions, please contact our support team.</p>
-          <p style="margin-top: 16px; font-size: 12px;">© 2024 Horse Management System. All rights reserved.</p>
+          <p style="margin-top: 16px; font-size: 12px;">© 2025 Equine AI Intelligence. All rights reserved.</p>
         </div>
       </div>
     </body>
@@ -439,15 +451,18 @@ Visit your dashboard: https://equineaintelligence.com/dashboard
 Best regards,
 Your Horse Management Team
 
+Follow us on Instagram: https://instagram.com/ai_equestrian
+
 ---
 This is an automated reminder from your horse care management system.
 If you have any questions, please contact our support team.
+© 2025 Equine AI Intelligence. All rights reserved.
   `
 
   return { html, text }
 }
 
-// Generate email content for manual events (no horse data) - Keep existing
+// Generate email content for manual events (no horse data) - Updated with new branding and logo
 function generateManualEventEmailContent(notification: any, event: any) {
   const eventDate = new Date(event.event_date).toLocaleDateString('en-US', {
     weekday: 'long',
@@ -524,6 +539,9 @@ function generateManualEventEmailContent(notification: any, event: any) {
     <body>
       <div class="container">
         <div class="header">
+          <div style="margin-bottom: 16px;">
+            <img src="https://equineaintelligence.com/lovable-uploads/ddb7f47e-072a-4346-9fd3-a8a055f13bba.png" alt="AI Equestrian Logo" style="height: 60px; width: auto;">
+          </div>
           <h1>${emoji} Event Reminder</h1>
           <p>Stay organized and never miss an event</p>
         </div>
@@ -564,11 +582,20 @@ function generateManualEventEmailContent(notification: any, event: any) {
           </div>
           
           <p>Best regards,<br><strong>Your Event Management Team</strong></p>
+          
+          <div style="margin: 16px 0;">
+            <img src="https://equineaintelligence.com/lovable-uploads/ddb7f47e-072a-4346-9fd3-a8a055f13bba.png" alt="AI Equestrian Logo" style="height: 40px; width: auto;">
+          </div>
         </div>
         <div class="footer">
+          <div style="margin-bottom: 16px;">
+            <a href="https://instagram.com/ai_equestrian" style="color: #64748b; text-decoration: none; font-size: 14px;">
+              📷 Follow us on Instagram @ai_equestrian
+            </a>
+          </div>
           <p>This is an automated reminder from your event management system.</p>
           <p>If you have any questions, please contact our support team.</p>
-          <p style="margin-top: 16px; font-size: 12px;">© 2024 Event Management System. All rights reserved.</p>
+          <p style="margin-top: 16px; font-size: 12px;">© 2025 Equine AI Intelligence. All rights reserved.</p>
         </div>
       </div>
     </body>
@@ -596,15 +623,18 @@ Visit your dashboard: https://equineaintelligence.com/dashboard
 Best regards,
 Your Event Management Team
 
+Follow us on Instagram: https://instagram.com/ai_equestrian
+
 ---
 This is an automated reminder from your event management system.
 If you have any questions, please contact our support team.
+© 2025 Equine AI Intelligence. All rights reserved.
   `
 
   return { html, text }
 }
 
-// Email sending function using Resend - Keep existing
+// Email sending function using Resend
 async function sendEmail(emailData: {
   to: string
   subject: string

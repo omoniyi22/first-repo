@@ -1,3 +1,4 @@
+// supabase/functions/stripe-webhook/index.ts
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.21.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
@@ -156,11 +157,27 @@ async function handleSubscriptionUpdated(subscription) {
         const currentItem = subscription.items.data[0];
 
         // Get existing subscription to compare
-        const { data: existingSub } = await supabaseAdmin
+        const { data: existingSub, error: existingSubError } = await supabaseAdmin
             .from("user_subscriptions")
-            .select("plan_id, pricing_plans!inner(stripe_price_id)")
+            .select(`
+                *,
+                pricing_plans!inner(
+                    id,
+                    name,
+                    stripe_price_id,
+                    max_horses
+                )
+            `)
             .eq("stripe_subscription_id", subscription.id)
             .single();
+
+        if (existingSubError) {
+            log("Error fetching existing subscription", {
+                subscriptionId: subscription.id,
+                error: existingSubError.message
+            });
+            return;
+        }
 
         let updateData = {
             is_active: subscription.status === 'active',
@@ -169,45 +186,180 @@ async function handleSubscriptionUpdated(subscription) {
             updated_at: new Date().toISOString()
         };
 
-        // If plan changed, we need to find the new plan_id
-        if (existingSub?.pricing_plans?.stripe_price_id !== currentItem.price.id) {
-            const { data: newPlan } = await supabaseAdmin
+        // Check if plan changed
+        const oldPriceId = existingSub?.pricing_plans?.stripe_price_id;
+        const newPriceId = currentItem.price.id;
+        let planChanged = false;
+        let newPlan = null;
+
+        if (oldPriceId !== newPriceId) {
+            // Get new plan details
+            const { data: newPlanData, error: newPlanError } = await supabaseAdmin
                 .from("pricing_plans")
-                .select("id")
-                .eq("stripe_price_id", currentItem.price.id)
+                .select("*")
+                .eq("stripe_price_id", newPriceId)
                 .single();
 
-            if (newPlan) {
+            if (newPlanError) {
+                log("Error fetching new plan", {
+                    subscriptionId: subscription.id,
+                    newPriceId,
+                    error: newPlanError.message
+                });
+            } else {
+                newPlan = newPlanData;
                 updateData.plan_id = newPlan.id;
+                planChanged = true;
+                
                 log("Plan change detected", {
                     subscriptionId: subscription.id,
-                    oldPriceId: existingSub?.pricing_plans?.stripe_price_id,
-                    newPriceId: currentItem.price.id,
-                    newPlanId: newPlan.id
+                    userId: existingSub.user_id,
+                    oldPlan: existingSub.pricing_plans.name,
+                    newPlan: newPlan.name,
+                    oldLimit: existingSub.pricing_plans.max_horses,
+                    newLimit: newPlan.max_horses
                 });
             }
         }
 
-        const { error } = await supabaseAdmin
+        // Update subscription record
+        const { error: updateError } = await supabaseAdmin
             .from("user_subscriptions")
             .update(updateData)
             .eq("stripe_subscription_id", subscription.id);
 
-        if (error) {
+        if (updateError) {
             log("Error updating subscription", {
                 subscriptionId: subscription.id,
-                error: error.message
+                error: updateError.message
             });
-        } else {
-            log("Subscription updated successfully", {
+            return;
+        }
+
+        // Handle plan change if detected
+        if (planChanged && newPlan) {
+            await handlePlanChange({
+                userId: existingSub.user_id,
                 subscriptionId: subscription.id,
-                status: subscription.status
+                oldPlan: existingSub.pricing_plans,
+                newPlan: newPlan,
+                changeType: newPlan.max_horses > existingSub.pricing_plans.max_horses 
+                    ? 'upgrade' 
+                    : newPlan.max_horses < existingSub.pricing_plans.max_horses 
+                    ? 'downgrade' 
+                    : 'same'
             });
         }
+
+        log("Subscription updated successfully", {
+            subscriptionId: subscription.id,
+            status: subscription.status,
+            planChanged
+        });
 
     } catch (error) {
         log("Error in subscription update handler", {
             subscriptionId: subscription.id,
+            error: error.message
+        });
+    }
+}
+
+// 🆕 NEW: Handle plan changes
+async function handlePlanChange({ userId, subscriptionId, oldPlan, newPlan, changeType }) {
+    try {
+        log("Processing plan change", {
+            userId,
+            changeType,
+            oldLimit: oldPlan.max_horses,
+            newLimit: newPlan.max_horses
+        });
+
+        // Record the plan change first
+        const { data: planChangeRecord, error: planChangeError } = await supabaseAdmin
+            .from("plan_changes")
+            .insert({
+                user_id: userId,
+                old_plan_id: oldPlan.id,
+                new_plan_id: newPlan.id,
+                old_plan_name: oldPlan.name,
+                new_plan_name: newPlan.name,
+                old_horse_limit: oldPlan.max_horses,
+                new_horse_limit: newPlan.max_horses,
+                change_type: changeType,
+                stripe_subscription_id: subscriptionId
+            })
+            .select()
+            .single();
+
+        if (planChangeError) {
+            log("Error recording plan change", {
+                userId,
+                error: planChangeError.message
+            });
+            return;
+        }
+
+        // Only process horse status changes if limits actually changed
+        if (oldPlan.max_horses !== newPlan.max_horses && changeType !== 'same') {
+            // Call the horse management Edge Function
+            const response = await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/manage-horse-plan-limits`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
+                    'Content-Type': 'application/json',
+                    'apikey': Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")
+                },
+                body: JSON.stringify({
+                    user_id: userId,
+                    plan_change_id: planChangeRecord.id,
+                    change_type: changeType,
+                    old_limit: oldPlan.max_horses,
+                    new_limit: newPlan.max_horses,
+                    old_plan_name: oldPlan.name,
+                    new_plan_name: newPlan.name
+                })
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                // Update plan change record with results
+                await supabaseAdmin
+                    .from("plan_changes")
+                    .update({
+                        horses_affected: result.horses_affected || 0,
+                        horses_disabled: result.horses_disabled || 0,
+                        horses_reactivated: result.horses_reactivated || 0
+                    })
+                    .eq("id", planChangeRecord.id);
+
+                log("Horse management completed", {
+                    userId,
+                    changeType,
+                    horsesAffected: result.horses_affected,
+                    horsesDisabled: result.horses_disabled,
+                    horsesReactivated: result.horses_reactivated
+                });
+            } else {
+                log("Horse management failed", {
+                    userId,
+                    error: result.error || 'Unknown error'
+                });
+            }
+        } else {
+            log("No horse limit changes needed", {
+                userId,
+                changeType,
+                oldLimit: oldPlan.max_horses,
+                newLimit: newPlan.max_horses
+            });
+        }
+
+    } catch (error) {
+        log("Error handling plan change", {
+            userId,
+            changeType,
             error: error.message
         });
     }
