@@ -159,18 +159,17 @@ async function handleSubscriptionUpdated(subscription) {
         const currentItem = subscription.items.data[0];
 
         // Get existing subscription to compare
-        // REPLACE THIS BROKEN QUERY:
         const { data: existingSub, error: existingSubError } = await supabaseAdmin
             .from("user_subscriptions")
             .select(`
-                *,
-                pricing_plans(
-                    id,
-                    name,
-                    stripe_price_id,
-                    max_horses
-                )
-            `)
+            *,
+            pricing_plans(
+                id,
+                name,
+                stripe_price_id,
+                max_horses
+            )
+        `)
             .eq("stripe_subscription_id", subscription.id)
             .single();
 
