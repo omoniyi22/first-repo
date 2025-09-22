@@ -65,8 +65,9 @@ serve(async (req) => {
                 `)
             .eq("user_id", user.id)
             .eq("is_active", true)
+            .limit(1)
             .single();
-       
+
 
         if (subError && subError.code !== 'PGRST116') {
             log("Database error", { userId: user.id, error: subError.message });

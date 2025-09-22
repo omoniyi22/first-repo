@@ -46,6 +46,8 @@ serve(async (req) => {
             return new Response("Webhook signature verification failed", { status: 400 });
         }
 
+        log("Webhook event", event);
+
         // Handle Stripe events
         switch (event.type) {
             case "checkout.session.completed":
@@ -157,11 +159,12 @@ async function handleSubscriptionUpdated(subscription) {
         const currentItem = subscription.items.data[0];
 
         // Get existing subscription to compare
+        // REPLACE THIS BROKEN QUERY:
         const { data: existingSub, error: existingSubError } = await supabaseAdmin
             .from("user_subscriptions")
             .select(`
                 *,
-                pricing_plans!inner(
+                pricing_plans(
                     id,
                     name,
                     stripe_price_id,
@@ -210,7 +213,7 @@ async function handleSubscriptionUpdated(subscription) {
                 newPlan = newPlanData;
                 updateData.plan_id = newPlan.id;
                 planChanged = true;
-                
+
                 log("Plan change detected", {
                     subscriptionId: subscription.id,
                     userId: existingSub.user_id,
@@ -243,11 +246,11 @@ async function handleSubscriptionUpdated(subscription) {
                 subscriptionId: subscription.id,
                 oldPlan: existingSub.pricing_plans,
                 newPlan: newPlan,
-                changeType: newPlan.max_horses > existingSub.pricing_plans.max_horses 
-                    ? 'upgrade' 
-                    : newPlan.max_horses < existingSub.pricing_plans.max_horses 
-                    ? 'downgrade' 
-                    : 'same'
+                changeType: newPlan.max_horses > existingSub.pricing_plans.max_horses
+                    ? 'upgrade'
+                    : newPlan.max_horses < existingSub.pricing_plans.max_horses
+                        ? 'downgrade'
+                        : 'same'
             });
         }
 
@@ -472,68 +475,37 @@ async function handlePaymentFailed(invoice) {
 }
 
 // 🛠️ Helper function to create subscription records with proper deactivation
+// Enhanced version of createSubscriptionRecord
 async function createSubscriptionRecord({ user_email, user_id, plan_id, coupon_id, subscription, source }) {
     try {
         // Check if subscription already exists (prevent duplicates)
         const { data: existing } = await supabaseAdmin
             .from("user_subscriptions")
-            .select("id")
+            .select("id, is_active")
             .eq("stripe_subscription_id", subscription.id)
             .single();
 
         if (existing) {
             log("Subscription already exists, skipping creation", {
                 subscriptionId: subscription.id,
-                source
+                source,
+                existingId: existing.id,
+                isActive: existing.is_active
             });
-            return;
+            return existing;
         }
 
-        // 🎯 STEP 1: Deactivate all existing active subscriptions for this user
-        const { data: previousSubs, error: deactivateError } = await supabaseAdmin
-            .from("user_subscriptions")
-            .update({
-                is_active: false,
-                ends_at: new Date().toISOString(),
-                updated_at: new Date().toISOString(),
-                deactivation_reason: 'new_subscription_created'
-            })
-            .eq("user_id", user_id)
-            .eq("is_active", true)
-            .select("id, plan_id");
-
-        if (deactivateError) {
-            log("Error deactivating previous subscriptions", {
-                userId: user_id,
-                error: deactivateError.message
-            });
-            // Don't throw here, continue with creation
-        } else if (previousSubs && previousSubs.length > 0) {
-            log("Deactivated previous subscriptions", {
-                userId: user_id,
-                deactivatedCount: previousSubs.length,
-                deactivatedIds: previousSubs.map(s => s.id)
-            });
-        }
-
-        // 🎯 STEP 2: Create new subscription record
-        const subscriptionData = {
-            user_id,
-            plan_id,
-            stripe_subscription_id: subscription.id,
-            is_active: subscription.status === 'active',
-            is_trial: subscription.status === 'trialing',
-            coupon_id,
-            started_at: new Date(subscription.created * 1000).toISOString(),
-            ends_at: new Date(subscription.current_period_end * 1000).toISOString(),
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-        };
-
-        const { data, error } = await supabaseAdmin
-            .from("user_subscriptions")
-            .insert(subscriptionData)
-            .select();
+        // Use a transaction to ensure atomicity
+        const { data, error } = await supabaseAdmin.rpc('create_subscription_safely', {
+            p_user_id: user_id,
+            p_plan_id: plan_id,
+            p_stripe_subscription_id: subscription.id,
+            p_is_active: subscription.status === 'active',
+            p_is_trial: subscription.status === 'trialing',
+            p_coupon_id: coupon_id,
+            p_started_at: new Date(subscription.created * 1000).toISOString(),
+            p_ends_at: new Date(subscription.current_period_end * 1000).toISOString()
+        });
 
         if (error) {
             log("Failed to create subscription record", {
@@ -544,51 +516,23 @@ async function createSubscriptionRecord({ user_email, user_id, plan_id, coupon_i
             throw error;
         }
 
-
-        const userEmail = user_email || subscription.customer_email || "<unknown>";
-        const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY");
-        const response = await fetch("https://uwrmtukgjnsjxcojqmic.functions.supabase.co/send-email", {
-            method: "POST",
-            headers: {
-                "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                to: userEmail,
-                subject: "New Subscription Created",
-                html: "<p>You have successfully created a new subscription!</p>"
-            })
-        });
-        const result = await response.json();
-
-        log("Email sent successfully", {
-            userEmail,
-            response: result
-        });
-
-        // 🎯 STEP 3: Log subscription history
+        // Log subscription history
         await logSubscriptionHistory({
             user_id,
             action: 'subscription_created',
             new_plan_id: plan_id,
             stripe_subscription_id: subscription.id,
-            source,
-            metadata: {
-                coupon_used: !!coupon_id,
-                trial_period: subscription.status === 'trialing'
-            }
+            source
         });
 
         log("Subscription record created successfully", {
             subscriptionId: subscription.id,
             userId: user_id,
             planId: plan_id,
-            couponUsed: !!coupon_id,
-            previousSubsDeactivated: previousSubs?.length || 0,
             source
         });
 
-        return data[0];
+        return data;
 
     } catch (error) {
         log("Error in createSubscriptionRecord", {
