@@ -136,6 +136,42 @@ async function handleSubscriptionCreated(subscription) {
     }
 
     try {
+        // BEFORE creating the new subscription, check if user had a different active plan
+        const { data: previousSubs, error: prevError } = await supabaseAdmin
+            .from("user_subscriptions")
+            .select(`
+                *,
+                pricing_plans (
+                    id,
+                    name,
+                    max_horses
+                )
+            `)
+            .eq("user_id", user_id)
+            .eq("is_active", true)
+            .order("created_at", { ascending: false });
+
+        let hadPreviousPlan = false;
+        let oldPlan = null;
+
+        if (!prevError && previousSubs && previousSubs.length > 0) {
+            // User had an active subscription - check if it's different
+            const lastSub = previousSubs[0];
+            if (lastSub.plan_id !== plan_id) {
+                hadPreviousPlan = true;
+                oldPlan = lastSub.pricing_plans;
+
+                log("Previous subscription detected", {
+                    userId: user_id,
+                    oldPlanId: lastSub.plan_id,
+                    newPlanId: plan_id,
+                    oldPlanName: oldPlan?.name,
+                    oldLimit: oldPlan?.max_horses
+                });
+            }
+        }
+
+        // Create the new subscription record
         await createSubscriptionRecord({
             user_id,
             plan_id,
@@ -143,6 +179,43 @@ async function handleSubscriptionCreated(subscription) {
             subscription,
             source: "customer.subscription.created"
         });
+
+        // AFTER creating the new subscription, handle plan change if detected
+        if (hadPreviousPlan && oldPlan) {
+            // Get the new plan details
+            const { data: newPlan, error: newPlanError } = await supabaseAdmin
+                .from("pricing_plans")
+                .select("*")
+                .eq("id", plan_id)
+                .single();
+
+            if (!newPlanError && newPlan) {
+                const changeType = newPlan.max_horses > oldPlan.max_horses
+                    ? 'upgrade'
+                    : newPlan.max_horses < oldPlan.max_horses
+                        ? 'downgrade'
+                        : 'same';
+
+                log("Plan change detected in new subscription", {
+                    userId: user_id,
+                    subscriptionId: subscription.id,
+                    oldPlan: oldPlan.name,
+                    newPlan: newPlan.name,
+                    oldLimit: oldPlan.max_horses,
+                    newLimit: newPlan.max_horses,
+                    changeType
+                });
+
+                // Trigger plan change handling
+                await handlePlanChange({
+                    userId: user_id,
+                    subscriptionId: subscription.id,
+                    oldPlan: oldPlan,
+                    newPlan: newPlan,
+                    changeType: changeType
+                });
+            }
+        }
 
     } catch (error) {
         log("Error handling subscription creation", {
@@ -157,19 +230,12 @@ async function handleSubscriptionUpdated(subscription) {
     try {
         // Check if this is a plan change (different price)
         const currentItem = subscription.items.data[0];
+        const newStripePrice = currentItem.price.id;
 
-        // Get existing subscription to compare
+        // Get existing subscription WITHOUT the problematic pricing_plans join
         const { data: existingSub, error: existingSubError } = await supabaseAdmin
             .from("user_subscriptions")
-            .select(`
-            *,
-            pricing_plans(
-                id,
-                name,
-                stripe_price_id,
-                max_horses
-            )
-        `)
+            .select("*")
             .eq("stripe_subscription_id", subscription.id)
             .single();
 
@@ -181,6 +247,20 @@ async function handleSubscriptionUpdated(subscription) {
             return;
         }
 
+        // Get the current plan details separately
+        let oldPlan = null;
+        if (existingSub.plan_id) {
+            const { data: oldPlanData, error: oldPlanError } = await supabaseAdmin
+                .from("pricing_plans")
+                .select("*")
+                .eq("id", existingSub.plan_id)
+                .single();
+
+            if (!oldPlanError) {
+                oldPlan = oldPlanData;
+            }
+        }
+
         let updateData = {
             is_active: subscription.status === 'active',
             is_trial: subscription.status === 'trialing',
@@ -188,24 +268,24 @@ async function handleSubscriptionUpdated(subscription) {
             updated_at: new Date().toISOString()
         };
 
-        // Check if plan changed
-        const oldPriceId = existingSub?.pricing_plans?.stripe_price_id;
-        const newPriceId = currentItem.price.id;
+        // For dynamic plans, we need to check if this is a plan change differently
+        // We'll use the plan_id from subscription metadata to detect changes
+        const newPlanId = subscription.metadata?.plan_id;
         let planChanged = false;
         let newPlan = null;
 
-        if (oldPriceId !== newPriceId) {
+        if (newPlanId && existingSub.plan_id !== newPlanId) {
             // Get new plan details
             const { data: newPlanData, error: newPlanError } = await supabaseAdmin
                 .from("pricing_plans")
                 .select("*")
-                .eq("stripe_price_id", newPriceId)
+                .eq("id", newPlanId)
                 .single();
 
             if (newPlanError) {
                 log("Error fetching new plan", {
                     subscriptionId: subscription.id,
-                    newPriceId,
+                    newPlanId,
                     error: newPlanError.message
                 });
             } else {
@@ -216,12 +296,22 @@ async function handleSubscriptionUpdated(subscription) {
                 log("Plan change detected", {
                     subscriptionId: subscription.id,
                     userId: existingSub.user_id,
-                    oldPlan: existingSub.pricing_plans.name,
+                    oldPlanId: existingSub.plan_id,
+                    newPlanId: newPlan.id,
+                    oldPlan: oldPlan?.name,
                     newPlan: newPlan.name,
-                    oldLimit: existingSub.pricing_plans.max_horses,
+                    oldLimit: oldPlan?.max_horses,
                     newLimit: newPlan.max_horses
                 });
             }
+        } else {
+            // No plan change detected, just updating subscription status
+            log("No plan change detected, updating subscription status only", {
+                subscriptionId: subscription.id,
+                status: subscription.status,
+                currentPlanId: existingSub.plan_id,
+                metadataPlanId: newPlanId
+            });
         }
 
         // Update subscription record
@@ -239,15 +329,15 @@ async function handleSubscriptionUpdated(subscription) {
         }
 
         // Handle plan change if detected
-        if (planChanged && newPlan) {
+        if (planChanged && newPlan && oldPlan) {
             await handlePlanChange({
                 userId: existingSub.user_id,
                 subscriptionId: subscription.id,
-                oldPlan: existingSub.pricing_plans,
+                oldPlan: oldPlan,
                 newPlan: newPlan,
-                changeType: newPlan.max_horses > existingSub.pricing_plans.max_horses
+                changeType: newPlan.max_horses > oldPlan.max_horses
                     ? 'upgrade'
-                    : newPlan.max_horses < existingSub.pricing_plans.max_horses
+                    : newPlan.max_horses < oldPlan.max_horses
                         ? 'downgrade'
                         : 'same'
             });
