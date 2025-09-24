@@ -453,50 +453,65 @@ const MovementRadarChart = () => {
     );
   }
 
+  const hasData = performanceData.some((item) => item.score > 0);
+
   return (
     <Card className="p-4 border border-gray-100">
       <h3 className="text-lg font-medium text-gray-900 mb-2">
         {language === "en" ? "Movement Scores" : "Puntuaciones de movimiento"}
       </h3>
       <div className="h-80 w-full flex items-center justify-center">
-        <ResponsiveContainer className="!h-[70%] w-full sm:!h-full ">
-          <RadarChart outerRadius="70%" data={performanceData}>
-            <defs>
-              {/* Left to right linear gradient for the radar fill */}
-              <linearGradient id="radarGradient" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor="#7658eb" stopOpacity={0.7} />
-                <stop offset="100%" stopColor="#3d78ec" stopOpacity={0.7} />
-              </linearGradient>
-
-              {/* Left to right linear gradient for the radar stroke */}
-              <linearGradient
-                id="radarStrokeGradient"
-                x1="0"
-                y1="0"
-                x2="1"
-                y2="0"
-              >
-                <stop offset="0%" stopColor="#7658eb" />
-                <stop offset="100%" stopColor="#3d78ec" />
-              </linearGradient>
-            </defs>
-            <PolarGrid gridType="polygon" />
-            <PolarAngleAxis dataKey="movement" tick={{ fontSize: 11 }} />
-            <PolarRadiusAxis
-              domain={[0, 10]}
-              axisLine={false}
-              tick={{ fontSize: 10 }}
-            />
-            <Radar
-              name="Scores"
-              dataKey="score"
-              stroke="url(#radarStrokeGradient)"
-              fill="url(#radarGradient)"
-            />
-            <Legend wrapperStyle={{ fontSize: "12px", marginTop: "5px" }} />
-            <Tooltip content={<CustomTooltip />} />
-          </RadarChart>
-        </ResponsiveContainer>
+        {!hasData ? (
+          <div className="text-center text-gray-500">
+            <p className="text-lg font-medium mb-2">
+              {language === "en"
+                ? "No Data Available"
+                : "No hay datos disponibles"}
+            </p>
+            <p className="text-sm">
+              {language === "en"
+                ? "Upload some dressage analyses to see your movement scores"
+                : "Sube algunos análisis de doma para ver tus puntuaciones de movimiento"}
+            </p>
+          </div>
+        ) : (
+          <ResponsiveContainer className="!h-[70%] w-full sm:!h-full">
+            <RadarChart outerRadius="70%" data={performanceData}>
+              {/* Your existing chart content */}
+              <defs>
+                <linearGradient id="radarGradient" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stopColor="#7658eb" stopOpacity={0.7} />
+                  <stop offset="100%" stopColor="#3d78ec" stopOpacity={0.7} />
+                </linearGradient>
+                <linearGradient
+                  id="radarStrokeGradient"
+                  x1="0"
+                  y1="0"
+                  x2="1"
+                  y2="0"
+                >
+                  <stop offset="0%" stopColor="#7658eb" />
+                  <stop offset="100%" stopColor="#3d78ec" />
+                </linearGradient>
+              </defs>
+              <PolarGrid gridType="polygon" />
+              <PolarAngleAxis dataKey="movement" tick={{ fontSize: 11 }} />
+              <PolarRadiusAxis
+                domain={[0, 10]}
+                axisLine={false}
+                tick={{ fontSize: 10 }}
+              />
+              <Radar
+                name="Scores"
+                dataKey="score"
+                stroke="url(#radarStrokeGradient)"
+                fill="url(#radarGradient)"
+              />
+              <Legend wrapperStyle={{ fontSize: "12px", marginTop: "5px" }} />
+              <Tooltip content={<CustomTooltip />} />
+            </RadarChart>
+          </ResponsiveContainer>
+        )}
       </div>
     </Card>
   );

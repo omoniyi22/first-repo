@@ -420,7 +420,7 @@ function generateHorseCareEmailContent(notification: any, event: any, horseName:
           </div>
           <p>This is an automated reminder from your horse care management system.</p>
           <p>If you have any questions, please contact our support team.</p>
-          <p style="margin-top: 16px; font-size: 12px;">© 2025 Equine AI Intelligence. All rights reserved.</p>
+          <p style="margin-top: 16px; font-size: 12px;">© 2025 AI Equestrian. All rights reserved.</p>
         </div>
       </div>
     </body>
@@ -456,7 +456,7 @@ Follow us on Instagram: https://instagram.com/ai_equestrian
 ---
 This is an automated reminder from your horse care management system.
 If you have any questions, please contact our support team.
-© 2025 Equine AI Intelligence. All rights reserved.
+© 2025 AI Equestrian. All rights reserved.
   `
 
   return { html, text }
@@ -595,7 +595,7 @@ function generateManualEventEmailContent(notification: any, event: any) {
           </div>
           <p>This is an automated reminder from your event management system.</p>
           <p>If you have any questions, please contact our support team.</p>
-          <p style="margin-top: 16px; font-size: 12px;">© 2025 Equine AI Intelligence. All rights reserved.</p>
+          <p style="margin-top: 16px; font-size: 12px;">© 2025 AI Equestrian. All rights reserved.</p>
         </div>
       </div>
     </body>
@@ -628,7 +628,7 @@ Follow us on Instagram: https://instagram.com/ai_equestrian
 ---
 This is an automated reminder from your event management system.
 If you have any questions, please contact our support team.
-© 2025 Equine AI Intelligence. All rights reserved.
+© 2025 AI Equestrian. All rights reserved.
   `
 
   return { html, text }

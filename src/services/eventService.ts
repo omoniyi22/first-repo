@@ -35,7 +35,6 @@ export const fetchEvents = async (userId?: string): Promise<Event[]> => {
     }
 
     const { data, error } = await query;
-    console.log("🚀 ~ fetchEvents ~ data:", data)
 
     if (error) throw error;
 
