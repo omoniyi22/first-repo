@@ -12,7 +12,7 @@ serve(async (req) => {
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            from: "mail@equineaintelligence.com", // replace with verified sender if available
+            from: "AI Equestrian <mail@equineaintelligence.com>", // replace with verified sender if available
             to, // e.g. "user@example.com"
             subject, // e.g. "Welcome!"
             html, // e.g. "<p>Hello 👋</p>"
