@@ -268,6 +268,58 @@ async function handleSubscriptionUpdated(subscription) {
             updated_at: new Date().toISOString()
         };
 
+        // Handle cancellation detection
+        const wasCancelled = existingSub.cancelled_at !== null;
+        const isCancelledNow = subscription.cancel_at_period_end === true || subscription.status === 'canceled';
+        
+        if (!wasCancelled && isCancelledNow) {
+            // Subscription was just cancelled
+            updateData.cancelled_at = subscription.canceled_at 
+                ? new Date(subscription.canceled_at * 1000).toISOString()
+                : new Date().toISOString();
+                
+            log("Subscription cancellation detected", {
+                subscriptionId: subscription.id,
+                userId: existingSub.user_id,
+                cancelAtPeriodEnd: subscription.cancel_at_period_end,
+                status: subscription.status,
+                cancelledAt: updateData.cancelled_at
+            });
+            
+            // Log the cancellation
+            await logSubscriptionHistory({
+                user_id: existingSub.user_id,
+                action: 'subscription_cancelled',
+                new_plan_id: existingSub.plan_id,
+                stripe_subscription_id: subscription.id,
+                source: 'customer.subscription.updated',
+                metadata: {
+                    cancel_at_period_end: subscription.cancel_at_period_end,
+                    status: subscription.status
+                }
+            });
+        }
+        
+        // Handle reactivation (if cancelled subscription is reactivated)
+        if (wasCancelled && !isCancelledNow && subscription.status === 'active') {
+            updateData.cancelled_at = null;
+            
+            log("Subscription reactivation detected", {
+                subscriptionId: subscription.id,
+                userId: existingSub.user_id,
+                status: subscription.status
+            });
+            
+            // Log the reactivation
+            await logSubscriptionHistory({
+                user_id: existingSub.user_id,
+                action: 'subscription_reactivated',
+                new_plan_id: existingSub.plan_id,
+                stripe_subscription_id: subscription.id,
+                source: 'customer.subscription.updated'
+            });
+        }
+
         // For dynamic plans, we need to check if this is a plan change differently
         // We'll use the plan_id from subscription metadata to detect changes
         const newPlanId = subscription.metadata?.plan_id;
@@ -346,7 +398,8 @@ async function handleSubscriptionUpdated(subscription) {
         log("Subscription updated successfully", {
             subscriptionId: subscription.id,
             status: subscription.status,
-            planChanged
+            planChanged,
+            cancelled: !!updateData.cancelled_at
         });
 
     } catch (error) {
@@ -357,7 +410,7 @@ async function handleSubscriptionUpdated(subscription) {
     }
 }
 
-// 🆕 NEW: Handle plan changes
+// 🎯 Handle plan changes
 async function handlePlanChange({ userId, subscriptionId, oldPlan, newPlan, changeType }) {
     try {
         log("Processing plan change", {
@@ -392,59 +445,26 @@ async function handlePlanChange({ userId, subscriptionId, oldPlan, newPlan, chan
             return;
         }
 
-        // Only process horse status changes if limits actually changed
-        if (oldPlan.max_horses !== newPlan.max_horses && changeType !== 'same') {
-            // Call the horse management Edge Function
-            const response = await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/manage-horse-plan-limits`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
-                    'Content-Type': 'application/json',
-                    'apikey': Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")
-                },
-                body: JSON.stringify({
-                    user_id: userId,
-                    plan_change_id: planChangeRecord.id,
-                    change_type: changeType,
-                    old_limit: oldPlan.max_horses,
-                    new_limit: newPlan.max_horses,
-                    old_plan_name: oldPlan.name,
-                    new_plan_name: newPlan.name
+        // Manage horses based on new plan limits
+        const horseResult = await manageUserHorses(userId, newPlan.id, subscriptionId, `plan_${changeType}`);
+
+        // Update plan change record with results
+        if (horseResult.success) {
+            await supabaseAdmin
+                .from("plan_changes")
+                .update({
+                    horses_affected: horseResult.horses_affected || 0,
+                    horses_disabled: horseResult.horses_disabled || 0,
+                    horses_reactivated: horseResult.horses_activated || 0
                 })
-            });
+                .eq("id", planChangeRecord.id);
 
-            const result = await response.json();
-
-            if (response.ok) {
-                // Update plan change record with results
-                await supabaseAdmin
-                    .from("plan_changes")
-                    .update({
-                        horses_affected: result.horses_affected || 0,
-                        horses_disabled: result.horses_disabled || 0,
-                        horses_reactivated: result.horses_reactivated || 0
-                    })
-                    .eq("id", planChangeRecord.id);
-
-                log("Horse management completed", {
-                    userId,
-                    changeType,
-                    horsesAffected: result.horses_affected,
-                    horsesDisabled: result.horses_disabled,
-                    horsesReactivated: result.horses_reactivated
-                });
-            } else {
-                log("Horse management failed", {
-                    userId,
-                    error: result.error || 'Unknown error'
-                });
-            }
-        } else {
-            log("No horse limit changes needed", {
+            log("Plan change and horse management completed", {
                 userId,
                 changeType,
-                oldLimit: oldPlan.max_horses,
-                newLimit: newPlan.max_horses
+                horsesAffected: horseResult.horses_affected,
+                horsesDisabled: horseResult.horses_disabled,
+                horsesActivated: horseResult.horses_activated
             });
         }
 
@@ -563,8 +583,186 @@ async function handlePaymentFailed(invoice) {
     }
 }
 
-// 🛠️ Helper function to create subscription records with proper deactivation
-// Enhanced version of createSubscriptionRecord
+// 🎯 CENTRALIZED: Manage user horses based on current plan limit
+async function manageUserHorses(userId, planId, subscriptionId, context = 'subscription_created') {
+    try {
+        log("Managing user horses based on plan limit", { userId, planId, context });
+
+        // Get the current plan details
+        const { data: plan, error: planError } = await supabaseAdmin
+            .from("pricing_plans")
+            .select("*")
+            .eq("id", planId)
+            .single();
+
+        if (planError || !plan) {
+            log("Could not fetch plan details", { planId, error: planError?.message });
+            return { success: false, error: "Plan not found" };
+        }
+
+        const planLimit = plan.max_horses;
+        
+        // Get all horses for this user (active and disabled)
+        const { data: allHorses, error: horsesError } = await supabaseAdmin
+            .from('horses')
+            .select('*')
+            .eq('user_id', userId)
+            .order('created_at', { ascending: true }); // Oldest first = higher priority
+
+        if (horsesError) {
+            log(`Error fetching horses for user ${userId}`, { error: horsesError.message });
+            return { success: false, error: "Could not fetch user horses" };
+        }
+
+        if (!allHorses || allHorses.length === 0) {
+            log(`No horses found for user ${userId}`);
+            return { 
+                success: true, 
+                horses_affected: 0, 
+                horses_activated: 0,
+                horses_disabled: 0,
+                message: "No horses to manage"
+            };
+        }
+
+        // Separate active and disabled horses
+        const activeHorses = allHorses.filter(h => h.status === 'active');
+        const disabledHorses = allHorses.filter(h => h.status === 'disabled');
+        
+        log("Current horse status", {
+            userId,
+            totalHorses: allHorses.length,
+            activeHorses: activeHorses.length,
+            disabledHorses: disabledHorses.length,
+            planLimit: planLimit
+        });
+
+        let horsesToActivate = [];
+        let horsesToDisable = [];
+        
+        if (activeHorses.length < planLimit) {
+            // We can activate more horses
+            const availableSlots = planLimit - activeHorses.length;
+            horsesToActivate = disabledHorses
+                .sort((a, b) => new Date(b.updated_at || b.created_at).getTime() - new Date(a.updated_at || a.created_at).getTime()) // Most recently disabled first
+                .slice(0, availableSlots);
+                
+        } else if (activeHorses.length > planLimit) {
+            // We need to disable some horses
+            const excessHorses = activeHorses.length - planLimit;
+            horsesToDisable = activeHorses
+                .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) // Newest first = first to disable
+                .slice(0, excessHorses);
+        }
+
+        // Execute horse status changes
+        let activatedCount = 0;
+        let disabledCount = 0;
+
+        // Activate horses
+        if (horsesToActivate.length > 0) {
+            const { error: activateError } = await supabaseAdmin
+                .from("horses")
+                .update({
+                    status: 'active',
+                    updated_at: new Date().toISOString(),
+                    disabled_at: null,
+                    disabled_reason: null
+                })
+                .in('id', horsesToActivate.map(h => h.id));
+
+            if (activateError) {
+                log(`Error activating horses for user ${userId}`, { error: activateError.message });
+            } else {
+                activatedCount = horsesToActivate.length;
+                log(`Activated ${activatedCount} horses for user ${userId}`, {
+                    horses: horsesToActivate.map(h => ({ id: h.id, name: h.name }))
+                });
+            }
+        }
+
+        // Disable horses
+        if (horsesToDisable.length > 0) {
+            const { error: disableError } = await supabaseAdmin
+                .from("horses")
+                .update({
+                    status: 'disabled',
+                    updated_at: new Date().toISOString(),
+                    disabled_at: new Date().toISOString(),
+                    disabled_reason: context === 'plan_downgrade' ? 'plan_downgrade' : 'plan_limit_exceeded'
+                })
+                .in('id', horsesToDisable.map(h => h.id));
+
+            if (disableError) {
+                log(`Error disabling horses for user ${userId}`, { error: disableError.message });
+            } else {
+                disabledCount = horsesToDisable.length;
+                log(`Disabled ${disabledCount} horses for user ${userId}`, {
+                    horses: horsesToDisable.map(h => ({ id: h.id, name: h.name }))
+                });
+            }
+        }
+
+        // Send appropriate notification email
+        if (activatedCount > 0 || disabledCount > 0) {
+            await sendHorseManagementEmail(userId, {
+                planName: plan.name,
+                planLimit: planLimit,
+                horsesActivated: horsesToActivate,
+                horsesDisabled: horsesToDisable,
+                context: context
+            });
+        }
+
+        const result = {
+            success: true,
+            horses_affected: activatedCount + disabledCount,
+            horses_activated: activatedCount,
+            horses_disabled: disabledCount,
+            plan_limit: planLimit,
+            total_horses: allHorses.length,
+            activated_horses: horsesToActivate.map(h => ({ id: h.id, name: h.name })),
+            disabled_horses: horsesToDisable.map(h => ({ id: h.id, name: h.name })),
+            message: `Horse management completed: ${activatedCount} activated, ${disabledCount} disabled`
+        };
+
+        log("Horse management completed", { userId, result });
+        return result;
+
+    } catch (error) {
+        log(`Error in manageUserHorses for user ${userId}`, { error: error.message });
+        return { success: false, error: error.message };
+    }
+}
+
+// Send email notification for horse management changes
+async function sendHorseManagementEmail(userId, { planName, planLimit, horsesActivated, horsesDisabled, context }) {
+    try {
+        // Get user email
+        const { data: user, error: userError } = await supabaseAdmin.auth.admin.getUserById(userId);
+        if (userError || !user?.user?.email) {
+            log("Could not get user email for horse management notification", { userId });
+            return;
+        }
+
+        const userEmail = user.user.email;
+        
+        log("Would send horse management email", { 
+            email: userEmail, 
+            activated: horsesActivated.length,
+            disabled: horsesDisabled.length,
+            context 
+        });
+
+        // TODO: Implement actual email sending here using your email service
+        // This is just logging for now - you can integrate with your email system
+
+    } catch (error) {
+        log("Error sending horse management email", { userId, error: error.message });
+    }
+}
+
+// 🛠️ Helper function to create subscription records
 async function createSubscriptionRecord({ user_email, user_id, plan_id, coupon_id, subscription, source }) {
     try {
         // Check if subscription already exists (prevent duplicates)
@@ -604,6 +802,9 @@ async function createSubscriptionRecord({ user_email, user_id, plan_id, coupon_i
             });
             throw error;
         }
+
+        // Manage horses after subscription creation
+        await manageUserHorses(user_id, plan_id, subscription.id, 'subscription_created');
 
         // Log subscription history
         await logSubscriptionHistory({

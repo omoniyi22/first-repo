@@ -406,7 +406,7 @@ function generateHorseCareEmailContent(notification: any, event: any, horseName:
             <a href="https://equineaintelligence.com/profile-setup" style="color: white;" class="button">Manage My Horses</a>
           </div>
           
-          <p>Best regards,<br><strong>Your Horse Management Team</strong></p>
+          <p>Best regards,<br><strong>AI Equestrian</strong></p>
           
           <div style="margin: 16px 0;">
             <img src="https://equineaintelligence.com/lovable-uploads/ddb7f47e-072a-4346-9fd3-a8a055f13bba.png" alt="AI Equestrian Logo" style="height: 40px; width: auto;">
@@ -449,7 +449,7 @@ ${actionText.toUpperCase()} if you haven't already! Regular care appointments he
 Visit your dashboard: https://equineaintelligence.com/dashboard
 
 Best regards,
-Your Horse Management Team
+AI Equestrian
 
 Follow us on Instagram: https://instagram.com/ai_equestrian
 
