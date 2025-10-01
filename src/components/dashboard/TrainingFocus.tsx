@@ -114,11 +114,11 @@ const TrainingFocus = () => {
           self.findIndex(
             (r) =>
               r.reason
-                .toLowerCase()
-                .includes(rec.reason.toLowerCase().split(":")[0]) ||
+                ?.toLowerCase()
+                .includes(rec.reason?.toLowerCase().split(":")[0]) ||
               rec.reason
-                .toLowerCase()
-                .includes(r.reason.toLowerCase().split(":")[0])
+                ?.toLowerCase()
+                .includes(r.reason?.toLowerCase().split(":")[0])
           )
       );
 

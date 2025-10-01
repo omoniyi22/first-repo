@@ -79,7 +79,7 @@ serve(async (req) => {
 
         // If no active subscription, use free tier (0 horses allowed)
         let maxHorses = 0;
-        let planName = "Free";
+        let planName = "No plan subscribed";
 
         if (subscription?.pricing_plans) {
             maxHorses = subscription.pricing_plans.max_horses;

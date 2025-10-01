@@ -92,7 +92,7 @@ export const useDocumentLimits = () => {
         canUploadDocument: limits?.canUploadDocument ?? false,
         currentDocuments: limits?.currentDocuments ?? 0,
         maxDocuments: limits?.maxDocuments ?? 0,
-        planName: limits?.planName ?? 'Free',
+        planName: limits?.planName ?? 'No plan subscribed',
         remainingDocuments: limits?.remainingDocuments ?? 0
     };
 };

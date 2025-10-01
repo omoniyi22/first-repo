@@ -13,7 +13,18 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, ChevronRight, Edit, Trash2, Loader2, House, AlertTriangle, ArrowRight, Ban, Zap } from "lucide-react";
+import {
+  Plus,
+  ChevronRight,
+  Edit,
+  Trash2,
+  Loader2,
+  House,
+  AlertTriangle,
+  ArrowRight,
+  Ban,
+  Zap,
+} from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -46,7 +57,7 @@ interface Horse {
   created_at: string;
   updated_at: string;
   // New fields for disabled horse support
-  status?: 'active' | 'disabled';
+  status?: "active" | "disabled";
   disabled_at?: string | null;
   disabled_reason?: string | null;
 }
@@ -61,7 +72,7 @@ const Horses = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const { language } = useLanguage();
-  
+
   const horseLimits = useHorseLimits();
 
   useEffect(() => {
@@ -161,36 +172,40 @@ const Horses = () => {
 
   // Helper function to check if horse is disabled
   const isHorseDisabled = (horse: Horse) => {
-    return horse.status === 'disabled';
+    return horse.status === "disabled";
   };
 
   // Separate horses into active and disabled
-  const activeHorses = horses.filter(horse => horse.status !== 'disabled');
-  const disabledHorses = horses.filter(horse => horse.status === 'disabled');
+  const activeHorses = horses.filter((horse) => horse.status !== "disabled");
+  const disabledHorses = horses.filter((horse) => horse.status === "disabled");
 
   // Horse Card Component
   const HorseCard = ({ horse }: { horse: Horse }) => {
     const isDisabled = isHorseDisabled(horse);
-    
+
     return (
-      <Card className={`overflow-hidden cursor-pointer transition-all ${
-        isDisabled 
-          ? 'opacity-60 border-gray-300 hover:shadow-sm' 
-          : 'hover:shadow-md border-gray-200'
-      }`}>
+      <Card
+        className={`overflow-hidden cursor-pointer transition-all ${
+          isDisabled
+            ? "opacity-60 border-gray-300 hover:shadow-sm"
+            : "hover:shadow-md border-gray-200"
+        }`}
+      >
         <div className="h-40 overflow-hidden bg-gray-100 relative">
           {horse.photo_url ? (
             <img
               src={horse.photo_url}
               alt={horse.name}
-              className={`w-full h-full object-cover ${isDisabled ? 'grayscale' : ''}`}
+              className={`w-full h-full object-cover ${
+                isDisabled ? "grayscale" : ""
+              }`}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-gray-400">
               {language === "en" ? "No Image" : "Sin imagen"}
             </div>
           )}
-          
+
           {isDisabled && (
             <div className="absolute top-2 right-2">
               <Badge variant="destructive" className="bg-red-500">
@@ -200,34 +215,40 @@ const Horses = () => {
             </div>
           )}
         </div>
-        
+
         <CardContent className="p-4">
           <div className="flex justify-between items-start">
             <div className="flex-1">
-              <h3 className={`font-medium text-lg ${
-                isDisabled ? 'text-gray-500' : 'text-gray-900'
-              }`}>
+              <h3
+                className={`font-medium text-lg ${
+                  isDisabled ? "text-gray-500" : "text-gray-900"
+                }`}
+              >
                 {horse.name}
               </h3>
-              <p className={`text-sm ${
-                isDisabled ? 'text-gray-400' : 'text-gray-600'
-              }`}>
+              <p
+                className={`text-sm ${
+                  isDisabled ? "text-gray-400" : "text-gray-600"
+                }`}
+              >
                 {horse.breed} • {horse.age} yrs
               </p>
-              <p className={`text-sm mt-1 ${
-                isDisabled ? 'text-gray-400' : 'text-gray-600'
-              }`}>
+              <p
+                className={`text-sm mt-1 ${
+                  isDisabled ? "text-gray-400" : "text-gray-600"
+                }`}
+              >
                 {horse.dressage_level ||
                   (language === "en"
                     ? "No level specified"
                     : "No se especifica ningún nivel")}
               </p>
-              
+
               {isDisabled && (
                 <div className="mt-2 p-2 bg-orange-50 border border-orange-200 rounded text-xs">
                   <p className="text-orange-800 font-medium">
-                    {language === "en" 
-                      ? "Horse disabled due to plan limits" 
+                    {language === "en"
+                      ? "Horse disabled due to plan limits"
                       : "Caballo deshabilitado por límites del plan"}
                   </p>
                   <Button
@@ -236,17 +257,20 @@ const Horses = () => {
                     className="p-0 h-auto text-xs text-orange-600 hover:text-orange-800"
                     onClick={(e) => {
                       e.stopPropagation();
-                      window.location.href = '/pricing';
+                      window.location.href = "/pricing";
                     }}
                   >
-                    {language === "en" ? "Upgrade to reactivate" : "Actualizar para reactivar"}
+                    {language === "en"
+                      ? "Upgrade to reactivate"
+                      : "Actualizar para reactivar"}
                   </Button>
                 </div>
               )}
             </div>
-            <ChevronRight className={`${
-              isDisabled ? 'text-gray-300' : 'text-gray-400'
-            }`} size={18} />
+            <ChevronRight
+              className={`${isDisabled ? "text-gray-300" : "text-gray-400"}`}
+              size={18}
+            />
           </div>
         </CardContent>
       </Card>
@@ -263,11 +287,16 @@ const Horses = () => {
               <div className="flex items-center gap-2">
                 <House className="h-5 w-5 text-purple-600" />
                 <span className="text-lg">
-                  {language === "en" ? "Horse Management" : "Gestión de Caballos"}
+                  {language === "en"
+                    ? "Horse Management"
+                    : "Gestión de Caballos"}
                 </span>
               </div>
-              <Badge variant="outline" className="border-purple-300 text-purple-700">
-                {horseLimits.planName} {language === "en" ? "Plan" : "Plan"}
+              <Badge
+                variant="outline"
+                className="border-purple-300 text-purple-700"
+              >
+                {horseLimits.planName}
               </Badge>
             </CardTitle>
           </CardHeader>
@@ -278,35 +307,49 @@ const Horses = () => {
                 <p className="text-sm text-gray-600">
                   {language === "en" ? "Active Horses" : "Caballos Activos"}
                 </p>
-                <p className="text-2xl font-bold text-green-600">{horseLimits.activeHorses}</p>
+                <p className="text-2xl font-bold text-green-600">
+                  {horseLimits.activeHorses}
+                </p>
               </div>
-              
+
               {horseLimits.hasDisabledHorses && (
                 <div className="text-center">
                   <p className="text-sm text-gray-600">
-                    {language === "en" ? "Disabled Horses" : "Caballos Deshabilitados"}
+                    {language === "en"
+                      ? "Disabled Horses"
+                      : "Caballos Deshabilitados"}
                   </p>
-                  <p className="text-2xl font-bold text-red-600">{horseLimits.disabledHorses}</p>
+                  <p className="text-2xl font-bold text-red-600">
+                    {horseLimits.disabledHorses}
+                  </p>
                 </div>
               )}
-              
+
               <div className="text-center">
                 <p className="text-sm text-gray-600">
                   {language === "en" ? "Plan Limit" : "Límite del Plan"}
                 </p>
                 <p className="text-2xl font-bold text-gray-700">
-                  {horseLimits.maxHorses === 'unlimited' ? '∞' : horseLimits.maxHorses}
+                  {horseLimits.maxHorses === "unlimited"
+                    ? "∞"
+                    : horseLimits.maxHorses}
                 </p>
               </div>
-              
+
               <div className="text-center">
                 <p className="text-sm text-gray-600">
-                  {language === "en" ? "Available Slots" : "Espacios Disponibles"}
+                  {language === "en"
+                    ? "Available Slots"
+                    : "Espacios Disponibles"}
                 </p>
-                <p className={`text-2xl font-bold ${
-                  horseLimits.canAddHorse ? 'text-green-600' : 'text-red-600'
-                }`}>
-                  {horseLimits.remainingSlots === 'unlimited' ? '∞' : horseLimits.remainingSlots}
+                <p
+                  className={`text-2xl font-bold ${
+                    horseLimits.canAddHorse ? "text-green-600" : "text-red-600"
+                  }`}
+                >
+                  {horseLimits.remainingSlots === "unlimited"
+                    ? "∞"
+                    : horseLimits.remainingSlots}
                 </p>
               </div>
             </div>
@@ -319,19 +362,33 @@ const Horses = () => {
             </div>
 
             {/* Progress Bar (only for limited plans) */}
-            {horseLimits.maxHorses !== 'unlimited' && (
+            {horseLimits.maxHorses !== "unlimited" && (
               <div className="mb-4">
                 <div className="flex justify-between text-sm text-gray-600 mb-1">
-                  <span>{language === "en" ? "Plan Usage" : "Uso del Plan"}</span>
-                  <span>{Math.round((horseLimits.activeHorses / (horseLimits.maxHorses as number)) * 100)}%</span>
+                  <span>
+                    {language === "en" ? "Plan Usage" : "Uso del Plan"}
+                  </span>
+                  <span>
+                    {Math.round(
+                      (horseLimits.activeHorses /
+                        (horseLimits.maxHorses as number)) *
+                        100
+                    )}
+                    %
+                  </span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div
                     className={`h-2 rounded-full transition-all duration-300 ${
-                      horseLimits.canAddHorse ? 'bg-purple-500' : 'bg-red-500'
+                      horseLimits.canAddHorse ? "bg-purple-500" : "bg-red-500"
                     }`}
                     style={{
-                      width: `${Math.min((horseLimits.activeHorses / (horseLimits.maxHorses as number)) * 100, 100)}%`
+                      width: `${Math.min(
+                        (horseLimits.activeHorses /
+                          (horseLimits.maxHorses as number)) *
+                          100,
+                        100
+                      )}%`,
                     }}
                   />
                 </div>
@@ -344,22 +401,24 @@ const Horses = () => {
                 <Ban className="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" />
                 <div className="flex-1">
                   <p className="text-sm font-medium text-orange-800">
-                    {language === "en" 
+                    {language === "en"
                       ? `${horseLimits.disabledHorses} Horses Disabled`
                       : `${horseLimits.disabledHorses} Caballos Deshabilitados`}
                   </p>
                   <p className="text-sm text-orange-700 mt-1">
-                    {language === "en" 
+                    {language === "en"
                       ? "These horses are temporarily disabled due to plan limits. They're still saved in your account."
                       : "Estos caballos están temporalmente deshabilitados debido a los límites del plan. Siguen guardados en tu cuenta."}
                   </p>
                   <Button
                     size="sm"
                     className="mt-2 bg-orange-600 hover:bg-orange-700 text-white"
-                    onClick={() => window.location.href = '/pricing'}
+                    onClick={() => (window.location.href = "/pricing")}
                   >
                     <Zap className="mr-2 h-4 w-4" />
-                    {language === "en" ? "Upgrade to Reactivate" : "Actualizar para Reactivar"}
+                    {language === "en"
+                      ? "Upgrade to Reactivate"
+                      : "Actualizar para Reactivar"}
                   </Button>
                 </div>
               </div>
@@ -371,18 +430,19 @@ const Horses = () => {
                 <AlertTriangle className="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" />
                 <div className="flex-1">
                   <p className="text-sm font-medium text-orange-800">
-                    {language === "en" ? "Horse Limit Reached" : "Límite de Caballos Alcanzado"}
+                    {language === "en"
+                      ? "Horse Limit Reached"
+                      : "Límite de Caballos Alcanzado"}
                   </p>
                   <p className="text-sm text-orange-700 mt-1">
-                    {language === "en" 
+                    {language === "en"
                       ? `You've reached your horse limit (${horseLimits.activeHorses}/${horseLimits.maxHorses}). Upgrade your plan to add more horses.`
-                      : `Has alcanzado tu límite de caballos (${horseLimits.activeHorses}/${horseLimits.maxHorses}). Actualiza tu plan para agregar más caballos.`
-                    }
+                      : `Has alcanzado tu límite de caballos (${horseLimits.activeHorses}/${horseLimits.maxHorses}). Actualiza tu plan para agregar más caballos.`}
                   </p>
                   <Button
                     size="sm"
                     className="mt-2 bg-orange-600 hover:bg-orange-700 text-white"
-                    onClick={() => window.location.href = '/pricing'}
+                    onClick={() => (window.location.href = "/pricing")}
                   >
                     {language === "en" ? "Upgrade Plan" : "Actualizar Plan"}
                     <ArrowRight className="ml-2 h-4 w-4" />
@@ -399,7 +459,7 @@ const Horses = () => {
         <h2 className="text-xl font-serif font-semibold text-gray-900">
           {language === "en" ? "My Horses" : "Mis caballos"}
         </h2>
-        
+
         {horseLimits.canAddHorse ? (
           <Button
             onClick={handleAddHorse}
@@ -411,12 +471,16 @@ const Horses = () => {
           </Button>
         ) : (
           <Button
-            onClick={() => window.location.href = '/pricing'}
+            onClick={() => (window.location.href = "/pricing")}
             variant="outline"
             className="flex items-center gap-2 border-orange-300 text-orange-700 hover:bg-orange-50"
           >
             <Plus size={16} />
-            <span>{language === "en" ? "Upgrade to Add More" : "Actualizar para Agregar Más"}</span>
+            <span>
+              {language === "en"
+                ? "Upgrade to Add More"
+                : "Actualizar para Agregar Más"}
+            </span>
           </Button>
         )}
       </div>
@@ -457,7 +521,7 @@ const Horses = () => {
                     : "Actualiza tu plan para comenzar a agregar caballos."}
                 </p>
                 <Button
-                  onClick={() => window.location.href = '/pricing'}
+                  onClick={() => (window.location.href = "/pricing")}
                   className="bg-purple-700 hover:bg-purple-800"
                 >
                   {language === "en" ? "View Plans" : "Ver Planes"}
@@ -476,7 +540,8 @@ const Horses = () => {
             <div>
               <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
                 <span className="w-3 h-3 bg-green-500 rounded-full"></span>
-                {language === "en" ? "Active Horses" : "Caballos Activos"} ({activeHorses.length})
+                {language === "en" ? "Active Horses" : "Caballos Activos"} (
+                {activeHorses.length})
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
                 {activeHorses.map((horse) => (
@@ -491,7 +556,8 @@ const Horses = () => {
                         <DialogTitle className="text-xl font-serif">
                           {language === "en"
                             ? "Horse Profile:"
-                            : "Perfil del caballo:"} {horse.name}
+                            : "Perfil del caballo:"}{" "}
+                          {horse.name}
                         </DialogTitle>
                       </DialogHeader>
 
@@ -522,7 +588,9 @@ const Horses = () => {
                                 />
                               ) : (
                                 <div className="w-full aspect-[4/3] bg-gray-100 rounded-lg flex items-center justify-center text-gray-400">
-                                  {language === "en" ? "No Image" : "Sin imagen"}
+                                  {language === "en"
+                                    ? "No Image"
+                                    : "Sin imagen"}
                                 </div>
                               )}
 
@@ -629,7 +697,10 @@ const Horses = () => {
             <div>
               <h3 className="text-lg font-medium text-gray-600 mb-4 flex items-center gap-2">
                 <span className="w-3 h-3 bg-red-500 rounded-full"></span>
-                {language === "en" ? "Disabled Horses" : "Caballos Deshabilitados"} ({disabledHorses.length})
+                {language === "en"
+                  ? "Disabled Horses"
+                  : "Caballos Deshabilitados"}{" "}
+                ({disabledHorses.length})
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
                 {disabledHorses.map((horse) => (
@@ -645,7 +716,8 @@ const Horses = () => {
                           <Ban className="h-5 w-5 text-red-500" />
                           {language === "en"
                             ? "Disabled Horse:"
-                            : "Caballo Deshabilitado:"} {horse.name}
+                            : "Caballo Deshabilitado:"}{" "}
+                          {horse.name}
                         </DialogTitle>
                       </DialogHeader>
 
@@ -655,22 +727,26 @@ const Horses = () => {
                           <Ban className="h-5 w-5 text-red-600 mt-0.5 flex-shrink-0" />
                           <div>
                             <p className="text-red-800 font-medium">
-                              {language === "en" 
+                              {language === "en"
                                 ? "This horse is currently disabled"
                                 : "Este caballo está actualmente deshabilitado"}
                             </p>
                             <p className="text-red-700 text-sm mt-1">
-                              {language === "en" 
+                              {language === "en"
                                 ? "Disabled due to plan limits. The horse data is preserved but features are not accessible."
                                 : "Deshabilitado debido a límites del plan. Los datos del caballo se conservan pero las funciones no son accesibles."}
                             </p>
                             <Button
                               size="sm"
                               className="mt-2 bg-red-600 hover:bg-red-700 text-white"
-                              onClick={() => window.location.href = '/pricing'}
+                              onClick={() =>
+                                (window.location.href = "/pricing")
+                              }
                             >
                               <Zap className="mr-2 h-4 w-4" />
-                              {language === "en" ? "Upgrade to Reactivate" : "Actualizar para Reactivar"}
+                              {language === "en"
+                                ? "Upgrade to Reactivate"
+                                : "Actualizar para Reactivar"}
                             </Button>
                           </div>
                         </div>
@@ -700,26 +776,43 @@ const Horses = () => {
                                   />
                                 ) : (
                                   <div className="w-full aspect-[4/3] bg-gray-100 rounded-lg flex items-center justify-center text-gray-400">
-                                    {language === "en" ? "No Image" : "Sin imagen"}
+                                    {language === "en"
+                                      ? "No Image"
+                                      : "Sin imagen"}
                                   </div>
                                 )}
                               </div>
                               <div className="md:w-2/3">
                                 <h3 className="font-semibold text-lg text-gray-500">
-                                  {language === "en" ? "Details (Disabled)" : "Detalles (Deshabilitado)"}
+                                  {language === "en"
+                                    ? "Details (Disabled)"
+                                    : "Detalles (Deshabilitado)"}
                                 </h3>
                                 <div className="grid grid-cols-2 gap-x-8 gap-y-2 mt-2">
                                   <div>
-                                    <p className="text-sm text-gray-500">{language === "en" ? "Breed" : "Raza"}</p>
-                                    <p className="font-medium text-gray-600">{horse.breed}</p>
+                                    <p className="text-sm text-gray-500">
+                                      {language === "en" ? "Breed" : "Raza"}
+                                    </p>
+                                    <p className="font-medium text-gray-600">
+                                      {horse.breed}
+                                    </p>
                                   </div>
                                   <div>
-                                    <p className="text-sm text-gray-500">{language === "en" ? "Age" : "Edad"}</p>
-                                    <p className="font-medium text-gray-600">{horse.age} {language === "en" ? "years" : "años"}</p>
+                                    <p className="text-sm text-gray-500">
+                                      {language === "en" ? "Age" : "Edad"}
+                                    </p>
+                                    <p className="font-medium text-gray-600">
+                                      {horse.age}{" "}
+                                      {language === "en" ? "years" : "años"}
+                                    </p>
                                   </div>
                                   <div>
-                                    <p className="text-sm text-gray-500">{language === "en" ? "Sex" : "Sexo"}</p>
-                                    <p className="font-medium text-gray-600">{horse.sex}</p>
+                                    <p className="text-sm text-gray-500">
+                                      {language === "en" ? "Sex" : "Sexo"}
+                                    </p>
+                                    <p className="font-medium text-gray-600">
+                                      {horse.sex}
+                                    </p>
                                   </div>
                                 </div>
                               </div>
@@ -731,19 +824,25 @@ const Horses = () => {
                           <div className="text-center py-8">
                             <Zap className="h-16 w-16 text-orange-500 mx-auto mb-4" />
                             <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                              {language === "en" ? "Reactivate This Horse" : "Reactivar Este Caballo"}
+                              {language === "en"
+                                ? "Reactivate This Horse"
+                                : "Reactivar Este Caballo"}
                             </h3>
                             <p className="text-gray-600 mb-6 max-w-md mx-auto">
-                              {language === "en" 
+                              {language === "en"
                                 ? "Upgrade your plan to reactivate this horse and access all its features again."
                                 : "Actualiza tu plan para reactivar este caballo y acceder a todas sus funciones nuevamente."}
                             </p>
                             <Button
                               className="bg-orange-600 hover:bg-orange-700 text-white"
-                              onClick={() => window.location.href = '/pricing'}
+                              onClick={() =>
+                                (window.location.href = "/pricing")
+                              }
                             >
                               <Zap className="mr-2 h-4 w-4" />
-                              {language === "en" ? "View Upgrade Options" : "Ver Opciones de Actualización"}
+                              {language === "en"
+                                ? "View Upgrade Options"
+                                : "Ver Opciones de Actualización"}
                             </Button>
                           </div>
                         </TabsContent>

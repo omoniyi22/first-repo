@@ -40,7 +40,6 @@ interface SubscriptionContextType {
     mode: "monthly" | "annual",
     couponCode?: string
   ) => Promise<string | null>;
-  openCustomerPortal: () => Promise<void>;
   validateCoupon: (couponCode: string) => Promise<{
     valid: boolean;
     discount_percent?: number;
@@ -60,7 +59,6 @@ const SubscriptionContext = createContext<SubscriptionContextType>({
   couponUsed: null,
   refreshSubscription: async () => {},
   checkoutPlan: async () => null,
-  openCustomerPortal: async () => {},
   validateCoupon: async () => ({ valid: false }),
 });
 
@@ -235,26 +233,6 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  const openCustomerPortal = async () => {
-    try {
-      const { data, error } = await supabase.functions.invoke(
-        "customer-portal"
-      );
-
-      if (error) throw error;
-      if (!data?.url) throw new Error("No portal URL returned");
-
-      window.open(data.url, "_blank");
-    } catch (error) {
-      console.error("Error opening customer portal:", error);
-      toast({
-        title: "Error",
-        description: "Failed to open subscription management portal",
-        variant: "destructive",
-      });
-    }
-  };
-
   // Check subscription when authentication state changes
   useEffect(() => {
     refreshSubscription();
@@ -295,7 +273,6 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({
     couponUsed,
     refreshSubscription,
     checkoutPlan,
-    openCustomerPortal,
     validateCoupon,
   };
 

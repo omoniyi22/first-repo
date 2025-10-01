@@ -67,6 +67,7 @@ serve(async (req) => {
     const serviceAccount = JSON.parse(raw);
     console.log("Using project:", serviceAccount.project_id);
     const { documentId, base64Image } = await req.json();
+
     if (!documentId || !base64Image) {
       return new Response(JSON.stringify({
         error: 'Missing documentId or base64Image'
@@ -75,13 +76,87 @@ serve(async (req) => {
         headers: corsHeaders
       });
     }
+
+    // === START: ANALYSIS LIMIT CHECK ===
+    // Get user_id from document
+    const { data: analysisDoc, error: docError } = await supabase
+      .from('document_analysis')
+      .select('user_id')
+      .eq('id', documentId)
+      .single();
+
+    if (docError || !analysisDoc) {
+      return new Response(JSON.stringify({
+        error: 'Document not found'
+      }), {
+        status: 404,
+        headers: corsHeaders
+      });
+    }
+
+    const userId = analysisDoc.user_id;
+
+    // Get user's subscription and plan details
+    const { data: subscriptionData, error: subscriptionError } = await supabase
+      .from('user_subscriptions')
+      .select('plan_id, pricing_plans(analysis_limit, name)')
+      .eq('user_id', userId)
+      .eq('is_active', true)
+      .single();
+
+    if (subscriptionError) {
+      return new Response(JSON.stringify({
+        error: 'Failed to fetch user subscription'
+      }), {
+        status: 500,
+        headers: corsHeaders
+      });
+    }
+
+    const analysisLimit = subscriptionData?.pricing_plans?.analysis_limit || 0;
+    const currentMonth = new Date().toISOString().substring(0, 7); // YYYY-MM
+
+    // Get current month usage
+    const { data: usageData } = await supabase
+      .from('analysis_usage')
+      .select('analysis_count')
+      .eq('user_id', userId)
+      .eq('month_year', currentMonth)
+      .maybeSingle();
+
+    const currentCount = usageData?.analysis_count || 0;
+
+    // Check if limit exceeded (skip check if unlimited: -1)
+    if (analysisLimit !== -1 && currentCount >= analysisLimit) {
+      await supabase
+        .from('document_analysis')
+        .update({
+          status: 'failed',
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', documentId);
+
+      return new Response(JSON.stringify({
+        error: 'Analysis limit reached',
+        message: `You have reached your monthly analysis limit of ${analysisLimit}. Please upgrade your plan.`,
+        current_count: currentCount,
+        limit: analysisLimit
+      }), {
+        status: 403,
+        headers: corsHeaders
+      });
+    }
+    // === END: ANALYSIS LIMIT CHECK ===
+
     await supabase.from('document_analysis').update({
       status: 'processing',
       updated_at: new Date().toISOString()
     }).eq('id', documentId);
+
     const accessToken = await getGoogleAccessToken(serviceAccount);
-    const model = "gemini-2.0-flash"; // or gemini-1.5-flash
+    const model = "gemini-2.0-flash";
     const geminiUrl = `https://us-central1-aiplatform.googleapis.com/v1/projects/${serviceAccount.project_id}/locations/us-central1/publishers/google/models/${model}:generateContent`;
+
     const prompt = `
       This is the test score sheet of one rider's jumping or dressage movement.
       You should get the name of horse from document like Frapp, Varadero, Pagasus, Han, Lolo and so on.
@@ -409,6 +484,7 @@ serve(async (req) => {
       * All contents of the JSON — including generalComments, strengths, weaknesses, instructions, recommendations, movement names (in highestScore, lowestScore, and detailed movements), and any other fields — must be fully in English. If any part of the document is in Spanish (such as "Parada en X" or "Trote Medio"), you must translate it into accurate, fluent English before including it in the result.
 
     `;
+
     const geminiResponse = await fetch(geminiUrl, {
       method: 'POST',
       headers: {
@@ -416,35 +492,31 @@ serve(async (req) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        contents: [
-          {
-            role: 'user',
-            parts: [
-              {
-                text: prompt
-              },
-              {
-                inlineData: {
-                  mimeType: 'application/pdf',
-                  data: base64Image
-                }
-              }
-            ]
-          }
-        ]
+        contents: [{
+          role: 'user',
+          parts: [
+            { text: prompt },
+            { inlineData: { mimeType: 'application/pdf', data: base64Image } }
+          ]
+        }]
       })
     });
+
     const result_en = await geminiResponse.text();
-    console.log("🚀 ~ result_en:", result_en)
+    console.log("🚀 ~ result_en:", result_en);
+
     if (!geminiResponse.ok) {
       console.error('Gemini error response:', result_en);
       throw new Error(`Gemini API Error: ${geminiResponse.status}`);
     }
+
     const geminiResult_en = JSON.parse(result_en);
-    console.log("🚀 ~ geminiResult_en:", geminiResult_en)
+    console.log("🚀 ~ geminiResult_en:", geminiResult_en);
+
     let resultText = geminiResult_en.candidates[0].content.parts[0].text;
     console.log("resultText:", resultText);
     resultText = resultText.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
+
     let finalResult;
     try {
       finalResult = JSON.parse(resultText);
@@ -452,6 +524,7 @@ serve(async (req) => {
       console.error("❌ Failed to parse JSON:", resultText);
       throw new Error("Gemini returned invalid JSON format");
     }
+
     const localizationPrompt = `
       You will be given a JSON object. Translate all text content to Spanish, preserving keys and structure.
       In case of weakness-svg, translate only title, instruction and weakness
@@ -459,7 +532,7 @@ serve(async (req) => {
       JSON:
       ${JSON.stringify(finalResult, null, 2)}
       `;
-    // 2. Send the updated prompt back to Gemini
+
     const localizationResponse = await fetch(geminiUrl, {
       method: 'POST',
       headers: {
@@ -467,27 +540,23 @@ serve(async (req) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        contents: [
-          {
-            role: 'user',
-            parts: [
-              {
-                text: localizationPrompt
-              }
-            ]
-          }
-        ]
+        contents: [{
+          role: 'user',
+          parts: [{ text: localizationPrompt }]
+        }]
       })
     });
+
     const localizationResultRaw = await localizationResponse.text();
     if (!localizationResponse.ok) {
       console.error('Gemini localization error response:', localizationResultRaw);
       throw new Error(`Gemini API Error: ${localizationResponse.status}`);
     }
+
     const parsed = JSON.parse(localizationResultRaw);
     let localizedText = parsed.candidates[0].content.parts[0].text;
-    // Strip markdown formatting if present
     localizedText = localizedText.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
+
     let localizedResult;
     try {
       localizedResult = JSON.parse(localizedText);
@@ -495,6 +564,7 @@ serve(async (req) => {
       console.error("❌ Failed to parse localized JSON:", localizedText);
       throw new Error("Gemini returned invalid localized JSON format");
     }
+
     await supabase.from('analysis_results').insert({
       document_id: documentId,
       result_json: {
@@ -502,32 +572,49 @@ serve(async (req) => {
         es: localizedResult
       }
     });
+
     await supabase.from('document_analysis').update({
       status: 'completed',
       updated_at: new Date().toISOString()
     }).eq('id', documentId);
-    const { data: analysisRows, error: analysisError } = await supabase.from('document_analysis').select('user_id').eq('id', documentId).single();
-    if (analysisError) {
-      console.error("Error fetching document_analysis:", analysisError);
-      return;
-    }
-    // Insert only the first 2 recommendations
-    await Promise.all(localizedResult.en.recommendations.slice(0, 2).map(async (recommendation) => {
-      // Calculate target date after one month
+
+    // Insert goals
+    await Promise.all(finalResult.recommendations.slice(0, 2).map(async (recommendation) => {
       const oneMonthLater = new Date();
       oneMonthLater.setMonth(oneMonthLater.getMonth() + 1);
       const targetDate = oneMonthLater.toISOString().split("T")[0];
       await supabase.from('goals').insert({
-        user_id: analysisRows.user_id,
+        user_id: userId,
         goal_text: recommendation.goal,
         goal_type: 'short-term',
         progress: 0,
         target_date: targetDate
       });
     }));
+
+    // === START: UPDATE ANALYSIS USAGE ===
+    const { error: updateError } = await supabase
+      .from('analysis_usage')
+      .upsert({
+        user_id: userId,
+        month_year: currentMonth,
+        plan_id: subscriptionData.plan_id,
+        analysis_count: currentCount + 1,
+        updated_at: new Date().toISOString()
+      }, {
+        onConflict: 'user_id,month_year'
+      });
+
+    if (updateError) {
+      console.error('Failed to update usage count:', updateError);
+      // Don't fail the request, just log the error
+    }
+    // === END: UPDATE ANALYSIS USAGE ===
+
     return new Response(JSON.stringify({
       success: true,
-      result: finalResult
+      result: finalResult,
+      remaining_analyses: analysisLimit === -1 ? -1 : (analysisLimit - (currentCount + 1))
     }), {
       status: 200,
       headers: corsHeaders

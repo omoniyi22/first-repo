@@ -58,8 +58,8 @@ serve(async (req) => {
       const response = {
         canUploadDocument: false,
         currentDocuments: 0,
-        maxDocuments: 3,
-        planName: 'Free',
+        maxDocuments: 0,
+        planName: 'No plan subscribed',
         remainingDocuments: 0
       }
       

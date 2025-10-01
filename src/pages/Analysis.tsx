@@ -23,6 +23,7 @@ import {
 } from "@/utils/podcastUtils";
 import { useToast } from "@/hooks/use-toast";
 import ScrollToTop from "@/components/layout/ScrollToTop";
+import { useAnalysisLimit } from "@/hooks/useAnalysisLimit";
 
 interface DocumentAnalysisItem {
   id: string;
@@ -54,6 +55,15 @@ const Analysis = () => {
   const [podcastMsg, setPodcastMsg] = useState<string>("");
   const [userProfile, setUserProfile] = useState<any>(null);
   const { toast } = useToast();
+  const {
+    canAnalyze,
+    currentAnalyses,
+    maxAnalyses,
+    planName,
+    remainingAnalyses,
+    loading: analysisLimitLoading,
+    refresh: refreshAnalysisLimit,
+  } = useAnalysisLimit();
 
   const buttonText = {
     en: {
@@ -215,22 +225,70 @@ const Analysis = () => {
   };
 
   const analysisDocument = async (newDocumentId, documentURL) => {
+    // Check limit before starting analysis
+    if (!canAnalyze) {
+      toast({
+        title:
+          language === "en"
+            ? "Analysis Limit Reached"
+            : "Límite de Análisis Alcanzado",
+        description:
+          language === "en"
+            ? `You have reached your monthly analysis limit of ${maxAnalyses}. Please upgrade your plan.`
+            : `Has alcanzado tu límite mensual de análisis de ${maxAnalyses}. Por favor actualiza tu plan.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSpinnerLoading(true);
     const canvasImage = documentURL.includes(".pdf")
       ? await fetchPdfAsBase64(documentURL)
       : await imageToBase64PDF(documentURL);
     try {
-      await supabase.functions.invoke("process-document-analysis", {
-        body: { documentId: newDocumentId, base64Image: canvasImage },
-      });
+      const response = await supabase.functions.invoke(
+        "process-document-analysis",
+        {
+          body: { documentId: newDocumentId, base64Image: canvasImage },
+        }
+      );
+
+      // Check if the response indicates limit reached
+      if (response.error) {
+        const errorData = response.error;
+
+        if (errorData.message && errorData.message.includes("limit")) {
+          toast({
+            title:
+              language === "en"
+                ? "Analysis Limit Reached"
+                : "Límite de Análisis Alcanzado",
+            description: errorData.message,
+            variant: "destructive",
+          });
+          setIsSpinnerLoading(false);
+          return;
+        }
+
+        throw errorData;
+      }
+
+      // Refresh the limit count after successful analysis
 
       navigate(`/analysis?document_id=${newDocumentId}`);
-
       fetchDocs();
       setIsSpinnerLoading(false);
     } catch (err) {
       setIsSpinnerLoading(false);
       console.warn("Processing failed:", err);
+      toast({
+        title: language === "en" ? "Analysis Failed" : "Análisis Fallido",
+        description:
+          language === "en"
+            ? "Failed to process the document. Please try again."
+            : "No se pudo procesar el documento. Por favor intenta de nuevo.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -651,13 +709,6 @@ const Analysis = () => {
     });
   }
 
-  if (isSpinnerLoading) {
-    return (
-      <div className="fixed w-screen flex items-center justify-center p-8 h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-purple-700" />
-      </div>
-    );
-  }
 
   // If user hasn't set their discipline, show message to complete profile
   if (!isLoading && !userDiscipline) {
@@ -707,7 +758,54 @@ const Analysis = () => {
               ? "Equestrian AI Analysis"
               : "Análisis de IA ecuestre"}
           </h1>
-
+          {/* ADD THIS USAGE DISPLAY */}
+          {!analysisLimitLoading && (
+            <Card className="mb-6 p-4 bg-gradient-to-r from-purple-50 to-blue-50">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">
+                    {language === "en"
+                      ? "Monthly Analysis Usage"
+                      : "Uso Mensual de Análisis"}
+                  </p>
+                  <p className="text-2xl font-bold text-purple-700">
+                    {currentAnalyses} /{" "}
+                    {maxAnalyses === "unlimited" ? "∞" : maxAnalyses}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm text-gray-600">
+                    {language === "en" ? "Remaining" : "Restante"}
+                  </p>
+                  <p
+                    className={`text-xl font-semibold ${
+                      !canAnalyze ? "text-red-600" : "text-green-600"
+                    }`}
+                  >
+                    {remainingAnalyses === "unlimited"
+                      ? "∞"
+                      : remainingAnalyses}
+                  </p>
+                </div>
+              </div>
+              {!canAnalyze && (
+                <div className="mt-3 p-2 bg-red-50 rounded-md">
+                  <p className="text-sm text-red-700">
+                    {language === "en"
+                      ? "You've reached your analysis limit. Upgrade your plan to continue."
+                      : "Has alcanzado tu límite de análisis. Actualiza tu plan para continuar."}
+                  </p>
+                  <Button
+                    size="sm"
+                    className="mt-2"
+                    onClick={() => navigate("/pricing")}
+                  >
+                    {language === "en" ? "Upgrade Plan" : "Actualizar Plan"}
+                  </Button>
+                </div>
+              )}
+            </Card>
+          )}
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList
               className={`mb-6 ${
@@ -794,9 +892,15 @@ const Analysis = () => {
                             ? "Back to Documents"
                             : "Volver a Documentos"}
                         </Button>
-                        <DocumentAnalysisDisplay
-                          documentId={selectedDocumentId}
-                        />
+                        {isSpinnerLoading ? (
+                          <div className="w-full h-[50vh] flex items-center justify-center p-8 ">
+                            <Loader2 className="h-8 w-8 animate-spin text-purple-700" />
+                          </div>
+                        ) : (
+                          <DocumentAnalysisDisplay
+                            documentId={selectedDocumentId}
+                          />
+                        )}
                       </div>
                     ) : (
                       <div className="space-y-4">
@@ -960,7 +1064,6 @@ const Analysis = () => {
                                       size="sm"
                                       variant="outline"
                                       onClick={() => {
-                                        // window.scrollTo(0, 0);
                                         doc.status == "completed"
                                           ? setSelectedDocumentId(doc.id)
                                           : analysisDocument(
@@ -968,9 +1071,17 @@ const Analysis = () => {
                                               doc.document_url
                                             );
                                       }}
+                                      disabled={
+                                        doc.status !== "completed" &&
+                                        !canAnalyze
+                                      }
                                       className="text-purple-700 border-purple-200"
                                     >
-                                      {buttonText[language][doc.status]}
+                                      {doc.status !== "completed" && !canAnalyze
+                                        ? language === "en"
+                                          ? "Limit Reached"
+                                          : "Límite Alcanzado"
+                                        : buttonText[language][doc.status]}
                                     </Button>
                                   </td>
                                 </tr>

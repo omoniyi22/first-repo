@@ -21,6 +21,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
+
 import {
   Dialog,
   DialogContent,
@@ -80,12 +82,13 @@ const PricingTiers = () => {
 
   const { language, translations } = useLanguage();
   const { session } = useAuth();
+  const navigate = useNavigate();
+
   const {
     isSubscribed,
     planId,
     isLoading: subscriptionLoading,
     checkoutPlan,
-    openCustomerPortal,
     planName,
     subscriptionDetails,
     daysRemaining,
@@ -206,7 +209,8 @@ const PricingTiers = () => {
 
     if (isSubscribed && planId === plan.id) {
       // User is already subscribed to this plan - open management portal
-      openCustomerPortal();
+
+      navigate("/profile-setup");
       return;
     }
 
@@ -520,7 +524,10 @@ const PricingTiers = () => {
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row gap-3 mt-8">
                 <Button
-                  onClick={handleCloseSuccessModal}
+                  onClick={() => {
+                    handleCloseSuccessModal();
+                    navigate("/analysis");
+                  }}
                   className="flex-1 text-white"
                 >
                   {language === "en"
@@ -531,13 +538,11 @@ const PricingTiers = () => {
                   variant="outline"
                   onClick={() => {
                     handleCloseSuccessModal();
-                    openCustomerPortal();
+                    navigate("/profile-setup");
                   }}
                   className="flex-1 border-purple-600 text-purple-700 transition-colors hover:bg-purple-50 hover:text-purple-700"
                 >
-                  {language === "en"
-                    ? "Manage Subscription"
-                    : "Gestionar Suscripción"}
+                  {language === "en" ? "View Profile" : "Ver perfil"}
                 </Button>
               </div>
 

@@ -65,6 +65,7 @@ import * as jsPDF from "jspdf";
 import { useNavigate } from "react-router-dom";
 import { ActivityLogger } from "@/utils/activityTracker";
 import { Badge } from "../ui/badge";
+import { useAnalysisLimit } from "@/hooks/useAnalysisLimit";
 
 const DocumentUploadFormSchema = z.object({
   discipline: z.enum(["dressage", "jumping"]),
@@ -126,7 +127,14 @@ const DocumentUpload = ({
   const [isShowSpinner, setIsShowSpinner] = useState<boolean>(false);
 
   const documentLimits = useDocumentLimits();
-  console.log("Hook data:", documentLimits);
+  const {
+    canAnalyze: isAnalysisLimitReached,
+    currentAnalyses: analysisUsed,
+    maxAnalyses: analysisLimit,
+    remainingAnalyses: analysisRemaining,
+    loading: analysisLimitLoading,
+    refresh: refreshAnalysisLimit,
+  } = useAnalysisLimit();
 
   const form = useForm<DocumentUploadFormValues>({
     resolver: zodResolver(DocumentUploadFormSchema),
@@ -632,6 +640,129 @@ const DocumentUpload = ({
           : "Subir Documento para Análisis"}
       </h2>
 
+      {/* ADD THIS DOCUMENT LIMITS CARD */}
+      {!documentLimits.loading && (
+        <Card className="mb-6 bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <FileText className="h-5 w-5 text-blue-600" />
+                <span className="text-lg">
+                  {language === "en"
+                    ? "Document Uploads"
+                    : "Subidas de Documentos"}
+                </span>
+              </div>
+              <Badge
+                variant="outline"
+                className="border-blue-300 text-blue-700"
+              >
+                {documentLimits.planName} {language === "en" ? "Plan" : "Plan"}
+              </Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-3 gap-4 mb-4">
+              <div className="text-center">
+                <p className="text-sm text-gray-600">
+                  {language === "en" ? "This Month" : "Este Mes"}
+                </p>
+                <p className="text-2xl font-bold text-blue-700">
+                  {documentLimits.currentDocuments}
+                </p>
+              </div>
+              <div className="text-center">
+                <p className="text-sm text-gray-600">
+                  {language === "en" ? "Plan Limit" : "Límite del Plan"}
+                </p>
+                <p className="text-2xl font-bold text-gray-700">
+                  {documentLimits.maxDocuments === "unlimited"
+                    ? "∞"
+                    : documentLimits.maxDocuments}
+                </p>
+              </div>
+              <div className="text-center">
+                <p className="text-sm text-gray-600">
+                  {language === "en" ? "Remaining" : "Restantes"}
+                </p>
+                <p
+                  className={`text-2xl font-bold ${
+                    documentLimits.canUploadDocument
+                      ? "text-green-600"
+                      : "text-red-600"
+                  }`}
+                >
+                  {documentLimits.remainingDocuments === "unlimited"
+                    ? "∞"
+                    : documentLimits.remainingDocuments}
+                </p>
+              </div>
+            </div>
+
+            {/* Progress Bar (only for limited plans) */}
+            {documentLimits.maxDocuments !== "unlimited" && (
+              <div className="mb-4">
+                <div className="flex justify-between text-sm text-gray-600 mb-1">
+                  <span>{language === "en" ? "Usage" : "Uso"}</span>
+                  <span>
+                    {Math.round(
+                      (documentLimits.currentDocuments /
+                        (documentLimits.maxDocuments as number)) *
+                        100
+                    )}
+                    %
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className={`h-2 rounded-full transition-all duration-300 ${
+                      documentLimits.canUploadDocument
+                        ? "bg-blue-500"
+                        : "bg-red-500"
+                    }`}
+                    style={{
+                      width: `${Math.min(
+                        (documentLimits.currentDocuments /
+                          (documentLimits.maxDocuments as number)) *
+                          100,
+                        100
+                      )}%`,
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Upgrade prompt if at limit */}
+            {!documentLimits.canUploadDocument && (
+              <div className="bg-orange-100 border border-orange-200 rounded-lg p-3 flex items-start gap-3">
+                <AlertTriangle className="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-orange-800">
+                    {language === "en"
+                      ? "Document Upload Limit Reached"
+                      : "Límite de Subida Alcanzado"}
+                  </p>
+                  <p className="text-sm text-orange-700 mt-1">
+                    {language === "en"
+                      ? `You've reached your monthly document limit (${documentLimits.currentDocuments}/${documentLimits.maxDocuments}). Upgrade your plan to upload more documents.`
+                      : `Has alcanzado tu límite mensual de documentos (${documentLimits.currentDocuments}/${documentLimits.maxDocuments}). Actualiza tu plan para subir más documentos.`}
+                  </p>
+                  <Button
+                    size="sm"
+                    className="mt-2 bg-orange-600 hover:bg-orange-700 text-white"
+                    onClick={() => navigate("/pricing")}
+                  >
+                    {language === "en" ? "Upgrade Plan" : "Actualizar Plan"}
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
       <div className="mb-6">
         <Label htmlFor="document-upload">
           {language === "en"
@@ -1047,24 +1178,69 @@ const DocumentUpload = ({
             </Button>
             <Button
               onClick={async () => {
+                // Check analysis limit before proceeding
+                if (!isAnalysisLimitReached) {
+                  setShowConfirmModal(false);
+                  toast({
+                    title:
+                      language === "en"
+                        ? "Analysis Limit Reached"
+                        : "Límite de Análisis Alcanzado",
+                    description:
+                      language === "en"
+                        ? `You have reached your monthly analysis limit of ${analysisLimit}. Please upgrade your plan.`
+                        : `Has alcanzado tu límite mensual de análisis de ${analysisLimit}. Por favor actualiza tu plan.`,
+                    variant: "destructive",
+                  });
+                  return;
+                }
+
                 setShowConfirmModal(false);
                 setIsShowSpinner(true);
                 try {
-                  await supabase.functions.invoke("process-document-analysis", {
-                    body: {
-                      documentId: newDocumentId,
-                      base64Image: base64Image,
-                      userCountry: userProfile?.region,
-                      userGoverningBody: userProfile?.governing_body,
-                    },
-                  });
+                  const response = await supabase.functions.invoke(
+                    "process-document-analysis",
+                    {
+                      body: {
+                        documentId: newDocumentId,
+                        base64Image: base64Image,
+                        userCountry: userProfile?.region,
+                        userGoverningBody: userProfile?.governing_body,
+                      },
+                    }
+                  );
+
+                  // Check if the response indicates limit reached
+                  if (response.error) {
+                    const errorData = response.error;
+
+                    if (
+                      errorData.message &&
+                      errorData.message.includes("limit")
+                    ) {
+                      toast({
+                        title:
+                          language === "en"
+                            ? "Analysis Limit Reached"
+                            : "Límite de Análisis Alcanzado",
+                        description: errorData.message,
+                        variant: "destructive",
+                      });
+                      setIsShowSpinner(false);
+                      return;
+                    }
+
+                    throw errorData;
+                  }
+
+                  // Refresh analysis limit count after successful analysis
+                  refreshAnalysisLimit();
 
                   try {
                     const userName =
                       user?.user_metadata?.full_name ||
                       user?.email ||
                       "Unknown User";
-                    // Get the filename from the last upload
                     const fileName =
                       selectedFiles.length > 0
                         ? selectedFiles[0].name
@@ -1098,7 +1274,7 @@ const DocumentUpload = ({
                   setIsShowSpinner(false);
                 }
               }}
-              disabled={isShowSpinner}
+              disabled={isShowSpinner || !isAnalysisLimitReached}
               className={
                 userProfile?.discipline === "dressage"
                   ? "bg-purple-700 hover:bg-purple-800"
@@ -1110,6 +1286,12 @@ const DocumentUpload = ({
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   {language === "en" ? "Processing..." : "Procesando..."}
                 </>
+              ) : !isAnalysisLimitReached ? (
+                language === "en" ? (
+                  "Analysis Limit Reached"
+                ) : (
+                  "Límite Alcanzado"
+                )
               ) : language === "en" ? (
                 "Yes, analyze"
               ) : (

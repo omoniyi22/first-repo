@@ -33,7 +33,17 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Check, Trash2, Edit, Plus, Save, X, Star, Heart, FileText } from "lucide-react";
+import {
+  Check,
+  Trash2,
+  Edit,
+  Plus,
+  Save,
+  X,
+  Star,
+  Heart,
+  FileText,
+} from "lucide-react";
 import CreatePlanDialog from "./CreatePlan";
 
 // Types
@@ -57,6 +67,7 @@ interface PricingPlan {
   is_highlighted: boolean;
   max_horses: number;
   max_documents_monthly: number;
+  analysis_limit: number;
   created_at: string;
   updated_at: string;
 }
@@ -109,6 +120,8 @@ const PricingSettings = () => {
             plan.max_documents_monthly !== undefined
               ? plan.max_documents_monthly
               : 3,
+          analysis_limit:
+            plan.analysis_limit !== undefined ? plan.analysis_limit : 10,
         }))
       );
       setFeatures((featuresData as Feature[]) || []);
@@ -156,6 +169,7 @@ const PricingSettings = () => {
           is_highlighted: editingPlan.is_highlighted,
           max_horses: editingPlan.max_horses,
           max_documents_monthly: editingPlan.max_documents_monthly,
+          analysis_limit: editingPlan.analysis_limit,
           updated_at: new Date().toISOString(),
         })
         .eq("id", editingPlan.id);
@@ -385,6 +399,23 @@ const PricingSettings = () => {
                     setEditingPlan({
                       ...editingPlan,
                       max_documents_monthly: parseInt(e.target.value) || 3,
+                    })
+                  }
+                />
+                <p className="text-xs text-gray-500">Use -1 for unlimited</p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-analysisLimit">Max Analysis/Month</Label>
+                <Input
+                  id="edit-analysisLimit"
+                  type="number"
+                  min="-1"
+                  max="999"
+                  value={editingPlan.analysis_limit}
+                  onChange={(e) =>
+                    setEditingPlan({
+                      ...editingPlan,
+                      analysis_limit: parseInt(e.target.value) || 10,
                     })
                   }
                 />
@@ -678,6 +709,16 @@ const PricingSettings = () => {
                     {plan.max_documents_monthly === -1
                       ? "Unlimited"
                       : plan.max_documents_monthly}
+                    /month
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 mt-2 p-2 bg-purple-50 rounded-lg">
+                  <FileText className="h-4 w-4 text-purple-600" />
+                  <span className="text-sm font-medium text-purple-800">
+                    Max Analysis:{" "}
+                    {plan.analysis_limit === -1
+                      ? "Unlimited"
+                      : plan.analysis_limit}
                     /month
                   </span>
                 </div>
