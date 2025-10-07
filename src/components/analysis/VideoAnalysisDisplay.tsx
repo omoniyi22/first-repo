@@ -47,6 +47,7 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
 
   const [analysis, setAnalysis] = useState<VideoAnalysisData | null>(null);
   const [analysisResult, setAnalysisResult] = useState<any>(null);
+
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
@@ -54,6 +55,7 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
   const [duration, setDuration] = useState<number>(0);
   const [videoError, setVideoError] = useState<boolean>(false);
   const [decodedUrl, setDecodedUrl] = useState<string | null>(null);
+  console.log("🚀 ~ VideoAnalysisDisplay ~ decodedUrl:", decodedUrl);
 
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -89,12 +91,16 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
               .eq("document_id", videoId)
               .single();
 
+            console.log("🚀 ~ fetchAnalysis ~ resultData:", resultData);
             setAnalysisResult(resultData.result_json);
-          }
-          // Properly decode the URL to ensure it works correctly
-          if (data.document_url) {
-            const decoded = decodeURIComponent(data.document_url);
-            setDecodedUrl(decoded);
+            // Properly decode the URL to ensure it works correctly
+            if (resultData.result_json?.processed_video_url) {
+              const PYTHON_API_URL =
+                import.meta.env.VITE_PYTHON_API_URL || "http://localhost:8000";
+              setDecodedUrl(
+                `${PYTHON_API_URL}${resultData.result_json.processed_video_url}`
+              );
+            }
           }
         } else {
           setError(
@@ -312,6 +318,7 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
     );
   }
 
+  console.log("🚀 ~ VideoAnalysisDisplay ~ analysisResult:", analysisResult);
   // For the demo, we'll show a basic video player with the video URL
   return (
     <Card className="space-y-6 sm:space-y-8 p-4 sm:p-6">
@@ -430,7 +437,8 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
               {language === "en" ? "Course Stats" : "Estadísticas del curso"}
             </h3>
             <p className="text-base text-white mt-auto">
-              10 Jumps Total | Average Height: 1.3m
+              {analysisResult[language].jump_by_jump_results.length} Jumps Total
+              | Average Height: 1.3m
             </p>
           </div>
         </div>
@@ -475,13 +483,7 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
         </div>
         <div className="max-w-[900px]">
           <p className="text-white text-base">
-            You seem to be a rider who excels at flying changes and maintains a
-            well-ridden posture. However, you could significantly improve your
-            overall performance by focusing on establishing a more consistent
-            and relaxed contact with Varadero. Additionally, incorporating
-            exercises that promote suppleness and bend, particularly during
-            lateral movements and circles, would likely enhance Varadero's
-            overall harmony and balance.
+            {analysisResult[language].personalInsight}
           </p>
         </div>
       </Card>
@@ -550,16 +552,16 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
                 (jump, index) => (
                   <tr key={index} className="border-none border-gray-200">
                     <td className="px-4 py-2 text-sm border border-gray-200 capitalize">
-                      Jump {jump["Jump number"]}
+                      Jump {jump.jump_number}
                     </td>
                     <td className="px-4 py-2 text-sm border border-gray-200 uppercase">
-                      {jump["Result"]}
+                      {jump.result}
                     </td>
                     <td className="px-4 py-2 text-sm border border-gray-200 capitalize">
-                      {jump["Jump type"]}
+                      {jump.jump_type}
                     </td>
                     <td className="px-4 py-2 text-sm border border-gray-200 capitalize">
-                      {jump["Jump type"]}
+                      {jump.jump_type}
                     </td>
                   </tr>
                 )

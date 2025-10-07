@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Card } from "@/components/ui/card";
-import { ActivityLogger } from '@/utils/activityTracker';
+import { ActivityLogger } from "@/utils/activityTracker";
 import {
   Select,
   SelectContent,
@@ -231,72 +231,42 @@ const VideoUpload = ({ fetchDocs }: VideoUploadProps) => {
     setIsUploading(true);
     setUploadProgress(0);
 
-    // Process tags if provided
-    let tagArray: string[] = [];
-    if (data.tags) {
-      tagArray = data.tags
-        .split(",")
-        .map((tag) => tag.trim())
-        .filter((tag) => tag !== "");
-    }
-
     try {
-      console.log("Starting video upload process");
+      console.log("Starting video upload to Python API");
       setIsShowSpinner(true);
       setUploadProgress(10);
-
-      // Generate unique ID for the video analysis
-      const videoAnalysisId = uuidv4();
-      console.log("Generated ID:", videoAnalysisId);
-
-      // Generate custom filename based on date and jumping level
-      const customFilename = generateCustomFilename(data, selectedVideo);
-      console.log("Custom filename:", customFilename);
-
-      // Create storage path with custom filename
-      const filePath = `${user.id}/${videoAnalysisId}/${customFilename}`;
-      console.log("Storage path:", filePath);
-
-      // Upload video to Supabase Storage with custom filename
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from("analysis")
-        .upload(filePath, selectedVideo, {
-          cacheControl: "3600",
-          upsert: false,
-        });
-
-      if (uploadError) {
-        console.error("Storage upload error:", uploadError);
-        throw new Error(uploadError.message);
-      }
-
-      console.log("Video uploaded successfully:", uploadData);
-
-      // Get URL for the uploaded video
-      const { data: urlData } = supabase.storage
-        .from("analysis")
-        .getPublicUrl(filePath);
-
-      console.log("Video URL:", urlData.publicUrl);
-
-      const base64VideoFile = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(selectedVideo);
-        reader.onload = () => {
-          const result = reader.result as string;
-          // Remove the `data:<type>;base64,` prefix
-          const base64 = result.split(",")[1];
-          resolve(base64);
-        };
-        reader.onerror = (error) => reject(error);
-      });
-      setUploadProgress(30);
 
       // Find the selected horse name
       const selectedHorse = horses.find((h) => h.id === data.horseId);
       const horseName = selectedHorse?.name || "Unknown Horse";
 
-      // Prepare document analysis record data
+      // Generate custom filename
+      const customFilename = generateCustomFilename(data, selectedVideo);
+      console.log("Custom filename:", customFilename);
+
+      // Step 1: Upload video to Python API
+      const formData = new FormData();
+      formData.append("video", selectedVideo);
+
+      const PYTHON_API_URL =
+        import.meta.env.VITE_PYTHON_API_URL || "http://localhost:8000";
+
+      // Use it in fetch calls:
+      const uploadRes = await fetch(`${PYTHON_API_URL}/api/upload-video`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!uploadRes.ok) {
+        throw new Error("Failed to upload video to processing server");
+      }
+
+      const { video_id } = await uploadRes.json();
+      console.log("Video uploaded to Python API with ID:", video_id);
+
+      setUploadProgress(40);
+
+      // Step 2: Save metadata to Supabase (without video file)
       const documentData = {
         user_id: user.id,
         horse_id: data.horseId,
@@ -304,17 +274,17 @@ const VideoUpload = ({ fetchDocs }: VideoUploadProps) => {
         discipline: data.discipline,
         video_type: data.videoType,
         document_date: data.date.toISOString(),
-        document_url: urlData.publicUrl,
+        document_url: null, // No Supabase storage URL
+        python_video_id: video_id, // Store Python's video ID for reference
         notes: data.notes,
         status: "pending",
-        file_name: customFilename, // Use custom filename instead of original
+        file_name: customFilename,
         file_type: selectedVideo.type,
-        test_level: data.jumpingLevel, // Add jumping level if provided
+        test_level: data.jumpingLevel,
       };
 
       console.log("Saving document analysis record:", documentData);
 
-      // Add the video analysis record to the database
       const { data: videoAnalysisData, error: dbError } = await supabase
         .from("document_analysis")
         .insert(documentData)
@@ -326,43 +296,44 @@ const VideoUpload = ({ fetchDocs }: VideoUploadProps) => {
       }
 
       console.log("Document analysis record saved successfully");
+      setUploadProgress(60);
 
+      // Step 3: Log activity
       try {
-        const userName = user?.user_metadata?.full_name || user?.email || 'Unknown User';
+        const userName =
+          user?.user_metadata?.full_name || user?.email || "Unknown User";
         await ActivityLogger.videoAnalyzed(userName, customFilename);
-        console.log('✅ Video analysis activity logged for:', userName);
+        console.log("✅ Video analysis activity logged for:", userName);
       } catch (activityError) {
-        console.error('Failed to log video activity:', activityError);
-        // Don't throw error - just log it, don't break the upload flow
+        console.error("Failed to log video activity:", activityError);
       }
 
-      // Trigger the analysis function
-      try {
-        setUploadProgress(70);
-        const { error: functionError } = await supabase.functions.invoke(
-          "process-video-analysis",
-          {
-            body: {
-              documentId: videoAnalysisData[0].id,
-              base64Video: base64VideoFile,
-            },
-          }
-        );
+      setUploadProgress(80);
 
-        if (functionError) {
-          console.error("Function invocation error:", functionError);
-          // Continue anyway as the video is saved
-        } else {
-          console.log("Analysis function triggered successfully");
-          navigate(`/analysis?document_id=${videoAnalysisData[0].id}`);
-        }
-      } catch (functionCallError) {
-        console.error("Error calling function:", functionCallError);
-        // Continue as video is saved
-      }
+      // Step 4: Start processing on Python backend
+      // const processFormData = new FormData();
+      // processFormData.append("video_id", video_id);
 
-      fetchDocs();
+      // const processRes = await fetch(`${PYTHON_API_URL}/api/process-video`, {
+      //   method: "POST",
+      //   body: processFormData,
+      // });
+
+      // if (!processRes.ok) {
+      //   console.error("Processing start failed");
+      //   // Continue anyway as video is uploaded
+      // } else {
+      //   console.log("Processing started successfully");
+      // }
+
       setUploadProgress(100);
+
+      // Step 5: Navigate to analysis page
+      navigate(`/video-processing?document_id=${videoAnalysisData[0].id}`);
+
+      if (fetchDocs) {
+        fetchDocs();
+      }
 
       toast({
         title:
@@ -371,11 +342,11 @@ const VideoUpload = ({ fetchDocs }: VideoUploadProps) => {
             : "Video subido con éxito",
         description:
           language === "en"
-            ? `Your video "${customFilename}" will be analyzed shortly.`
-            : `Tu video "${customFilename}" será analizado en breve.`,
+            ? `Your video "${customFilename}" is being processed.`
+            : `Tu video "${customFilename}" está siendo procesado.`,
       });
 
-      // Reset form and states
+      // Reset form
       form.reset({
         discipline: userDiscipline as "dressage" | "jumping",
         videoType: "training",

@@ -60,6 +60,7 @@ import ScrollToTop from "./components/layout/ScrollToTop";
 import PublicAnalysis from "./pages/PublicAnalysis";
 import AdminPricingPlans from "./pages/AdminPricingPlans";
 import AdminCoupons from "./pages/AdminCoupons";
+import VideoProcessing from "./pages/VideoProcessing";
 
 function App() {
   const location = useLocation();
@@ -132,6 +133,11 @@ function App() {
                     element={<JumpProfileSetup />}
                   />
                   <Route path="/analysis" element={<Analysis />} />
+                  <Route
+                    path="/video-processing"
+                    element={<VideoProcessing />}
+                  />
+
                   {/* Public analysis route */}
                   <Route path="/analysis/:id" element={<PublicAnalysis />} />
 
