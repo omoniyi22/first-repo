@@ -38,7 +38,7 @@ interface FrameData {
 }
 
 const PYTHON_API_URL =
-  import.meta.env.VITE_PYTHON_API_URL || "http://localhost:8000";
+  import.meta.env.VITE_PYTHON_API_URL || "https://api.equineaintelligence.com";
 
 const VideoProcessingDisplay: React.FC = () => {
   const [searchParams] = useSearchParams();

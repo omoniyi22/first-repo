@@ -249,7 +249,7 @@ const VideoUpload = ({ fetchDocs }: VideoUploadProps) => {
       formData.append("video", selectedVideo);
 
       const PYTHON_API_URL =
-        import.meta.env.VITE_PYTHON_API_URL || "http://localhost:8000";
+        import.meta.env.VITE_PYTHON_API_URL || "https://api.equineaintelligence.com";
 
       // Use it in fetch calls:
       const uploadRes = await fetch(`${PYTHON_API_URL}/api/upload-video`, {

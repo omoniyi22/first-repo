@@ -96,7 +96,7 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
             // Properly decode the URL to ensure it works correctly
             if (resultData.result_json?.processed_video_url) {
               const PYTHON_API_URL =
-                import.meta.env.VITE_PYTHON_API_URL || "http://localhost:8000";
+                import.meta.env.VITE_PYTHON_API_URL || "https://api.equineaintelligence.com";
               setDecodedUrl(
                 `${PYTHON_API_URL}${resultData.result_json.processed_video_url}`
               );
