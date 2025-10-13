@@ -95,6 +95,7 @@ const PricingTiers = () => {
     expiresSoon,
     couponUsed,
     validateCoupon,
+    activateFreePlan,
   } = useSubscription();
   const { toast } = useToast();
   const t = translations[language];
@@ -224,19 +225,72 @@ const PricingTiers = () => {
 
     try {
       setCheckingOut(true);
-      const checkoutUrl = await checkoutPlan(
-        selectedPlan.id,
-        isAnnual ? "annual" : "monthly",
-        couponCode.trim() || undefined
-      );
 
-      if (checkoutUrl) {
-        // Redirect to Stripe checkout
-        window.location.href = checkoutUrl;
+      // CHECK: If coupon gives 100% discount, activate directly without Stripe
+      if (
+        couponValidation?.valid &&
+        couponValidation.discount_percent === 100
+      ) {
+        // Direct subscription activation (NO credit card needed)
+        const result = await activateFreePlan(
+          selectedPlan.id,
+          isAnnual ? "annual" : "monthly",
+          couponCode.trim()
+        );
+
+        if (result.success) {
+          // Show success modal
+          setSubscribedPlanName(selectedPlan.name);
+          setShowSuccessModal(true);
+          setShowCouponDialog(false);
+
+          toast({
+            title:
+              language === "en"
+                ? "Subscription Activated!"
+                : "¡Suscripción Activada!",
+            description:
+              language === "en"
+                ? "Your free subscription has been activated successfully."
+                : "Tu suscripción gratuita ha sido activada exitosamente.",
+          });
+        } else {
+          // Show error
+          toast({
+            title:
+              language === "en" ? "Activation Failed" : "Activación Fallida",
+            description:
+              result.error ||
+              (language === "en"
+                ? "Could not activate subscription. Please try again."
+                : "No se pudo activar la suscripción. Por favor, inténtalo de nuevo."),
+            variant: "destructive",
+          });
+        }
+      } else {
+        // Normal Stripe checkout flow (< 100% discount or no coupon)
+        const checkoutUrl = await checkoutPlan(
+          selectedPlan.id,
+          isAnnual ? "annual" : "monthly",
+          couponCode.trim() || undefined
+        );
+
+        if (checkoutUrl) {
+          window.location.href = checkoutUrl;
+        }
       }
+    } catch (error) {
+      console.error("Checkout error:", error);
+      toast({
+        title: language === "en" ? "Error" : "Error",
+        description:
+          language === "en"
+            ? "Something went wrong. Please try again."
+            : "Algo salió mal. Por favor, inténtalo de nuevo.",
+        variant: "destructive",
+      });
     } finally {
       setCheckingOut(false);
-      setShowCouponDialog(false);
       setCouponCode("");
       setCouponValidation(null);
       setSelectedPlan(null);

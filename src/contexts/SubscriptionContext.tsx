@@ -45,6 +45,17 @@ interface SubscriptionContextType {
     discount_percent?: number;
     error?: string;
   }>;
+  activateFreePlan: (
+    planId: string,
+    billingCycle: "monthly" | "annual",
+    couponCode: string
+  ) => Promise<{
+    success: boolean;
+    subscription_id?: string;
+    plan_name?: string;
+    ends_at?: string;
+    error?: string;
+  }>;
 }
 
 const SubscriptionContext = createContext<SubscriptionContextType>({
@@ -60,6 +71,7 @@ const SubscriptionContext = createContext<SubscriptionContextType>({
   refreshSubscription: async () => {},
   checkoutPlan: async () => null,
   validateCoupon: async () => ({ valid: false }),
+  activateFreePlan: async () => ({ success: false }),
 });
 
 export const useSubscription = () => useContext(SubscriptionContext);
@@ -171,6 +183,56 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+  const activateFreePlan = async (
+    planId: string,
+    billingCycle: "monthly" | "annual",
+    couponCode: string
+  ) => {
+    try {
+      const { data, error } = await supabase.functions.invoke(
+        "activate-free-subscription",
+        {
+          body: {
+            plan_id: planId,
+            billing_cycle: billingCycle,
+            coupon_code: couponCode.trim(),
+          },
+        }
+      );
+
+      if (error) {
+        console.error("Error activating free plan:", error);
+        return {
+          success: false,
+          error: error.message || "Failed to activate free subscription",
+        };
+      }
+
+      if (!data.success) {
+        return {
+          success: false,
+          error: data.error || "Failed to activate subscription",
+        };
+      }
+
+      // Refresh subscription data after successful activation
+      await refreshSubscription();
+
+      return {
+        success: true,
+        subscription_id: data.subscription_id,
+        plan_name: data.plan_name,
+        ends_at: data.ends_at,
+      };
+    } catch (error) {
+      console.error("Error activating free plan:", error);
+      return {
+        success: false,
+        error: error.message || "Failed to activate subscription",
+      };
+    }
+  };
+
   const checkoutPlan = async (
     planId: string,
     mode: "monthly" | "annual",
@@ -274,6 +336,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({
     refreshSubscription,
     checkoutPlan,
     validateCoupon,
+    activateFreePlan,
   };
 
   return (
