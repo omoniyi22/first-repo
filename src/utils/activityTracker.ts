@@ -43,7 +43,7 @@ export const logActivity = async (activityData: ActivityData): Promise<boolean> 
  */
 
 // 1. User Registration Activity
-export const logUserRegistration = (userName: string) => 
+export const logUserRegistration = (userName: string) =>
   logActivity({
     type: 'user',
     title: 'New user registration',
@@ -51,27 +51,27 @@ export const logUserRegistration = (userName: string) =>
   });
 
 // 2. Document Analysis Activity
-export const logDocumentAnalysis = (userName: string, documentName?: string) => 
+export const logDocumentAnalysis = (userName: string, documentName?: string) =>
   logActivity({
     type: 'document',
-    title: documentName 
-      ? `Document analysis completed - ${documentName}` 
+    title: documentName
+      ? `Document analysis completed - ${documentName}`
       : 'Document analysis completed',
     userName,
   });
 
 // 3. Video Analysis Activity
-export const logVideoAnalysis = (userName: string, videoName?: string) => 
+export const logVideoAnalysis = (userName: string, videoName?: string) =>
   logActivity({
     type: 'video',
-    title: videoName 
-      ? `Video analysis uploaded - ${videoName}` 
+    title: videoName
+      ? `Video analysis uploaded - ${videoName}`
       : 'Video analysis uploaded',
     userName,
   });
 
 // 4. Profile Update Activity
-export const logProfileUpdate = (userName: string) => 
+export const logProfileUpdate = (userName: string) =>
   logActivity({
     type: 'profile',
     title: 'Profile updated',
@@ -84,15 +84,15 @@ export const logProfileUpdate = (userName: string) =>
 export const ActivityLogger = {
   // User activities
   userRegistered: (userName: string) => logUserRegistration(userName),
-  
+
   // Document activities
-  documentAnalyzed: (userName: string, documentName?: string) => 
+  documentAnalyzed: (userName: string, documentName?: string) =>
     logDocumentAnalysis(userName, documentName),
-  
+
   // Video activities
-  videoAnalyzed: (userName: string, videoName?: string) => 
+  videoAnalyzed: (userName: string, videoName?: string) =>
     logVideoAnalysis(userName, videoName),
-  
+
   // Profile activities
   profileUpdated: (userName: string) => logProfileUpdate(userName),
 };
@@ -117,6 +117,9 @@ export const formatTimeAgo = (timestamp: string): string => {
   } else if (diffInDays < 7) {
     return `${diffInDays} day${diffInDays === 1 ? '' : 's'} ago`;
   } else {
-    return activityTime.toLocaleDateString();
+    const day = String(activityTime.getDate()).padStart(2, '0');
+    const month = String(activityTime.getMonth() + 1).padStart(2, '0');
+    const year = String(activityTime.getFullYear()).slice(-2);
+    return `${day}/${month}/${year}`;
   }
 };
