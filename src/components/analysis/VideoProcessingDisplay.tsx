@@ -24,7 +24,7 @@ interface JumpMark {
 }
 
 interface ProcessingStatus {
-  status: "processing" | "completed" | "error";
+  status: "processing" | "completed" | "error" | "debug";
   progress: number;
   message: string;
   video_id: string;
@@ -34,7 +34,7 @@ interface FrameData {
   type: "frame";
   frame_number: number;
   timestamp: number;
-  frame_data: string;
+  frame_data: string; // base64 JPEG
 }
 
 const PYTHON_API_URL =
@@ -113,7 +113,6 @@ const VideoProcessingDisplay: React.FC = () => {
 
     ws.onopen = () => {
       console.log("WebSocket connected");
-      ws.send("ping");
       toast.success("Connected to processing server");
     };
 
@@ -123,11 +122,12 @@ const VideoProcessingDisplay: React.FC = () => {
 
         if (data.type === "frame") {
           handleFrameData(data as FrameData);
-        } else if (data !== "pong") {
+        } else {
           handleStatusUpdate(data as ProcessingStatus);
         }
       } catch (error) {
         // Ignore non-JSON messages
+        console.log("Non-JSON WebSocket message:", event.data);
       }
     };
 
@@ -179,7 +179,6 @@ const VideoProcessingDisplay: React.FC = () => {
       const eta = (100 - status.progress) / speed;
 
       setProcessingSpeed(`${speed.toFixed(1)}%/s | ETA ${Math.round(eta)}s`);
-
       lastProgressRef.current = status.progress;
     }
 
@@ -231,6 +230,7 @@ const VideoProcessingDisplay: React.FC = () => {
     setIsGeneratingReport(true);
 
     try {
+      // V2: Send marked jumps to Python API
       const response = await fetch(`${PYTHON_API_URL}/api/analyze-jumps`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -244,8 +244,12 @@ const VideoProcessingDisplay: React.FC = () => {
       if (!response.ok) throw new Error("Failed to generate report");
 
       const reportData = await response.json();
-      console.log("🚀 ~ generateReport ~ reportData:", reportData);
+      console.log("V2 Report received:", reportData);
 
+      // V2: reportData.report_content is now a JSON object, not HTML
+      // Structure: { video_id, timestamp, statistics, biomechanical_summary, ai_analysis, metadata }
+
+      // Store the JSON report in Supabase
       const { error: insertError } = await supabase
         .from("analysis_results")
         .insert({
@@ -258,6 +262,7 @@ const VideoProcessingDisplay: React.FC = () => {
 
       if (insertError) throw insertError;
 
+      // Update document status
       const { error: updateError } = await supabase
         .from("document_analysis")
         .update({ status: "completed" })
@@ -265,7 +270,9 @@ const VideoProcessingDisplay: React.FC = () => {
 
       if (updateError) throw updateError;
 
-      toast.success("Analysis report generated!");
+      toast.success("Analysis report generated successfully!");
+
+      // Navigate to the analysis page to view the report
       navigate(`/analysis?document_id=${documentId}`);
     } catch (error) {
       console.error("Error generating report:", error);
@@ -282,7 +289,7 @@ const VideoProcessingDisplay: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-6xl mx-auto">
       {/* Processing Status */}
       {processingStatus && !isProcessingComplete && (
         <Card className="p-6 bg-gradient-to-br from-purple-50 via-blue-50 to-purple-50 border-purple-200">
@@ -322,7 +329,7 @@ const VideoProcessingDisplay: React.FC = () => {
         </Card>
       )}
 
-      {/* Live Frame Display */}
+      {/* Live Frame Display - FIXED SIZE */}
       <Card className="p-6">
         <div className="flex items-center gap-2 mb-4">
           <div className="h-3 w-3 rounded-full bg-green-500 animate-pulse" />
@@ -331,34 +338,41 @@ const VideoProcessingDisplay: React.FC = () => {
           </h3>
         </div>
 
-        <div className="relative bg-black aspect-video rounded-lg overflow-hidden mb-4">
-          {currentFrame ? (
-            <>
-              <img
-                src={currentFrame}
-                alt="Processing frame"
-                className="w-full h-full object-contain"
-              />
-              <div className="absolute top-4 left-4 bg-black/80 text-white px-4 py-2 rounded-lg font-mono text-sm backdrop-blur-sm">
-                Frame {currentFrameNumber} | {formatTime(currentTimestamp)}
+        {/* FIXED: Max width container */}
+        <div className="max-w-4xl mx-auto">
+          <div
+            className="relative bg-black rounded-lg overflow-hidden mb-4"
+            style={{ aspectRatio: "16/9" }}
+          >
+            {currentFrame ? (
+              <>
+                <img
+                  src={currentFrame}
+                  alt="Processing frame"
+                  className="w-full h-full object-contain"
+                />
+                <div className="absolute top-4 left-4 bg-black/80 text-white px-4 py-2 rounded-lg font-mono text-sm backdrop-blur-sm">
+                  Frame {currentFrameNumber} | {formatTime(currentTimestamp)}
+                </div>
+              </>
+            ) : (
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center text-white">
+                  <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4" />
+                  <p>
+                    {language === "en"
+                      ? "Waiting for frames..."
+                      : "Esperando frames..."}
+                  </p>
+                </div>
               </div>
-            </>
-          ) : (
-            <div className="flex items-center justify-center h-full">
-              <div className="text-center text-white">
-                <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4" />
-                <p>
-                  {language === "en"
-                    ? "Waiting for frames..."
-                    : "Esperando frames..."}
-                </p>
-              </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
+        {/* Jump Marking Controls */}
         {currentFrame && (
-          <div className="bg-gradient-to-r from-green-50 via-blue-50 to-red-50 p-4 rounded-lg">
+          <div className="bg-gradient-to-r from-green-50 via-blue-50 to-red-50 p-4 rounded-lg max-w-4xl mx-auto">
             <p className="text-center text-sm font-medium text-gray-700 mb-3 flex items-center justify-center gap-2">
               <AlertCircle className="h-4 w-4" />
               {language === "en"
@@ -396,6 +410,7 @@ const VideoProcessingDisplay: React.FC = () => {
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Successful Jumps */}
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <CheckCircle className="h-5 w-5 text-green-600" />
@@ -429,6 +444,7 @@ const VideoProcessingDisplay: React.FC = () => {
               </div>
             </div>
 
+            {/* Failed Jumps */}
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <XCircle className="h-5 w-5 text-red-600" />
@@ -465,7 +481,7 @@ const VideoProcessingDisplay: React.FC = () => {
         </Card>
       )}
 
-      {/* Generate Report */}
+      {/* Generate Report CTA */}
       {isProcessingComplete && (
         <Card className="p-8 bg-gradient-to-br from-purple-100 via-blue-100 to-purple-100">
           <div className="text-center space-y-4">

@@ -34,6 +34,36 @@ interface VideoAnalysisData {
   horse_name?: string;
 }
 
+// Report Structure (JSON format)
+interface AIAnalysis {
+  overall_assessment: string;
+  key_findings: string[];
+  biomechanical_analysis: {
+    strengths: string[];
+    weaknesses: string[];
+  };
+  recommendations: string[];
+  severity_level: string;
+}
+
+interface ReportContent {
+  video_id: string;
+  timestamp: string;
+  statistics: {
+    successful_jumps_count: number;
+    failed_jumps_count: number;
+    success_rate: number;
+    successful_timestamps: number[];
+    failed_timestamps: number[];
+  };
+  biomechanical_summary: string;
+  ai_analysis: AIAnalysis;
+  metadata: {
+    has_angle_data: boolean;
+    representative_frames_used: boolean;
+  };
+}
+
 interface VideoAnalysisDisplayProps {
   videoId?: string;
 }
@@ -46,7 +76,9 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
   const t = translations[language];
 
   const [analysis, setAnalysis] = useState<VideoAnalysisData | null>(null);
-  const [analysisResult, setAnalysisResult] = useState<any>(null);
+  const [reportContent, setReportContent] = useState<ReportContent | null>(
+    null
+  );
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -55,7 +87,6 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
   const [duration, setDuration] = useState<number>(0);
   const [videoError, setVideoError] = useState<boolean>(false);
   const [decodedUrl, setDecodedUrl] = useState<string | null>(null);
-  console.log("🚀 ~ VideoAnalysisDisplay ~ decodedUrl:", decodedUrl);
 
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -77,13 +108,12 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
           .eq("user_id", user.id)
           .single();
 
-        if (error) {
-          throw error;
-        }
+        if (error) throw error;
 
         if (data) {
           console.log("Retrieved video data:", data);
           setAnalysis(data as VideoAnalysisData);
+
           if (data.status === "completed") {
             const { data: resultData, error: resultError } = await supabase
               .from("analysis_results")
@@ -91,15 +121,23 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
               .eq("document_id", videoId)
               .single();
 
-            console.log("🚀 ~ fetchAnalysis ~ resultData:", resultData);
-            setAnalysisResult(resultData.result_json);
-            // Properly decode the URL to ensure it works correctly
-            if (resultData.result_json?.processed_video_url) {
-              const PYTHON_API_URL =
-                import.meta.env.VITE_PYTHON_API_URL || "https://api.equineaintelligence.com";
-              setDecodedUrl(
-                `${PYTHON_API_URL}${resultData.result_json.processed_video_url}`
-              );
+            if (resultError) {
+              console.error("Error fetching results:", resultError);
+            } else if (resultData?.result_json) {
+              console.log("Report data (v2):", resultData.result_json);
+
+              // result_json now contains the structured report
+              setReportContent(resultData.result_json as ReportContent);
+
+              // Get processed video URL
+              if (resultData.result_json?.processed_video_url) {
+                const PYTHON_API_URL =
+                  import.meta.env.VITE_PYTHON_API_URL ||
+                  "https://api.equineaintelligence.com";
+                setDecodedUrl(
+                  `${PYTHON_API_URL}${resultData.result_json.processed_video_url}`
+                );
+              }
             }
           }
         } else {
@@ -127,7 +165,7 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
     };
 
     fetchAnalysis();
-  }, [videoId, user.id, language]);
+  }, [videoId, user?.id, language]);
 
   // Video player controls
   const togglePlayPause = () => {
@@ -137,33 +175,24 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
       videoRef.current.pause();
       setIsPlaying(false);
     } else {
-      // Ensure video is loaded before playing
-      try {
-        const playPromise = videoRef.current.play();
+      const playPromise = videoRef.current.play();
 
-        if (playPromise !== undefined) {
-          playPromise
-            .then(() => {
-              // Video started playing successfully
-              setIsPlaying(true);
-              setVideoError(false);
-            })
-            .catch((error) => {
-              // Auto-play was prevented
-              console.error("Video playback failed:", error);
-              setIsPlaying(false);
-              setVideoError(true);
-
-              toast.error(
-                language === "en"
-                  ? "Failed to play video. The format might not be supported."
-                  : "No se pudo reproducir el video. El formato puede no ser compatible."
-              );
-            });
-        }
-      } catch (error) {
-        console.error("Video playback error:", error);
-        setVideoError(true);
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            setIsPlaying(true);
+            setVideoError(false);
+          })
+          .catch((error) => {
+            console.error("Video playback failed:", error);
+            setIsPlaying(false);
+            setVideoError(true);
+            toast.error(
+              language === "en"
+                ? "Failed to play video. The format might not be supported."
+                : "No se pudo reproducir el video. El formato puede no ser compatible."
+            );
+          });
       }
     }
   };
@@ -318,53 +347,59 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
     );
   }
 
-  console.log("🚀 ~ VideoAnalysisDisplay ~ analysisResult:", analysisResult);
-  // For the demo, we'll show a basic video player with the video URL
+  // Use the structured JSON report
   return (
     <Card className="space-y-6 sm:space-y-8 p-4 sm:p-6">
+      {/* Video Player - FIXED SIZE */}
       <Card className="p-6 bg-white">
-        {/* Video player */}
         <div className="mb-6">
-          <div className="relative bg-black overflow-hidden aspect-video">
-            {videoError ? (
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-white bg-gray-900 bg-opacity-80 p-4">
-                <AlertCircle className="h-12 w-12 mb-2 text-red-400" />
-                <p className="text-center mb-4">
-                  {language === "en"
-                    ? "There was a problem playing this video."
-                    : "Hubo un problema al reproducir este video."}
-                </p>
-                <Button
-                  variant="outline"
-                  className="text-white border-white hover:bg-white hover:text-gray-900"
-                  onClick={() => {
-                    setVideoError(false);
-                    if (videoRef.current) {
-                      videoRef.current.load();
-                    }
-                  }}
-                >
-                  {language === "en" ? "Try Again" : "Intentar de nuevo"}
-                </Button>
-              </div>
-            ) : null}
+          {/* FIXED: Max width container for video */}
+          <div className="max-w-4xl mx-auto">
+            <div
+              className="relative bg-black overflow-hidden rounded-lg"
+              style={{ aspectRatio: "16/9" }}
+            >
+              {videoError ? (
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-white bg-gray-900 bg-opacity-80 p-4">
+                  <AlertCircle className="h-12 w-12 mb-2 text-red-400" />
+                  <p className="text-center mb-4">
+                    {language === "en"
+                      ? "There was a problem playing this video."
+                      : "Hubo un problema al reproducir este video."}
+                  </p>
+                  <Button
+                    variant="outline"
+                    className="text-white border-white hover:bg-white hover:text-gray-900"
+                    onClick={() => {
+                      setVideoError(false);
+                      if (videoRef.current) {
+                        videoRef.current.load();
+                      }
+                    }}
+                  >
+                    {language === "en" ? "Try Again" : "Intentar de nuevo"}
+                  </Button>
+                </div>
+              ) : null}
 
-            <video
-              ref={videoRef}
-              src={decodedUrl || analysis.document_url}
-              className="w-full h-full"
-              onTimeUpdate={handleTimeUpdate}
-              onLoadedMetadata={handleLoadedMetadata}
-              onEnded={handleVideoEnded}
-              onError={handleVideoError}
-              preload="metadata"
-              playsInline
-              controls={false}
-              crossOrigin="anonymous"
-            />
+              <video
+                ref={videoRef}
+                src={decodedUrl || analysis.document_url}
+                className="w-full h-full object-contain"
+                onTimeUpdate={handleTimeUpdate}
+                onLoadedMetadata={handleLoadedMetadata}
+                onEnded={handleVideoEnded}
+                onError={handleVideoError}
+                preload="metadata"
+                playsInline
+                controls={false}
+                crossOrigin="anonymous"
+              />
+            </div>
           </div>
 
-          <div className="mt-4">
+          {/* Video Controls */}
+          <div className="mt-4 max-w-4xl mx-auto">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm text-gray-500">
                 {formatTime(currentTime)}
@@ -421,267 +456,222 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
         </div>
       </Card>
 
-      {/* Analysis Results */}
-
+      {/* Analysis Results Header */}
       <div className="text-start">
-        <h2 className="text-xl font-semibold ">
+        <h2 className="text-xl font-semibold">
           {language === "en" ? "Analysis Results" : "Resultados del análisis"}
         </h2>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
-        {/* Total Score Card */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#7658EB] to-[#3C78EB] p-6 text-white shadow-lg w-full h-full">
-          <div className="w-full h-full flex flex-col justify-between">
-            <h3 className="text-lg font-medium opacity-90 mb-8">
-              {language === "en" ? "Course Stats" : "Estadísticas del curso"}
-            </h3>
-            <p className="text-base text-white mt-auto">
-              {analysisResult[language].jump_by_jump_results.length} Jumps Total
-              | Average Height: 1.3m
+      {/* Statistics Cards - Using JSON data */}
+      {reportContent?.statistics && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+          {/* Course Stats */}
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#7658EB] to-[#3C78EB] p-6 text-white shadow-lg">
+            <div className="w-full h-full flex flex-col justify-between">
+              <h3 className="text-lg font-medium opacity-90 mb-8">
+                {language === "en" ? "Course Stats" : "Estadísticas del curso"}
+              </h3>
+              <p className="text-base text-white mt-auto">
+                {reportContent.statistics.successful_jumps_count +
+                  reportContent.statistics.failed_jumps_count}{" "}
+                Jumps Total
+              </p>
+            </div>
+          </div>
+
+          {/* Points System */}
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#7658EB] to-[#3C78EB] p-6 text-white shadow-lg">
+            <div className="w-full h-full flex flex-col justify-between">
+              <h3 className="text-lg font-medium opacity-90 mb-8">
+                {language === "en" ? "Points System" : "Sistema de Puntos"}
+              </h3>
+              <p className="text-base text-white mt-auto">
+                {reportContent.statistics.failed_jumps_count * 4} Points Lost
+              </p>
+            </div>
+          </div>
+
+          {/* Clear Rate */}
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#5E92FA] to-[#3C77EC] p-6 text-white shadow-lg">
+            <div className="w-full h-full flex flex-col justify-between">
+              <h3 className="text-lg font-medium opacity-90 mb-8">
+                {language === "en" ? "Clear Rate" : "Tasa de Éxito"}
+              </h3>
+              <p className="text-base text-white mt-auto">
+                {reportContent.statistics.successful_jumps_count}/
+                {reportContent.statistics.successful_jumps_count +
+                  reportContent.statistics.failed_jumps_count}{" "}
+                Jumps Clear ({Math.round(reportContent.statistics.success_rate)}
+                %)
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* AI Analysis - Overall Assessment */}
+      {reportContent?.ai_analysis && (
+        <Card className="p-4 sm:p-6 bg-gradient-to-r from-[#7658EB] to-[#3C78EB]">
+          <div className="flex items-center justify-between mb-3 sm:mb-4">
+            <h4 className="text-lg sm:text-xl font-semibold text-white">
+              {language === "en" ? "AI Assessment" : "Evaluación IA"}
+            </h4>
+            <img
+              src="/lovable-uploads/transpareant-logo.png"
+              alt="Logo"
+              className="w-12 h-12 object-cover object-center"
+            />
+          </div>
+          <div className="max-w-[900px]">
+            <p className="text-white text-base">
+              {reportContent.ai_analysis.overall_assessment}
             </p>
           </div>
-        </div>
-
-        {/* Highest Score Card */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#7658EB] to-[#3C78EB] p-6 text-white shadow-lg">
-          <div className="w-full h-full flex flex-col justify-between">
-            <h3 className="text-lg font-medium opacity-90 mb-8">
-              {language === "en" ? "Points System" : "Estadísticas del curso"}
-            </h3>
-            <p className="text-base text-white mt-auto">4 Points Lost</p>
-          </div>
-        </div>
-
-        {/* Lowest Score Card */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#5E92FA] to-[#3C77EC] p-6 text-white shadow-lg">
-          <div className="w-full h-full flex flex-col justify-between">
-            <h3 className="text-lg font-medium opacity-90 mb-8">
-              {language === "en" ? "Clear Rate" : "Estadísticas del curso"}
-            </h3>
-            <p className="text-base text-white mt-auto">
-              8/10 Jumps Clear (80%)
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Personalised Insight */}
-      <Card className="p-4 sm:p-6  bg-gradient-to-r from-[#7658EB] to-[#3C78EB]">
-        <div className="flex items-center justify-between mb-3 sm:mb-4">
-          <h4 className="text-lg sm:text-xl font-semibold text-white">
-            {language === "en"
-              ? "Personalised Insight"
-              : "Perspectiva personalizada"}
-          </h4>
-
-          <img
-            src="/lovable-uploads/transpareant-logo.png"
-            alt="Horse and rider jumping over competition obstacle"
-            className="w-12 h-12 object-cover object-center"
-          />
-        </div>
-        <div className="max-w-[900px]">
-          <p className="text-white text-base">
-            {analysisResult[language].personalInsight}
-          </p>
-        </div>
-      </Card>
-
-      {/* Biomechanical Analysis */}
-      <Card className="p-4 sm:p-6 ">
-        <div className="flex items-center justify-between mb-3 sm:mb-4 ">
-          <h4 className="text-lg sm:text-xl font-semibold">
-            {language === "en"
-              ? "Biomechanical Analysis"
-              : "Análisis biomecánico"}
-          </h4>
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f1f5f9] backdrop-blur-sm">
-            <img src="/public/icon/Search-Document.svg" alt="" />
-          </div>
-        </div>
-        <div className="w-full bg-[#F1F5F9] rounded-lg p-6">
-          <h3 className="text-lg font-semibold">Rider Position Stability</h3>
-          <ul className="mb-4 list-disc pl-5">
-            <li>Maintained secure seat through 7/10 jumps</li>
-          </ul>
-          <h3 className="text-lg font-semibold">Horse Takeoff Analysis</h3>
-          <ul className="mb-4 list-disc pl-5">
-            <li>Average front leg extension: 98° (Optimal: 119°)</li>
-          </ul>
-          <h3 className="text-lg font-semibold">Landing Form</h3>
-          <ul className="mb-4 list-disc pl-5">
-            <li>Consistent hind leg engagement on clear</li>
-          </ul>
-          <h3 className="text-lg font-semibold">Jumps Approach</h3>
-          <ul className="mb-4 list-disc pl-5">
-            <li>
-              Quality Straight approaches: 80% | Angled approaches: 60% success
-            </li>
-          </ul>
-        </div>
-      </Card>
-
-      {/* Jump by jump Analysis */}
-      <Card className="my-4 overflow-hidden">
-        {/* <h3 className="text-xl sm:text-2xl font-semibold mb-2 sm:mb-4">
-          {language === "en"
-            ? "Jump by jump Analysis"
-            : "Análisis Salto por Salto"}
-        </h3> */}
-        <div className="overflow-x-auto">
-          <table className="min-w-full border border-gray-300 rounded-lg">
-            <thead className="bg-[#f1f5f9]">
-              <tr>
-                <th className="px-4 py-2 text-left text-sm text-gray-700 font-bold">
-                  {language === "en" ? "Individual Jump Analysis" : "Salto #"}
-                </th>
-                <th className="px-4 py-2 text-left text-sm text-gray-700 font-bold">
-                  {language === "en" ? "Result Badge" : "Tipo"}
-                </th>
-                <th className="px-4 py-2 text-left text-sm text-gray-700 font-bold">
-                  {language === "en" ? "Technical Insight" : "Resultado"}
-                </th>
-                <th className="px-4 py-2 text-left text-sm text-gray-700 font-bold">
-                  {language === "en" ? "Biomechanical Data" : "Resultado"}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {analysisResult[language].jump_by_jump_results.map(
-                (jump, index) => (
-                  <tr key={index} className="border-none border-gray-200">
-                    <td className="px-4 py-2 text-sm border border-gray-200 capitalize">
-                      Jump {jump.jump_number}
-                    </td>
-                    <td className="px-4 py-2 text-sm border border-gray-200 uppercase">
-                      {jump.result}
-                    </td>
-                    <td className="px-4 py-2 text-sm border border-gray-200 capitalize">
-                      {jump.jump_type}
-                    </td>
-                    <td className="px-4 py-2 text-sm border border-gray-200 capitalize">
-                      {jump.jump_type}
-                    </td>
-                  </tr>
-                )
-              )}
-            </tbody>
-          </table>
-        </div>
-      </Card>
-
-      {/* Pattern Recognition */}
-      <Card className="p-4 sm:p-6 ">
-        <div className="flex items-center justify-between mb-3 sm:mb-4 ">
-          <h4 className="text-lg sm:text-xl font-semibold">
-            {language === "en"
-              ? "Pattern Recognition"
-              : "Reconocimiento de patrones"}
-          </h4>
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f1f5f9] backdrop-blur-sm">
-            <img src="/public/icon/eye.svg" alt="" />
-          </div>
-        </div>
-        <div className="w-full p-6">
-          <ul className="mb-4 list-disc pl-5">
-            <li>
-              <b>Success Rate by Height: 1.2m:</b>
-              100% | 1.3m: 70% | 1.4m: 50%
-            </li>
-            <li>
-              <b>Failure Patterns:</b> 3 of 4 faults occurred on unstable
-              approach angles
-            </li>
-            <li>
-              <b>Session Comparison:</b> 20% improvement from last session
-            </li>
-          </ul>
-        </div>
-      </Card>
-
-      {/* Personalised Training */}
-      <Card className="p-4 sm:p-6 ">
-        <div className="flex items-center justify-between mb-3 sm:mb-4 ">
-          <h4 className="text-lg sm:text-xl font-semibold">
-            {language === "en"
-              ? "Personalised Training"
-              : "Entrenamiento personalizado"}
-          </h4>
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f1f5f9] backdrop-blur-sm">
-            <img src="/public/icon/Space-Shuttle.svg" alt="" />
-          </div>
-        </div>
-        <Card className="w-full p-6 bg-[#F1F5F9]">
-          <ul className="mb-4 list-disc pl-5">
-            <li>
-              <b>This Week's Focus:</b>
-              Practice grid work - 4 bounces to improve rhythm
-            </li>
-            <li>
-              <b>Biomechanical Goal:</b> Increase takeoff impulsion - front leg
-              extension needs 21
-            </li>
-            <li>
-              <b>Next Session Plan:</b> Work on approach consistency with ground
-              pole exercises
-            </li>
-          </ul>
         </Card>
-      </Card>
+      )}
 
-      {/* Want more guidance? */}
+      {/* Biomechanical Summary */}
+      {reportContent?.biomechanical_summary && (
+        <Card className="p-4 sm:p-6">
+          <div className="flex items-center justify-between mb-3 sm:mb-4">
+            <h4 className="text-lg sm:text-xl font-semibold">
+              {language === "en"
+                ? "Biomechanical Analysis"
+                : "Análisis biomecánico"}
+            </h4>
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f1f5f9]">
+              <img src="/icon/Search-Document.svg" alt="" />
+            </div>
+          </div>
+          <div className="w-full bg-[#F1F5F9] rounded-lg p-6">
+            <p className="text-gray-700 whitespace-pre-line">
+              {reportContent.biomechanical_summary}
+            </p>
+
+            {/* Strengths */}
+            {reportContent.ai_analysis.biomechanical_analysis.strengths.length >
+              0 && (
+              <div className="mt-4">
+                <h3 className="text-lg font-semibold text-green-700">
+                  {language === "en" ? "Strengths" : "Fortalezas"}
+                </h3>
+                <ul className="list-disc pl-5 mt-2">
+                  {reportContent.ai_analysis.biomechanical_analysis.strengths.map(
+                    (strength, idx) => (
+                      <li key={idx} className="text-gray-700">
+                        {strength}
+                      </li>
+                    )
+                  )}
+                </ul>
+              </div>
+            )}
+
+            {/* Weaknesses */}
+            {reportContent.ai_analysis.biomechanical_analysis.weaknesses
+              .length > 0 && (
+              <div className="mt-4">
+                <h3 className="text-lg font-semibold text-red-700">
+                  {language === "en"
+                    ? "Areas for Improvement"
+                    : "Áreas de Mejora"}
+                </h3>
+                <ul className="list-disc pl-5 mt-2">
+                  {reportContent.ai_analysis.biomechanical_analysis.weaknesses.map(
+                    (weakness, idx) => (
+                      <li key={idx} className="text-gray-700">
+                        {weakness}
+                      </li>
+                    )
+                  )}
+                </ul>
+              </div>
+            )}
+          </div>
+        </Card>
+      )}
+
+      {/* Key Findings */}
+      {reportContent?.ai_analysis.key_findings && (
+        <Card className="p-4 sm:p-6">
+          <div className="flex items-center justify-between mb-3 sm:mb-4">
+            <h4 className="text-lg sm:text-xl font-semibold">
+              {language === "en" ? "Key Findings" : "Hallazgos Clave"}
+            </h4>
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f1f5f9]">
+              <img src="/icon/eye.svg" alt="" />
+            </div>
+          </div>
+          <div className="w-full p-6">
+            <ul className="list-disc pl-5 space-y-2">
+              {reportContent.ai_analysis.key_findings.map((finding, idx) => (
+                <li key={idx} className="text-gray-700">
+                  {finding}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </Card>
+      )}
+
+      {/* Recommendations */}
+      {reportContent?.ai_analysis.recommendations && (
+        <Card className="p-4 sm:p-6">
+          <div className="flex items-center justify-between mb-3 sm:mb-4">
+            <h4 className="text-lg sm:text-xl font-semibold">
+              {language === "en"
+                ? "Training Recommendations"
+                : "Recomendaciones de Entrenamiento"}
+            </h4>
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f1f5f9]">
+              <img src="/icon/Space-Shuttle.svg" alt="" />
+            </div>
+          </div>
+          <Card className="w-full p-6 bg-[#F1F5F9]">
+            <ul className="list-disc pl-5 space-y-2">
+              {reportContent.ai_analysis.recommendations.map((rec, idx) => (
+                <li key={idx} className="text-gray-700">
+                  {rec}
+                </li>
+              ))}
+            </ul>
+          </Card>
+        </Card>
+      )}
+
+      {/* CTA */}
       <Card className="w-full bg-gradient-to-r from-[#7658EB] to-[#3C78EB] text-white p-6 mt-6 flex items-center justify-between rounded-lg shadow-lg flex-col-reverse sm:flex-row gap-5 sm:gap-0">
-        <div className="">
+        <div>
           <h2 className="text-xl font-medium">
-            Based on today's analysis, we've created a 20-minute
-            <br />
-            exercise routine focusing on approach rhythm
-          </h2>
-          <Button
-            className="bg-white text-[#2C1A5C] h-auto hover:bg-white mt-4 text-wrap"
-            onClick={async () => {
-              // await getPromptForTTS();
-            }}
-          >
             {language === "en"
-              ? "Get Your Ride-Along Podcast"
-              : "Obtén tu podcast Ride-Along"}
+              ? "Based on today's analysis, we've created personalized training recommendations"
+              : "Basado en el análisis de hoy, hemos creado recomendaciones personalizadas"}
+          </h2>
+          <Button className="bg-white text-[#2C1A5C] h-auto hover:bg-white mt-4">
+            {language === "en"
+              ? "Get Your Training Plan"
+              : "Obtén tu Plan de Entrenamiento"}
           </Button>
         </div>
         <div className="relative z-10 w-40 h-40 rounded-full bg-[#3f77eb]/20 backdrop-blur-sm flex items-center justify-center">
           <img
-            src={"/lovable-uploads/report-cta.png"}
-            alt="Horse and rider jumping over competition obstacle"
+            src="/lovable-uploads/report-cta.png"
+            alt="Training"
             className="w-full h-full object-cover object-center rounded-full"
           />
         </div>
       </Card>
 
-      {/* WhatsApp Share Button */}
-
+      {/* WhatsApp Share */}
       <Card className="p-4 sm:p-6 border-0">
-        <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-4 mb-3 sm:mb-4">
-          <Button
-            className="bg-gradient-to-r from-[#3AD55A] to-[#00AE23] flex items-center"
-            // onClick={handleWhatsAppShare}
-          >
-            {/* <MessageCircle className="h-10 w-10 text-white" /> */}
-            <RiWhatsappFill className="!h-7 !w-7 text-white" size={50} />
+        <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-4">
+          <Button className="bg-gradient-to-r from-[#3AD55A] to-[#00AE23] flex items-center">
+            <RiWhatsappFill className="h-7 w-7 text-white mr-2" />
             {language === "en"
               ? "Send Results to Coach"
-              : "Compartir en WhatsApp"}
+              : "Enviar a Entrenador"}
           </Button>
-
-          {/* <Button
-            className="bg-purple-600 hover:bg-purple-600 flex flex-col items-center p-8"
-            onClick={async () => {
-              await getPromptForTTS();
-            }}
-          >
-            <CloudDownload className="!h-7 !w-7 text-white " />
-            Get your personal ride along training class here
-          </Button> */}
 
           <div className="space-x-2 flex items-center">
             <p className="text-center">
@@ -689,7 +679,7 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
             </p>
             <img
               src="/lovable-uploads/1000010999.png"
-              alt="Horse and rider jumping over competition obstacle"
+              alt="Logo"
               className="w-12 h-12 object-cover object-center"
             />
           </div>
