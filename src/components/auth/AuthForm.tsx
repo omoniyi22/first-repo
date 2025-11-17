@@ -149,6 +149,33 @@ const AuthForm = () => {
 
         if (data.user) {
           try {
+            // 🆕 Assign Free plan to new user
+            const { data: freePlan, error: planError } = await supabase
+              .from("pricing_plans")
+              .select("id")
+              .eq("is_default", true)
+              .single();
+
+            if (!planError && freePlan) {
+              const { error: subError } = await supabase
+                .from("user_subscriptions")
+                .insert({
+                  user_id: data.user.id,
+                  plan_id: freePlan.id,
+                  is_active: true,
+                  is_trial: false,
+                  started_at: new Date().toISOString(),
+                });
+
+              if (subError) {
+                console.error("Failed to assign free plan:", subError);
+                // Don't throw - let signup succeed anyway
+              } else {
+                console.log("✅ Free plan assigned successfully");
+              }
+            }
+
+            // Log activity
             await ActivityLogger.userRegistered(name || email);
             console.log(
               "✅ User registration activity logged for:",
@@ -156,18 +183,15 @@ const AuthForm = () => {
             );
           } catch (activityError) {
             console.error("Failed to log activity:", activityError);
-            // Don't throw error - just log it, don't break the signup flow
+            // Don't throw - continue with signup
           }
-        }
 
-        toast({
-          title: "Welcome to AI Dressage Trainer!",
-          description:
-            "Please check your email and click the confirmation link to verify your account.",
-        });
+          toast({
+            title: "Welcome to AI Dressage Trainer!",
+            description:
+              "Please check your email and click the confirmation link to verify your account.",
+          });
 
-        // Fix: Check if user exists and navigate to dashboard
-        if (data.user) {
           navigate("/dashboard");
         }
       } else {
