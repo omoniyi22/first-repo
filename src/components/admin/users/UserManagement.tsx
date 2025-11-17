@@ -7,6 +7,8 @@ import {
   Calendar,
   Crown,
   Edit,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -69,7 +71,11 @@ const UserManagement = () => {
   const [subscriptionFilter, setSubscriptionFilter] = useState<string>("");
   const [loading, setLoading] = useState(true);
 
-  // Edit modal states - simplified
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [usersPerPage, setUsersPerPage] = useState(25);
+
+  // Edit modal states
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
 
@@ -89,6 +95,7 @@ const UserManagement = () => {
         console.error("Error calling Edge Function:", usersError);
         throw usersError;
       }
+      console.log("🚀 ~ fetchUsers ~ usersData:", usersData);
 
       if (!usersData || !usersData.users || usersData.users.length === 0) {
         console.warn("No users found via Edge Function");
@@ -129,19 +136,7 @@ const UserManagement = () => {
         // Continue without subscriptions data rather than failing completely
       }
 
-      // Fetch horses count for each user
-      const horsesCountPromises = userIds.map(async (userId) => {
-        const { count, error } = await supabase
-          .from("horses")
-          .select("*", { count: "exact", head: true })
-          .eq("user_id", userId);
-
-        return { userId, count: count || 0 };
-      });
-
-      const horsesCountData = await Promise.all(horsesCountPromises);
-
-      // Process the user data with subscriptions and horses count
+      // Process the user data with subscriptions
       const fetchedUsers: User[] = usersData.users.map((user) => {
         const userProfile = user.profile || {};
 
@@ -170,6 +165,7 @@ const UserManagement = () => {
 
       setUsers(fetchedUsers);
       setFilteredUsers(fetchedUsers);
+      setCurrentPage(1); // Reset to first page when data refreshes
 
       toast({
         title: "Users loaded",
@@ -236,15 +232,35 @@ const UserManagement = () => {
     }
 
     setFilteredUsers(result);
+    setCurrentPage(1); // Reset to first page when filters change
   }, [searchTerm, regionFilter, roleFilter, subscriptionFilter, users]);
 
-  // Open edit modal - simplified
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
+  const startIndex = (currentPage - 1) * usersPerPage;
+  const endIndex = startIndex + usersPerPage;
+  const currentUsers = filteredUsers.slice(startIndex, endIndex);
+
+  // Pagination handlers
+  const goToNextPage = () => {
+    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+  };
+
+  const goToPreviousPage = () => {
+    setCurrentPage((prev) => Math.max(prev - 1, 1));
+  };
+
+  const goToPage = (page: number) => {
+    setCurrentPage(Math.max(1, Math.min(page, totalPages)));
+  };
+
+  // Open edit modal
   const handleEditUser = (userToEdit: User) => {
     setEditingUser(userToEdit);
     setIsEditModalOpen(true);
   };
 
-  // Close edit modal - simplified
+  // Close edit modal
   const handleCloseEditModal = () => {
     setIsEditModalOpen(false);
     setEditingUser(null);
@@ -491,7 +507,7 @@ const UserManagement = () => {
                     </div>
                   </td>
                 </tr>
-              ) : filteredUsers.length === 0 ? (
+              ) : currentUsers.length === 0 ? (
                 <tr>
                   <td
                     colSpan={6}
@@ -501,7 +517,7 @@ const UserManagement = () => {
                   </td>
                 </tr>
               ) : (
-                filteredUsers.map((user) => {
+                currentUsers.map((user) => {
                   const subscriptionStatus = getSubscriptionStatus(user);
                   const isEndingSoon = isSubscriptionEndingSoon(
                     user.subscription
@@ -601,6 +617,144 @@ const UserManagement = () => {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination Controls */}
+        {!loading && filteredUsers.length > 0 && (
+          <div className="px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-700">
+                Showing {startIndex + 1} to{" "}
+                {Math.min(endIndex, filteredUsers.length)} of{" "}
+                {filteredUsers.length} users
+              </span>
+              <Select
+                value={usersPerPage.toString()}
+                onValueChange={(value) => {
+                  setUsersPerPage(Number(value));
+                  setCurrentPage(1);
+                }}
+              >
+                <SelectTrigger className="w-[100px] h-8">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="10">10 / page</SelectItem>
+                  <SelectItem value="25">25 / page</SelectItem>
+                  <SelectItem value="50">50 / page</SelectItem>
+                  <SelectItem value="100">100 / page</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={goToPreviousPage}
+                disabled={currentPage === 1}
+              >
+                <ChevronLeft className="h-4 w-4 mr-1" />
+                Previous
+              </Button>
+
+              <div className="flex items-center gap-1">
+                {/* Show page numbers intelligently */}
+                {totalPages <= 7 ? (
+                  // Show all pages if 7 or fewer
+                  Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                    (pageNum) => (
+                      <Button
+                        key={pageNum}
+                        variant={
+                          currentPage === pageNum ? "default" : "outline"
+                        }
+                        size="sm"
+                        onClick={() => goToPage(pageNum)}
+                        className="w-8 h-8 p-0"
+                      >
+                        {pageNum}
+                      </Button>
+                    )
+                  )
+                ) : (
+                  // Smart pagination for many pages
+                  <>
+                    {/* First page */}
+                    <Button
+                      variant={currentPage === 1 ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => goToPage(1)}
+                      className="w-8 h-8 p-0"
+                    >
+                      1
+                    </Button>
+
+                    {/* Left ellipsis */}
+                    {currentPage > 3 && (
+                      <span className="px-2 text-gray-500">...</span>
+                    )}
+
+                    {/* Middle pages */}
+                    {Array.from({ length: 5 }, (_, i) => {
+                      let pageNum;
+                      if (currentPage <= 3) {
+                        pageNum = i + 2;
+                      } else if (currentPage >= totalPages - 2) {
+                        pageNum = totalPages - 5 + i;
+                      } else {
+                        pageNum = currentPage - 2 + i;
+                      }
+
+                      if (pageNum > 1 && pageNum < totalPages) {
+                        return (
+                          <Button
+                            key={pageNum}
+                            variant={
+                              currentPage === pageNum ? "default" : "outline"
+                            }
+                            size="sm"
+                            onClick={() => goToPage(pageNum)}
+                            className="w-8 h-8 p-0"
+                          >
+                            {pageNum}
+                          </Button>
+                        );
+                      }
+                      return null;
+                    })}
+
+                    {/* Right ellipsis */}
+                    {currentPage < totalPages - 2 && (
+                      <span className="px-2 text-gray-500">...</span>
+                    )}
+
+                    {/* Last page */}
+                    <Button
+                      variant={
+                        currentPage === totalPages ? "default" : "outline"
+                      }
+                      size="sm"
+                      onClick={() => goToPage(totalPages)}
+                      className="w-8 h-8 p-0"
+                    >
+                      {totalPages}
+                    </Button>
+                  </>
+                )}
+              </div>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={goToNextPage}
+                disabled={currentPage === totalPages}
+              >
+                Next
+                <ChevronRight className="h-4 w-4 ml-1" />
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Edit User Modal */}
@@ -611,7 +765,6 @@ const UserManagement = () => {
         onUserUpdated={handleUserUpdated}
         currentUserId={user?.id}
       />
-      {/* </div> */}
     </div>
   );
 };
