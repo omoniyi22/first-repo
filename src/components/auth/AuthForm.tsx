@@ -356,7 +356,7 @@ const AuthForm = () => {
           <p className="mt-2 text-navy-700">
             {isSignUp
               ? "Join AI Dressage Trainer to start your journey"
-              : "Welcome back! Please enter your details 123"}
+              : "Welcome back! Please enter your details"}
           </p>
         </AnimatedSection>
       </div>
