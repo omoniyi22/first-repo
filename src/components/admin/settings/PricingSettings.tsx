@@ -65,6 +65,8 @@ interface PricingPlan {
   tagline_en: string;
   tagline_es: string;
   is_highlighted: boolean;
+  is_default?: boolean;
+  document_limit_type?: "one_time" | "monthly";
   max_horses: number;
   max_documents_monthly: number;
   analysis_limit: number;
@@ -157,7 +159,15 @@ const PricingSettings = () => {
     if (!editingPlan) return;
 
     try {
-      // Update plan - Removed Stripe fields
+      // 🆕 If setting this plan as default, unset other defaults first
+      if (editingPlan.is_default) {
+        await supabase
+          .from("pricing_plans")
+          .update({ is_default: false })
+          .neq("id", editingPlan.id);
+      }
+
+      // Update plan with new fields
       const { error: planError } = await supabase
         .from("pricing_plans")
         .update({
@@ -167,6 +177,8 @@ const PricingSettings = () => {
           tagline_en: editingPlan.tagline_en,
           tagline_es: editingPlan.tagline_es,
           is_highlighted: editingPlan.is_highlighted,
+          is_default: editingPlan.is_default || false, // 🆕 ADD THIS
+          document_limit_type: editingPlan.document_limit_type || "monthly", // 🆕 ADD THIS
           max_horses: editingPlan.max_horses,
           max_documents_monthly: editingPlan.max_documents_monthly,
           analysis_limit: editingPlan.analysis_limit,
@@ -176,7 +188,7 @@ const PricingSettings = () => {
 
       if (planError) throw planError;
 
-      // Update features
+      // Update features (rest of code stays the same)
       for (const feature of editingFeatures) {
         const { error: featureError } = await supabase
           .from("pricing_features")
@@ -421,8 +433,38 @@ const PricingSettings = () => {
                 />
                 <p className="text-xs text-gray-500">Use -1 for unlimited</p>
               </div>
-              <div className="space-y-2 flex items-center">
-                <div className="flex items-center space-x-2 mt-6">
+
+              {/* 🆕 ADD DOCUMENT LIMIT TYPE */}
+              <div className="space-y-2">
+                <Label htmlFor="edit-documentLimitType">
+                  Document Limit Type
+                </Label>
+                <select
+                  id="edit-documentLimitType"
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  value={editingPlan.document_limit_type || "monthly"}
+                  onChange={(e) =>
+                    setEditingPlan({
+                      ...editingPlan,
+                      document_limit_type: e.target.value as
+                        | "one_time"
+                        | "monthly",
+                    })
+                  }
+                >
+                  <option value="monthly">Monthly (Resets)</option>
+                  <option value="one_time">One-Time (Lifetime)</option>
+                </select>
+                <p className="text-xs text-gray-500">
+                  {editingPlan.document_limit_type === "one_time"
+                    ? "🔒 Limit never resets"
+                    : "🔄 Resets every month"}
+                </p>
+              </div>
+
+              {/* SWITCHES ROW */}
+              <div className="space-y-2 flex flex-col justify-end">
+                <div className="flex items-center space-x-2">
                   <Switch
                     id="edit-highlighted"
                     checked={editingPlan.is_highlighted}
@@ -434,6 +476,21 @@ const PricingSettings = () => {
                     }
                   />
                   <Label htmlFor="edit-highlighted">Featured Plan</Label>
+                </div>
+                <div className="flex items-center space-x-2 mt-2">
+                  <Switch
+                    id="edit-isDefault"
+                    checked={editingPlan.is_default || false}
+                    onCheckedChange={(checked) =>
+                      setEditingPlan({
+                        ...editingPlan,
+                        is_default: checked,
+                      })
+                    }
+                  />
+                  <Label htmlFor="edit-isDefault">
+                    Default Plan (Auto-assigned)
+                  </Label>
                 </div>
               </div>
             </div>
@@ -670,8 +727,16 @@ const PricingSettings = () => {
               )}
               <CardHeader>
                 <div className="flex justify-between items-start">
-                  <div>
-                    <CardTitle className="text-xl">{plan.name}</CardTitle>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <CardTitle className="text-xl">{plan.name}</CardTitle>
+                      {/* 🆕 Default Plan Badge */}
+                      {plan.is_default && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 border border-green-300">
+                          ✓ Default
+                        </span>
+                      )}
+                    </div>
                     <CardDescription className="mt-1">
                       {plan.tagline_en}
                     </CardDescription>
@@ -702,16 +767,34 @@ const PricingSettings = () => {
                     {plan.max_horses === -1 ? "Unlimited" : plan.max_horses}
                   </span>
                 </div>
+
+                {/* 🆕 Document Limit with Type Badge */}
                 <div className="flex items-center gap-2 mt-2 p-2 bg-green-50 rounded-lg">
                   <FileText className="h-4 w-4 text-green-600" />
-                  <span className="text-sm font-medium text-green-800">
-                    Max Documents:{" "}
-                    {plan.max_documents_monthly === -1
-                      ? "Unlimited"
-                      : plan.max_documents_monthly}
-                    /month
-                  </span>
+                  <div className="flex items-center gap-2 flex-1">
+                    <span className="text-sm font-medium text-green-800">
+                      Max Documents:{" "}
+                      {plan.max_documents_monthly === -1
+                        ? "Unlimited"
+                        : plan.max_documents_monthly}
+                      {plan.document_limit_type === "monthly"
+                        ? "/month"
+                        : " lifetime"}
+                    </span>
+                    <span
+                      className={`text-xs px-1.5 py-0.5 rounded ${
+                        plan.document_limit_type === "one_time"
+                          ? "bg-orange-200 text-orange-800"
+                          : "bg-blue-200 text-blue-800"
+                      }`}
+                    >
+                      {plan.document_limit_type === "one_time"
+                        ? "🔒 One-time"
+                        : "🔄 Monthly"}
+                    </span>
+                  </div>
                 </div>
+
                 <div className="flex items-center gap-2 mt-2 p-2 bg-purple-50 rounded-lg">
                   <FileText className="h-4 w-4 text-purple-600" />
                   <span className="text-sm font-medium text-purple-800">
