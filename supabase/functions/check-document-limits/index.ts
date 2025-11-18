@@ -30,11 +30,6 @@ serve(async (req) => {
       throw new Error('Unauthorized')
     }
 
-    // Get current month start for usage counting
-    const currentMonth = new Date()
-    currentMonth.setDate(1)
-    currentMonth.setHours(0, 0, 0, 0)
-
     // Get user's active subscription with plan details
     const { data: subscription, error: subError } = await supabase
       .from('user_subscriptions')
@@ -46,6 +41,7 @@ serve(async (req) => {
         pricing_plans!inner (
           name,
           max_documents_monthly,
+          document_limit_type,
           max_horses
         )
       `)
@@ -60,7 +56,9 @@ serve(async (req) => {
         currentDocuments: 0,
         maxDocuments: 0,
         planName: 'No plan subscribed',
-        remainingDocuments: 0
+        remainingDocuments: 0,
+        limitType: 'monthly',
+        limitPeriod: 'No active subscription'
       }
       
       return new Response(
@@ -70,19 +68,51 @@ serve(async (req) => {
     }
 
     const planLimits = subscription.pricing_plans
+    const limitType = planLimits.document_limit_type || 'monthly'
 
-    // Count current month's document uploads
-    const { count: documentsCount, error: docError } = await supabase
-      .from('document_analysis')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', user.id)
-      .gte('created_at', currentMonth.toISOString())
+    let documentsCount = 0
+    let limitPeriod = ''
 
-    if (docError) {
-      throw docError
+    // Count documents based on limit type
+    if (limitType === 'one_time') {
+      // One-time limit: Count ALL documents ever uploaded
+      const { count, error: docError } = await supabase
+        .from('document_analysis')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+
+      if (docError) {
+        throw docError
+      }
+
+      documentsCount = count || 0
+      limitPeriod = 'lifetime'
+
+    } else {
+      // Monthly limit: Count only this month's documents
+      const currentMonth = new Date()
+      currentMonth.setDate(1)
+      currentMonth.setHours(0, 0, 0, 0)
+
+      const { count, error: docError } = await supabase
+        .from('document_analysis')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .gte('created_at', currentMonth.toISOString())
+
+      if (docError) {
+        throw docError
+      }
+
+      documentsCount = count || 0
+      
+      // Calculate next reset date (first day of next month)
+      const nextMonth = new Date(currentMonth)
+      nextMonth.setMonth(nextMonth.getMonth() + 1)
+      limitPeriod = `monthly (resets ${nextMonth.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })})`
     }
 
-    const currentDocuments = documentsCount || 0
+    const currentDocuments = documentsCount
 
     // Handle unlimited plans (max_documents_monthly = -1)
     const isUnlimited = planLimits.max_documents_monthly === -1
@@ -99,7 +129,9 @@ serve(async (req) => {
       currentDocuments,
       maxDocuments,
       planName: planLimits.name,
-      remainingDocuments
+      remainingDocuments,
+      limitType,
+      limitPeriod
     }
 
     return new Response(

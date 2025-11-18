@@ -109,50 +109,59 @@ const Dashboard = () => {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0 mb-6 sm:mb-8">
           <DashboardHeader />
           <div className="flex flex-col sm:flex-row gap-3">
-            {userDiscipline && (
+            {userDiscipline ? (
               <>
-             {userDiscipline !== "dressage" && !!user && (
-              <Button
-                className="text-white bg-purple-600 hover:bg-purple-700 text-sm sm:text-base"
-                onClick={() => navigate("/ai-course-builder")}
-              >
-                {language === "en"
-                  ? "Ai Course Designer"
-                  : "Diseñadora de cursos Ai"}
-              </Button>
-            )}
-            <Button
-              className="text-white bg-purple-600 hover:bg-purple-700 text-sm sm:text-base"
-              onClick={() => navigate("/analysis?view=true")}
-            >
-              {language === "en" ? "View Analysis" : "Ver análisis"}
-            </Button>
-            <Button
-              className="text-white bg-purple-600 hover:bg-purple-700 text-sm sm:text-base"
-              onClick={() => navigate("/analysis")}
-            >
-              <Upload className="mr-2 h-4 w-4" />
-              {userDiscipline
-                ? userDiscipline === "dressage"
-                  ? language === "en"
+                {userDiscipline !== "dressage" && !!user && (
+                  <Button
+                    className="text-white bg-purple-600 hover:bg-purple-700 text-sm sm:text-base"
+                    onClick={() => navigate("/ai-course-builder")}
+                  >
+                    {language === "en"
+                      ? "Ai Course Designer"
+                      : "Diseñadora de cursos Ai"}
+                  </Button>
+                )}
+                <Button
+                  className="text-white bg-purple-600 hover:bg-purple-700 text-sm sm:text-base"
+                  onClick={() => navigate("/analysis?view=true")}
+                >
+                  {language === "en" ? "View Analysis" : "Ver análisis"}
+                </Button>
+                <Button
+                  className="text-white bg-purple-600 hover:bg-purple-700 text-sm sm:text-base"
+                  onClick={() => navigate("/analysis")}
+                >
+                  <Upload className="mr-2 h-4 w-4" />
+                  {userDiscipline
+                    ? userDiscipline === "dressage"
+                      ? language === "en"
+                        ? "Upload Test"
+                        : "Subir Prueba"
+                      : language === "en"
+                      ? "Upload Video"
+                      : "Subir vídeo"
+                    : language === "en"
                     ? "Upload Test"
-                    : "Subir Prueba"
-                  : language === "en"
-                  ? "Upload Video"
-                  : "Subir vídeo"
-                : language === "en"
-                ? "Upload Test"
-                : "Subir Prueba"}
-            </Button>
-            <Button
-              variant="outline"
-              className="text-purple-700 border-purple-200 hover:bg-purple-50 hover:text-purple-700 text-sm sm:text-base"
-              onClick={() => navigate("/profile-setup")}
-            >
-              <User className="mr-2 h-4 w-4" />
-              {language === "en" ? "View Profile" : "Ver Perfil"}
-            </Button> 
-            </>
+                    : "Subir Prueba"}
+                </Button>
+                <Button
+                  variant="outline"
+                  className="text-purple-700 border-purple-200 hover:bg-purple-50 hover:text-purple-700 text-sm sm:text-base"
+                  onClick={() => navigate("/profile-setup")}
+                >
+                  <User className="mr-2 h-4 w-4" />
+                  {language === "en" ? "View Profile" : "Ver Perfil"}
+                </Button>
+              </>
+            ) : (
+              <Button
+                variant="outline"
+                className="text-purple-700 border-purple-200 hover:bg-purple-50 hover:text-purple-700 text-sm sm:text-base"
+                onClick={() => navigate("/profile-setup")}
+              >
+                <User className="mr-2 h-4 w-4" />
+                {language === "en" ? "View Profile" : "Ver Perfil"}
+              </Button>
             )}
 
             {isAdmin && (

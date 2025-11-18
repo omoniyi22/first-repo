@@ -11,6 +11,8 @@ interface DocumentLimits {
     maxDocuments: string | number;
     planName: string;
     remainingDocuments: string | number;
+    limitType: 'one_time' | 'monthly';
+    limitPeriod: string;
 }
 
 export const useDocumentLimits = () => {
@@ -27,7 +29,9 @@ export const useDocumentLimits = () => {
                 currentDocuments: 0,
                 maxDocuments: 0,
                 planName: 'Free',
-                remainingDocuments: 0
+                remainingDocuments: 0,
+                limitType: 'monthly',
+                limitPeriod: 'No active session'
             });
             setLoading(false);
             return;
@@ -66,9 +70,13 @@ export const useDocumentLimits = () => {
         if (!limits.canUploadDocument) {
             const maxText = limits.maxDocuments === 'unlimited' ? 'unlimited' : `${limits.maxDocuments}`;
 
+            const limitDescription = limits.limitType === 'one_time'
+                ? `You've reached your lifetime document limit (${limits.currentDocuments}/${maxText}). This limit does not reset.`
+                : `You've reached your monthly document limit (${limits.currentDocuments}/${maxText}). Your limit will reset on the 1st of next month.`;
+
             toast({
                 title: "Document Limit Reached",
-                description: `You've reached your monthly document limit (${limits.currentDocuments}/${maxText}). Upgrade your plan to upload more documents.`,
+                description: `${limitDescription} Upgrade your plan to upload more documents.`,
                 variant: "destructive",
             });
 
@@ -93,6 +101,8 @@ export const useDocumentLimits = () => {
         currentDocuments: limits?.currentDocuments ?? 0,
         maxDocuments: limits?.maxDocuments ?? 0,
         planName: limits?.planName ?? 'No plan subscribed',
-        remainingDocuments: limits?.remainingDocuments ?? 0
+        remainingDocuments: limits?.remainingDocuments ?? 0,
+        limitType: limits?.limitType ?? 'monthly',
+        limitPeriod: limits?.limitPeriod ?? ''
     };
 };

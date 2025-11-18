@@ -505,8 +505,8 @@ const DocumentUpload = ({
                     <FileText className="h-5 w-5 text-blue-600" />
                     <span className="text-lg">
                       {language === "en"
-                        ? "Document Upload"
-                        : "Subida de Documentos"}
+                        ? "Document Uploads"
+                        : "Subidas de Documentos"}
                     </span>
                   </div>
                   <Badge
@@ -519,10 +519,16 @@ const DocumentUpload = ({
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="flex items-center justify-between mb-4">
+                <div className="grid grid-cols-3 gap-4 mb-4">
                   <div className="text-center">
                     <p className="text-sm text-gray-600">
-                      {language === "en" ? "This Month" : "Este Mes"}
+                      {documentLimits.limitType === "one_time"
+                        ? language === "en"
+                          ? "Total Uploaded"
+                          : "Total Subidos"
+                        : language === "en"
+                        ? "This Month"
+                        : "Este Mes"}
                     </p>
                     <p className="text-2xl font-bold text-blue-700">
                       {documentLimits.currentDocuments}
@@ -554,6 +560,26 @@ const DocumentUpload = ({
                         : documentLimits.remainingDocuments}
                     </p>
                   </div>
+                </div>
+
+                {/* Limit Type Badge */}
+                <div className="flex justify-center mb-3">
+                  <Badge
+                    variant="secondary"
+                    className={`text-xs ${
+                      documentLimits.limitType === "one_time"
+                        ? "bg-orange-100 text-orange-700 border-orange-300"
+                        : "bg-blue-100 text-blue-700 border-blue-300"
+                    }`}
+                  >
+                    {documentLimits.limitType === "one_time"
+                      ? language === "en"
+                        ? "🔒 Lifetime Limit (Does Not Reset)"
+                        : "🔒 Límite Vitalicio (No Se Reinicia)"
+                      : language === "en"
+                      ? `🔄 ${documentLimits.limitPeriod}`
+                      : `🔄 ${documentLimits.limitPeriod}`}
+                  </Badge>
                 </div>
 
                 {/* Progress Bar (only for limited plans) */}
@@ -597,18 +623,22 @@ const DocumentUpload = ({
                     <div className="flex-1">
                       <p className="text-sm font-medium text-orange-800">
                         {language === "en"
-                          ? "Document Limit Reached"
-                          : "Límite de Documentos Alcanzado"}
+                          ? "Document Upload Limit Reached"
+                          : "Límite de Subida Alcanzado"}
                       </p>
                       <p className="text-sm text-orange-700 mt-1">
-                        {language === "en"
-                          ? `You've reached your monthly document limit (${documentLimits.currentDocuments}/${documentLimits.maxDocuments}). Upgrade your plan to upload more documents.`
-                          : `Has alcanzado tu límite mensual de documentos (${documentLimits.currentDocuments}/${documentLimits.maxDocuments}). Actualiza tu plan para subir más documentos.`}
+                        {documentLimits.limitType === "one_time"
+                          ? language === "en"
+                            ? `You've reached your lifetime document limit (${documentLimits.currentDocuments}/${documentLimits.maxDocuments}). This limit does not reset. Upgrade your plan to upload more documents.`
+                            : `Has alcanzado tu límite vitalicio de documentos (${documentLimits.currentDocuments}/${documentLimits.maxDocuments}). Este límite no se reinicia. Actualiza tu plan para subir más documentos.`
+                          : language === "en"
+                          ? `You've reached your monthly document limit (${documentLimits.currentDocuments}/${documentLimits.maxDocuments}). Your limit will reset on the 1st of next month. Upgrade for more uploads now.`
+                          : `Has alcanzado tu límite mensual de documentos (${documentLimits.currentDocuments}/${documentLimits.maxDocuments}). Tu límite se reiniciará el 1 del próximo mes. Actualiza para más subidas ahora.`}
                       </p>
                       <Button
                         size="sm"
                         className="mt-2 bg-orange-600 hover:bg-orange-700 text-white"
-                        onClick={() => (window.location.href = "/pricing")}
+                        onClick={() => navigate("/pricing")}
                       >
                         {language === "en" ? "Upgrade Plan" : "Actualizar Plan"}
                         <ArrowRight className="ml-2 h-4 w-4" />
@@ -665,7 +695,13 @@ const DocumentUpload = ({
             <div className="grid grid-cols-3 gap-4 mb-4">
               <div className="text-center">
                 <p className="text-sm text-gray-600">
-                  {language === "en" ? "This Month" : "Este Mes"}
+                  {documentLimits.limitType === "one_time"
+                    ? language === "en"
+                      ? "Total Uploaded"
+                      : "Total Subidos"
+                    : language === "en"
+                    ? "This Month"
+                    : "Este Mes"}
                 </p>
                 <p className="text-2xl font-bold text-blue-700">
                   {documentLimits.currentDocuments}
