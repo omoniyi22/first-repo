@@ -596,7 +596,14 @@ const UserManagement = () => {
 
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {user.last_sign_in_at
-                          ? new Date(user.last_sign_in_at).toLocaleDateString()
+                          ? new Date(user.last_sign_in_at).toLocaleDateString(
+                              "en-GB",
+                              {
+                                day: "2-digit",
+                                month: "2-digit",
+                                year: "2-digit",
+                              }
+                            )
                           : "Never"}
                       </td>
 

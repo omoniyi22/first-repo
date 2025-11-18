@@ -84,12 +84,12 @@ interface EditFormData {
   };
 }
 
-const EditUserModal = ({ 
-  isOpen, 
-  onClose, 
-  user, 
-  onUserUpdated, 
-  currentUserId 
+const EditUserModal = ({
+  isOpen,
+  onClose,
+  user,
+  onUserUpdated,
+  currentUserId,
 }: EditUserModalProps) => {
   const [availablePlans, setAvailablePlans] = useState<PricingPlan[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -122,11 +122,11 @@ const EditUserModal = ({
   const loadAvailablePlans = async () => {
     try {
       console.log("Loading available pricing plans...");
-      
+
       const { data: plansData, error: plansError } = await supabase
-        .from('pricing_plans')
-        .select('*')
-        .order('monthly_price', { ascending: true });
+        .from("pricing_plans")
+        .select("*")
+        .order("monthly_price", { ascending: true });
 
       if (plansError) {
         console.error("Error fetching plans:", plansError);
@@ -147,7 +147,7 @@ const EditUserModal = ({
 
   const populateFormData = (userData: User) => {
     console.log("Populating form data for user:", userData);
-    
+
     setEditFormData({
       full_name: userData.user_metadata.full_name || "",
       email: userData.email,
@@ -158,8 +158,8 @@ const EditUserModal = ({
         plan_id: userData.subscription?.plan_id || "none",
         is_active: userData.subscription?.is_active || false,
         is_trial: userData.subscription?.is_trial || false,
-        ends_at: userData.subscription?.ends_at 
-          ? new Date(userData.subscription.ends_at).toISOString().split('T')[0] 
+        ends_at: userData.subscription?.ends_at
+          ? new Date(userData.subscription.ends_at).toISOString().split("T")[0]
           : "",
       },
     });
@@ -194,15 +194,19 @@ const EditUserModal = ({
 
       // First, try to check if we can access user_subscriptions table
       const { data: testQuery, error: testError } = await supabase
-        .from('user_subscriptions')
-        .select('id')
+        .from("user_subscriptions")
+        .select("id")
         .limit(1);
 
       if (testError) {
-        console.error("RLS Error - Cannot access user_subscriptions:", testError);
+        console.error(
+          "RLS Error - Cannot access user_subscriptions:",
+          testError
+        );
         toast({
           title: "Permission Error",
-          description: "Cannot access subscription data. Please check your admin permissions.",
+          description:
+            "Cannot access subscription data. Please check your admin permissions.",
           variant: "destructive",
         });
         return;
@@ -241,7 +245,7 @@ const EditUserModal = ({
         console.error("Error from edge function:", error);
         throw error;
       }
-      
+
       if (!data?.success) {
         throw new Error(data?.message || "Failed to update user");
       }
@@ -257,10 +261,11 @@ const EditUserModal = ({
         // Don't fail the entire operation if only subscription update fails
         toast({
           title: "Partial Success",
-          description: "User information updated, but subscription update failed. Please try updating the subscription again.",
+          description:
+            "User information updated, but subscription update failed. Please try updating the subscription again.",
           variant: "destructive",
         });
-        
+
         handleClose();
         onUserUpdated();
         return;
@@ -295,7 +300,7 @@ const EditUserModal = ({
       currentPlanId,
       newPlanId,
       hasExistingSubscription: !!user.subscription,
-      formData: editFormData.subscription
+      formData: editFormData.subscription,
     });
 
     // Only update if subscription changed
@@ -312,7 +317,9 @@ const EditUserModal = ({
         };
 
         if (editFormData.subscription.ends_at) {
-          subscriptionUpdate.ends_at = new Date(editFormData.subscription.ends_at).toISOString();
+          subscriptionUpdate.ends_at = new Date(
+            editFormData.subscription.ends_at
+          ).toISOString();
         } else {
           // Set default end date to 30 days from now if not specified
           const defaultEndDate = new Date();
@@ -322,26 +329,31 @@ const EditUserModal = ({
 
         if (user.subscription) {
           // Update existing subscription
-          console.log("Updating existing subscription with:", subscriptionUpdate);
-          
+          console.log(
+            "Updating existing subscription with:",
+            subscriptionUpdate
+          );
+
           const { data: updateResult, error: subError } = await supabase
-            .from('user_subscriptions')
+            .from("user_subscriptions")
             .update(subscriptionUpdate)
-            .eq('id', user.subscription.id)
+            .eq("id", user.subscription.id)
             .select();
 
           if (subError) {
             console.error("Error updating subscription:", subError);
-            throw new Error(`Failed to update subscription: ${subError.message}`);
+            throw new Error(
+              `Failed to update subscription: ${subError.message}`
+            );
           }
 
           console.log("Subscription updated successfully:", updateResult);
         } else {
           // Create new subscription
           console.log("Creating new subscription with:", subscriptionUpdate);
-          
+
           const { data: createResult, error: createError } = await supabase
-            .from('user_subscriptions')
+            .from("user_subscriptions")
             .insert({
               user_id: user.id,
               ...subscriptionUpdate,
@@ -352,7 +364,9 @@ const EditUserModal = ({
 
           if (createError) {
             console.error("Error creating subscription:", createError);
-            throw new Error(`Failed to create subscription: ${createError.message}`);
+            throw new Error(
+              `Failed to create subscription: ${createError.message}`
+            );
           }
 
           console.log("Subscription created successfully:", createResult);
@@ -360,19 +374,22 @@ const EditUserModal = ({
       } else if (user.subscription && newPlanId === "none") {
         // Deactivate existing subscription
         console.log("Deactivating existing subscription");
-        
-        const { data: deactivateResult, error: deactivateError } = await supabase
-          .from('user_subscriptions')
-          .update({ 
-            is_active: false,
-            updated_at: new Date().toISOString(),
-          })
-          .eq('id', user.subscription.id)
-          .select();
+
+        const { data: deactivateResult, error: deactivateError } =
+          await supabase
+            .from("user_subscriptions")
+            .update({
+              is_active: false,
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", user.subscription.id)
+            .select();
 
         if (deactivateError) {
           console.error("Error deactivating subscription:", deactivateError);
-          throw new Error(`Failed to deactivate subscription: ${deactivateError.message}`);
+          throw new Error(
+            `Failed to deactivate subscription: ${deactivateError.message}`
+          );
         }
 
         console.log("Subscription deactivated successfully:", deactivateResult);
@@ -383,39 +400,58 @@ const EditUserModal = ({
         const subscriptionFieldsUpdate: any = {};
         let hasChanges = false;
 
-        if (user.subscription.is_active !== editFormData.subscription.is_active) {
-          subscriptionFieldsUpdate.is_active = editFormData.subscription.is_active;
+        if (
+          user.subscription.is_active !== editFormData.subscription.is_active
+        ) {
+          subscriptionFieldsUpdate.is_active =
+            editFormData.subscription.is_active;
           hasChanges = true;
         }
 
         if (user.subscription.is_trial !== editFormData.subscription.is_trial) {
-          subscriptionFieldsUpdate.is_trial = editFormData.subscription.is_trial;
+          subscriptionFieldsUpdate.is_trial =
+            editFormData.subscription.is_trial;
           hasChanges = true;
         }
 
-        const currentEndDate = user.subscription.ends_at ? new Date(user.subscription.ends_at).toISOString().split('T')[0] : "";
-        if (currentEndDate !== editFormData.subscription.ends_at && editFormData.subscription.ends_at) {
-          subscriptionFieldsUpdate.ends_at = new Date(editFormData.subscription.ends_at).toISOString();
+        const currentEndDate = user.subscription.ends_at
+          ? new Date(user.subscription.ends_at).toISOString().split("T")[0]
+          : "";
+        if (
+          currentEndDate !== editFormData.subscription.ends_at &&
+          editFormData.subscription.ends_at
+        ) {
+          subscriptionFieldsUpdate.ends_at = new Date(
+            editFormData.subscription.ends_at
+          ).toISOString();
           hasChanges = true;
         }
 
         if (hasChanges) {
           subscriptionFieldsUpdate.updated_at = new Date().toISOString();
-          
-          console.log("Updating subscription fields:", subscriptionFieldsUpdate);
-          
+
+          console.log(
+            "Updating subscription fields:",
+            subscriptionFieldsUpdate
+          );
+
           const { data: updateResult, error: updateError } = await supabase
-            .from('user_subscriptions')
+            .from("user_subscriptions")
             .update(subscriptionFieldsUpdate)
-            .eq('id', user.subscription.id)
+            .eq("id", user.subscription.id)
             .select();
 
           if (updateError) {
             console.error("Error updating subscription fields:", updateError);
-            throw new Error(`Failed to update subscription fields: ${updateError.message}`);
+            throw new Error(
+              `Failed to update subscription fields: ${updateError.message}`
+            );
           }
 
-          console.log("Subscription fields updated successfully:", updateResult);
+          console.log(
+            "Subscription fields updated successfully:",
+            updateResult
+          );
         }
       }
     }
@@ -443,25 +479,35 @@ const EditUserModal = ({
               <Crown className="h-5 w-5" />
               Basic Information
             </h3>
-            
+
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="edit-name">Full Name</Label>
                 <Input
                   id="edit-name"
                   value={editFormData.full_name}
-                  onChange={(e) => setEditFormData(prev => ({ ...prev, full_name: e.target.value }))}
+                  onChange={(e) =>
+                    setEditFormData((prev) => ({
+                      ...prev,
+                      full_name: e.target.value,
+                    }))
+                  }
                   placeholder="Enter full name"
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="edit-email">Email</Label>
                 <Input
                   id="edit-email"
                   type="email"
                   value={editFormData.email}
-                  onChange={(e) => setEditFormData(prev => ({ ...prev, email: e.target.value }))}
+                  onChange={(e) =>
+                    setEditFormData((prev) => ({
+                      ...prev,
+                      email: e.target.value,
+                    }))
+                  }
                   placeholder="Enter email"
                 />
               </div>
@@ -472,7 +518,9 @@ const EditUserModal = ({
                 <Label htmlFor="edit-role">Role</Label>
                 <Select
                   value={editFormData.role}
-                  onValueChange={(value) => setEditFormData(prev => ({ ...prev, role: value }))}
+                  onValueChange={(value) =>
+                    setEditFormData((prev) => ({ ...prev, role: value }))
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select role" />
@@ -489,7 +537,12 @@ const EditUserModal = ({
                 <Input
                   id="edit-region"
                   value={editFormData.region}
-                  onChange={(e) => setEditFormData(prev => ({ ...prev, region: e.target.value }))}
+                  onChange={(e) =>
+                    setEditFormData((prev) => ({
+                      ...prev,
+                      region: e.target.value,
+                    }))
+                  }
                   placeholder="Enter region"
                 />
               </div>
@@ -499,7 +552,9 @@ const EditUserModal = ({
               <Switch
                 id="edit-active"
                 checked={editFormData.is_active}
-                onCheckedChange={(checked) => setEditFormData(prev => ({ ...prev, is_active: checked }))}
+                onCheckedChange={(checked) =>
+                  setEditFormData((prev) => ({ ...prev, is_active: checked }))
+                }
               />
               <Label htmlFor="edit-active">Account Active</Label>
             </div>
@@ -511,16 +566,18 @@ const EditUserModal = ({
               <CreditCard className="h-5 w-5" />
               Subscription Details
             </h3>
-            
+
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="edit-plan">Subscription Plan</Label>
                 <Select
                   value={editFormData.subscription.plan_id}
-                  onValueChange={(value) => setEditFormData(prev => ({ 
-                    ...prev, 
-                    subscription: { ...prev.subscription, plan_id: value }
-                  }))}
+                  onValueChange={(value) =>
+                    setEditFormData((prev) => ({
+                      ...prev,
+                      subscription: { ...prev.subscription, plan_id: value },
+                    }))
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select plan" />
@@ -545,10 +602,15 @@ const EditUserModal = ({
                   id="edit-ends-at"
                   type="date"
                   value={editFormData.subscription.ends_at}
-                  onChange={(e) => setEditFormData(prev => ({ 
-                    ...prev, 
-                    subscription: { ...prev.subscription, ends_at: e.target.value }
-                  }))}
+                  onChange={(e) =>
+                    setEditFormData((prev) => ({
+                      ...prev,
+                      subscription: {
+                        ...prev.subscription,
+                        ends_at: e.target.value,
+                      },
+                    }))
+                  }
                 />
               </div>
             </div>
@@ -558,10 +620,15 @@ const EditUserModal = ({
                 <Switch
                   id="edit-sub-active"
                   checked={editFormData.subscription.is_active}
-                  onCheckedChange={(checked) => setEditFormData(prev => ({ 
-                    ...prev, 
-                    subscription: { ...prev.subscription, is_active: checked }
-                  }))}
+                  onCheckedChange={(checked) =>
+                    setEditFormData((prev) => ({
+                      ...prev,
+                      subscription: {
+                        ...prev.subscription,
+                        is_active: checked,
+                      },
+                    }))
+                  }
                 />
                 <Label htmlFor="edit-sub-active">Subscription Active</Label>
               </div>
@@ -570,10 +637,12 @@ const EditUserModal = ({
                 <Switch
                   id="edit-sub-trial"
                   checked={editFormData.subscription.is_trial}
-                  onCheckedChange={(checked) => setEditFormData(prev => ({ 
-                    ...prev, 
-                    subscription: { ...prev.subscription, is_trial: checked }
-                  }))}
+                  onCheckedChange={(checked) =>
+                    setEditFormData((prev) => ({
+                      ...prev,
+                      subscription: { ...prev.subscription, is_trial: checked },
+                    }))
+                  }
                 />
                 <Label htmlFor="edit-sub-trial">Trial Period</Label>
               </div>
@@ -584,16 +653,44 @@ const EditUserModal = ({
               <div className="bg-gray-50 p-4 rounded-lg">
                 <h4 className="font-medium mb-2">Current Subscription</h4>
                 <div className="text-sm text-gray-600 space-y-1">
-                  <p><strong>Plan:</strong> {user.subscription.pricing_plans.name}</p>
-                  <p><strong>Price:</strong> £{user.subscription.pricing_plans.monthly_price}/month</p>
-                  <p><strong>Status:</strong> {user.subscription.is_active ? 'Active' : 'Inactive'}</p>
-                  <p><strong>Trial:</strong> {user.subscription.is_trial ? 'Yes' : 'No'}</p>
-                  <p><strong>Ends:</strong> {new Date(user.subscription.ends_at).toLocaleDateString()}</p>
+                  <p>
+                    <strong>Plan:</strong>{" "}
+                    {user.subscription.pricing_plans.name}
+                  </p>
+                  <p>
+                    <strong>Price:</strong> £
+                    {user.subscription.pricing_plans.monthly_price}/month
+                  </p>
+                  <p>
+                    <strong>Status:</strong>{" "}
+                    {user.subscription.is_active ? "Active" : "Inactive"}
+                  </p>
+                  <p>
+                    <strong>Trial:</strong>{" "}
+                    {user.subscription.is_trial ? "Yes" : "No"}
+                  </p>
+                  <p>
+                    <strong>Ends:</strong>{" "}
+                    {new Date(user.subscription.ends_at).toLocaleDateString(
+                      "en-GB",
+                      {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "2-digit",
+                      }
+                    )}
+                  </p>
                   {user.subscription.stripe_subscription_id && (
-                    <p><strong>Stripe ID:</strong> {user.subscription.stripe_subscription_id}</p>
+                    <p>
+                      <strong>Stripe ID:</strong>{" "}
+                      {user.subscription.stripe_subscription_id}
+                    </p>
                   )}
                   {user.subscription.coupons && (
-                    <p><strong>Coupon:</strong> {user.subscription.coupons.code} ({user.subscription.coupons.discount_percent}% off)</p>
+                    <p>
+                      <strong>Coupon:</strong> {user.subscription.coupons.code}{" "}
+                      ({user.subscription.coupons.discount_percent}% off)
+                    </p>
                   )}
                 </div>
               </div>
@@ -610,21 +707,37 @@ const EditUserModal = ({
               </div>
               <div>
                 <p className="text-gray-600">Created:</p>
-                <p className="font-medium">{new Date(user.created_at).toLocaleDateString()}</p>
+                <p className="font-medium">
+                  {new Date(user.created_at).toLocaleDateString("en-GB", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "2-digit",
+                  })}
+                </p>
               </div>
               <div>
                 <p className="text-gray-600">Last Sign In:</p>
                 <p className="font-medium">
-                  {user.last_sign_in_at 
-                    ? new Date(user.last_sign_in_at).toLocaleDateString()
-                    : 'Never'
-                  }
+                  {user.last_sign_in_at
+                    ? new Date(user.last_sign_in_at).toLocaleDateString(
+                        "en-GB",
+                        {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "2-digit",
+                        }
+                      )
+                    : "Never"}
                 </p>
               </div>
               <div>
                 <p className="text-gray-600">Account Status:</p>
-                <p className={`font-medium ${user.is_active ? 'text-green-600' : 'text-red-600'}`}>
-                  {user.is_active ? 'Active' : 'Inactive'}
+                <p
+                  className={`font-medium ${
+                    user.is_active ? "text-green-600" : "text-red-600"
+                  }`}
+                >
+                  {user.is_active ? "Active" : "Inactive"}
                 </p>
               </div>
             </div>
