@@ -38,7 +38,8 @@ interface SubscriptionContextType {
   checkoutPlan: (
     planId: string,
     mode: "monthly" | "annual",
-    couponCode?: string
+    couponCode?: string,
+    planName?: string
   ) => Promise<string | null>;
   validateCoupon: (couponCode: string) => Promise<{
     valid: boolean;
@@ -236,7 +237,8 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({
   const checkoutPlan = async (
     planId: string,
     mode: "monthly" | "annual",
-    couponCode?: string
+    couponCode?: string,
+    planName?: string 
   ) => {
     try {
       const requestBody: any = {
@@ -247,6 +249,10 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({
       // Add coupon code if provided
       if (couponCode?.trim()) {
         requestBody.couponCode = couponCode.trim();
+      }
+
+      if (planName?.trim()) {
+        requestBody.planName = planName.trim();
       }
 
       const { data, error } = await supabase.functions.invoke(

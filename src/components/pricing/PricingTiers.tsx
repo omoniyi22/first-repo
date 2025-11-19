@@ -272,7 +272,8 @@ const PricingTiers = () => {
         const checkoutUrl = await checkoutPlan(
           selectedPlan.id,
           isAnnual ? "annual" : "monthly",
-          couponCode.trim() || undefined
+          couponCode.trim() || undefined,
+          selectedPlan.name 
         );
 
         if (checkoutUrl) {

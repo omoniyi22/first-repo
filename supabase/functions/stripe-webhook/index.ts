@@ -27,26 +27,74 @@ serve(async (req) => {
             return new Response("Method not allowed", { status: 405 });
         }
 
-        // Get request data
+        // CRITICAL: Get the raw body as text - don't parse it yet
         const body = await req.text();
         const signature = req.headers.get("stripe-signature");
         const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
 
-        if (!signature || !webhookSecret) {
-            log("Missing webhook signature or secret");
-            return new Response("Missing webhook signature or secret", { status: 400 });
+        // Log for debugging (remove in production)
+        log("Webhook request received", {
+            hasSignature: !!signature,
+            hasSecret: !!webhookSecret,
+            bodyLength: body.length,
+            // Don't log the actual signature or body for security
+        });
+
+        if (!signature) {
+            log("Missing stripe-signature header");
+            return new Response(
+                JSON.stringify({ error: "Missing stripe-signature header" }),
+                { status: 400, headers: { "Content-Type": "application/json" } }
+            );
+        }
+
+        if (!webhookSecret) {
+            log("Missing STRIPE_WEBHOOK_SECRET environment variable");
+            return new Response(
+                JSON.stringify({ error: "Webhook secret not configured" }),
+                { status: 500, headers: { "Content-Type": "application/json" } }
+            );
         }
 
         // Verify webhook signature
         let event;
         try {
-            event = await stripe.webhooks.constructEventAsync(body, signature, webhookSecret);
+            // Use constructEventAsync for better error handling
+            event = await stripe.webhooks.constructEventAsync(
+                body,
+                signature,
+                webhookSecret
+            );
+
+            log("Webhook signature verified successfully", {
+                eventType: event.type,
+                eventId: event.id
+            });
+
         } catch (err) {
-            log("Webhook signature verification failed", { error: err.message });
-            return new Response("Webhook signature verification failed", { status: 400 });
+            log("Webhook signature verification failed", {
+                error: err.message,
+                errorType: err.type,
+                // Add more debugging info
+                signatureHeader: signature.substring(0, 20) + "...", // First 20 chars only
+            });
+
+            return new Response(
+                JSON.stringify({
+                    error: "Webhook signature verification failed",
+                    message: err.message
+                }),
+                {
+                    status: 400,
+                    headers: { "Content-Type": "application/json" }
+                }
+            );
         }
 
-        log("Webhook event", event);
+        log("Processing webhook event", {
+            type: event.type,
+            id: event.id
+        });
 
         // Handle Stripe events
         switch (event.type) {
@@ -75,15 +123,30 @@ serve(async (req) => {
                 break;
 
             default:
-                // Log unhandled events for monitoring
                 log("Unhandled event type", { type: event.type });
         }
 
-        return new Response("OK", { status: 200 });
+        return new Response(
+            JSON.stringify({ received: true }),
+            {
+                status: 200,
+                headers: { "Content-Type": "application/json" }
+            }
+        );
 
     } catch (error) {
-        log("Webhook processing error", { error: error.message });
-        return new Response("Webhook error", { status: 500 });
+        log("Webhook processing error", {
+            error: error.message,
+            stack: error.stack
+        });
+
+        return new Response(
+            JSON.stringify({ error: "Webhook processing failed" }),
+            {
+                status: 500,
+                headers: { "Content-Type": "application/json" }
+            }
+        );
     }
 });
 
@@ -271,13 +334,13 @@ async function handleSubscriptionUpdated(subscription) {
         // Handle cancellation detection
         const wasCancelled = existingSub.cancelled_at !== null;
         const isCancelledNow = subscription.cancel_at_period_end === true || subscription.status === 'canceled';
-        
+
         if (!wasCancelled && isCancelledNow) {
             // Subscription was just cancelled
-            updateData.cancelled_at = subscription.canceled_at 
+            updateData.cancelled_at = subscription.canceled_at
                 ? new Date(subscription.canceled_at * 1000).toISOString()
                 : new Date().toISOString();
-                
+
             log("Subscription cancellation detected", {
                 subscriptionId: subscription.id,
                 userId: existingSub.user_id,
@@ -285,7 +348,7 @@ async function handleSubscriptionUpdated(subscription) {
                 status: subscription.status,
                 cancelledAt: updateData.cancelled_at
             });
-            
+
             // Log the cancellation
             await logSubscriptionHistory({
                 user_id: existingSub.user_id,
@@ -299,17 +362,17 @@ async function handleSubscriptionUpdated(subscription) {
                 }
             });
         }
-        
+
         // Handle reactivation (if cancelled subscription is reactivated)
         if (wasCancelled && !isCancelledNow && subscription.status === 'active') {
             updateData.cancelled_at = null;
-            
+
             log("Subscription reactivation detected", {
                 subscriptionId: subscription.id,
                 userId: existingSub.user_id,
                 status: subscription.status
             });
-            
+
             // Log the reactivation
             await logSubscriptionHistory({
                 user_id: existingSub.user_id,
@@ -601,7 +664,7 @@ async function manageUserHorses(userId, planId, subscriptionId, context = 'subsc
         }
 
         const planLimit = plan.max_horses;
-        
+
         // Get all horses for this user (active and disabled)
         const { data: allHorses, error: horsesError } = await supabaseAdmin
             .from('horses')
@@ -616,9 +679,9 @@ async function manageUserHorses(userId, planId, subscriptionId, context = 'subsc
 
         if (!allHorses || allHorses.length === 0) {
             log(`No horses found for user ${userId}`);
-            return { 
-                success: true, 
-                horses_affected: 0, 
+            return {
+                success: true,
+                horses_affected: 0,
                 horses_activated: 0,
                 horses_disabled: 0,
                 message: "No horses to manage"
@@ -628,7 +691,7 @@ async function manageUserHorses(userId, planId, subscriptionId, context = 'subsc
         // Separate active and disabled horses
         const activeHorses = allHorses.filter(h => h.status === 'active');
         const disabledHorses = allHorses.filter(h => h.status === 'disabled');
-        
+
         log("Current horse status", {
             userId,
             totalHorses: allHorses.length,
@@ -639,14 +702,14 @@ async function manageUserHorses(userId, planId, subscriptionId, context = 'subsc
 
         let horsesToActivate = [];
         let horsesToDisable = [];
-        
+
         if (activeHorses.length < planLimit) {
             // We can activate more horses
             const availableSlots = planLimit - activeHorses.length;
             horsesToActivate = disabledHorses
                 .sort((a, b) => new Date(b.updated_at || b.created_at).getTime() - new Date(a.updated_at || a.created_at).getTime()) // Most recently disabled first
                 .slice(0, availableSlots);
-                
+
         } else if (activeHorses.length > planLimit) {
             // We need to disable some horses
             const excessHorses = activeHorses.length - planLimit;
@@ -746,12 +809,12 @@ async function sendHorseManagementEmail(userId, { planName, planLimit, horsesAct
         }
 
         const userEmail = user.user.email;
-        
-        log("Would send horse management email", { 
-            email: userEmail, 
+
+        log("Would send horse management email", {
+            email: userEmail,
             activated: horsesActivated.length,
             disabled: horsesDisabled.length,
-            context 
+            context
         });
 
         // TODO: Implement actual email sending here using your email service

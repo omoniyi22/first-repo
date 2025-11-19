@@ -3,15 +3,18 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.21.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type"
 };
+
 // Helper logging function
 const logStep = (step, details) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
   console.log(`[CREATE-CHECKOUT] ${step}${detailsStr}`);
 };
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
@@ -19,45 +22,76 @@ serve(async (req) => {
       headers: corsHeaders
     });
   }
+
   try {
     logStep("Function started");
+
     // Create a Supabase client for authentication
-    const supabaseClient = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_ANON_KEY") ?? "");
+    const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+    );
+
     // Authenticate the user
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) throw new Error("No authorization header provided");
+
     const token = authHeader.replace("Bearer ", "");
     const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
+
     if (userError) throw new Error(`Authentication error: ${userError.message}`);
+
     const user = userData.user;
     if (!user?.email) throw new Error("User not authenticated or email not available");
+
     logStep("User authenticated", {
       userId: user.id,
       email: user.email
     });
-    // Get request data
-    const { planId, mode = "subscription", couponCode = null } = await req.json();
+
+    // Get request data - ADD planName to destructuring
+    const { planId, mode = "subscription", couponCode = null, planName = null } = await req.json();
+
     if (!planId) throw new Error("Plan ID is required");
+
     logStep("Received request data", {
       planId,
       mode,
-      couponCode
+      couponCode,
+      planName
     });
+
     // Create a Supabase service client to fetch plan details
-    const supabaseAdmin = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "", {
-      auth: {
-        persistSession: false
+    const supabaseAdmin = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      {
+        auth: {
+          persistSession: false
+        }
       }
-    });
+    );
+
     // Get plan details
-    const { data: plan, error: planError } = await supabaseAdmin.from("pricing_plans").select("*").eq("id", planId).single();
+    const { data: plan, error: planError } = await supabaseAdmin
+      .from("pricing_plans")
+      .select("*")
+      .eq("id", planId)
+      .single();
+
     if (planError || !plan) throw new Error("Plan not found");
+
+    // Use planName from request or fallback to database plan name
+    const finalPlanName = planName || plan.name;
+
     logStep("Plan details fetched", {
-      plan: plan.name,
+      plan: finalPlanName,
       price: plan.monthly_price
     });
+
     let validCoupon = null;
-    let discountAmount = 0
+    let discountAmount = 0;
+
     if (couponCode) {
       logStep("Validating coupon", { couponCode });
 
@@ -97,11 +131,13 @@ serve(async (req) => {
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
       apiVersion: "2023-10-16"
     });
+
     // Check if customer exists, create if not
     const customers = await stripe.customers.list({
       email: user.email,
       limit: 1
     });
+
     let customerId;
     if (customers.data.length > 0) {
       customerId = customers.data[0].id;
@@ -120,6 +156,7 @@ serve(async (req) => {
         customerId
       });
     }
+
     // Calculate original price
     let originalPrice = mode === "annual" ? plan.annual_price * 12 : plan.monthly_price;
     let finalPrice = originalPrice;
@@ -136,11 +173,10 @@ serve(async (req) => {
       });
     }
 
-
     const priceData = {
       currency: "gbp",
       product_data: {
-        name: plan.name
+        name: finalPlanName // Use the plan name here too
       },
       unit_amount: Math.round(finalPrice * 100) // Use discounted price
     };
@@ -168,6 +204,10 @@ serve(async (req) => {
         finalPrice: finalPrice
       });
     }
+
+    // Determine billing cycle for metadata
+    const billingCycle = mode === "annual" ? "annual" : "monthly";
+
     // Create Checkout Session
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
@@ -178,10 +218,12 @@ serve(async (req) => {
         }
       ],
       mode: "subscription",
-      success_url: `${req.headers.get("origin")}/pricing?success=true`,
+      success_url: `${req.headers.get("origin")}/pricing?success=true&plan_name=${encodeURIComponent(finalPlanName)}`, // ADD plan name to success URL
       cancel_url: `${req.headers.get("origin")}/pricing?canceled=true`,
       metadata: {
         plan_id: planId,
+        plan_name: finalPlanName,
+        billing_cycle: billingCycle,
         user_id: user.id,
         user_email: user.email,
         billing_mode: mode,
@@ -198,6 +240,8 @@ serve(async (req) => {
           user_id: user.id,
           user_email: user.email,
           plan_id: planId,
+          plan_name: finalPlanName,
+          billing_cycle: billingCycle,
           billing_mode: mode,
           ...(validCoupon && {
             coupon_id: validCoupon.id,
@@ -209,34 +253,44 @@ serve(async (req) => {
         }
       }
     });
+
     logStep("Checkout session created", {
       sessionId: session.id,
       url: session.url,
+      planName: finalPlanName,
+      billingCycle: billingCycle,
       finalPrice: finalPrice,
       couponUsed: validCoupon?.code || null,
       discountApplied: discountAmount
     });
+
     // Return the checkout URL
-    return new Response(JSON.stringify({
-      url: session.url
-    }), {
-      headers: {
-        ...corsHeaders,
-        "Content-Type": "application/json"
-      },
-      status: 200
-    });
+    return new Response(
+      JSON.stringify({
+        url: session.url
+      }),
+      {
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "application/json"
+        },
+        status: 200
+      }
+    );
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     console.error(`[CREATE-CHECKOUT] ERROR: ${errorMessage}`);
-    return new Response(JSON.stringify({
-      error: errorMessage
-    }), {
-      headers: {
-        ...corsHeaders,
-        "Content-Type": "application/json"
-      },
-      status: 500
-    });
+    return new Response(
+      JSON.stringify({
+        error: errorMessage
+      }),
+      {
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "application/json"
+        },
+        status: 500
+      }
+    );
   }
 });
