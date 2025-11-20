@@ -249,7 +249,8 @@ const VideoUpload = ({ fetchDocs }: VideoUploadProps) => {
       formData.append("video", selectedVideo);
 
       const PYTHON_API_URL =
-        import.meta.env.VITE_PYTHON_API_URL || "https://api.equineaintelligence.com";
+        import.meta.env.VITE_PYTHON_API_URL ||
+        "https://api.equineaintelligence.com";
 
       // Use it in fetch calls:
       const uploadRes = await fetch(`${PYTHON_API_URL}/api/upload-video`, {
@@ -311,25 +312,58 @@ const VideoUpload = ({ fetchDocs }: VideoUploadProps) => {
       setUploadProgress(80);
 
       // Step 4: Start processing on Python backend
-      // const processFormData = new FormData();
-      // processFormData.append("video_id", video_id);
+      console.log("🚀 Attempting to start processing for video_id:", video_id);
 
-      // const processRes = await fetch(`${PYTHON_API_URL}/api/process-video`, {
-      //   method: "POST",
-      //   body: processFormData,
-      // });
+      const processFormData = new FormData();
+      processFormData.append("video_id", video_id);
 
-      // if (!processRes.ok) {
-      //   console.error("Processing start failed");
-      //   // Continue anyway as video is uploaded
-      // } else {
-      //   console.log("Processing started successfully");
-      // }
+      try {
+        const processRes = await fetch(`${PYTHON_API_URL}/api/process-video`, {
+          method: "POST",
+          body: processFormData,
+        });
+
+        if (!processRes.ok) {
+          const errorText = await processRes.text();
+          console.error(
+            "❌ Processing start failed:",
+            processRes.status,
+            errorText
+          );
+          throw new Error(`Failed to start processing: ${processRes.status}`);
+        }
+
+        const processResult = await processRes.json();
+        console.log("✅ Processing API response:", processResult);
+
+        if (processResult.message) {
+          console.log("📨 Backend message:", processResult.message);
+        }
+
+        toast({
+          title:
+            language === "en" ? "Processing Started" : "Procesamiento Iniciado",
+          description:
+            language === "en"
+              ? "Your video is being analyzed by AI"
+              : "Tu video está siendo analizado por IA",
+        });
+      } catch (error) {
+        console.error("❌ Error starting processing:", error);
+        toast({
+          title: language === "en" ? "Warning" : "Advertencia",
+          description:
+            language === "en"
+              ? "Video uploaded but processing may not have started. Please check the analysis page."
+              : "Video subido pero el procesamiento puede no haber iniciado. Por favor verifica la página de análisis.",
+          variant: "destructive",
+        });
+      }
 
       setUploadProgress(100);
 
       // Step 5: Navigate to analysis page
-      navigate(`/video-processing?document_id=${videoAnalysisData[0].id}`);
+      navigate(`/analysis?document_id=${videoAnalysisData[0].id}`);
 
       if (fetchDocs) {
         fetchDocs();

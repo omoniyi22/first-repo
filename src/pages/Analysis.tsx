@@ -204,6 +204,119 @@ const Analysis = () => {
     window.scrollTo(0, 0);
   }, [selectedDocumentId, selectedVideoId]);
 
+  // Auto-refresh video list when videos are processing
+  useEffect(() => {
+    if (!user?.id) return;
+
+    // Check if any videos are in processing/analyzing state
+    const hasProcessingVideos = videos.some(
+      (v) =>
+        v.status === "pending" ||
+        v.status === "processing" ||
+        v.status === "analyzing"
+    );
+
+    if (!hasProcessingVideos) return;
+
+    // Poll every 3 seconds to update status
+    const pollInterval = setInterval(() => {
+      fetchDocs();
+    }, 3000);
+
+    return () => clearInterval(pollInterval);
+  }, [videos, user?.id]);
+
+  // Helper function to get status info with colors and icons
+  const getStatusInfo = (status: string) => {
+    switch (status) {
+      case "pending":
+        return {
+          color: "bg-yellow-100 text-yellow-800",
+          text: language === "en" ? "Pending" : "Pendiente",
+          icon: "⏳",
+        };
+      case "processing":
+        return {
+          color: "bg-blue-100 text-blue-800",
+          text: language === "en" ? "Processing" : "Procesando",
+          icon: "🔄",
+        };
+      case "processed":
+        return {
+          color: "bg-green-100 text-green-800",
+          text: language === "en" ? "Ready to Mark" : "Listo para Marcar",
+          icon: "✓",
+        };
+      case "analyzing":
+        return {
+          color: "bg-purple-100 text-purple-800",
+          text: language === "en" ? "Analyzing" : "Analizando",
+          icon: "🤖",
+        };
+      case "completed":
+        return {
+          color: "bg-green-100 text-green-800",
+          text: language === "en" ? "Completed" : "Completado",
+          icon: "✓",
+        };
+      case "error":
+        return {
+          color: "bg-red-100 text-red-800",
+          text: language === "en" ? "Failed" : "Fallido",
+          icon: "❌",
+        };
+      default:
+        return {
+          color: "bg-gray-100 text-gray-800",
+          text: language === "en" ? "Unknown" : "Desconocido",
+          icon: "?",
+        };
+    }
+  };
+
+  // Helper function to get action button text and behavior
+  const getVideoActionButton = (status: string) => {
+    switch (status) {
+      case "pending":
+      case "processing":
+        return {
+          text: language === "en" ? "View Progress" : "Ver Progreso",
+          variant: "outline" as const,
+          disabled: false,
+        };
+      case "processed":
+        return {
+          text: language === "en" ? "Mark Jumps" : "Marcar Saltos",
+          variant: "default" as const,
+          disabled: false,
+        };
+      case "analyzing":
+        return {
+          text: language === "en" ? "Analyzing..." : "Analizando...",
+          variant: "outline" as const,
+          disabled: true,
+        };
+      case "completed":
+        return {
+          text: language === "en" ? "View Report" : "Ver Reporte",
+          variant: "default" as const,
+          disabled: false,
+        };
+      case "error":
+        return {
+          text: language === "en" ? "Retry" : "Reintentar",
+          variant: "destructive" as const,
+          disabled: false,
+        };
+      default:
+        return {
+          text: language === "en" ? "View" : "Ver",
+          variant: "outline" as const,
+          disabled: false,
+        };
+    }
+  };
+
   const fetchDocs = async () => {
     const { data: analysisData, error } = await supabase
       .from("document_analysis")
@@ -1112,7 +1225,10 @@ const Analysis = () => {
                     <div>
                       <Button
                         variant="ghost"
-                        onClick={() => setSelectedVideoId(null)}
+                        onClick={() => {
+                          navigate("/analysis");
+                          setSelectedVideoId(null);
+                        }}
                         className="mb-4"
                       >
                         ←{" "}
@@ -1236,50 +1352,67 @@ const Analysis = () => {
                                 <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
                                   {formatDate(video.document_date)}
                                 </td>
+                                {/* Status Column - Enhanced */}
                                 <td className="px-4 py-3 whitespace-nowrap">
-                                  <span
-                                    className={`px-2 inline-flex text-xs leading-5 font-medium rounded-full ${
-                                      video.status === "completed"
-                                        ? "bg-green-100 text-green-800"
-                                        : video.status === "pending"
-                                        ? "bg-yellow-100 text-yellow-800"
-                                        : video.status === "processing"
-                                        ? "bg-blue-100 text-blue-800"
-                                        : "bg-red-100 text-red-800"
-                                    }`}
-                                  >
-                                    {video.status === "completed"
-                                      ? language === "en"
-                                        ? "Completed"
-                                        : "Completado"
-                                      : video.status === "pending"
-                                      ? language === "en"
-                                        ? "Pending"
-                                        : "Pendiente"
-                                      : video.status === "processing"
-                                      ? language === "en"
-                                        ? "Processing"
-                                        : "Procesando"
-                                      : language === "en"
-                                      ? "Failed"
-                                      : "Fallido"}
-                                  </span>
+                                  {(() => {
+                                    const statusInfo = getStatusInfo(
+                                      video.status
+                                    );
+                                    return (
+                                      <div className="flex flex-col gap-1">
+                                        <span
+                                          className={`px-2 inline-flex text-xs leading-5 font-medium rounded-full w-max ${statusInfo.color}`}
+                                        >
+                                          {statusInfo.text}
+                                        </span>
+                                        {/* Show progress for processing/analyzing */}
+                                        {(video.status === "processing" ||
+                                          video.status === "analyzing") &&
+                                          video.processing_progress !==
+                                            undefined && (
+                                            <div className="flex items-center gap-1">
+                                              <div className="w-full bg-gray-200 rounded-full h-1.5">
+                                                <div
+                                                  className="bg-blue-600 h-1.5 rounded-full transition-all duration-300"
+                                                  style={{
+                                                    width: `${video.processing_progress}%`,
+                                                  }}
+                                                />
+                                              </div>
+                                              <span className="text-xs text-gray-600">
+                                                {video.processing_progress}%
+                                              </span>
+                                            </div>
+                                          )}
+                                      </div>
+                                    );
+                                  })()}
                                 </td>
+
+                                {/* Action Column - Dynamic Button */}
                                 <td className="px-4 py-3 whitespace-nowrap text-sm text-center">
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => {
-                                      // window.scrollTo(0, 0);
-                                      setSelectedVideoId(video.id);
-                                    }}
-                                    disabled={video.status !== "completed"}
-                                    className="text-blue-700 border-blue-200"
-                                  >
-                                    {language === "en"
-                                      ? "View Analysis"
-                                      : "Ver Análisis"}
-                                  </Button>
+                                  {(() => {
+                                    const actionButton = getVideoActionButton(
+                                      video.status
+                                    );
+                                    return (
+                                      <Button
+                                        size="sm"
+                                        variant={actionButton.variant}
+                                        onClick={() => {
+                                          setSelectedVideoId(video.id);
+                                        }}
+                                        disabled={actionButton.disabled}
+                                        className={
+                                          actionButton.variant === "default"
+                                            ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white"
+                                            : ""
+                                        }
+                                      >
+                                        {actionButton.text}
+                                      </Button>
+                                    );
+                                  })()}
                                 </td>
                               </tr>
                             ))}
