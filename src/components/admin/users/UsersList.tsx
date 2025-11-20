@@ -102,11 +102,6 @@ const UsersList = ({ users, onUpdateUser, loading }: UsersListProps) => {
     }
   };
 
-  // Debug user effect
-  useEffect(() => {
-    // console.log('Current state - selectedUser:', selectedUser?.id, 'dialogOpen:', dialogOpen);
-  }, [selectedUser, dialogOpen]);
-
   return (
     <>
       <div className="rounded-md border overflow-hidden">

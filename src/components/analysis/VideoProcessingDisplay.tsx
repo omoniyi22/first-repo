@@ -28,13 +28,7 @@ interface ProcessingStatus {
   progress: number;
   message: string;
   video_id: string;
-}
-
-interface FrameData {
-  type: "frame";
-  frame_number: number;
-  timestamp: number;
-  frame_data: string; // base64 JPEG
+  processed_video_url?: string;
 }
 
 const PYTHON_API_URL =
@@ -51,9 +45,9 @@ const VideoProcessingDisplay: React.FC = () => {
 
   const [processingStatus, setProcessingStatus] =
     useState<ProcessingStatus | null>(null);
-  const [currentFrame, setCurrentFrame] = useState<string | null>(null);
-  const [currentFrameNumber, setCurrentFrameNumber] = useState<number>(0);
-  const [currentTimestamp, setCurrentTimestamp] = useState<number>(0);
+  const [processedVideoUrl, setProcessedVideoUrl] = useState<string | null>(
+    null
+  );
   const [isProcessingComplete, setIsProcessingComplete] =
     useState<boolean>(false);
 
@@ -101,43 +95,83 @@ const VideoProcessingDisplay: React.FC = () => {
     };
   }, [documentId, user]);
 
+  // Add this with other useEffect hooks
+  useEffect(() => {
+    if (!pythonVideoId || isProcessingComplete) return;
+
+    // Poll status every 2 seconds as backup
+    const pollInterval = setInterval(async () => {
+      try {
+        const response = await fetch(
+          `${PYTHON_API_URL}/api/processing-status/${pythonVideoId}`
+        );
+
+        if (response.ok) {
+          const status = await response.json();
+          console.log("📊 Polled status:", status);
+          handleStatusUpdate(status);
+        }
+      } catch (error) {
+        console.error("Polling error:", error);
+      }
+    }, 2000);
+
+    return () => clearInterval(pollInterval);
+  }, [pythonVideoId, isProcessingComplete]);
+
   const connectWebSocket = (videoId: string) => {
     const wsProtocol = window.location.protocol === "https:" ? "wss:" : "ws:";
     const wsHost = PYTHON_API_URL.replace(/^https?:\/\//, "");
     const wsUrl = `${wsProtocol}//${wsHost}/ws/${videoId}`;
 
-    console.log("Connecting to WebSocket:", wsUrl);
+    console.log("🔌 Connecting to WebSocket:", wsUrl);
 
     const ws = new WebSocket(wsUrl);
     wsRef.current = ws;
 
     ws.onopen = () => {
-      console.log("WebSocket connected");
+      console.log("✅ WebSocket connected");
       toast.success("Connected to processing server");
+
+      // Send a ping to confirm connection
+      ws.send("ping");
     };
 
     ws.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
 
-        if (data.type === "frame") {
-          handleFrameData(data as FrameData);
-        } else {
+        console.log("📨 WebSocket message received:", data);
+
+        // Handle connection confirmation
+        if (data.type === "connected") {
+          console.log("✅ Connection confirmed:", data.message);
+          return;
+        }
+
+        // Handle status updates
+        if (data.status) {
+          console.log(`📊 Progress: ${data.progress}% - ${data.message}`);
           handleStatusUpdate(data as ProcessingStatus);
         }
       } catch (error) {
-        // Ignore non-JSON messages
         console.log("Non-JSON WebSocket message:", event.data);
+        if (event.data === "pong") {
+          console.log("✅ Ping/pong successful");
+        }
       }
     };
 
     ws.onerror = (error) => {
-      console.error("WebSocket error:", error);
-      toast.error("Connection error");
+      console.error("❌ WebSocket error:", error);
+      toast.error("Connection error - check backend is running");
     };
 
-    ws.onclose = () => {
-      console.log("WebSocket closed");
+    ws.onclose = (event) => {
+      console.log("🔌 WebSocket closed:", event.code, event.reason);
+      if (!event.wasClean) {
+        toast.error("Connection lost - please refresh");
+      }
     };
   };
 
@@ -164,13 +198,9 @@ const VideoProcessingDisplay: React.FC = () => {
     }
   };
 
-  const handleFrameData = (frameData: FrameData) => {
-    setCurrentFrame(`data:image/jpeg;base64,${frameData.frame_data}`);
-    setCurrentFrameNumber(frameData.frame_number);
-    setCurrentTimestamp(frameData.timestamp);
-  };
-
   const handleStatusUpdate = (status: ProcessingStatus) => {
+    console.log("📊 Status update received:", status);
+
     setProcessingStatus(status);
 
     if (startTimeRef.current && status.progress > lastProgressRef.current) {
@@ -183,18 +213,44 @@ const VideoProcessingDisplay: React.FC = () => {
     }
 
     if (status.status === "completed") {
+      console.log("✅ Processing completed!");
+      console.log("📹 Processed video URL:", status.processed_video_url);
+
       setIsProcessingComplete(true);
-      toast.success("Processing complete!");
+
+      // Set processed video URL
+      if (status.processed_video_url) {
+        const fullUrl = `${PYTHON_API_URL}${status.processed_video_url}`;
+        console.log("🎥 Full video URL:", fullUrl);
+        setProcessedVideoUrl(status.processed_video_url); // Store relative path
+        toast.success(
+          "Processing complete! You can now review and mark jumps."
+        );
+      } else {
+        console.error("❌ No processed_video_url in status!");
+        toast.error("Processed video URL missing");
+      }
     } else if (status.status === "error") {
       toast.error(status.message);
     }
   };
 
   const markJump = (type: "successful" | "failed") => {
+    // Get current video time from the video element
+    const videoElement = document.querySelector("video");
+    if (!videoElement) {
+      toast.error("Please wait for video to load");
+      return;
+    }
+
+    const currentTime = videoElement.currentTime;
+    const fps = 30; // Assume 30fps (you can get this from video metadata if needed)
+    const frameNumber = Math.round(currentTime * fps);
+
     const jump: JumpMark = {
-      timestamp: currentTimestamp,
+      timestamp: currentTime,
       jump_type: type,
-      frame_number: currentFrameNumber,
+      frame_number: frameNumber,
     };
 
     if (type === "successful") {
@@ -206,7 +262,10 @@ const VideoProcessingDisplay: React.FC = () => {
     toast.success(
       `${
         type === "successful" ? "Successful" : "Failed"
-      } jump marked at ${formatTime(currentTimestamp)}`
+      } jump marked at ${formatTime(currentTime)}`,
+      {
+        description: `Frame ${frameNumber}`,
+      }
     );
   };
 
@@ -329,75 +388,131 @@ const VideoProcessingDisplay: React.FC = () => {
         </Card>
       )}
 
-      {/* Live Frame Display - FIXED SIZE */}
-      <Card className="p-6">
-        <div className="flex items-center gap-2 mb-4">
-          <div className="h-3 w-3 rounded-full bg-green-500 animate-pulse" />
-          <h3 className="text-xl font-semibold">
-            {language === "en" ? "Live Processing View" : "Vista en Vivo"}
-          </h3>
-        </div>
-
-        {/* FIXED: Max width container */}
-        <div className="max-w-4xl mx-auto">
-          <div
-            className="relative bg-black rounded-lg overflow-hidden mb-4"
-            style={{ aspectRatio: "16/9" }}
-          >
-            {currentFrame ? (
-              <>
-                <img
-                  src={currentFrame}
-                  alt="Processing frame"
-                  className="w-full h-full object-contain"
-                />
-                <div className="absolute top-4 left-4 bg-black/80 text-white px-4 py-2 rounded-lg font-mono text-sm backdrop-blur-sm">
-                  Frame {currentFrameNumber} | {formatTime(currentTimestamp)}
-                </div>
-              </>
-            ) : (
-              <div className="flex items-center justify-center h-full">
-                <div className="text-center text-white">
-                  <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4" />
-                  <p>
+      {/* Processing Status Card - Show while processing */}
+      {processingStatus && processingStatus.status === "processing" && (
+        <Card className="p-6 bg-gradient-to-br from-purple-50 via-blue-50 to-purple-50 border-purple-200">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <Zap className="h-5 w-5 text-purple-600" />
+                  <h3 className="text-lg font-semibold text-gray-800">
                     {language === "en"
-                      ? "Waiting for frames..."
-                      : "Esperando frames..."}
-                  </p>
+                      ? "AI Processing Video"
+                      : "Procesamiento IA en Progreso"}
+                  </h3>
                 </div>
+                <p className="text-sm text-gray-600">
+                  {processingStatus.message}
+                </p>
               </div>
-            )}
+              <Loader2 className="h-6 w-6 animate-spin text-purple-600" />
+            </div>
+            <Progress
+              value={processingStatus.progress}
+              className="h-3 bg-purple-100"
+            />
+            <div className="flex justify-between items-center text-sm">
+              <span className="font-semibold text-purple-700 flex items-center gap-1">
+                <TrendingUp className="h-4 w-4" />
+                {Math.round(processingStatus.progress)}%
+              </span>
+              {processingSpeed && (
+                <span className="text-gray-600 font-mono bg-white px-3 py-1 rounded-full">
+                  {processingSpeed}
+                </span>
+              )}
+            </div>
           </div>
-        </div>
+        </Card>
+      )}
 
-        {/* Jump Marking Controls */}
-        {currentFrame && (
-          <div className="bg-gradient-to-r from-green-50 via-blue-50 to-red-50 p-4 rounded-lg max-w-4xl mx-auto">
-            <p className="text-center text-sm font-medium text-gray-700 mb-3 flex items-center justify-center gap-2">
-              <AlertCircle className="h-4 w-4" />
+      {/* Processed Video Display - Show after completion */}
+      {isProcessingComplete && processedVideoUrl && (
+        <Card className="p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <CheckCircle className="h-6 w-6 text-green-600" />
+            <h3 className="text-xl font-semibold">
               {language === "en"
-                ? "Mark jumps in real-time as you see them!"
-                : "¡Marca los saltos en tiempo real mientras los ves!"}
+                ? "Processed Video - Ready for Review"
+                : "Video Procesado - Listo para Revisión"}
+            </h3>
+          </div>
+
+          
+          {/* Video Player */}
+          <div className="max-w-4xl mx-auto mb-6">
+            <div
+              className="relative bg-black rounded-lg overflow-hidden"
+              style={{ aspectRatio: "16/9" }}
+            >
+              <video
+                key={processedVideoUrl} // Force re-render when URL changes
+                controls
+                className="w-full h-full object-contain"
+                controlsList="nodownload"
+                preload="metadata"
+                onError={(e) => {
+                  console.error("❌ Video load error:", e);
+                  const target = e.target as HTMLVideoElement;
+                  console.error("Failed URL:", target.src);
+                  toast.error("Failed to load video. Check if file exists.");
+                }}
+                onLoadedMetadata={(e) => {
+                  const target = e.target as HTMLVideoElement;
+                  console.log("✅ Video loaded:", {
+                    duration: target.duration,
+                    videoWidth: target.videoWidth,
+                    videoHeight: target.videoHeight,
+                  });
+                }}
+              >
+                <source
+                  src={`${PYTHON_API_URL}${processedVideoUrl}`}
+                  type="video/mp4"
+                />
+                Your browser does not support the video tag.
+              </video>
+            </div>
+            <p className="text-sm text-gray-500 text-center mt-2">
+              {language === "en"
+                ? "Watch the video and mark jumps as successful or failed"
+                : "Mira el video y marca los saltos como exitosos o fallidos"}
+            </p>
+          </div>
+
+          {/* Jump Marking Controls */}
+          <div className="bg-gradient-to-r from-green-50 via-blue-50 to-red-50 p-6 rounded-lg max-w-4xl mx-auto">
+            <p className="text-center text-sm font-medium text-gray-700 mb-4 flex items-center justify-center gap-2">
+              <AlertCircle className="h-5 w-5" />
+              {language === "en"
+                ? "Mark jumps as you identify them in the video above!"
+                : "¡Marca los saltos mientras los identificas en el video!"}
             </p>
             <div className="flex gap-4 justify-center">
               <Button
                 onClick={() => markJump("successful")}
-                className="bg-green-600 hover:bg-green-700 flex-1 max-w-xs"
+                className="bg-green-600 hover:bg-green-700 flex-1 max-w-xs h-16 text-lg"
               >
-                <CheckCircle className="h-4 w-4 mr-2" />
+                <CheckCircle className="h-6 w-6 mr-2" />
                 {language === "en" ? "Successful Jump" : "Salto Exitoso"}
               </Button>
               <Button
                 onClick={() => markJump("failed")}
-                className="bg-red-600 hover:bg-red-700 flex-1 max-w-xs"
+                className="bg-red-600 hover:bg-red-700 flex-1 max-w-xs h-16 text-lg"
               >
-                <XCircle className="h-4 w-4 mr-2" />
+                <XCircle className="h-6 w-6 mr-2" />
                 {language === "en" ? "Failed Jump" : "Salto Fallido"}
               </Button>
             </div>
+            <p className="text-center text-xs text-gray-500 mt-3">
+              {language === "en"
+                ? "Tip: Pause the video at each jump to mark it accurately"
+                : "Consejo: Pausa el video en cada salto para marcarlo con precisión"}
+            </p>
           </div>
-        )}
-      </Card>
+        </Card>
+      )}
 
       {/* Marked Jumps */}
       {(successfulJumps.length > 0 || failedJumps.length > 0) && (

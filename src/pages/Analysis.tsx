@@ -95,7 +95,7 @@ const Analysis = () => {
   useEffect(() => {
     // Redirect to login if not authenticated
     if (!user?.id) {
-      navigate("/sign-in", { state: { from: "/analysis" } });
+      // navigate("/sign-in", { state: { from: "/analysis" } });
       return;
     }
 
@@ -708,7 +708,6 @@ const Analysis = () => {
       xhr.send();
     });
   }
-
 
   // If user hasn't set their discipline, show message to complete profile
   if (!isLoading && !userDiscipline) {

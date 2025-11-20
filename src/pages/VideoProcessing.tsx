@@ -12,11 +12,11 @@ const VideoProcessing: React.FC = () => {
   const { language } = useLanguage();
 
   // Protect the route
-  React.useEffect(() => {
-    if (!user) {
-      navigate("/sign-in");
-    }
-  }, [user, navigate]);
+  // React.useEffect(() => {
+  //   if (!user) {
+  //     navigate("/sign-in");
+  //   }
+  // }, [user, navigate]);
 
   if (!user) {
     return null;

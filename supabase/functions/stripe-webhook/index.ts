@@ -32,13 +32,7 @@ serve(async (req) => {
         const signature = req.headers.get("stripe-signature");
         const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
 
-        // Log for debugging (remove in production)
-        log("Webhook request received", {
-            hasSignature: !!signature,
-            hasSecret: !!webhookSecret,
-            bodyLength: body.length,
-            // Don't log the actual signature or body for security
-        });
+
 
         if (!signature) {
             log("Missing stripe-signature header");

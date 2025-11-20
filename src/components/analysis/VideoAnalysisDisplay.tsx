@@ -62,6 +62,7 @@ interface ReportContent {
     has_angle_data: boolean;
     representative_frames_used: boolean;
   };
+  processed_video_url?: string;
 }
 
 interface VideoAnalysisDisplayProps {
@@ -123,19 +124,28 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
 
             if (resultError) {
               console.error("Error fetching results:", resultError);
+              toast.error(
+                language === "en"
+                  ? "Failed to load analysis results"
+                  : "Error al cargar resultados"
+              );
             } else if (resultData?.result_json) {
-              console.log("Report data (v2):", resultData.result_json);
+              console.log("✅ Report data loaded:", resultData.result_json);
 
-              // result_json now contains the structured report
+              // result_json contains the structured report (en/es)
               setReportContent(resultData.result_json as ReportContent);
 
-              // Get processed video URL
+              // Get processed video URL (if available - might be deleted after report)
               if (resultData.result_json?.processed_video_url) {
                 const PYTHON_API_URL =
                   import.meta.env.VITE_PYTHON_API_URL ||
                   "https://api.equineaintelligence.com";
-                setDecodedUrl(
-                  `${PYTHON_API_URL}${resultData.result_json.processed_video_url}`
+                const videoUrl = `${PYTHON_API_URL}${resultData.result_json.processed_video_url}`;
+                console.log("📹 Processed video URL:", videoUrl);
+                setDecodedUrl(videoUrl);
+              } else {
+                console.log(
+                  "ℹ️ No processed video URL (video may have been cleaned up)"
                 );
               }
             }
@@ -351,9 +361,8 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
   return (
     <Card className="space-y-6 sm:space-y-8 p-4 sm:p-6">
       {/* Video Player - FIXED SIZE */}
-      <Card className="p-6 bg-white">
+      {/* <Card className="p-6 bg-white">
         <div className="mb-6">
-          {/* FIXED: Max width container for video */}
           <div className="max-w-4xl mx-auto">
             <div
               className="relative bg-black overflow-hidden rounded-lg"
@@ -398,7 +407,6 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
             </div>
           </div>
 
-          {/* Video Controls */}
           <div className="mt-4 max-w-4xl mx-auto">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm text-gray-500">
@@ -454,7 +462,7 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
             </div>
           </div>
         </div>
-      </Card>
+      </Card> */}
 
       {/* Analysis Results Header */}
       <div className="text-start">
