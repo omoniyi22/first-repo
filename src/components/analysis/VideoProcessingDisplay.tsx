@@ -168,7 +168,7 @@ const VideoAnalysisDisplay: React.FC<{ videoId?: string }> = ({ videoId }) => {
     if (analysis?.status && !["completed", "error"].includes(analysis.status)) {
       pollIntervalRef.current = setInterval(() => {
         fetchAnalysis();
-      }, 3000); // Poll every 3 seconds
+      }, 20000); // Poll every 3 seconds
     }
 
     return () => {
