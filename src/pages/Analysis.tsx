@@ -221,7 +221,7 @@ const Analysis = () => {
     // Poll every 3 seconds to update status
     const pollInterval = setInterval(() => {
       fetchDocs();
-    }, 3000);
+    }, 20000);
 
     return () => clearInterval(pollInterval);
   }, [videos, user?.id]);

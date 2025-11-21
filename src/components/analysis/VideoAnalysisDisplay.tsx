@@ -64,20 +64,38 @@ interface AIAnalysis {
 interface ReportContent {
   video_id: string;
   timestamp: string;
-  statistics: {
-    successful_jumps_count: number;
-    failed_jumps_count: number;
-    success_rate: number;
-    successful_timestamps: number[];
-    failed_timestamps: number[];
+
+  personalised_insight: string;
+
+  biomechanical_analysis: {
+    rider_position_stability: string[];
+    horse_takeoff_analysis: string[];
+    landing_form: string[];
+    jump_approach: string[];
   };
-  biomechanical_summary: string;
-  ai_analysis: AIAnalysis;
+
+  jump_by_jump: Array<{
+    jump_number: number;
+    result: "Clear" | "Fault";
+    technical_insight: string;
+    biomechanical_data: string;
+  }>;
+
+  pattern_recognition: string[];
+
+  personalized_training: string[];
+
+  course_stats: {
+    total_jumps: number;
+    average_height: string;
+    points_lost: number;
+    clear_rate: string;
+  };
+
   metadata: {
     has_angle_data: boolean;
     representative_frames_used: boolean;
   };
-  processed_video_url?: string;
 }
 
 interface VideoAnalysisDisplayProps {
@@ -137,7 +155,7 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
       if (error) throw error;
 
       if (data) {
-        console.log("📊 Fetched analysis data:", data);
+        // console.log("📊 Fetched analysis data:", data);
         setAnalysis(data as VideoAnalysisData);
 
         // If completed, fetch report
@@ -218,7 +236,7 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
 
     if (type === "successful") {
       setSuccessfulJumps([...successfulJumps, jump]);
-      toast.success("✅ Successful jump marked!", {
+      toast.success("Successful jump marked!", {
         description: `At ${formatTime(currentTime)}`,
       });
     } else {
@@ -287,7 +305,7 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
 
       if (insertError) throw insertError;
 
-      toast.success("✅ Report generated successfully!");
+      toast.success("Report generated successfully!");
 
       // Refresh to show report
       await fetchAnalysis();
@@ -365,19 +383,21 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-white opacity-5 rounded-full -ml-32 -mb-32" />
 
           <div className="relative p-8 md:p-12 space-y-8">
-            <div className="flex items-start justify-between">
+            <div className="flex flex-col-reverse md:flex-row items-start justify-between">
               <div className="flex-1">
                 <div className="flex items-center gap-4 mb-4">
                   <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
-                    <Zap className="h-8 w-8 text-white" />
+                    <Zap className="h-4 w-4 md:h-8 md:w-8 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-3xl font-bold text-white mb-2">
+                    <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-2">
                       {language === "en"
                         ? "🎬 AI Processing Your Video"
                         : "🎬 IA Procesando Tu Video"}
                     </h3>
-                    <p className="text-blue-100 text-lg">{message}</p>
+                    <p className="text-blue-100 text-sm sm:text-lg">
+                      {message}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -625,15 +645,15 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
       <div className="space-y-6 max-w-7xl mx-auto">
         <Card className="overflow-hidden border-2 border-green-200 shadow-xl">
           <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-6 border-b-2 border-green-200">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-green-600 rounded-lg">
+            <div className="flex items-start  gap-3">
+              <div className="p-2 bg-green-600 rounded-lg ">
                 <CheckCircle className="h-6 w-6 text-white" />
               </div>
               <div>
                 <h3 className="text-2xl font-bold text-gray-900">
                   {language === "en"
-                    ? "✨ Processing Complete!"
-                    : "✨ ¡Procesamiento Completo!"}
+                    ? "Processing Complete!"
+                    : "¡Procesamiento Completo!"}
                 </h3>
                 <p className="text-gray-600 text-sm mt-1">
                   {language === "en"
@@ -644,7 +664,7 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
             </div>
           </div>
 
-          <div className="p-6 bg-gray-50">
+          <div className="p-3 sm:p-6 bg-gray-50">
             <div className="max-w-5xl mx-auto">
               <div
                 className="relative bg-black rounded-xl overflow-hidden shadow-2xl border-4 border-gray-200"
@@ -673,7 +693,7 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
             </div>
           </div>
 
-          <div className="p-8 bg-gradient-to-br from-gray-50 via-white to-gray-50">
+          <div className="p-4 sm:p-8 bg-gradient-to-br from-gray-50 via-white to-gray-50">
             <div className="max-w-3xl mx-auto space-y-6">
               <div className="text-center">
                 <h4 className="text-lg font-semibold text-gray-900 mb-2">
@@ -686,16 +706,16 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
               <div className="grid grid-cols-2 gap-4">
                 <Button
                   onClick={() => markJump("successful")}
-                  className="h-20 text-lg font-semibold bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
+                  className="max-h-20 text-lg font-semibold bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
                 >
-                  <CheckCircle className="h-7 w-7 mr-2" />
+                  <CheckCircle className="hidden sm:block sm:h-7 sm:w-7 mr-1 sm:mr-2" />
                   {language === "en" ? "Successful" : "Exitoso"}
                 </Button>
                 <Button
                   onClick={() => markJump("failed")}
-                  className="h-20 text-lg font-semibold bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700"
+                  className="max-h-20 text-lg font-semibold bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700"
                 >
-                  <XCircle className="h-7 w-7 mr-2" />
+                  <XCircle className="hidden sm:block sm:h-7 sm:w-7 mr-1 sm:mr-2" />
                   {language === "en" ? "Failed" : "Fallido"}
                 </Button>
               </div>
@@ -779,7 +799,7 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
         )}
 
         <Card className="relative overflow-hidden bg-gradient-to-br from-purple-600 via-blue-600 to-purple-700 border-0 shadow-2xl">
-          <div className="relative p-12 text-center">
+          <div className="relative p-5 md:p-12 text-center">
             <Sparkles className="h-16 w-16 text-white mx-auto mb-4" />
             <h3 className="text-3xl font-bold text-white mb-3">
               {language === "en"
@@ -799,7 +819,7 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
               onClick={generateReport}
               disabled={isGeneratingReport || totalMarked === 0}
               size="lg"
-              className="bg-white text-purple-700 hover:bg-gray-100 px-12 py-6 text-xl font-bold"
+              className="bg-white text-purple-700 hover:bg-gray-100 px-5 md:px-12 py-6 text-xl font-bold"
             >
               {isGeneratingReport ? (
                 <>
@@ -827,8 +847,8 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
     return (
       <div className="space-y-6 max-w-5xl mx-auto">
         <Card className="relative overflow-hidden bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 border-0 shadow-2xl">
-          <div className="relative p-16 text-center">
-            <Loader2 className="h-16 w-16 animate-spin text-white mx-auto mb-6" />
+          <div className="relative p-8 md:p-16 text-center">
+            <Loader2 className="h-10 w-10 md:h-16 md:w-16 animate-spin text-white mx-auto mb-6" />
             <h3 className="text-3xl font-bold text-white mb-3">
               {language === "en"
                 ? "🤖 AI Analyzing Your Performance"
@@ -873,8 +893,8 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
                 {language === "en" ? "Course Stats" : "Estadísticas del curso"}
               </h3>
               <p className="text-base text-white mt-auto">
-                {/* {analysisResult[language].jump_by_jump_results.length} */}
-                10 Jumps Total | Average Height: 1.3m
+                {reportContent.course_stats.total_jumps} Jumps Total | Average
+                Height: {reportContent.course_stats.average_height}
               </p>
             </div>
           </div>
@@ -885,7 +905,9 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
               <h3 className="text-lg font-medium opacity-90 mb-8">
                 {language === "en" ? "Points System" : "Estadísticas del curso"}
               </h3>
-              <p className="text-base text-white mt-auto">4 Points Lost</p>
+              <p className="text-base text-white mt-auto">
+                {reportContent.course_stats.points_lost} Points
+              </p>
             </div>
           </div>
 
@@ -896,7 +918,7 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
                 {language === "en" ? "Clear Rate" : "Estadísticas del curso"}
               </h3>
               <p className="text-base text-white mt-auto">
-                8/10 Jumps Clear (80%)
+                {reportContent.course_stats.clear_rate}
               </p>
             </div>
           </div>
@@ -919,13 +941,7 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
           </div>
           <div className="max-w-[900px]">
             <p className="text-white text-base">
-              {/* {analysisResult[language].personalInsight} */}
-              You appear to be a technically proficient rider, showing
-              dedication to mastering complex movements. To enhance your overall
-              performance, consider prioritizing the horse's relaxation and
-              suppleness, especially during lateral work and transitions.
-              Focusing on these aspects should create a more harmonious and
-              expressive partnership.
+              {reportContent.personalised_insight}
             </p>
           </div>
         </Card>
@@ -945,33 +961,41 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
           <div className="w-full bg-[#F1F5F9] rounded-lg p-6">
             <h3 className="text-lg font-semibold">Rider Position Stability</h3>
             <ul className="mb-4 list-disc pl-5">
-              <li>Maintained secure seat through 7/10 jumps</li>
+              {reportContent.biomechanical_analysis.rider_position_stability.map(
+                (item, index) => (
+                  <li key={index}>{item}</li>
+                )
+              )}
             </ul>
             <h3 className="text-lg font-semibold">Horse Takeoff Analysis</h3>
             <ul className="mb-4 list-disc pl-5">
-              <li>Average front leg extension: 98° (Optimal: 119°)</li>
+              {reportContent.biomechanical_analysis.horse_takeoff_analysis.map(
+                (item, index) => (
+                  <li key={index}>{item}</li>
+                )
+              )}
             </ul>
             <h3 className="text-lg font-semibold">Landing Form</h3>
             <ul className="mb-4 list-disc pl-5">
-              <li>Consistent hind leg engagement on clear</li>
+              {reportContent.biomechanical_analysis.landing_form.map(
+                (item, index) => (
+                  <li key={index}>{item}</li>
+                )
+              )}
             </ul>
             <h3 className="text-lg font-semibold">Jumps Approach</h3>
             <ul className="mb-4 list-disc pl-5">
-              <li>
-                Quality Straight approaches: 80% | Angled approaches: 60%
-                success
-              </li>
+              {reportContent.biomechanical_analysis.jump_approach.map(
+                (item, index) => (
+                  <li key={index}>{item}</li>
+                )
+              )}
             </ul>
           </div>
         </Card>
 
         {/* Jump by jump Analysis */}
         <Card className="my-4 overflow-hidden">
-          {/* <h3 className="text-xl sm:text-2xl font-semibold mb-2 sm:mb-4">
-          {language === "en"
-            ? "Jump by jump Analysis"
-            : "Análisis Salto por Salto"}
-        </h3> */}
           <div className="overflow-x-auto">
             <table className="min-w-full border border-gray-300 rounded-lg">
               <thead className="bg-[#f1f5f9]">
@@ -991,22 +1015,19 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
                 </tr>
               </thead>
               <tbody>
-                {Array.from({ length: 10 }).map((jump, index) => (
+                {reportContent.jump_by_jump.map((jump, index) => (
                   <tr key={index} className="border-none border-gray-200">
                     <td className="px-4 py-2 text-sm border border-gray-200 capitalize">
-                      Jump {index}
+                      Jump {jump.jump_number}
                     </td>
                     <td className="px-4 py-2 text-sm border border-gray-200 uppercase">
-                      {/* {jump.result} */}
-                      Clear
+                      {jump.result}
                     </td>
                     <td className="px-4 py-2 text-sm border border-gray-200 capitalize">
-                      {/* {jump.jump_type} */}
-                      Good rythm, slight bracing
+                      {jump.technical_insight}
                     </td>
                     <td className="px-4 py-2 text-sm border border-gray-200 capitalize">
-                      {/* {jump.jump_type} */}
-                      Good rythm, slight bracing
+                      {jump.biomechanical_data}
                     </td>
                   </tr>
                 ))}
@@ -1029,17 +1050,17 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
           </div>
           <div className="w-full p-6">
             <ul className="mb-4 list-disc pl-5">
-              <li>
-                <b>Success Rate by Height: 1.2m:</b>
-                100% | 1.3m: 70% | 1.4m: 50%
-              </li>
-              <li>
-                <b>Failure Patterns:</b> 3 of 4 faults occurred on unstable
-                approach angles
-              </li>
-              <li>
-                <b>Session Comparison:</b> 20% improvement from last session
-              </li>
+              {reportContent.pattern_recognition.map((item, index) => {
+                const parts = item.split(/[:\-]/);
+                const label = parts[0].trim();
+                const value = item.replace(parts[0], "").trim();
+
+                return (
+                  <li key={index}>
+                    <b>{label}</b> {value}
+                  </li>
+                );
+              })}
             </ul>
           </div>
         </Card>
@@ -1058,7 +1079,18 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
           </div>
           <Card className="w-full p-6 bg-[#F1F5F9]">
             <ul className="mb-4 list-disc pl-5">
-              <li>
+              {reportContent.personalized_training.map((item, index) => {
+                const parts = item.split(/[:\-]/);
+                const label = parts[0].trim();
+                const value = item.replace(parts[0], "").trim();
+
+                return (
+                  <li key={index}>
+                    <b>{label}</b> {value}
+                  </li>
+                );
+              })}
+              {/* <li>
                 <b>This Week's Focus:</b>
                 Practice grid work - 4 bounces to improve rhythm
               </li>
@@ -1069,7 +1101,7 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
               <li>
                 <b>Next Session Plan:</b> Work on approach consistency with
                 ground pole exercises
-              </li>
+              </li> */}
             </ul>
           </Card>
         </Card>
