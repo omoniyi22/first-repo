@@ -15,10 +15,13 @@ import {
   Zap,
   Sparkles,
   PlayCircle,
+  AlertTriangle,
+  ArrowRight,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { RiWhatsappFill } from "react-icons/ri";
+import { useAnalysisLimit } from "@/hooks/useAnalysisLimit";
 
 // =========================
 // Interfaces
@@ -118,6 +121,15 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
   const navigate = useNavigate();
 
   const documentId = videoId || searchParams.get("document_id");
+
+  const {
+    canAnalyze: isAnalysisLimitReached,
+    currentAnalyses: analysisUsed,
+    maxAnalyses: analysisLimit,
+    remainingAnalyses: analysisRemaining,
+    loading: analysisLimitLoading,
+    refresh: refreshAnalysisLimit,
+  } = useAnalysisLimit();
 
   // State
   const [analysis, setAnalysis] = useState<VideoAnalysisData | null>(null);
@@ -275,6 +287,22 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
       return;
     }
 
+    // CHECK ANALYSIS LIMIT BEFORE PROCEEDING
+    if (!isAnalysisLimitReached) {
+      toast.error(
+        language === "en"
+          ? "Analysis Limit Reached"
+          : "Límite de Análisis Alcanzado",
+        {
+          description:
+            language === "en"
+              ? `You have reached your monthly analysis limit of ${analysisLimit}. Please upgrade your plan.`
+              : `Has alcanzado tu límite mensual de análisis de ${analysisLimit}. Por favor actualiza tu plan.`,
+        }
+      );
+      return;
+    }
+
     setIsGeneratingReport(true);
     toast.info("🤖 Starting AI analysis...");
 
@@ -288,6 +316,33 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
           failed_jumps: failedJumps,
         }),
       });
+
+      // HANDLE 403 LIMIT ERROR FROM BACKEND
+      if (response.status === 403) {
+        const errorData = await response.json();
+        const errorDetail = errorData.detail;
+
+        toast.error(
+          language === "en"
+            ? "Analysis Limit Reached"
+            : "Límite de Análisis Alcanzado",
+          {
+            description:
+              errorDetail?.message ||
+              (language === "en"
+                ? "You have reached your analysis limit. Please upgrade your plan."
+                : "Has alcanzado tu límite de análisis. Por favor actualiza tu plan."),
+          }
+        );
+
+        // Update local state
+        setIsGeneratingReport(false);
+
+        // Refresh analysis limit to show updated count
+        refreshAnalysisLimit();
+
+        return;
+      }
 
       if (!response.ok) throw new Error("Failed to generate report");
 
@@ -304,6 +359,8 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
         });
 
       if (insertError) throw insertError;
+
+      refreshAnalysisLimit();
 
       toast.success("Report generated successfully!");
 
@@ -523,7 +580,7 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
             <div className="flex items-center gap-3 text-white/90 text-sm bg-white/10 p-4 rounded-lg backdrop-blur-sm">
               <AlertCircle className="h-5 w-5 flex-shrink-0" />
               <div>
-                <p className="font-semibold mb-1">
+                <p className="font-semibold mb-1 text-white/90">
                   {language === "en"
                     ? "What's Happening?"
                     : "¿Qué Está Pasando?"}
@@ -797,6 +854,57 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
           </Card>
         )}
 
+        {/* Add this card BEFORE the "Generate Report" button card in the PROCESSED section */}
+        {!analysisLimitLoading && (
+          <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-blue-600" />
+                <span className="font-semibold text-gray-900">
+                  {language === "en"
+                    ? "AI Analysis Credits"
+                    : "Créditos de Análisis IA"}
+                </span>
+              </div>
+              <span
+                className={`text-2xl font-bold ${
+                  isAnalysisLimitReached ? "text-green-600" : "text-red-600"
+                }`}
+              >
+                {analysisRemaining === "unlimited" ? "∞" : analysisRemaining}
+                {" / "}
+                {analysisLimit === "unlimited" ? "∞" : analysisLimit}
+              </span>
+            </div>
+
+            {!isAnalysisLimitReached && (
+              <div className="bg-orange-100 border border-orange-200 rounded-lg p-3 flex items-start gap-3">
+                <AlertTriangle className="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-orange-800">
+                    {language === "en"
+                      ? "Analysis Limit Reached"
+                      : "Límite de Análisis Alcanzado"}
+                  </p>
+                  <p className="text-sm text-orange-700 mt-1">
+                    {language === "en"
+                      ? `You've used all ${analysisLimit} monthly analyses. Upgrade to continue analyzing videos.`
+                      : `Has usado todos los ${analysisLimit} análisis mensuales. Actualiza para continuar analizando videos.`}
+                  </p>
+                  <Button
+                    size="sm"
+                    className="mt-2 bg-orange-600 hover:bg-orange-700 text-white"
+                    onClick={() => navigate("/pricing")}
+                  >
+                    {language === "en" ? "Upgrade Plan" : "Actualizar Plan"}
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            )}
+          </Card>
+        )}
+
         <Card className="relative overflow-hidden bg-gradient-to-br from-purple-600 via-blue-600 to-purple-700 border-0 shadow-2xl">
           <div className="relative p-5 md:p-12 text-center">
             <Sparkles className="h-16 w-16 text-white mx-auto mb-4" />
@@ -814,9 +922,15 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
                     totalMarked !== 1 ? "s" : ""
                   }`}
             </p>
+
             <Button
               onClick={generateReport}
-              disabled={isGeneratingReport || totalMarked === 0}
+              disabled={
+                isGeneratingReport ||
+                totalMarked === 0 ||
+                !isAnalysisLimitReached ||
+                analysisLimitLoading
+              }
               size="lg"
               className="bg-white text-purple-700 hover:bg-gray-100 px-5 md:px-12 py-6 text-xl font-bold"
             >
@@ -825,6 +939,12 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
                   <Loader2 className="h-6 w-6 mr-3 animate-spin" />
                   {language === "en" ? "Analyzing..." : "Analizando..."}
                 </>
+              ) : !isAnalysisLimitReached ? (
+                language === "en" ? (
+                  "Analysis Limit Reached"
+                ) : (
+                  "Límite de Análisis Alcanzado"
+                )
               ) : (
                 <>
                   <Sparkles className="h-6 w-6 mr-3" />
@@ -1077,7 +1197,7 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
             </div>
           </div>
           <Card className="w-full p-6 bg-[#F1F5F9]">
-            <ul className="mb-4 list-disc pl-5">
+            <ul className="list-disc pl-5">
               {reportContent.personalized_training.map((item, index) => {
                 const parts = item.split(/[:\-]/);
                 const label = parts[0].trim();

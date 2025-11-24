@@ -133,10 +133,7 @@ function App() {
                     element={<JumpProfileSetup />}
                   />
                   <Route path="/analysis" element={<Analysis />} />
-                  <Route
-                    path="/video-processing"
-                    element={<VideoProcessing />}
-                  />
+                  
 
                   {/* Public analysis route */}
                   <Route path="/analysis/:id" element={<PublicAnalysis />} />

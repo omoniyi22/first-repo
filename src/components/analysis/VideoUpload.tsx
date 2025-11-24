@@ -7,8 +7,9 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "../ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ActivityLogger } from "@/utils/activityTracker";
 import {
   Select,
@@ -31,6 +32,9 @@ import {
   Video,
   X,
   Loader2,
+  FileText,
+  AlertTriangle,
+  ArrowRight,
 } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -45,6 +49,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { v4 as uuidv4 } from "uuid";
 import { jumpingLevels } from "@/lib/formOptions";
 import { useNavigate } from "react-router-dom";
+import { useDocumentLimits } from "@/hooks/useDocumentLimits";
 
 const VideoUploadFormSchema = z.object({
   discipline: z.enum(["dressage", "jumping"]),
@@ -72,6 +77,7 @@ const VideoUpload = ({ fetchDocs }: VideoUploadProps) => {
   const { language, translations } = useLanguage();
   const t = translations[language];
   const navigate = useNavigate();
+  const documentLimits = useDocumentLimits();
 
   const [selectedVideo, setSelectedVideo] = useState<File | null>(null);
   const [videoPreviewUrl, setVideoPreviewUrl] = useState<string | null>(null);
@@ -215,6 +221,12 @@ const VideoUpload = ({ fetchDocs }: VideoUploadProps) => {
   };
 
   const onSubmit = async (data: VideoUploadFormValues) => {
+    // CHECK LIMITS BEFORE PROCEEDING
+    const canUpload = await documentLimits.checkAndEnforce();
+    if (!canUpload) {
+      return;
+    }
+
     if (!selectedVideo || !user) {
       toast({
         title:
@@ -247,6 +259,7 @@ const VideoUpload = ({ fetchDocs }: VideoUploadProps) => {
       // Step 1: Upload video to Python API
       const formData = new FormData();
       formData.append("video", selectedVideo);
+      formData.append("user_id", user.id);
 
       const PYTHON_API_URL =
         import.meta.env.VITE_PYTHON_API_URL ||
@@ -257,6 +270,26 @@ const VideoUpload = ({ fetchDocs }: VideoUploadProps) => {
         method: "POST",
         body: formData,
       });
+
+      // HANDLE LIMIT ERROR
+      if (uploadRes.status === 403) {
+        const errorData = await uploadRes.json();
+        toast({
+          title:
+            language === "en"
+              ? "Upload Limit Reached"
+              : "Límite de Subida Alcanzado",
+          description:
+            errorData.detail?.message ||
+            (language === "en"
+              ? "You have reached your upload limit. Please upgrade your plan."
+              : "Has alcanzado tu límite de subida. Por favor actualiza tu plan."),
+          variant: "destructive",
+        });
+        setIsUploading(false);
+        setIsShowSpinner(false);
+        return;
+      }
 
       if (!uploadRes.ok) {
         throw new Error("Failed to upload video to processing server");
@@ -369,6 +402,8 @@ const VideoUpload = ({ fetchDocs }: VideoUploadProps) => {
         fetchDocs();
       }
 
+      documentLimits.refreshLimits();
+
       toast({
         title:
           language === "en"
@@ -422,6 +457,136 @@ const VideoUpload = ({ fetchDocs }: VideoUploadProps) => {
           ? "Upload Video for Analysis"
           : "Subir Video para Análisis"}
       </h2>
+
+      {!documentLimits.loading && (
+        <Card className="mb-6 bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <FileText className="h-5 w-5 text-blue-600" />
+                <span className="text-lg">
+                  {language === "en" ? "Upload Limits" : "Límites de Subida"}
+                </span>
+              </div>
+              <Badge
+                variant="outline"
+                className="border-blue-300 text-blue-700"
+              >
+                {documentLimits.planName} {language === "en" ? "Plan" : "Plan"}
+              </Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-3 gap-4 mb-4">
+              <div className="text-center">
+                <p className="text-sm text-gray-600">
+                  {documentLimits.limitType === "one_time"
+                    ? language === "en"
+                      ? "Total Uploaded"
+                      : "Total Subidos"
+                    : language === "en"
+                    ? "This Month"
+                    : "Este Mes"}
+                </p>
+                <p className="text-2xl font-bold text-blue-700">
+                  {documentLimits.currentDocuments}
+                </p>
+              </div>
+              <div className="text-center">
+                <p className="text-sm text-gray-600">
+                  {language === "en" ? "Plan Limit" : "Límite del Plan"}
+                </p>
+                <p className="text-2xl font-bold text-gray-700">
+                  {documentLimits.maxDocuments === "unlimited"
+                    ? "∞"
+                    : documentLimits.maxDocuments}
+                </p>
+              </div>
+              <div className="text-center">
+                <p className="text-sm text-gray-600">
+                  {language === "en" ? "Remaining" : "Restantes"}
+                </p>
+                <p
+                  className={`text-2xl font-bold ${
+                    documentLimits.canUploadDocument
+                      ? "text-green-600"
+                      : "text-red-600"
+                  }`}
+                >
+                  {documentLimits.remainingDocuments === "unlimited"
+                    ? "∞"
+                    : documentLimits.remainingDocuments}
+                </p>
+              </div>
+            </div>
+
+            {/* Progress Bar */}
+            {documentLimits.maxDocuments !== "unlimited" && (
+              <div className="mb-4">
+                <div className="flex justify-between text-sm text-gray-600 mb-1">
+                  <span>{language === "en" ? "Usage" : "Uso"}</span>
+                  <span>
+                    {Math.round(
+                      (documentLimits.currentDocuments /
+                        (documentLimits.maxDocuments as number)) *
+                        100
+                    )}
+                    %
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className={`h-2 rounded-full transition-all duration-300 ${
+                      documentLimits.canUploadDocument
+                        ? "bg-blue-500"
+                        : "bg-red-500"
+                    }`}
+                    style={{
+                      width: `${Math.min(
+                        (documentLimits.currentDocuments /
+                          (documentLimits.maxDocuments as number)) *
+                          100,
+                        100
+                      )}%`,
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Upgrade prompt if at limit */}
+            {!documentLimits.canUploadDocument && (
+              <div className="bg-orange-100 border border-orange-200 rounded-lg p-3 flex items-start gap-3">
+                <AlertTriangle className="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-orange-800">
+                    {language === "en"
+                      ? "Upload Limit Reached"
+                      : "Límite de Subida Alcanzado"}
+                  </p>
+                  <p className="text-sm text-orange-700 mt-1">
+                    {documentLimits.limitType === "one_time"
+                      ? language === "en"
+                        ? `You've reached your lifetime upload limit (${documentLimits.currentDocuments}/${documentLimits.maxDocuments}). This limit does not reset. Upgrade your plan to upload more.`
+                        : `Has alcanzado tu límite vitalicio de subidas (${documentLimits.currentDocuments}/${documentLimits.maxDocuments}). Este límite no se reinicia. Actualiza tu plan para subir más.`
+                      : language === "en"
+                      ? `You've reached your monthly upload limit (${documentLimits.currentDocuments}/${documentLimits.maxDocuments}). Your limit will reset on the 1st of next month.`
+                      : `Has alcanzado tu límite mensual de subidas (${documentLimits.currentDocuments}/${documentLimits.maxDocuments}). Tu límite se reiniciará el 1 del próximo mes.`}
+                  </p>
+                  <Button
+                    size="sm"
+                    className="mt-2 bg-orange-600 hover:bg-orange-700 text-white"
+                    onClick={() => navigate("/pricing")}
+                  >
+                    {language === "en" ? "Upgrade Plan" : "Actualizar Plan"}
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       <div className="mb-6">
         <Label htmlFor="video-upload">
@@ -786,7 +951,12 @@ const VideoUpload = ({ fetchDocs }: VideoUploadProps) => {
             <Button
               type="submit"
               className={`w-full bg-gradient-to-r from-[#7857eb] to-[#3b78e8]`}
-              disabled={!selectedVideo || isUploading || horses.length === 0}
+              disabled={
+                !selectedVideo ||
+                isUploading ||
+                horses.length === 0 ||
+                !documentLimits.canUploadDocument
+              }
             >
               {isUploading
                 ? language === "en"
