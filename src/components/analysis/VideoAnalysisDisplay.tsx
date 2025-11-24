@@ -194,7 +194,7 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
       pollIntervalRef.current = setInterval(() => {
         console.log("🔄 Polling for status update...");
         fetchAnalysis();
-      }, 20000);
+      }, 60000);
     }
 
     return () => {
