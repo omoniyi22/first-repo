@@ -954,7 +954,7 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
                 : "Análisis biomecánico"}
             </h4>
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f1f5f9] backdrop-blur-sm">
-              <img src="/icon/search-document.svg" alt="" />
+              <img src="/icon/search-document-icon.svg" alt="" />
             </div>
           </div>
           <div className="w-full bg-[#F1F5F9] rounded-lg p-6">
@@ -1044,7 +1044,7 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
                 : "Reconocimiento de patrones"}
             </h4>
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f1f5f9] backdrop-blur-sm">
-              <img src="/icon/eye.svg" alt="" />
+              <img src="/icon/eye-icon.svg" alt="" />
             </div>
           </div>
           <div className="w-full p-6">
@@ -1073,7 +1073,7 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
                 : "Entrenamiento personalizado"}
             </h4>
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f1f5f9] backdrop-blur-sm">
-              <img src="/icon/space-shuttle.svg" alt="" />
+              <img src="/icon/space-shuttle-icon.svg" alt="" />
             </div>
           </div>
           <Card className="w-full p-6 bg-[#F1F5F9]">
