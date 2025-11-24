@@ -664,10 +664,17 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
             </div>
           </div>
 
-          <div className="p-3 sm:p-6 bg-gray-50">
+          <div className="p-3 bg-gray-50">
             <div className="max-w-5xl mx-auto">
+              <div className="text-center">
+                <h4 className="text-lg font-semibold text-gray-900 mb-2">
+                  {language === "en"
+                    ? "Mark Jumps in Real-Time"
+                    : "Marca Saltos en Tiempo Real"}
+                </h4>
+              </div>
               <div
-                className="relative bg-black rounded-xl overflow-hidden shadow-2xl border-4 border-gray-200"
+                className="relative bg-black rounded-xl overflow-hidden shadow-2xl border-4 border-gray-200 max-w-[45vw] mx-auto"
                 style={{ aspectRatio: "16/9" }}
               >
                 <video
@@ -693,27 +700,19 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
             </div>
           </div>
 
-          <div className="p-4 sm:p-8 bg-gradient-to-br from-gray-50 via-white to-gray-50">
+          <div className="p-4 bg-gradient-to-br from-gray-50 via-white to-gray-50">
             <div className="max-w-3xl mx-auto space-y-6">
-              <div className="text-center">
-                <h4 className="text-lg font-semibold text-gray-900 mb-2">
-                  {language === "en"
-                    ? "Mark Jumps in Real-Time"
-                    : "Marca Saltos en Tiempo Real"}
-                </h4>
-              </div>
-
               <div className="grid grid-cols-2 gap-4">
                 <Button
                   onClick={() => markJump("successful")}
-                  className="max-h-20 text-lg font-semibold bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
+                  className="max-h-20 text-lg bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
                 >
                   <CheckCircle className="hidden sm:block sm:h-7 sm:w-7 mr-1 sm:mr-2" />
                   {language === "en" ? "Successful" : "Exitoso"}
                 </Button>
                 <Button
                   onClick={() => markJump("failed")}
-                  className="max-h-20 text-lg font-semibold bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700"
+                  className="max-h-20 text-lg bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700"
                 >
                   <XCircle className="hidden sm:block sm:h-7 sm:w-7 mr-1 sm:mr-2" />
                   {language === "en" ? "Failed" : "Fallido"}
