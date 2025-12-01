@@ -57,10 +57,10 @@ import { HelmetProvider } from "react-helmet-async";
 // import TawktoWidget from "./components/Tawkto";
 import AiCourseBuilder from "./pages/AiCourseBuilder";
 import ScrollToTop from "./components/layout/ScrollToTop";
-import PublicAnalysis from "./pages/PublicAnalysis";
 import AdminPricingPlans from "./pages/AdminPricingPlans";
 import AdminCoupons from "./pages/AdminCoupons";
-import VideoProcessing from "./pages/VideoProcessing";
+import DocumentPublicAnalysis from "./pages/DocumentPublicAnalysis";
+import VideoPublicAnalysis from "./pages/VideoPublicAnalysis";
 
 function App() {
   const location = useLocation();
@@ -133,10 +133,16 @@ function App() {
                     element={<JumpProfileSetup />}
                   />
                   <Route path="/analysis" element={<Analysis />} />
-                  
 
                   {/* Public analysis route */}
-                  <Route path="/analysis/:id" element={<PublicAnalysis />} />
+                  <Route
+                    path="/analysis/document/:id"
+                    element={<DocumentPublicAnalysis />}
+                  />
+                  <Route
+                    path="/analysis/video/:id"
+                    element={<VideoPublicAnalysis />}
+                  />
 
                   <Route
                     path="/ai-course-builder"

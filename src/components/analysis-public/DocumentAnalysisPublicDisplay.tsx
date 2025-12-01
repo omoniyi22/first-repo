@@ -188,19 +188,6 @@ const DocumentAnalysisPublicDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
     }
   }, [resultData]);
 
-  const handleWhatsAppShare = () => {
-    const message = `📊 Check out my competition analysis report!
-
-You can view it here: ${window.location.origin}/analysis/${documentId}
-
-Let me know what you think!`;
-
-    const encodedMessage = encodeURIComponent(message);
-    const url = `https://wa.me/?text=${encodedMessage}`;
-
-    window.open(url, "_blank");
-  };
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-8">
@@ -774,8 +761,7 @@ Let me know what you think!`;
         <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-4 mb-3 sm:mb-4">
           <Button
             className="bg-gradient-to-r from-[#3AD55A] to-[#00AE23] flex items-center"
-            disabled={!user}
-            onClick={handleWhatsAppShare}
+            disabled
           >
             <RiWhatsappFill className="!h-7 !w-7 text-white" size={50} />
             Send Results to Coach

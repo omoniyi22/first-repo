@@ -428,7 +428,7 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
   const handleWhatsAppShare = () => {
     const message = `📊 Check out my competition analysis report!
 
-You can view it here: ${window.location.origin}/analysis/${documentId}
+You can view it here: ${window.location.origin}/analysis/document/${documentId}
 
 Let me know what you think!`;
     const encodedMessage = encodeURIComponent(message);

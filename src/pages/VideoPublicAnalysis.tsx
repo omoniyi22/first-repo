@@ -3,9 +3,9 @@ import Navbar from "@/components/layout/Navbar";
 
 import { useParams } from "react-router-dom";
 import Footer from "@/components/layout/Footer";
-import DocumentAnalysisPublicDisplay from "@/components/analysis-public/DocumentAnalysisPublicDisplay";
+import VideoAnalysisPublicDisplay from "@/components/analysis-public/VideoAnalysisPublicDisplay";
 
-const PublicAnalysis = () => {
+const VideoPublicAnalysis = () => {
   const { id: selectedDocumentId } = useParams();
 
   return (
@@ -13,11 +13,11 @@ const PublicAnalysis = () => {
       <Navbar />
       <main className="flex-grow container mx-auto px-4 pt-24 pb-16">
         {" "}
-        <DocumentAnalysisPublicDisplay documentId={selectedDocumentId} />
+        <VideoAnalysisPublicDisplay videoId={selectedDocumentId} />
       </main>
       <Footer />
     </div>
   );
 };
 
-export default PublicAnalysis;
+export default VideoPublicAnalysis;

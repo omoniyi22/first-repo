@@ -374,6 +374,18 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
     }
   };
 
+  const handleWhatsAppShare = () => {
+    const message = `📊 Check out my competition analysis report!
+
+You can view it here: ${window.location.origin}/analysis/video/${documentId}
+
+Let me know what you think!`;
+    const encodedMessage = encodeURIComponent(message);
+    const url = `https://wa.me/?text=${encodedMessage}`;
+
+    window.open(url, "_blank");
+  };
+
   // =========================
   // Render Functions
   // =========================
@@ -1259,7 +1271,7 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
           <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-4 mb-3 sm:mb-4">
             <Button
               className="bg-gradient-to-r from-[#3AD55A] to-[#00AE23] flex items-center"
-              // onClick={handleWhatsAppShare}
+              onClick={handleWhatsAppShare}
             >
               {/* <MessageCircle className="h-10 w-10 text-white" /> */}
               <RiWhatsappFill className="!h-7 !w-7 text-white" size={50} />
