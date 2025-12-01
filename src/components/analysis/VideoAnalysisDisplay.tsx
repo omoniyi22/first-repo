@@ -1226,7 +1226,7 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
         </Card>
 
         {/* Want more guidance? */}
-        <Card className="w-full bg-gradient-to-r from-[#7658EB] to-[#3C78EB] text-white p-6 mt-6 flex items-center justify-between rounded-lg shadow-lg flex-col-reverse sm:flex-row gap-5 sm:gap-0">
+        {/* <Card className="w-full bg-gradient-to-r from-[#7658EB] to-[#3C78EB] text-white p-6 mt-6 flex items-center justify-between rounded-lg shadow-lg flex-col-reverse sm:flex-row gap-5 sm:gap-0">
           <div className="">
             <h2 className="text-xl font-medium">
               Based on today's analysis, we've created a 20-minute
@@ -1251,7 +1251,7 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
               className="w-full h-full object-cover object-center rounded-full"
             />
           </div>
-        </Card>
+        </Card> */}
 
         {/* WhatsApp Share Button */}
 
