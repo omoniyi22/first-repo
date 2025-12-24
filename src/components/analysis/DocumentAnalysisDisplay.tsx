@@ -924,9 +924,15 @@ Let me know what you think!`;
                       <b>{language === "en" ? "Method:" : ":"}</b>
                       <br />
                       <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
-                        {recommendation["method"].map((method, key) => (
-                          <li key={key}>{method}</li>
-                        ))}
+                        {Array.isArray(recommendation["method"]) ? (
+                          recommendation["method"].map((method, key) => (
+                            <li key={key}>{method}</li>
+                          ))
+                        ) : typeof recommendation["method"] === "string" ? (
+                          <li>{recommendation["method"]}</li>
+                        ) : (
+                          <li>No method provided</li>
+                        )}
                       </ul>
                     </div>
                     <br />
