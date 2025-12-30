@@ -66,15 +66,24 @@ serve(async (req) => {
     if (!raw) throw new Error('GEMINI_SERVICE_ACCOUNT_JSON is not set');
     const serviceAccount = JSON.parse(raw);
     console.log("Using project:", serviceAccount.project_id);
-    const { documentId, base64Image } = await req.json();
 
-    if (!documentId || !base64Image) {
-      return new Response(JSON.stringify({
-        error: 'Missing documentId or base64Image'
-      }), {
-        status: 400,
-        headers: corsHeaders
-      });
+
+    const { documentId, base64Image, extractionId, useVerifiedData } = await req.json();
+
+    // If using verified data, we don't need base64Image
+    if (!documentId) {
+      return new Response(
+        JSON.stringify({ error: 'Missing documentId' }),
+        { status: 400, headers: corsHeaders }
+      );
+    }
+
+    // Only require base64Image if NOT using verified data
+    if (!useVerifiedData && !base64Image) {
+      return new Response(
+        JSON.stringify({ error: 'Missing base64Image for fresh extraction' }),
+        { status: 400, headers: corsHeaders }
+      );
     }
 
     // === START: ANALYSIS LIMIT CHECK ===
@@ -148,6 +157,31 @@ serve(async (req) => {
     }
     // === END: ANALYSIS LIMIT CHECK ===
 
+
+    // === START: CHECK FOR VERIFIED DATA (USE AS GUIDE) ===
+    let verifiedDataGuide = null;
+    let hasVerifiedData = false;
+
+    if (useVerifiedData && extractionId) {
+      console.log("🔍 Loading verified data to use as guidance:", extractionId);
+
+      const { data: extractionData, error: extractionError } = await supabase
+        .from('document_extractions')
+        .select('verified_data, extracted_data')
+        .eq('id', extractionId)
+        .single();
+
+      if (!extractionError && extractionData) {
+        verifiedDataGuide = extractionData.verified_data || extractionData.extracted_data;
+        hasVerifiedData = true;
+        console.log("✅ Verified data loaded - will use as guidance for AI");
+      } else {
+        console.warn("⚠️ Failed to load extraction data, will analyze fresh:", extractionError);
+      }
+    }
+    // === END: CHECK FOR VERIFIED DATA ===
+
+    // Update status to processing
     await supabase.from('document_analysis').update({
       status: 'processing',
       updated_at: new Date().toISOString()
@@ -157,7 +191,28 @@ serve(async (req) => {
     const model = "gemini-2.0-flash";
     const geminiUrl = `https://us-central1-aiplatform.googleapis.com/v1/projects/${serviceAccount.project_id}/locations/us-central1/publishers/google/models/${model}:generateContent`;
 
-    const prompt = `
+    // =====================================================
+    // BUILD PROMPT WITH OPTIONAL VERIFIED DATA GUIDANCE
+    // =====================================================
+
+    let promptPrefix = "";
+    if (hasVerifiedData) {
+      promptPrefix = `
+IMPORTANT CONTEXT - USER-VERIFIED EXTRACTION DATA:
+The user has already reviewed and verified the following extracted data from this document:
+${JSON.stringify(verifiedDataGuide, null, 2)}
+
+This verified data should be used as a REFERENCE and GUIDE when analyzing the document.
+If the document is difficult to read, use these verified values.
+If you can clearly read the document and the values match, use high confidence.
+If you can clearly read the document and values differ from verified data, trust the document.
+
+Now proceed with the full analysis as normal:
+---
+`;
+    }
+
+    const mainPrompt = `
       This is the test score sheet of one rider's jumping or dressage movement.
       You should get the name of horse from document like Frapp, Varadero, Pagasus, Han, Lolo and so on.
       If the document is in Spanish or partially contains Spanish text, you must translate all extracted terms, movement labels, and judge comments into English before using them.
@@ -485,6 +540,15 @@ serve(async (req) => {
 
     `;
 
+    const fullPrompt = promptPrefix + mainPrompt;
+
+    // =====================================================
+    // CALL GEMINI WITH FULL PROMPT + PDF
+    // =====================================================
+
+    console.log("🔍 Analyzing document with Gemini AI...");
+    console.log(hasVerifiedData ? "📋 Using verified data as guidance" : "📄 Fresh analysis");
+
     const geminiResponse = await fetch(geminiUrl, {
       method: 'POST',
       headers: {
@@ -495,7 +559,7 @@ serve(async (req) => {
         contents: [{
           role: 'user',
           parts: [
-            { text: prompt },
+            { text: fullPrompt },
             { inlineData: { mimeType: 'application/pdf', data: base64Image } }
           ]
         }]
@@ -503,7 +567,6 @@ serve(async (req) => {
     });
 
     const result_en = await geminiResponse.text();
-    console.log("🚀 ~ result_en:", result_en);
 
     if (!geminiResponse.ok) {
       console.error('Gemini error response:', result_en);
@@ -511,27 +574,30 @@ serve(async (req) => {
     }
 
     const geminiResult_en = JSON.parse(result_en);
-    console.log("🚀 ~ geminiResult_en:", geminiResult_en);
-
     let resultText = geminiResult_en.candidates[0].content.parts[0].text;
-    console.log("resultText:", resultText);
     resultText = resultText.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
 
     let finalResult;
     try {
       finalResult = JSON.parse(resultText);
+      console.log("✅ Analysis completed successfully");
     } catch (err) {
       console.error("❌ Failed to parse JSON:", resultText);
       throw new Error("Gemini returned invalid JSON format");
     }
 
+    // =====================================================
+    // SPANISH LOCALIZATION (ALWAYS)
+    // =====================================================
+
+    console.log("🌍 Translating to Spanish...");
+
     const localizationPrompt = `
-      You will be given a JSON object. Translate all text content to Spanish, preserving keys and structure.
-      In case of weakness-svg, translate only title, instruction and weakness
-      Return only the updated JSON, nothing else.
-      JSON:
-      ${JSON.stringify(finalResult, null, 2)}
-      `;
+You will be given a JSON object. Translate all text content to Spanish, preserving keys and structure.
+Return only the updated JSON, nothing else.
+JSON:
+${JSON.stringify(finalResult, null, 2)}
+`;
 
     const localizationResponse = await fetch(geminiUrl, {
       method: 'POST',
@@ -560,18 +626,35 @@ serve(async (req) => {
     let localizedResult;
     try {
       localizedResult = JSON.parse(localizedText);
+      console.log("✅ Spanish translation completed");
     } catch (err) {
       console.error("❌ Failed to parse localized JSON:", localizedText);
       throw new Error("Gemini returned invalid localized JSON format");
     }
 
-    await supabase.from('analysis_results').insert({
-      document_id: documentId,
-      result_json: {
-        en: finalResult,
-        es: localizedResult
-      }
-    });
+    // =====================================================
+    // SAVE TO DATABASE (BOTH LANGUAGES)
+    // =====================================================
+
+    console.log("💾 Saving analysis results...");
+
+    const { error: resultsError } = await supabase
+      .from('analysis_results')
+      .upsert({
+        document_id: documentId,
+        result_json: {
+          en: finalResult,
+          es: localizedResult
+        },
+        updated_at: new Date().toISOString()
+      }, {
+        onConflict: 'document_id'
+      });
+
+    if (resultsError) {
+      console.error('Failed to save analysis results:', resultsError);
+      throw new Error('Failed to save analysis results');
+    }
 
     await supabase.from('document_analysis').update({
       status: 'completed',
@@ -579,20 +662,22 @@ serve(async (req) => {
     }).eq('id', documentId);
 
     // Insert goals
-    await Promise.all(finalResult.recommendations.slice(0, 2).map(async (recommendation) => {
-      const oneMonthLater = new Date();
-      oneMonthLater.setMonth(oneMonthLater.getMonth() + 1);
-      const targetDate = oneMonthLater.toISOString().split("T")[0];
-      await supabase.from('goals').insert({
-        user_id: userId,
-        goal_text: recommendation.goal,
-        goal_type: 'short-term',
-        progress: 0,
-        target_date: targetDate
-      });
-    }));
+    if (finalResult.recommendations && finalResult.recommendations.length > 0) {
+      await Promise.all(finalResult.recommendations.slice(0, 2).map(async (recommendation) => {
+        const oneMonthLater = new Date();
+        oneMonthLater.setMonth(oneMonthLater.getMonth() + 1);
+        const targetDate = oneMonthLater.toISOString().split("T")[0];
+        await supabase.from('goals').insert({
+          user_id: userId,
+          goal_text: recommendation.goal,
+          goal_type: 'short-term',
+          progress: 0,
+          target_date: targetDate
+        });
+      }));
+    }
 
-    // === START: UPDATE ANALYSIS USAGE ===
+    // Update usage count
     const { error: updateError } = await supabase
       .from('analysis_usage')
       .upsert({
@@ -607,9 +692,9 @@ serve(async (req) => {
 
     if (updateError) {
       console.error('Failed to update usage count:', updateError);
-      // Don't fail the request, just log the error
     }
-    // === END: UPDATE ANALYSIS USAGE ===
+
+    console.log("✅ Analysis completed and saved successfully");
 
     return new Response(JSON.stringify({
       success: true,

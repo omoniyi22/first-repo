@@ -24,6 +24,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import ScrollToTop from "@/components/layout/ScrollToTop";
 import { useAnalysisLimit } from "@/hooks/useAnalysisLimit";
+import ExtractionVerification from "@/components/analysis/ExtractionVerification";
 
 interface DocumentAnalysisItem {
   id: string;
@@ -68,11 +69,17 @@ const Analysis = () => {
   const buttonText = {
     en: {
       pending: "Analyze Now",
+      extracting: "Extracting...",
+      awaiting_verification: "Verify Data",
+      verification_complete: "Generate Report",
       processing: "Re-analyze",
       completed: "View Analysis",
     },
     es: {
       pending: "Analizar Ahora",
+      extracting: "Extrayendo...",
+      awaiting_verification: "Verificar Datos",
+      verification_complete: "Generar Reporte",
       processing: "Re-analizar",
       completed: "Ver Análisis",
     },
@@ -88,6 +95,7 @@ const Analysis = () => {
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSpinnerLoading, setIsSpinnerLoading] = useState<boolean>(false);
+  const [processingDocId, setProcessingDocId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [userDiscipline, setUserDiscipline] = useState<string | null>(null);
   const [horses, setHorses] = useState<any[]>([]);
@@ -235,23 +243,29 @@ const Analysis = () => {
           text: language === "en" ? "Pending" : "Pendiente",
           icon: "⏳",
         };
+      case "extracting":
+        return {
+          color: "bg-blue-100 text-blue-800",
+          text: language === "en" ? "Extracting" : "Extrayendo",
+          icon: "🔍",
+        };
+      case "awaiting_verification":
+        return {
+          color: "bg-orange-100 text-orange-800",
+          text: language === "en" ? "Verify Data" : "Verificar Datos",
+          icon: "⚠️",
+        };
+      case "verification_complete":
+        return {
+          color: "bg-purple-100 text-purple-800",
+          text: language === "en" ? "Ready" : "Listo",
+          icon: "✓",
+        };
       case "processing":
         return {
           color: "bg-blue-100 text-blue-800",
           text: language === "en" ? "Processing" : "Procesando",
           icon: "🔄",
-        };
-      case "processed":
-        return {
-          color: "bg-green-100 text-green-800",
-          text: language === "en" ? "Ready to Mark" : "Listo para Marcar",
-          icon: "✓",
-        };
-      case "analyzing":
-        return {
-          color: "bg-purple-100 text-purple-800",
-          text: language === "en" ? "Analyzing" : "Analizando",
-          icon: "🤖",
         };
       case "completed":
         return {
@@ -318,12 +332,26 @@ const Analysis = () => {
   };
 
   const fetchDocs = async () => {
+    console.log("🔄 Fetching documents...");
+
     const { data: analysisData, error } = await supabase
       .from("document_analysis")
       .select("*")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("❌ Error fetching documents:", error);
+      return;
+    }
+
     if (analysisData) {
+      console.log("📄 Documents fetched:", analysisData.length);
+      console.log(
+        "Document statuses:",
+        analysisData.map((d) => ({ id: d.id, status: d.status }))
+      );
+
       // Filter documents (PDFs, text files, etc.) and videos
       const docs = analysisData.filter(
         (item) => !item.file_type.startsWith("video/") && !item.video_type
@@ -334,10 +362,15 @@ const Analysis = () => {
 
       setDocuments(docs);
       setVideos(vids);
+
+      console.log("✅ Documents state updated:", docs.length);
     }
   };
 
-  const analysisDocument = async (newDocumentId, documentURL) => {
+  const analysisDocument = async (
+    newDocumentId: string,
+    documentURL: string
+  ) => {
     // Check limit before starting analysis
     if (!canAnalyze) {
       toast({
@@ -354,19 +387,127 @@ const Analysis = () => {
       return;
     }
 
+    // Prevent double-click
+    if (isSpinnerLoading || processingDocId === newDocumentId) {
+      console.log("⚠️ Already processing this document");
+      return;
+    }
+
     setIsSpinnerLoading(true);
-    const canvasImage = documentURL.includes(".pdf")
-      ? await fetchPdfAsBase64(documentURL)
-      : await imageToBase64PDF(documentURL);
+    setProcessingDocId(newDocumentId); // TRACK WHICH DOC IS PROCESSING
+
     try {
-      const response = await supabase.functions.invoke(
-        "process-document-analysis",
+      console.log("🔍 Starting data extraction for document:", newDocumentId);
+
+      // Convert document to base64
+      const canvasImage = documentURL.includes(".pdf")
+        ? await fetchPdfAsBase64(documentURL)
+        : await imageToBase64PDF(documentURL);
+
+      // Call EXTRACTION function
+      const extractionResponse = await supabase.functions.invoke(
+        "extract-document-data",
         {
-          body: { documentId: newDocumentId, base64Image: canvasImage },
+          body: {
+            documentId: newDocumentId,
+            base64Image: canvasImage,
+          },
         }
       );
 
-      // Check if the response indicates limit reached
+      // Check for extraction errors
+      if (extractionResponse.error) {
+        throw extractionResponse.error;
+      }
+
+      const extractionResult = extractionResponse.data;
+
+      if (!extractionResult.success) {
+        throw new Error(extractionResult.error || "Extraction failed");
+      }
+
+      console.log("✅ Data extracted successfully");
+      console.log("Extraction ID:", extractionResult.extractionId);
+      console.log("Overall Confidence:", extractionResult.confidence.overall);
+
+      // Wait a moment for database to update
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      // IMPORTANT: Refresh document list to get new status
+      await fetchDocs();
+
+      // Wait another moment to ensure state updates
+      await new Promise((resolve) => setTimeout(resolve, 300));
+
+      setIsSpinnerLoading(false);
+      setProcessingDocId(null); // CLEAR PROCESSING STATE
+
+      // Set this document as selected - it will show verification component
+      console.log("Setting selected document ID:", newDocumentId);
+      setSelectedDocumentId(newDocumentId);
+    } catch (err: any) {
+      setIsSpinnerLoading(false);
+      setProcessingDocId(null); // CLEAR PROCESSING STATE
+      console.error("❌ Extraction failed:", err);
+
+      toast({
+        title: language === "en" ? "Extraction Failed" : "Extracción Fallida",
+        description:
+          language === "en"
+            ? err.message ||
+              "Failed to extract document data. Please try again."
+            : err.message ||
+              "No se pudo extraer los datos del documento. Por favor intenta de nuevo.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const continueToFullAnalysis = async (documentId: string) => {
+    setIsSpinnerLoading(true);
+
+    try {
+      console.log("🚀 Generating full analysis with verified data...");
+
+      // Get the extraction_id AND document_url from the document
+      const { data: docData, error: docError } = await supabase
+        .from("document_analysis")
+        .select("extraction_id, document_url")
+        .eq("id", documentId)
+        .single();
+
+      if (docError) throw docError;
+
+      if (!docData?.extraction_id) {
+        throw new Error("No extraction data found");
+      }
+
+      if (!docData?.document_url) {
+        throw new Error("Document URL not found");
+      }
+
+      console.log("📄 Fetching PDF for analysis...");
+
+      // Convert PDF to base64 (same as in analysisDocument)
+      const canvasImage = docData.document_url.includes(".pdf")
+        ? await fetchPdfAsBase64(docData.document_url)
+        : await imageToBase64PDF(docData.document_url);
+
+      console.log("✅ PDF converted to base64");
+
+      // Call the FULL ANALYSIS function with verified data flag
+      const response = await supabase.functions.invoke(
+        "process-document-analysis",
+        {
+          body: {
+            documentId: documentId,
+            base64Image: canvasImage, // ✅ NOW WE HAVE THE PDF
+            extractionId: docData.extraction_id,
+            useVerifiedData: true,
+          },
+        }
+      );
+
       if (response.error) {
         const errorData = response.error;
 
@@ -386,20 +527,35 @@ const Analysis = () => {
         throw errorData;
       }
 
-      // Refresh the limit count after successful analysis
+      console.log("✅ Analysis completed with verified data");
 
-      navigate(`/analysis?document_id=${newDocumentId}`);
-      fetchDocs();
+      // Refresh analysis limit and document list
+      await fetchDocs();
+      refreshAnalysisLimit();
+
       setIsSpinnerLoading(false);
-    } catch (err) {
+
+      // Keep document selected - it will now show the report
+      setSelectedDocumentId(documentId);
+
+      toast({
+        title: language === "en" ? "Analysis Complete" : "Análisis Completo",
+        description:
+          language === "en"
+            ? "Your analysis has been generated successfully."
+            : "Tu análisis se ha generado exitosamente.",
+      });
+    } catch (err: any) {
       setIsSpinnerLoading(false);
-      console.warn("Processing failed:", err);
+      console.error("❌ Analysis failed:", err);
+
       toast({
         title: language === "en" ? "Analysis Failed" : "Análisis Fallido",
         description:
           language === "en"
-            ? "Failed to process the document. Please try again."
-            : "No se pudo procesar el documento. Por favor intenta de nuevo.",
+            ? err.message || "Failed to generate analysis. Please try again."
+            : err.message ||
+              "No se pudo generar el análisis. Por favor intenta de nuevo.",
         variant: "destructive",
       });
     }
@@ -1005,13 +1161,70 @@ const Analysis = () => {
                             : "Volver a Documentos"}
                         </Button>
                         {isSpinnerLoading ? (
-                          <div className="w-full h-[50vh] flex items-center justify-center p-8 ">
+                          <div className="w-full h-[50vh] flex items-center justify-center p-8">
                             <Loader2 className="h-8 w-8 animate-spin text-purple-700" />
                           </div>
                         ) : (
-                          <DocumentAnalysisDisplay
-                            documentId={selectedDocumentId}
-                          />
+                          <>
+                            {(() => {
+                              const selectedDoc = documents.find(
+                                (d) => d.id === selectedDocumentId
+                              );
+
+                              console.log("🔍 Rendering logic:");
+                              console.log(
+                                "- selectedDocumentId:",
+                                selectedDocumentId
+                              );
+                              console.log(
+                                "- selectedDoc found:",
+                                !!selectedDoc
+                              );
+                              console.log(
+                                "- selectedDoc status:",
+                                selectedDoc?.status
+                              );
+                              console.log(
+                                "- documents array length:",
+                                documents.length
+                              );
+
+                              if (!selectedDoc) {
+                                return <div>Document not found</div>;
+                              }
+
+                              // If status is 'awaiting_verification', show verification component
+                              if (
+                                selectedDoc.status === "awaiting_verification"
+                              ) {
+                                console.log(
+                                  "✅ Showing ExtractionVerification component"
+                                );
+                                return (
+                                  <>
+                                    <ExtractionVerification
+                                      documentId={selectedDocumentId}
+                                      onVerificationComplete={() => {
+                                        continueToFullAnalysis(
+                                          selectedDocumentId
+                                        );
+                                      }}
+                                    />
+                                  </>
+                                );
+                              }
+
+                              // Otherwise, show the normal analysis display
+                              console.log(
+                                "📊 Showing DocumentAnalysisDisplay component"
+                              );
+                              return (
+                                <DocumentAnalysisDisplay
+                                  documentId={selectedDocumentId}
+                                />
+                              );
+                            })()}
+                          </>
                         )}
                       </div>
                     ) : (
@@ -1125,33 +1338,18 @@ const Analysis = () => {
                                     {formatDate(doc.document_date)}
                                   </td>
                                   <td className="px-4 py-3 whitespace-nowrap text-center">
-                                    <span
-                                      className={`px-2 inline-flex text-xs leading-5 font-medium rounded-full ${
-                                        doc.status === "completed"
-                                          ? "bg-green-100 text-green-800"
-                                          : doc.status === "pending"
-                                          ? "bg-yellow-100 text-yellow-800"
-                                          : doc.status === "processing"
-                                          ? "bg-blue-100 text-blue-800"
-                                          : "bg-red-100 text-red-800"
-                                      }`}
-                                    >
-                                      {doc.status === "completed"
-                                        ? language === "en"
-                                          ? "Completed"
-                                          : "Completado"
-                                        : doc.status === "pending"
-                                        ? language === "en"
-                                          ? "Pending"
-                                          : "Pendiente"
-                                        : doc.status === "processing"
-                                        ? language === "en"
-                                          ? "Processing"
-                                          : "Procesando"
-                                        : language === "en"
-                                        ? "Failed"
-                                        : "Fallido"}
-                                    </span>
+                                    {(() => {
+                                      const statusInfo = getStatusInfo(
+                                        doc.status
+                                      );
+                                      return (
+                                        <span
+                                          className={`px-2 inline-flex text-xs leading-5 font-medium rounded-full ${statusInfo.color}`}
+                                        >
+                                          {statusInfo.icon} {statusInfo.text}
+                                        </span>
+                                      );
+                                    })()}
                                   </td>
                                   <td className="px-4 py-3 whitespace-nowrap text-sm text-center">
                                     <Button
@@ -1176,24 +1374,61 @@ const Analysis = () => {
                                       size="sm"
                                       variant="outline"
                                       onClick={() => {
-                                        doc.status == "completed"
-                                          ? setSelectedDocumentId(doc.id)
-                                          : analysisDocument(
-                                              doc.id,
-                                              doc.document_url
-                                            );
+                                        if (doc.status === "completed") {
+                                          setSelectedDocumentId(doc.id);
+                                        } else if (
+                                          doc.status === "awaiting_verification"
+                                        ) {
+                                          setSelectedDocumentId(doc.id);
+                                        } else if (
+                                          doc.status === "verification_complete"
+                                        ) {
+                                          continueToFullAnalysis(doc.id);
+                                        } else if (doc.status === "pending") {
+                                          analysisDocument(
+                                            doc.id,
+                                            doc.document_url
+                                          );
+                                        } else {
+                                          analysisDocument(
+                                            doc.id,
+                                            doc.document_url
+                                          );
+                                        }
                                       }}
                                       disabled={
-                                        doc.status !== "completed" &&
-                                        !canAnalyze
+                                        processingDocId === doc.id || // Disable if THIS document is processing
+                                        doc.status === "extracting" ||
+                                        (doc.status !== "completed" &&
+                                          doc.status !==
+                                            "awaiting_verification" &&
+                                          doc.status !==
+                                            "verification_complete" &&
+                                          !canAnalyze)
                                       }
                                       className="text-purple-700 border-purple-200"
                                     >
-                                      {doc.status !== "completed" && !canAnalyze
-                                        ? language === "en"
-                                          ? "Limit Reached"
-                                          : "Límite Alcanzado"
-                                        : buttonText[language][doc.status]}
+                                      {processingDocId === doc.id ||
+                                      doc.status === "extracting" ? (
+                                        <>
+                                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                                          {language === "en"
+                                            ? "Extracting..."
+                                            : "Extrayendo..."}
+                                        </>
+                                      ) : doc.status !== "completed" &&
+                                        !canAnalyze &&
+                                        doc.status !==
+                                          "awaiting_verification" ? (
+                                        language === "en" ? (
+                                          "Limit Reached"
+                                        ) : (
+                                          "Límite Alcanzado"
+                                        )
+                                      ) : (
+                                        buttonText[language][doc.status] ||
+                                        buttonText[language]["pending"]
+                                      )}
                                     </Button>
                                   </td>
                                 </tr>

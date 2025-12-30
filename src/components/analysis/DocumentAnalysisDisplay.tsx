@@ -127,62 +127,70 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
 
   useEffect(() => {
     const fetchAnalysis = async () => {
-      if (!user) return;
-
       try {
         setIsLoading(true);
 
-        // Fetch the document analysis from Supabase
+        // First, get the document data
         const { data: documentData, error: documentError } = await supabase
           .from("document_analysis")
           .select("*")
           .eq("id", documentId)
-          .eq("user_id", user.id)
           .single();
 
-        if (documentError) throw documentError;
-
-        if (documentData) {
-          setAnalysis(documentData as DocumentAnalysis);
-
-          // Fetch analysis results if document status is 'completed'
-          if (documentData.status === "completed") {
-            const { data: resultData, error: resultError } = await supabase
-              .from("analysis_results")
-              .select("result_json")
-              .eq("document_id", documentId)
-              .single();
-
-            if (resultError) {
-              console.warn("Could not fetch analysis results:", resultError);
-            } else if (resultData) {
-              // Use actual result data from the database
-              setResultData(
-                resultData.result_json as unknown as AnalysisResultData
-              );
-            } else {
-              // Fall back to mock data if no results
-            }
-          } else {
-            // Document is not completed yet
-            setResultData(null);
-          }
-        } else {
-          setError(
-            language === "en" ? "Document not found" : "Documento no encontrado"
-          );
+        if (documentError) {
+          console.error("Error fetching document:", documentError);
+          throw documentError;
         }
 
+        if (!documentData) {
+          throw new Error("Document not found");
+        }
+
+        setAnalysis(documentData);
+
+        // Now fetch results if completed
+        if (documentData.status === "completed") {
+          const { data: resultdata, error: resultError } = await supabase
+            .from("analysis_results")
+            .select("result_json")
+            .eq("document_id", documentId) // USE documentId prop
+            .order("created_at", { ascending: false })
+            .limit(1)
+            .single();
+
+          if (resultError) {
+            console.error("Could not fetch analysis results:", resultError);
+            throw resultError;
+          }
+
+          if (resultdata) {
+            setResultData(resultdata.result_json);
+          }
+        }
+
+        // Fetch horse data if needed
+        if (documentData.horse_id) {
+          const { data: horseData, error: horseError } = await supabase
+            .from("horses")
+            .select("*")
+            .eq("id", documentData.horse_id)
+            .single();
+
+          if (horseError) {
+            console.error("Error fetching horse:", horseError);
+          } else {
+            // setHorseData(horseData);
+          }
+        }
+      } catch (error: any) {
+        console.error("Error fetching analysis:", error);
+        toast({
+          title: language === "en" ? "Error" : "Error",
+          description: error.message || "Failed to load analysis",
+          variant: "destructive",
+        });
+      } finally {
         setIsLoading(false);
-      } catch (err: any) {
-        console.error("Error fetching analysis:", err);
-        setError(err.message);
-        setIsLoading(false);
-        toast.error(
-          language === "en"
-            ? "Failed to load document analysis"
-            : "No se pudo cargar el análisis del documento"
-        );
       }
     };
 
@@ -578,7 +586,7 @@ Let me know what you think!`;
             <h3 className="text-lg font-medium opacity-90">
               {language === "en" ? "Highest Score" : "Puntuación más alta"}
             </h3>
-            {resultData[language].percentage ? (
+            {resultData.en.highestScore.score ? (
               <p className="text-4xl font-bold text-white">
                 {language === "en"
                   ? resultData.en["highestScore"].score
@@ -608,7 +616,7 @@ Let me know what you think!`;
             <h3 className="text-lg font-medium opacity-90">
               {language === "en" ? "Lowest Score" : "Puntuación más baja"}
             </h3>
-            {resultData[language].percentage ? (
+            {resultData[language].lowestScore.score ? (
               <p className="text-4xl font-bold text-white">
                 {language === "en"
                   ? resultData.en["lowestScore"].score
