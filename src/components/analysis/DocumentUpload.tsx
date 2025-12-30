@@ -441,9 +441,17 @@ const DocumentUpload = ({
       documentLimits.refreshLimits();
 
       // Set the base64 image for preview
-      setBase64Image(pdfBase64);
-      setNewDocumentId(documentData[0].id);
-      setShowConfirmModal(true);
+      // setBase64Image(pdfBase64);
+      // setNewDocumentId(documentData[0].id);
+      // setShowConfirmModal(true);
+
+      toast({
+        title: language === "en" ? "Upload Successful" : "Subida Exitosa",
+        description:
+          language === "en"
+            ? "Your document has been uploaded. Click 'Analyze Now' to extract data."
+            : "Tu documento ha sido subido. Haz clic en 'Analizar Ahora' para extraer datos.",
+      });
 
       // Reset form and states
       form.reset({
