@@ -976,10 +976,15 @@ Let me know what you think!`;
                       <span>{recommendation["quickFix"]}</span>
                     </div>
                     <br />
+                    <div>
+                      <b>{language === "en" ? "Reasoning:" : ":"}</b>{" "}
+                      <span>{recommendation["reasoning"]}</span>
+                    </div>
+                    <br />
                   </div>
 
                   <div
-                    className="bg-white py-8 rounded-xl mx-auto"
+                    className="bg-white py-8 rounded-xl mx-auto w-full"
                     style={{ maxWidth: "300px" }}
                   >
                     {diagramExtractor(

@@ -28,6 +28,9 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import HealthCheckForm, {
+  HealthFormData,
+} from "@/components/analysis/HealthCheckForm";
 
 interface ExtractionVerificationProps {
   documentId: string;
@@ -111,6 +114,14 @@ const ExtractionVerification: React.FC<ExtractionVerificationProps> = ({
   });
   const [modifiedFields, setModifiedFields] = useState<Set<string>>(new Set());
   const [documentUrl, setDocumentUrl] = useState<string>("");
+
+  // Health check data
+  const [healthData, setHealthData] = useState<HealthFormData>({
+    healthStatus: "healthy",
+    affectedAreas: [],
+    fitnessLevel: "good",
+    restrictions: [],
+  });
 
   // ============================================
   // HELPER FUNCTIONS - MUST BE HERE, BEFORE useEffect
@@ -263,6 +274,28 @@ const ExtractionVerification: React.FC<ExtractionVerificationProps> = ({
 
       console.log("💾 Saving verified data...");
       console.log("Modified fields:", Array.from(modifiedFields));
+
+      console.log("🏥 Health data:", healthData);
+
+      // First, update document with health data
+      const { error: healthUpdateError } = await supabase
+        .from("document_analysis")
+        .update({
+          health_status: healthData.healthStatus,
+          health_details: {
+            affected_areas: healthData.affectedAreas,
+            fitness_level: healthData.fitnessLevel,
+            restrictions: healthData.restrictions,
+          },
+        })
+        .eq("id", documentId);
+
+      if (healthUpdateError) {
+        console.error("Failed to save health data:", healthUpdateError);
+        throw healthUpdateError;
+      }
+
+      console.log("✅ Health data saved");
 
       // Save verified data to database
       const { error: updateError } = await supabase
@@ -907,7 +940,8 @@ const ExtractionVerification: React.FC<ExtractionVerificationProps> = ({
           </Card>
         </div>
       </div>
-
+      {/* Health Check Form - NEW! */}
+      <HealthCheckForm onHealthDataChange={setHealthData} />
       {/* Action Buttons */}
       <Card className="bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200">
         <CardContent className="pt-6">

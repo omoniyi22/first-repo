@@ -97,11 +97,11 @@ serve(async (req) => {
     }
 
     // === START: ANALYSIS LIMIT CHECK ===
-    // Get user_id from document
+    // Get test level and find its difficulty + health data
     const { data: documentData, error: docError } = await supabase
-      .from('document_analysis')
-      .select('user_id, horse_id, horse_name, test_level, discipline, document_date, competition_type, user_country')
-      .eq('id', documentId)
+      .from("document_analysis")
+      .select("user_id, horse_id, horse_name, test_level, discipline, document_date, competition_type, user_country, health_status, health_details")
+      .eq("id", documentId)
       .single();
 
     if (docError || !documentData) {
@@ -257,6 +257,174 @@ serve(async (req) => {
     // === END NEW SECTION ===
 
 
+
+    // === NEW: BUILD HEALTH SAFETY PROMPT ===
+    let healthSafetyPrompt = "";
+    const healthStatus = documentData.health_status || "healthy";
+    const healthDetails = documentData.health_details || {};
+
+    if (healthStatus !== "healthy") {
+      console.log(`⚕️ Health issue detected: ${healthStatus}`);
+      console.log(`📋 Health details:`, healthDetails);
+
+      const affectedAreas = healthDetails.affected_areas || [];
+      const fitnessLevel = healthDetails.fitness_level || "good";
+      const restrictions = healthDetails.restrictions || [];
+
+      healthSafetyPrompt = `
+            ⚠️ CRITICAL HORSE HEALTH & SAFETY INFORMATION ⚠️
+
+            The rider has indicated their horse has health concerns:
+            - Health Status: ${healthStatus}
+            ${affectedAreas.length > 0 ? `- Affected Areas: ${affectedAreas.join(", ")}` : ""}
+            - Fitness Level: ${fitnessLevel}
+            ${restrictions.length > 0 ? `- Restrictions: ${restrictions.join(", ")}` : ""}
+
+            🚨 MANDATORY SAFETY RULES - YOU MUST FOLLOW THESE 🚨
+
+            ${healthStatus === "lameness" ? `
+            LAMENESS DETECTED - EXTREMELY RESTRICTIVE:
+            1. ❌ DO NOT suggest ANY high-intensity exercises
+            2. ❌ DO NOT suggest flying changes, collection, extended gaits, pirouettes
+            3. ❌ DO NOT suggest lateral work beyond very gentle leg yield
+            4. ❌ DO NOT suggest small circles (under 20m)
+            5. ✅ ONLY suggest gentle walk work and relaxation exercises
+            6. ✅ ALL recommendations must include safety warning: "⚕️ Only attempt with veterinary clearance"
+            7. ✅ Add to each recommendation: "This exercise should only be done if horse is comfortable and shows no pain"
+
+            ALLOWED EXERCISES (lameness):
+            - Walk on loose rein (relaxation)
+            - Gentle forward walk work
+            - Partnership building exercises (no physical demands)
+            - Stretching at walk
+
+            BLOCKED EXERCISES (lameness):
+            - ANY trot or canter work
+            - Collection work
+            - Lateral work (except very gentle walk leg yield)
+            - Transitions beyond walk-halt
+            - Circles smaller than 20m
+            - Extended gaits
+            - Flying changes
+            - Any jumping or intense work
+
+            ` : healthStatus === "minor_issues" ? `
+            MINOR HEALTH ISSUES - MODERATELY RESTRICTIVE:
+            1. ❌ Avoid high-intensity exercises (flying changes, extended gaits, pirouettes)
+            2. ⚠️ Use caution with collection and lateral work
+            3. ✅ Focus on exercises that improve suppleness and relaxation
+            4. ✅ Include warnings about monitoring horse comfort
+            5. ✅ Suggest gradual progression only
+
+            ALLOWED EXERCISES (minor issues):
+            - Walk and trot work (gentle)
+            - Large circles (20m)
+            - Basic transitions
+            - Gentle leg yield
+            - Simple changes (with caution)
+            - Suppling exercises
+
+            BLOCKED EXERCISES (minor issues):
+            - Flying changes
+            - Extended gaits
+            - Pirouettes
+            - Piaffe/passage
+            - Heavy collection work
+            - Half-pass (unless very gentle)
+
+            ` : healthStatus === "recovering" ? `
+            RECOVERING FROM INJURY - GRADUAL RETURN:
+            1. ✅ Focus on rebuilding fitness gradually
+            2. ✅ Low to medium intensity exercises only
+            3. ⚠️ Monitor for signs of discomfort
+            4. ✅ Include "return to work" progression in recommendations
+            5. ❌ NO advanced movements until fully recovered
+
+            PROGRESSION APPROACH (recovering):
+            - Weeks 1-2: Walk work only
+            - Weeks 3-4: Add light trot if sound
+            - Week 5+: Gradual increase if sound
+
+            ALLOWED EXERCISES (recovering):
+            - Progressive walk work
+            - Light trot work (after week 3)
+            - Basic transitions
+            - Large circles (20m+)
+            - Gentle suppling
+
+            BLOCKED EXERCISES (recovering):
+            - Flying changes
+            - Collection work
+            - Extended gaits
+            - Lateral work (until week 5+)
+            - Intense work
+
+            ` : ""}
+
+            ${affectedAreas.includes("hind_left") || affectedAreas.includes("hind_right") ? `
+            ⚠️ HIND LEG ISSUE NOTED:
+            - Avoid exercises requiring strong hind leg engagement
+            - No collection work (requires hind strength)
+            - No flying changes (requires hind push)
+            - Focus on forward, relaxed work
+
+            ` : ""}
+
+            ${affectedAreas.includes("back") ? `
+            ⚠️ BACK ISSUE NOTED:
+            - Avoid deep collection (compresses back)
+            - Focus on stretching and suppling
+            - Long and low work recommended
+            - No advanced movements requiring back strength
+
+            ` : ""}
+
+            ${affectedAreas.includes("neck") ? `
+            ⚠️ NECK ISSUE NOTED:
+            - Avoid strong flexion work
+            - Focus on relaxation and stretching
+            - Allow horse to carry head naturally
+            - No strong collection
+
+            ` : ""}
+
+            ${restrictions.includes("walk_work_only") ? `
+            🛑 WALK WORK ONLY RESTRICTION:
+            You MUST ONLY suggest walk exercises.
+            NO trot or canter recommendations allowed.
+            ALL exercises must be at walk pace.
+
+            ` : ""}
+
+            ${restrictions.includes("no_intense_work") ? `
+            ⚠️ NO INTENSE WORK:
+            Avoid all high-intensity exercises.
+            Focus on relaxation and gentle work.
+
+            ` : ""}
+
+            ${restrictions.includes("no_lateral_work") ? `
+            ⚠️ NO LATERAL WORK:
+            Do not suggest shoulder-in, half-pass, or advanced lateral movements.
+            Basic leg yield may be acceptable if very gentle.
+
+            ` : ""}
+
+            ${restrictions.includes("no_collection") ? `
+            ⚠️ NO COLLECTION WORK:
+            Do not suggest collection development or exercises requiring collection.
+            Keep horse in working or lengthened frames.
+
+            ` : ""}
+
+            END OF HEALTH SAFETY INFORMATION
+            ---
+
+            `;
+    }
+    // === END HEALTH SAFETY PROMPT ===
+
+
     const mainPrompt = `
 
       This is the test score sheet of one rider's jumping or dressage movement.
@@ -299,6 +467,9 @@ serve(async (req) => {
 
       ---
       ` : ''}
+
+
+        ${healthSafetyPrompt}
       
       You can get that in the first part of PDF, normally it is next of the rider name.
       Each movement is evaluated by several judges.
@@ -552,6 +723,7 @@ serve(async (req) => {
             "size": "Small || Large",
             "gait": "Walk" || "Trot" || "Canter" || "Walk/Trot" || "Trot/Canter" || etc.
             "type": "Contact-A",
+            "reasoning": "Why this exercise was selected - mention specific movements (e.g., 'Movements 2, 5, 8 scored below 6.0') and judge comments (e.g., 'Judge A noted: needs more forward'). Explain how this addresses the weakness."
           },
           {
             "exercise": [Exercise Name],
@@ -565,6 +737,7 @@ serve(async (req) => {
             "size": "Small || Large",
             "gait": "Walk" || "Trot" || "Canter" || "Walk/Trot" || "Trot/Canter" || etc.
             "type": "Lateral-A",
+            "reasoning": "Selected to improve lateral alignment and bend. Movements 6 and 9 scored below 6.0, with Judge A noting “loss of alignment” and “insufficient bend.” This exercise develops correct bend, straightness, and control, helping maintain balance and rhythm during lateral movements."
           },
           {
             "exercise": [Exercise Name],
@@ -578,6 +751,7 @@ serve(async (req) => {
             "size": "Small || Large",
             "gait": "Walk" || "Trot" || "Canter" || "Walk/Trot" || "Trot/Canter" || etc.
             "type": "Transition-A",
+             "reasoning": "Chosen to improve transition quality and responsiveness. Movements 3, 7, and 11 scored below 6.0, with Judge A commenting “late reaction to aids.” This exercise sharpens the response to aids, improves balance, and creates clearer, more controlled transitions."
           }, // Note: Size for each exercise should be consistant in one document.
         ],
         "focusArea": [
@@ -613,6 +787,15 @@ serve(async (req) => {
       And also you should extract the highest and lowest scores and extract all movements of that.
       If percentage is null, you should calculate percentage with each judges' scores, max scores and coefficiente. Percentage can be a simple average of all judges' scores relative to their max scores (normally 10). This average must fall between the lowest and highest individual scores. However, accuracy in representation and extraction is the top priority
       At least 3 Recommendations are needed and all recommendations should be deep, meaningful, useful, correct and in detail (More specific exercise recommendations as well such as: "Try shoulder - in exercises" rather than just "focus on relaxtion").
+      
+      Each recommendation MUST include a "reasoning" field that explains:
+      - Which specific movements had low scores
+      - Which judge comments led to this recommendation
+      - How this exercise addresses the identified weakness
+      - Why this is appropriate for the horse's level and health status
+
+      Example reasoning: "Selected because movements 2, 5, and 8 scored below 6.0. Judge A noted 'needs more forward energy' and Judge B mentioned 'lacks impulsion'. This exercise addresses insufficient forward movement, which is the main weakness affecting these scores. Appropriate for ${testLevel} level and safe for horse's current health status."
+
       Each recommendation must also include the primary gait type involved in that exercise, such as "Walk", "Trot", or "Canter". If more than one gait is used, use "Walk/Trot", "Trot/Canter", etc. Analyze the setup and method steps to determine which gait(s) the rider should use during the exercise.
       Ensure recommendations are specific, actionable, and progressive while remaining concise.
       Ensure no mixed-language elements appear, All contents should be English.
@@ -621,6 +804,9 @@ serve(async (req) => {
       In other words, riders can get the attractive recommendations, focus area and personal insight from your analysis - you should make them to love this tool.
       REMINDER:
       * All contents of the JSON — including generalComments, strengths, weaknesses, instructions, recommendations, movement names (in highestScore, lowestScore, and detailed movements), and any other fields — must be fully in English. If any part of the document is in Spanish (such as "Parada en X" or "Trote Medio"), you must translate it into accurate, fluent English before including it in the result.
+
+
+
 
     `;
 
