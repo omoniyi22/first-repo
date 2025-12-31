@@ -4,6 +4,16 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.4';
 import { encode as base64Encode } from 'https://deno.land/std@0.192.0/encoding/base64.ts';
 import { crypto } from 'https://deno.land/std@0.192.0/crypto/mod.ts';
 import { decode as base64Decode } from 'https://deno.land/std@0.192.0/encoding/base64.ts';
+
+
+import {
+  getSkillsByDifficulty,
+  generateLevelRestrictionsPrompt
+} from './dressageSkillsByDifficulty.ts';
+
+import { getLevelsByCountry } from './countriesData.ts';
+
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -88,13 +98,13 @@ serve(async (req) => {
 
     // === START: ANALYSIS LIMIT CHECK ===
     // Get user_id from document
-    const { data: analysisDoc, error: docError } = await supabase
+    const { data: documentData, error: docError } = await supabase
       .from('document_analysis')
-      .select('user_id')
+      .select('user_id, horse_id, horse_name, test_level, discipline, document_date, competition_type, user_country')
       .eq('id', documentId)
       .single();
 
-    if (docError || !analysisDoc) {
+    if (docError || !documentData) {
       return new Response(JSON.stringify({
         error: 'Document not found'
       }), {
@@ -103,7 +113,7 @@ serve(async (req) => {
       });
     }
 
-    const userId = analysisDoc.user_id;
+    const userId = documentData.user_id;
 
     // Get user's subscription and plan details
     const { data: subscriptionData, error: subscriptionError } = await supabase
@@ -181,6 +191,8 @@ serve(async (req) => {
     }
     // === END: CHECK FOR VERIFIED DATA ===
 
+
+
     // Update status to processing
     await supabase.from('document_analysis').update({
       status: 'processing',
@@ -198,24 +210,96 @@ serve(async (req) => {
     let promptPrefix = "";
     if (hasVerifiedData) {
       promptPrefix = `
-IMPORTANT CONTEXT - USER-VERIFIED EXTRACTION DATA:
-The user has already reviewed and verified the following extracted data from this document:
-${JSON.stringify(verifiedDataGuide, null, 2)}
+      IMPORTANT CONTEXT - USER-VERIFIED EXTRACTION DATA:
+      The user has already reviewed and verified the following extracted data from this document:
+      ${JSON.stringify(verifiedDataGuide, null, 2)}
 
-This verified data should be used as a REFERENCE and GUIDE when analyzing the document.
-If the document is difficult to read, use these verified values.
-If you can clearly read the document and the values match, use high confidence.
-If you can clearly read the document and values differ from verified data, trust the document.
+      This verified data should be used as a REFERENCE and GUIDE when analyzing the document.
+      If the document is difficult to read, use these verified values.
+      If you can clearly read the document and the values match, use high confidence.
+      If you can clearly read the document and values differ from verified data, trust the document.
 
-Now proceed with the full analysis as normal:
----
-`;
+      Now proceed with the full analysis as normal:
+      ---
+      `;
     }
 
+
+
+    // === NEW: FIND DIFFICULTY LEVEL ===
+    const userCountry = documentData.user_country || "United Kingdom";
+    const testLevel = documentData.test_level;
+    let difficulty = 5; // Default to intermediate if not found
+    let levelRestrictionsPrompt = "";
+
+    if (testLevel && userCountry) {
+      try {
+        const countryLevels = getLevelsByCountry(userCountry);
+
+        if (!countryLevels || countryLevels.length === 0) {
+          console.warn(`⚠️ No levels found for country: ${userCountry}`);
+        } else {
+          const levelInfo = countryLevels.find(l => l.name === testLevel);
+
+          if (levelInfo) {
+            difficulty = levelInfo.difficulty;
+            levelRestrictionsPrompt = generateLevelRestrictionsPrompt(difficulty);
+            console.log(`✅ Test Level: ${testLevel} → Difficulty: ${difficulty}/10`);
+          } else {
+            console.warn(`⚠️ Test level "${testLevel}" not found for ${userCountry}, using default difficulty 5`);
+          }
+        }
+      } catch (error) {
+        console.error("Error finding difficulty level:", error);
+        console.log("Will proceed with default difficulty 5");
+      }
+    }
+    // === END NEW SECTION ===
+
+
     const mainPrompt = `
+
       This is the test score sheet of one rider's jumping or dressage movement.
       You should get the name of horse from document like Frapp, Varadero, Pagasus, Han, Lolo and so on.
       If the document is in Spanish or partially contains Spanish text, you must translate all extracted terms, movement labels, and judge comments into English before using them.
+      
+      
+            ${levelRestrictionsPrompt ? `
+      ⚠️ CRITICAL LEVEL-APPROPRIATE RECOMMENDATIONS ⚠️
+
+      The rider competed at: ${testLevel} (${userCountry})
+      This corresponds to Difficulty Level: ${difficulty}/10
+
+      ${levelRestrictionsPrompt}
+
+      🚨 CRITICAL RULES - YOU MUST FOLLOW THESE 🚨
+
+      1. ONLY recommend exercises from the "ALLOWED EXERCISES" list above
+      2. NEVER suggest movements from the "FORBIDDEN MOVEMENTS" list above
+      3. NEVER suggest exercises from the "FORBIDDEN EXERCISES" list above
+      4. Focus recommendations on the "FOCUS AREAS" listed above
+      5. If you suggest a forbidden movement or exercise, the recommendation will be REJECTED
+
+      Example of CORRECT recommendation for this level:
+      ${difficulty <= 2 ? `
+      - ✅ "Rhythm Stabilization - Practice consistent tempo on long sides"
+      - ✅ "Forward Drive Development - Build energy through transitions"
+      - ❌ WRONG: "Flying Change Training" (too advanced for this level!)
+      ` : difficulty === 3 ? `
+      - ✅ "Leg Yield Training - Develop lateral flexibility"
+      - ✅ "Simple Change Practice - Balance through transitions"
+      - ❌ WRONG: "Half-Pass Development" (too advanced for this level!)
+      ` : difficulty >= 4 && difficulty <= 5 ? `
+      - ✅ "Shoulder-in Precision Training - Improve lateral control"
+      - ✅ "Flying Change Training - Practice single changes"
+      - ❌ WRONG: "Pirouette Training" (too advanced for this level!)
+      ` : `
+      - ✅ All advanced movements appropriate for this level
+      `}
+
+      ---
+      ` : ''}
+      
       You can get that in the first part of PDF, normally it is next of the rider name.
       Each movement is evaluated by several judges.
       Extract JSON with movement, all the highest and lowest scores, comments, patterns and percentage.
