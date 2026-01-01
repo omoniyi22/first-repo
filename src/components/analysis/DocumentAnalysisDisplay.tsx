@@ -313,7 +313,7 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
       setPodcastMsg("Generating podcast audio file...");
       try {
         const backendResponse = await fetch(
-          "https://f531-45-153-229-59.ngrok-free.app/generate",
+          "https://podcast.equineaintelligence.com/generate",
           {
             method: "POST",
             headers: {
