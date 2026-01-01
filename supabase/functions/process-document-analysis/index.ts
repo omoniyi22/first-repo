@@ -788,13 +788,107 @@ serve(async (req) => {
       If percentage is null, you should calculate percentage with each judges' scores, max scores and coefficiente. Percentage can be a simple average of all judges' scores relative to their max scores (normally 10). This average must fall between the lowest and highest individual scores. However, accuracy in representation and extraction is the top priority
       At least 3 Recommendations are needed and all recommendations should be deep, meaningful, useful, correct and in detail (More specific exercise recommendations as well such as: "Try shoulder - in exercises" rather than just "focus on relaxtion").
       
-      Each recommendation MUST include a "reasoning" field that explains:
-      - Which specific movements had low scores
-      - Which judge comments led to this recommendation
-      - How this exercise addresses the identified weakness
-      - Why this is appropriate for the horse's level and health status
+      🎯 CRITICAL REQUIREMENT FOR REASONING FIELD - SOURCE TRANSPARENCY 🎯
 
-      Example reasoning: "Selected because movements 2, 5, and 8 scored below 6.0. Judge A noted 'needs more forward energy' and Judge B mentioned 'lacks impulsion'. This exercise addresses insufficient forward movement, which is the main weakness affecting these scores. Appropriate for ${testLevel} level and safe for horse's current health status."
+      Each recommendation's "reasoning" field is MANDATORY and MUST include ALL of the following:
+
+      1. SPECIFIC MOVEMENT NUMBERS AND SCORES:
+        ✅ List exact movement numbers that scored low
+        ✅ Include the actual scores for each movement
+        ✅ Compare to target score (usually 7.0+)
+        
+        Example: "Movements 2, 5, and 8 scored 5.5, 5.0, and 6.0 respectively (target: 7.0+)"
+        
+        ❌ WRONG: "Some movements scored low"
+        ❌ WRONG: "Several movements need work"
+
+      2. ACTUAL JUDGE QUOTES (WORD-FOR-WORD):
+        ✅ Quote exact judge comments from the test
+        ✅ Attribute to specific judge (A, B, or C)
+        ✅ Use quotation marks around judge's words
+        
+        Example: "Judge A stated: 'Needs more forward energy'. Judge B noted: 'Lacks impulsion in transitions'"
+        
+        ❌ WRONG: "Judges mentioned forward issues"
+        ❌ WRONG: "Comments suggest improvement needed"
+
+      3. SCORE IMPACT ANALYSIS:
+        ✅ Calculate how many points were lost
+        ✅ Estimate potential improvement
+        ✅ Show percentage impact
+        
+        Example: "These movements cost approximately 4.5 points total. Improving them could raise overall score by 1.5 points (from 65% to 66.5%)"
+        
+        ❌ WRONG: "This could improve your score"
+        ❌ WRONG: "You'll get better scores"
+
+      4. CONNECTION TO IDENTIFIED WEAKNESS:
+        ✅ Link to specific weakness from analysis
+        ✅ Explain exactly how exercise addresses it
+        ✅ Be specific about what will improve
+        
+        Example: "This directly addresses your main weakness: 'Insufficient forward movement', which appeared in 3 movements and was mentioned by 2 judges"
+        
+        ❌ WRONG: "This helps with your weakness"
+        ❌ WRONG: "This is good for improvement"
+
+      5. LEVEL AND HEALTH APPROPRIATENESS:
+        ✅ Confirm exercise matches rider's test level
+        ✅ Confirm exercise is safe for horse's health status
+        ✅ Mention any modifications for health issues
+        
+        Example: "Appropriate for ${testLevel} level as it focuses on fundamental rhythm work. Safe for horse's current health status (${healthStatus})"
+        
+        ${healthStatus !== "healthy" ? `
+        Example with health issue: "Modified for ${healthStatus} - using only walk work and large circles to protect affected areas while addressing the weakness"
+        ` : ""}
+
+      6. SOURCE TRACEABILITY:
+        ✅ Make it clear this is based on THEIR specific test
+        ✅ Reference their test date if available
+        ✅ Personalize to their horse
+        
+        Example: "Based on ${documentData.horse_name || 'your horse'}'s ${testLevel} test${documentData.document_date ? ` on ${documentData.document_date}` : ''}"
+
+      ---
+
+      COMPLETE REASONING EXAMPLE (USE THIS AS TEMPLATE):
+
+      "Selected because movements 2, 5, and 8 scored significantly below target (5.5, 5.0, and 6.0 respectively, with target 7.0+). Judge A specifically noted 'needs more forward energy' on movement 2, and Judge B commented 'lacks impulsion' on movement 5, while Judge C mentioned 'forward thinking needed' on movement 8. These rhythm issues cost approximately 4.5 points across these movements. This exercise directly addresses your main weakness: 'Insufficient forward movement', which was identified in 3 out of 15 movements and mentioned by all three judges. Improving forward drive could raise your overall percentage from ${documentData.percentage || 'current score'} to approximately ${(parseFloat(documentData.percentage) + 1.5).toFixed(1)}%. This exercise is appropriate for ${testLevel} level as it focuses on fundamental forward movement without requiring advanced skills. Safe for horse's current health status (${healthStatus})${healthStatus !== "healthy" ? " - modified to use gentle progressive work suitable for recovery" : ""}. Based on ${documentData.horse_name || 'your horse'}'s performance in this ${testLevel} test."
+
+      ---
+
+      REASONING QUALITY CHECKLIST - EVERY REASONING MUST PASS ALL:
+
+      □ Includes at least 2-3 specific movement numbers
+      □ Includes at least 1-2 direct judge quotes with attribution
+      □ Includes score comparison (actual vs. target)
+      □ Calculates points lost and potential improvement
+      □ Links to specific identified weakness
+      □ Confirms level appropriateness
+      □ Confirms health safety
+      □ References their specific test/horse
+      □ Is at least 100 words long (detailed!)
+      □ Reads like a personal coach explaining to the rider
+
+      ---
+
+      ❌ REJECT THESE TYPES OF REASONING:
+
+      "This exercise helps with rhythm" - TOO GENERIC
+      "You need to work on forward movement" - NOT SPECIFIC
+      "Based on your test results" - NO MOVEMENT NUMBERS
+      "This will improve your score" - NO SCORE DATA
+      "Good exercise for your level" - NO JUDGE QUOTES
+
+      ---
+
+      ✅ EVERY REASONING MUST:
+      - Be SPECIFIC to their exact test
+      - Include REAL data (numbers, scores, quotes)
+      - Show CLEAR traceability to source
+      - Calculate IMPACT of improvement
+      - Confirm SAFETY for their situation
 
       Each recommendation must also include the primary gait type involved in that exercise, such as "Walk", "Trot", or "Canter". If more than one gait is used, use "Walk/Trot", "Trot/Canter", etc. Analyze the setup and method steps to determine which gait(s) the rider should use during the exercise.
       Ensure recommendations are specific, actionable, and progressive while remaining concise.

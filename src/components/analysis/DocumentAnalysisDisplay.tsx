@@ -976,11 +976,15 @@ Let me know what you think!`;
                       <span>{recommendation["quickFix"]}</span>
                     </div>
                     <br />
-                    <div>
-                      <b>{language === "en" ? "Reasoning:" : ":"}</b>{" "}
-                      <span>{recommendation["reasoning"]}</span>
-                    </div>
-                    <br />
+                    {recommendation["reasoning"] && (
+                      <>
+                        <div>
+                          <b>{language === "en" ? "Reasoning:" : ":"}</b>{" "}
+                          <span>{recommendation["reasoning"]}</span>
+                        </div>
+                        <br />
+                      </>
+                    )}
                   </div>
 
                   <div
