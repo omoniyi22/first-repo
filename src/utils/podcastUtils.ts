@@ -35,13 +35,40 @@ Judge Feedback to Address:
 - {judge_comment_a}
 - {judge_comment_b}
 
-⏸️ **Natural Pauses for Rider Timing**:
-Include natural pauses in the script where the rider needs time to perform an action.  
-After each instruction that requires physical movement, change, or focus shift, insert a **pause marker in square brackets** to simulate the live timing of a real coaching session:
+⏸️ **CRITICAL: RIDE-ALONG PAUSE REQUIREMENTS**:
 
-- [pause 2s] – brief transitions or resets  
-- [pause 5s] – basic movement execution (e.g. asking for trot, walk)  
-- [pause 10s] – longer actions or full patterns (e.g. half-pass or a full circle)
+This is a RIDE-ALONG podcast - the rider is actively riding while listening.
+You MUST give them realistic time to practice movements while you're quiet.
+
+**PAUSE DURATIONS (use these exact timings):**
+- [pause 3s] – brief transitions between thoughts
+- [pause 5s] – walk transitions, simple resets
+- [pause 30s] – practicing one movement (e.g., one long side, one circle, transitions)
+- [pause 45s] – practicing complex movements (e.g., shoulder-in series, half-pass, multiple transitions)
+- [pause 60s] – full exercise practice (e.g., complete pattern, combining movements)
+
+**WHEN TO USE LONG PAUSES:**
+After ANY instruction that requires the rider to physically practice, you MUST include a 30-45 second pause.
+
+Examples:
+✅ "Practice counting rhythm on the long side A-K-E-H. Take the next 30 seconds. [pause 30s]"
+✅ "Now practice shoulder-in on M-B. Use the next 45 seconds. [pause 45s]"
+❌ WRONG: "Practice shoulder-in. [pause 5s]" (not enough time!)
+
+**TRANSITION SIGNALS (use these phrases):**
+Before resuming after a pause, ALWAYS use a verbal cue:
+- "Ready for the next tip?"
+- "Alright, let's continue..."
+- "Good work! Now let's move on..."
+- "How did that feel? Now..."
+
+Example flow:
+"Practice rhythm on A-K-E-H for the next 30 seconds. [pause 30s] Ready for the next tip? Good! Now let's add tempo changes..."
+
+**OPENING NARRATION (MANDATORY):**
+Start the podcast with this type of introduction:
+
+"Welcome to your ride-along coaching session. I'm going to guide you through training while you're riding {horse_name}. When I'm quiet, that's your time to practice. When you hear 'Ready for the next tip?', I'll continue coaching. Let's begin. [pause 3s]"
 
 Use these pauses **at the end of sentences**, never in the middle.  
 Do **not explain the pause** — just insert it directly as part of the coaching rhythm.
@@ -247,7 +274,7 @@ Please write a full script aligned to these exact durations:
 [style] and [pause] should be matched so that all contents are inside of them.
 `
 
-  const promptPart2 = `
+const promptPart2 = `
 
   Continue the 30-minute equestrian ride-along podcast script. 
 
@@ -365,12 +392,12 @@ export function fill_Template_Make_Prompts(data, language) {
 }
 
 export function formatScriptWithStyles(script: string): string {
-  // Step 1: Remove triple backticks and **bold** and (...) text
   return script
-    .replace(/```(?:text)?/g, '') // Remove ``` markers
-    .replace(/\*\*[^*]+\*\*/g, '') // Remove **...**
-    .replace(/\([^)]+\)/g, '') // Remove (...) text
+    .replace(/```(?:text)?/g, '') // Remove code blocks
+    .replace(/\*\*([^*]+)\*\*/g, '$1') // Keep text, remove bold markers
+    .replace(/\([^)]+\)/g, '') // Remove parenthetical notes
     .replace(/\n{3,}/g, '\n\n') // Collapse multiple newlines
-    .replace(/\[pause \d+s\]\s*$/i, '') // Remove final [pause Xs] at end
+    .replace(/\s+\[pause/g, ' [pause') // Ensure space before pause
+    .replace(/\[pause (\d+)s\]\s*\[pause (\d+)s\]/g, '[pause $1s]') // Remove duplicate pauses
     .trim();
 }

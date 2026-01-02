@@ -864,21 +864,18 @@ const Analysis = () => {
 
       setPodcastMsg("Generating podcast audio file...");
       try {
-        const backendResponse = await fetch(
-          "https://podcast.equineaintelligence.com/generate",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              scriptText: ttsScript,
-              userId: user.id,
-              analysisId: analysis.id,
-              language: language,
-            }),
-          }
-        );
+        const backendResponse = await fetch("https://podcast.equineaintelligence.com/generate", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            scriptText: ttsScript,
+            userId: user.id,
+            analysisId: analysis.id,
+            language: language,
+          }),
+        });
 
         if (!backendResponse.ok) {
           const errMessage = await backendResponse.text();
@@ -896,11 +893,22 @@ const Analysis = () => {
           backendMsg.message || backendMsg
         );
         const checkInterval = 5000;
-        const timeout = 10 * 60 * 1000;
+        const timeout = 30 * 60 * 1000;
         const startTime = Date.now();
+        let checkCount = 0;
 
         const intervalId = setInterval(async () => {
           const elapsed = Date.now() - startTime;
+          checkCount++;
+
+          // Update user every 30 seconds
+          if (checkCount % 6 === 0) {
+            const minutesElapsed = Math.floor(elapsed / 1000 / 60);
+            setPodcastMsg(
+              `Still generating... ${minutesElapsed} minutes elapsed. Please wait.`
+            );
+          }
+
           if (elapsed > timeout) {
             clearInterval(intervalId);
             setIsPodcastLoading(false);
