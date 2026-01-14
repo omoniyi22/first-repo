@@ -1,0 +1,206 @@
+
+import { Shield, Zap, Users, LineChart, Target, Clock } from 'lucide-react';
+import AnimatedSection from '../ui/AnimatedSection';
+import { Button } from '../ui/button';
+import { Link } from 'react-router-dom';
+import { useLanguage } from '@/contexts/LanguageContext';
+
+const Benefits = () => {
+  const { language } = useLanguage();
+  
+  const benefits = [
+    {
+      icon: <LineChart className="w-8 h-8 text-purple-600" />,
+      title: language === 'en' ? "Personalized Analysis" : "Análisis Personalizado",
+      description: language === 'en'
+        ? "Our AI analyzes your unique riding patterns and test scores to provide feedback tailored specifically to your strengths and weaknesses."
+        : "Nuestra IA analiza tus patrones de conducción únicos y los resultados de las pruebas para proporcionar retroalimentación adaptada específicamente a tus fortalezas y debilidades.",
+      delay: "delay-100"
+    },
+    {
+      icon: <Zap className="w-8 h-8 text-purple-600" />,
+      title: language === 'en' ? "Accelerated Progress" : "Progreso Acelerado",
+      description: language === 'en'
+        ? "Riders using our platform improve 3x faster with targeted exercises addressing specific areas of improvement identified by our AI."
+        : "Los jinetes que utilizan nuestra plataforma mejoran 3 veces más rápido con ejercicios dirigidos a abordar áreas específicas de mejora identificadas por nuestra IA.",
+      delay: "delay-200"
+    },
+    {
+      icon: <Target className="w-8 h-8 text-purple-600" />,
+      title: language === 'en' ? "Competition Edge" : "Ventaja Competitiva",
+      description: language === 'en'
+        ? "Gain insights into exactly what judges are looking for and how to showcase your horse's best movements to maximize your scores."
+        : "Obtén información sobre exactamente lo que buscan los jueces y cómo mostrar los mejores movimientos de tu caballo para maximizar tus puntuaciones.",
+      delay: "delay-300"
+    },
+    {
+      icon: <Clock className="w-8 h-8 text-purple-600" />,
+      title: language === 'en' ? "Efficient Training" : "Entrenamiento Eficiente",
+      description: language === 'en'
+        ? "Save time and money by focusing your training sessions on the exercises that will have the biggest impact on your performance."
+        : "Ahorra tiempo y dinero centrando tus sesiones de entrenamiento en los ejercicios que tendrán el mayor impacto en tu rendimiento.",
+      delay: "delay-400"
+    }
+  ];
+
+  return (
+    <section className="py-16 bg-purple-50">
+      <div className="container mx-auto px-6">
+        <div className="mb-12 max-w-full mx-auto">
+          <AnimatedSection animation="fade-in" delay="delay-100">
+            <div className="flex flex-col md:flex-row gap-8 items-stretch">
+              <div className="md:w-2/3 text-center md:text-left">
+                <h2 className="text-3xl md:text-4xl font-serif font-semibold text-purple-900 mb-4">
+                  {language === 'en' 
+                    ? "Benefits That Make a Difference" 
+                    : "Beneficios Que Marcan la Diferencia"}
+                </h2>
+                <p className="text-purple-700 mb-6">
+                  {language === 'en'
+                    ? "Our AI-powered platform helps riders of all levels achieve their goals faster with data-driven insights and personalized recommendations."
+                    : "Nuestra plataforma impulsada por IA ayuda a jinetes de todos los niveles a alcanzar sus objetivos más rápido con información basada en datos y recomendaciones personalizadas."}
+                </p>
+                <ul className="space-y-3 mb-6 inline-block text-left">
+                  <li className="flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-purple-600"></div>
+                    <span className="text-purple-700">
+                      {language === 'en'
+                        ? "Advanced movement analysis and scoring prediction"
+                        : "Análisis avanzado de movimiento y predicción de puntuación"}
+                    </span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-purple-600"></div>
+                    <span className="text-purple-700">
+                      {language === 'en'
+                        ? "Personalized training plans based on your test results"
+                        : "Planes de entrenamiento personalizados basados en los resultados de tus pruebas"}
+                    </span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-purple-600"></div>
+                    <span className="text-purple-700">
+                      {language === 'en'
+                        ? "Track improvements over time with detailed metrics"
+                        : "Seguimiento de mejoras a lo largo del tiempo con métricas detalladas"}
+                    </span>
+                  </li>
+                </ul>
+                
+                <div className="text-center md:text-left">
+                  <Link to="/how-it-works">
+                    <Button className="bg-purple-700 hover:bg-purple-800 text-white">
+                      {language === 'en' ? "Learn How It Works" : "Aprende Cómo Funciona"}
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+              
+              <div className="md:w-1/3">
+                <div className="h-full rounded-xl overflow-hidden shadow-lg border-4 border-white">
+                  <img 
+                    src="/lovable-uploads/0e3ca532-c34f-4dc4-aedf-f34da66897ee.png" 
+                    alt={language === 'en' ? "White horse in dressage arena" : "Caballo blanco en arena de doma"} 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </div>
+            </div>
+          </AnimatedSection>
+        </div>
+      
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
+          {benefits.map((benefit, index) => (
+            <AnimatedSection 
+              key={index}
+              animation="slide-in-bottom"
+              delay={benefit.delay as any}
+              className="h-full"
+            >
+              <div className="bg-white rounded-xl p-6 shadow-sm border border-purple-100 h-full flex flex-col items-start hover:shadow-md transition-shadow group">
+                <div className="bg-purple-100/50 w-16 h-16 rounded-xl flex items-center justify-center shrink-0 mb-4 transition-colors duration-300 group-hover:bg-purple-200/50">
+                  {benefit.icon}
+                </div>
+                
+                <div>
+                  <h3 className="text-xl font-serif font-medium text-purple-900 mb-3">
+                    {benefit.title}
+                  </h3>
+                  
+                  <p className="text-purple-700">
+                    {benefit.description}
+                  </p>
+                </div>
+              </div>
+            </AnimatedSection>
+          ))}
+        </div>
+        
+        <AnimatedSection animation="fade-in" delay="delay-500" className="mt-0 sm:mt-[-2rem]">
+          <div className="bg-white rounded-xl p-8 border border-purple-100 overflow-hidden relative">
+            <div className="absolute -bottom-8 -right-8 w-48 h-48 bg-purple-50 rounded-full opacity-50" />
+            <div className="absolute -top-12 -left-12 w-64 h-64 bg-purple-50 rounded-full opacity-30" />
+            
+            <div className="relative grid grid-cols-1 lg:grid-cols-5 gap-8 items-center">
+              <div className="lg:col-span-3 order-1">
+                <span className="inline-block px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium mb-4">
+                  {language === 'en' ? "Results You Can Measure" : "Resultados Que Puedes Medir"}
+                </span>
+                
+                <h3 className="text-2xl md:text-3xl font-serif font-semibold text-purple-900 mb-4">
+                  {language === 'en' ? "Achieve Your Competition Goals" : "Logra Tus Objetivos de Competición"}
+                </h3>
+                
+                <p className="text-purple-700 mb-6">
+                  {language === 'en'
+                    ? "Our comprehensive analytics track your improvement across multiple tests, helping you see exactly where you're making progress. Our users report average score improvements of 2-5 percentage points in their first three months."
+                    : "Nuestro análisis completo sigue tu mejora a través de múltiples pruebas, ayudándote a ver exactamente dónde estás progresando. Nuestros usuarios informan mejoras promedio de puntuación de 2-5 puntos porcentuales en sus primeros tres meses."}
+                </p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                  <div className="bg-purple-50 p-4 rounded-lg">
+                    <div className="text-2xl font-semibold text-purple-900 mb-1">3%</div>
+                    <div className="text-sm text-purple-600">
+                      {language === 'en' ? "Avg. Score Increase" : "Aumento Promedio de Puntuación"}
+                    </div>
+                  </div>
+                  
+                  <div className="bg-purple-50 p-4 rounded-lg">
+                    <div className="text-2xl font-semibold text-purple-900 mb-1">91%</div>
+                    <div className="text-sm text-purple-600">
+                      {language === 'en' ? "Rider Satisfaction" : "Satisfacción del Jinete"}
+                    </div>
+                  </div>
+                  
+                  <div className="bg-purple-50 p-4 rounded-lg">
+                    <div className="text-2xl font-semibold text-purple-900 mb-1">7,500+</div>
+                    <div className="text-sm text-purple-600">
+                      {language === 'en' ? "Tests Analyzed" : "Pruebas Analizadas"}
+                    </div>
+                  </div>
+                </div>
+                
+                <Link to="/how-it-works">
+                  <Button className="bg-purple-700 hover:bg-purple-800 text-white">
+                    {language === 'en' ? "See How It Works" : "Ver Cómo Funciona"}
+                  </Button>
+                </Link>
+              </div>
+              
+              <div className="lg:col-span-2 relative order-2">
+                <img 
+                  src="/lovable-uploads/ed21d62b-c117-47e7-98ac-e263ba9821e7.png" 
+                  alt={language === 'en' ? "Horse legs with data points" : "Patas de caballo con puntos de datos"} 
+                  className="w-full h-auto rounded-lg shadow-md"
+                />
+                <div className="absolute inset-0 bg-purple-600/10 rounded-lg pointer-events-none" />
+              </div>
+            </div>
+          </div>
+        </AnimatedSection>
+      </div>
+    </section>
+  );
+};
+
+export default Benefits;

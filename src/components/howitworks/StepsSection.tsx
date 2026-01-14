@@ -1,0 +1,344 @@
+import { useState } from "react";
+import { FilePenLine, BarChart3, BookOpen, Lightbulb } from "lucide-react";
+import AnimatedSection from "../ui/AnimatedSection";
+import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/contexts/LanguageContext";
+
+const StepsSection = () => {
+  const [activeStep, setActiveStep] = useState(1);
+  const { language } = useLanguage();
+
+  const steps = [
+    {
+      id: 1,
+      icon: <FilePenLine className="w-6 h-6" />,
+      title:
+        language === "en" ? "Upload Score Sheets" : "Sube hojas de puntuación",
+      description:
+        language === "en"
+          ? "Simply take a photo of your dressage test score sheet or upload a digital copy. Our system supports all major dressage organizations and test levels."
+          : "Simplemente toma una foto de tu hoja de puntuación de la prueba de doma o sube una copia digital. Nuestro sistema admite todas las organizaciones y niveles de prueba importantes.",
+      image: "/lovable-uploads/upload-score-sheets.png",
+      features:
+        language === "en"
+          ? [
+              "Support for FEI, USDF, British Dressage, and other formats",
+              "Simple drag-and-drop or camera upload",
+              "Secure and private data handling",
+              "Automatic test level detection",
+            ]
+          : [
+              "Compatibilidad con FEI, USDF, British Dressage y otros formatos",
+              "Carga sencilla mediante arrastrar y soltar o cámara",
+              "Manejo de datos seguro y privado",
+              "Detección automática del nivel de prueba",
+            ],
+    },
+    {
+      id: 2,
+      icon: <BarChart3 className="w-6 h-6" />,
+      icon_image: (
+        <img
+          src="/lovable-uploads/ddb7f47e-072a-4346-9fd3-a8a055f13bba.png"
+          className="w-full h-full"
+          alt=""
+        />
+      ),
+      title:
+        language === "en"
+          ? "Analyzing your test sheet"
+          : "Analizando tu hoja de prueba",
+      description:
+        language === "en"
+          ? "Our advanced artificial intelligence analyzes your scores, comments, and performance patterns to identify both strengths and areas for improvement."
+          : "Nuestra avanzada inteligencia artificial analiza tus puntuaciones, comentarios y patrones de rendimiento para identificar fortalezas y áreas de mejora.",
+      image: "/lovable-uploads/ai-analysis.png",
+      features:
+        language === "en"
+          ? [
+              "Detailed breakdown of each movement score",
+              "Pattern recognition across multiple tests",
+              "Judge comment analysis and interpretation",
+              "Comparison to your previous performances",
+            ]
+          : [
+              "Desglose detallado de cada puntuación de movimiento",
+              "Reconocimiento de patrones en múltiples pruebas",
+              "Análisis e interpretación de comentarios del juez",
+              "Comparación con tus actuaciones anteriores",
+            ],
+    },
+    {
+      id: 3,
+      icon: <Lightbulb className="w-6 h-6" />,
+      title:
+        language === "en"
+          ? "Personalized Recommendations"
+          : "Recomendaciones personalizadas",
+      description:
+        language === "en"
+          ? "Receive tailored training recommendations and exercises specifically designed to address your improvement areas and enhance your strengths."
+          : "Recibe recomendaciones de entrenamiento personalizadas y ejercicios diseñados específicamente para abordar tus áreas de mejora y potenciar tus fortalezas.",
+      image: "/lovable-uploads/personalized-recommendations.png",
+      features:
+        language === "en"
+          ? [
+              "Custom exercise selection from our library",
+              "Difficulty progression based on your level",
+              "Focus on movements needing improvement",
+              "Weekly training plans and schedules",
+            ]
+          : [
+              "Selección de ejercicios personalizados de nuestra biblioteca",
+              "Progresión de dificultad según tu nivel",
+              "Enfoque en los movimientos que necesitan mejora",
+              "Planes y horarios de entrenamiento semanales",
+            ],
+    },
+    {
+      id: 4,
+      icon: <BookOpen className="w-6 h-6" />,
+      title:
+        language === "en" ? "Progress Tracking" : "Seguimiento del progreso",
+      description:
+        language === "en"
+          ? "Monitor your improvement over time with comprehensive analytics dashboards and progress reports that show your development as a rider."
+          : "Supervisa tu progreso con paneles de análisis integrales e informes que muestran tu evolución como jinete.",
+      image: "/lovable-uploads/progress-tracking.png",
+      features:
+        language === "en"
+          ? [
+              "Visual charts of score improvements",
+              "Achievement tracking and milestones",
+              "Long-term trend analysis",
+              "Score predictions for future competitions",
+            ]
+          : [
+              "Gráficos visuales de mejoras de puntuación",
+              "Seguimiento de logros y hitos",
+              "Análisis de tendencias a largo plazo",
+              "Predicciones de puntuaciones para futuras competiciones",
+            ],
+    },
+  ];
+
+  const activeStepData =
+    steps.find((step) => step.id === activeStep) || steps[0];
+
+  return (
+    <section className="py-16 bg-white">
+      <div className="container mx-auto px-6">
+        <AnimatedSection
+          animation="fade-in"
+          className="text-center max-w-3xl mx-auto mb-16"
+        >
+          <h1 className="text-4xl md:text-5xl font-serif font-semibold text-purple-900 mb-6">
+            {language === "en"
+              ? "How AI Dressage Trainer Works"
+              : "Cómo funciona el entrenador de doma con IA"}
+          </h1>
+          <p className="text-lg text-gray-700">
+            {language === "en"
+              ? "Our innovative platform combines cutting-edge AI technology with expert dressage knowledge to deliver personalized training recommendations that improve your performance."
+              : "Nuestra innovadora plataforma combina tecnología de inteligencia artificial de última generación con conocimiento experto en doma para ofrecer recomendaciones de entrenamiento personalizadas que mejoran su rendimiento."}
+          </p>
+        </AnimatedSection>
+
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 mb-16">
+          <div className="lg:col-span-2">
+            <div className="sticky top-24">
+              <div className="space-y-3">
+                {steps.map((step) => (
+                  <button
+                    key={step.id}
+                    onClick={() => setActiveStep(step.id)}
+                    className={`w-full text-left p-5 rounded-xl flex items-center transition-all duration-300 ${
+                      activeStep === step.id
+                        ? "bg-purple-700 text-white shadow-md"
+                        : "bg-purple-50 text-gray-800 hover:bg-purple-100"
+                    }`}
+                  >
+                    <div
+                      className={`w-10 h-10 rounded-full flex items-center justify-center mr-4 ${
+                        activeStep === step.id ? "bg-purple-500" : "bg-white"
+                      }`}
+                    >
+                      {step.icon}
+                    </div>
+                    <div>
+                      <div className="font-medium">{step.title}</div>
+                      <div
+                        className={`text-sm ${
+                          activeStep === step.id
+                            ? "text-purple-100"
+                            : "text-gray-600"
+                        }`}
+                      >
+                        Step {step.id}
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="lg:col-span-3">
+            <AnimatedSection
+              key={activeStep}
+              animation="fade-in"
+              className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm"
+            >
+              <div className="aspect-video bg-purple-50 flex items-center justify-center">
+                <div className="w-full h-full bg-purple-100 flex items-center justify-center relative">
+                  {/* This would be a real image or animation in production */}
+                  <img
+                    src={activeStepData.image}
+                    alt=""
+                    className="w-full h-full object-cover"
+                  />
+                  <div
+                    className={`w-full h-full ${
+                      activeStepData.id !== 2 &&
+                      "bg-gradient-to-t from-purple-100 to-transparent"
+                    } absolute inset-0 flex items-center justify-center`}
+                  >
+                    <div className="text-center p-8  ">
+                      <div className="w-16 h-16 rounded-full bg-purple-200 mx-auto flex items-center justify-center mb-4">
+                        {activeStepData.id === 2
+                          ? activeStepData.icon_image
+                          : activeStepData.icon}
+                      </div>
+                      <h3
+                        className={` ${
+                          activeStepData.id === 2
+                            ? "text-white"
+                            : "text-gray-800"
+                        } font-medium`}
+                      >
+                        Step {activeStepData.id}: {activeStepData.title}
+                      </h3>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-8">
+                <h2 className="text-2xl font-serif font-semibold text-purple-900 mb-4">
+                  {activeStepData.title}
+                </h2>
+
+                <p className="text-gray-700 mb-8">
+                  {activeStepData.description}
+                </p>
+
+                <h3 className="text-lg font-medium text-gray-900 mb-4">
+                  {language === "en"
+                    ? "Key Features:"
+                    : "Características principales:"}
+                </h3>
+
+                <ul className="space-y-3">
+                  {activeStepData.features.map((feature, index) => (
+                    <li key={index} className="flex items-start">
+                      <svg
+                        className="h-5 w-5 text-purple-600 mr-3 mt-0.5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                      <span className="text-gray-700">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </AnimatedSection>
+          </div>
+        </div>
+
+        <AnimatedSection
+          animation="fade-in"
+          className="bg-purple-50 rounded-2xl p-8 md:p-12"
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+            <div>
+              <h2 className="text-2xl md:text-3xl font-serif font-semibold text-purple-900 mb-6">
+                {language === "en"
+                  ? "See the Platform in Action"
+                  : "Vea la plataforma en acción"}
+              </h2>
+
+              <p className="text-gray-700 mb-8">
+                {language === "en"
+                  ? "Watch our demo to see how AI Dressage Trainer can transform your training approach with powerful analysis and personalized recommendations."
+                  : "Vea nuestra demostración para ver cómo AI Dressage Trainer puede transformar su enfoque de entrenamiento con análisis poderosos y recomendaciones personalizadas."}
+              </p>
+
+              <Button variant="primary" className="flex items-center">
+                {language === "en" ? "Watch Demo" : "Ver demostración"}
+
+                <svg
+                  className="ml-2 h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </Button>
+            </div>
+
+            <div className="relative">
+              <div className="absolute -inset-4 bg-gradient-to-r from-purple-200/20 to-purple-400/20 rounded-xl transform rotate-2 -z-10" />
+              <div className="aspect-video bg-white rounded-xl overflow-hidden shadow-sm flex items-center justify-center">
+                {/* This would be a video thumbnail in production */}
+                <div className="text-center">
+                  <div className="w-16 h-16 rounded-full bg-purple-700 mx-auto flex items-center justify-center mb-4 cursor-pointer hover:bg-purple-800 transition-colors">
+                    <svg
+                      className="h-6 w-6 text-white"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
+                      />
+                    </svg>
+                  </div>
+                  <p className="text-gray-600 font-medium">
+                    {language === "en"
+                      ? "Platform Demo"
+                      : "Demostración de la plataforma"}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </AnimatedSection>
+      </div>
+    </section>
+  );
+};
+
+export default StepsSection;

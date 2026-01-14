@@ -1,0 +1,925 @@
+// supabase/functions/stripe-webhook/index.ts
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import Stripe from "https://esm.sh/stripe@14.21.0";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+
+// Initialize Stripe
+const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
+    apiVersion: "2023-10-16"
+});
+
+// Initialize Supabase admin client
+const supabaseAdmin = createClient(
+    Deno.env.get("SUPABASE_URL") ?? "",
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+    { auth: { persistSession: false } }
+);
+
+// Simple logging function
+const log = (message, data = null) => {
+    console.log(`[STRIPE-WEBHOOK] ${message}${data ? ` - ${JSON.stringify(data)}` : ''}`);
+};
+
+serve(async (req) => {
+    try {
+        // Only allow POST requests
+        if (req.method !== "POST") {
+            return new Response("Method not allowed", { status: 405 });
+        }
+
+        // CRITICAL: Get the raw body as text - don't parse it yet
+        const body = await req.text();
+        const signature = req.headers.get("stripe-signature");
+        const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
+
+
+
+        if (!signature) {
+            log("Missing stripe-signature header");
+            return new Response(
+                JSON.stringify({ error: "Missing stripe-signature header" }),
+                { status: 400, headers: { "Content-Type": "application/json" } }
+            );
+        }
+
+        if (!webhookSecret) {
+            log("Missing STRIPE_WEBHOOK_SECRET environment variable");
+            return new Response(
+                JSON.stringify({ error: "Webhook secret not configured" }),
+                { status: 500, headers: { "Content-Type": "application/json" } }
+            );
+        }
+
+        // Verify webhook signature
+        let event;
+        try {
+            // Use constructEventAsync for better error handling
+            event = await stripe.webhooks.constructEventAsync(
+                body,
+                signature,
+                webhookSecret
+            );
+
+            log("Webhook signature verified successfully", {
+                eventType: event.type,
+                eventId: event.id
+            });
+
+        } catch (err) {
+            log("Webhook signature verification failed", {
+                error: err.message,
+                errorType: err.type,
+                // Add more debugging info
+                signatureHeader: signature.substring(0, 20) + "...", // First 20 chars only
+            });
+
+            return new Response(
+                JSON.stringify({
+                    error: "Webhook signature verification failed",
+                    message: err.message
+                }),
+                {
+                    status: 400,
+                    headers: { "Content-Type": "application/json" }
+                }
+            );
+        }
+
+        log("Processing webhook event", {
+            type: event.type,
+            id: event.id
+        });
+
+        // Handle Stripe events
+        switch (event.type) {
+            case "checkout.session.completed":
+                await handleCheckoutCompleted(event.data.object);
+                break;
+
+            case "customer.subscription.created":
+                await handleSubscriptionCreated(event.data.object);
+                break;
+
+            case "customer.subscription.updated":
+                await handleSubscriptionUpdated(event.data.object);
+                break;
+
+            case "customer.subscription.deleted":
+                await handleSubscriptionDeleted(event.data.object);
+                break;
+
+            case "invoice.payment_succeeded":
+                await handlePaymentSucceeded(event.data.object);
+                break;
+
+            case "invoice.payment_failed":
+                await handlePaymentFailed(event.data.object);
+                break;
+
+            default:
+                log("Unhandled event type", { type: event.type });
+        }
+
+        return new Response(
+            JSON.stringify({ received: true }),
+            {
+                status: 200,
+                headers: { "Content-Type": "application/json" }
+            }
+        );
+
+    } catch (error) {
+        log("Webhook processing error", {
+            error: error.message,
+            stack: error.stack
+        });
+
+        return new Response(
+            JSON.stringify({ error: "Webhook processing failed" }),
+            {
+                status: 500,
+                headers: { "Content-Type": "application/json" }
+            }
+        );
+    }
+});
+
+// 🎯 Handle checkout completion
+async function handleCheckoutCompleted(session) {
+    const metadata = session.metadata || {};
+    const { user_email, user_id, plan_id, coupon_id } = metadata;
+
+    if (!user_id || !plan_id || !session.subscription) {
+        log("Invalid checkout session", {
+            hasUserId: !!user_id,
+            hasPlanId: !!plan_id,
+            hasSubscription: !!session.subscription
+        });
+        return;
+    }
+
+    try {
+        const subscription = await stripe.subscriptions.retrieve(session.subscription);
+
+        await createSubscriptionRecord({
+            user_email,
+            user_id,
+            plan_id,
+            coupon_id: coupon_id || null,
+            subscription,
+            source: "checkout.session.completed"
+        });
+
+    } catch (error) {
+        log("Error handling checkout completion", {
+            sessionId: session.id,
+            error: error.message
+        });
+    }
+}
+
+// 🎯 Handle subscription creation
+async function handleSubscriptionCreated(subscription) {
+    const metadata = subscription.metadata || {};
+    const { user_id, plan_id, coupon_id } = metadata;
+
+    if (!user_id || !plan_id) {
+        log("Invalid subscription metadata", {
+            subscriptionId: subscription.id,
+            hasUserId: !!user_id,
+            hasPlanId: !!plan_id
+        });
+        return;
+    }
+
+    try {
+        // BEFORE creating the new subscription, check if user had a different active plan
+        const { data: previousSubs, error: prevError } = await supabaseAdmin
+            .from("user_subscriptions")
+            .select(`
+                *,
+                pricing_plans (
+                    id,
+                    name,
+                    max_horses
+                )
+            `)
+            .eq("user_id", user_id)
+            .eq("is_active", true)
+            .order("created_at", { ascending: false });
+
+        let hadPreviousPlan = false;
+        let oldPlan = null;
+
+        if (!prevError && previousSubs && previousSubs.length > 0) {
+            // User had an active subscription - check if it's different
+            const lastSub = previousSubs[0];
+            if (lastSub.plan_id !== plan_id) {
+                hadPreviousPlan = true;
+                oldPlan = lastSub.pricing_plans;
+
+                log("Previous subscription detected", {
+                    userId: user_id,
+                    oldPlanId: lastSub.plan_id,
+                    newPlanId: plan_id,
+                    oldPlanName: oldPlan?.name,
+                    oldLimit: oldPlan?.max_horses
+                });
+            }
+        }
+
+        // Create the new subscription record
+        await createSubscriptionRecord({
+            user_id,
+            plan_id,
+            coupon_id: coupon_id || null,
+            subscription,
+            source: "customer.subscription.created"
+        });
+
+        // AFTER creating the new subscription, handle plan change if detected
+        if (hadPreviousPlan && oldPlan) {
+            // Get the new plan details
+            const { data: newPlan, error: newPlanError } = await supabaseAdmin
+                .from("pricing_plans")
+                .select("*")
+                .eq("id", plan_id)
+                .single();
+
+            if (!newPlanError && newPlan) {
+                const changeType = newPlan.max_horses > oldPlan.max_horses
+                    ? 'upgrade'
+                    : newPlan.max_horses < oldPlan.max_horses
+                        ? 'downgrade'
+                        : 'same';
+
+                log("Plan change detected in new subscription", {
+                    userId: user_id,
+                    subscriptionId: subscription.id,
+                    oldPlan: oldPlan.name,
+                    newPlan: newPlan.name,
+                    oldLimit: oldPlan.max_horses,
+                    newLimit: newPlan.max_horses,
+                    changeType
+                });
+
+                // Trigger plan change handling
+                await handlePlanChange({
+                    userId: user_id,
+                    subscriptionId: subscription.id,
+                    oldPlan: oldPlan,
+                    newPlan: newPlan,
+                    changeType: changeType
+                });
+            }
+        }
+
+    } catch (error) {
+        log("Error handling subscription creation", {
+            subscriptionId: subscription.id,
+            error: error.message
+        });
+    }
+}
+
+// 🎯 Handle subscription updates
+async function handleSubscriptionUpdated(subscription) {
+    try {
+        // Check if this is a plan change (different price)
+        const currentItem = subscription.items.data[0];
+        const newStripePrice = currentItem.price.id;
+
+        // Get existing subscription WITHOUT the problematic pricing_plans join
+        const { data: existingSub, error: existingSubError } = await supabaseAdmin
+            .from("user_subscriptions")
+            .select("*")
+            .eq("stripe_subscription_id", subscription.id)
+            .single();
+
+        if (existingSubError) {
+            log("Error fetching existing subscription", {
+                subscriptionId: subscription.id,
+                error: existingSubError.message
+            });
+            return;
+        }
+
+        // Get the current plan details separately
+        let oldPlan = null;
+        if (existingSub.plan_id) {
+            const { data: oldPlanData, error: oldPlanError } = await supabaseAdmin
+                .from("pricing_plans")
+                .select("*")
+                .eq("id", existingSub.plan_id)
+                .single();
+
+            if (!oldPlanError) {
+                oldPlan = oldPlanData;
+            }
+        }
+
+        let updateData = {
+            is_active: subscription.status === 'active',
+            is_trial: subscription.status === 'trialing',
+            ends_at: new Date(subscription.current_period_end * 1000).toISOString(),
+            updated_at: new Date().toISOString()
+        };
+
+        // Handle cancellation detection
+        const wasCancelled = existingSub.cancelled_at !== null;
+        const isCancelledNow = subscription.cancel_at_period_end === true || subscription.status === 'canceled';
+
+        if (!wasCancelled && isCancelledNow) {
+            // Subscription was just cancelled
+            updateData.cancelled_at = subscription.canceled_at
+                ? new Date(subscription.canceled_at * 1000).toISOString()
+                : new Date().toISOString();
+
+            log("Subscription cancellation detected", {
+                subscriptionId: subscription.id,
+                userId: existingSub.user_id,
+                cancelAtPeriodEnd: subscription.cancel_at_period_end,
+                status: subscription.status,
+                cancelledAt: updateData.cancelled_at
+            });
+
+            // Log the cancellation
+            await logSubscriptionHistory({
+                user_id: existingSub.user_id,
+                action: 'subscription_cancelled',
+                new_plan_id: existingSub.plan_id,
+                stripe_subscription_id: subscription.id,
+                source: 'customer.subscription.updated',
+                metadata: {
+                    cancel_at_period_end: subscription.cancel_at_period_end,
+                    status: subscription.status
+                }
+            });
+        }
+
+        // Handle reactivation (if cancelled subscription is reactivated)
+        if (wasCancelled && !isCancelledNow && subscription.status === 'active') {
+            updateData.cancelled_at = null;
+
+            log("Subscription reactivation detected", {
+                subscriptionId: subscription.id,
+                userId: existingSub.user_id,
+                status: subscription.status
+            });
+
+            // Log the reactivation
+            await logSubscriptionHistory({
+                user_id: existingSub.user_id,
+                action: 'subscription_reactivated',
+                new_plan_id: existingSub.plan_id,
+                stripe_subscription_id: subscription.id,
+                source: 'customer.subscription.updated'
+            });
+        }
+
+        // For dynamic plans, we need to check if this is a plan change differently
+        // We'll use the plan_id from subscription metadata to detect changes
+        const newPlanId = subscription.metadata?.plan_id;
+        let planChanged = false;
+        let newPlan = null;
+
+        if (newPlanId && existingSub.plan_id !== newPlanId) {
+            // Get new plan details
+            const { data: newPlanData, error: newPlanError } = await supabaseAdmin
+                .from("pricing_plans")
+                .select("*")
+                .eq("id", newPlanId)
+                .single();
+
+            if (newPlanError) {
+                log("Error fetching new plan", {
+                    subscriptionId: subscription.id,
+                    newPlanId,
+                    error: newPlanError.message
+                });
+            } else {
+                newPlan = newPlanData;
+                updateData.plan_id = newPlan.id;
+                planChanged = true;
+
+                log("Plan change detected", {
+                    subscriptionId: subscription.id,
+                    userId: existingSub.user_id,
+                    oldPlanId: existingSub.plan_id,
+                    newPlanId: newPlan.id,
+                    oldPlan: oldPlan?.name,
+                    newPlan: newPlan.name,
+                    oldLimit: oldPlan?.max_horses,
+                    newLimit: newPlan.max_horses
+                });
+            }
+        } else {
+            // No plan change detected, just updating subscription status
+            log("No plan change detected, updating subscription status only", {
+                subscriptionId: subscription.id,
+                status: subscription.status,
+                currentPlanId: existingSub.plan_id,
+                metadataPlanId: newPlanId
+            });
+        }
+
+        // Update subscription record
+        const { error: updateError } = await supabaseAdmin
+            .from("user_subscriptions")
+            .update(updateData)
+            .eq("stripe_subscription_id", subscription.id);
+
+        if (updateError) {
+            log("Error updating subscription", {
+                subscriptionId: subscription.id,
+                error: updateError.message
+            });
+            return;
+        }
+
+        // Handle plan change if detected
+        if (planChanged && newPlan && oldPlan) {
+            await handlePlanChange({
+                userId: existingSub.user_id,
+                subscriptionId: subscription.id,
+                oldPlan: oldPlan,
+                newPlan: newPlan,
+                changeType: newPlan.max_horses > oldPlan.max_horses
+                    ? 'upgrade'
+                    : newPlan.max_horses < oldPlan.max_horses
+                        ? 'downgrade'
+                        : 'same'
+            });
+        }
+
+        log("Subscription updated successfully", {
+            subscriptionId: subscription.id,
+            status: subscription.status,
+            planChanged,
+            cancelled: !!updateData.cancelled_at
+        });
+
+    } catch (error) {
+        log("Error in subscription update handler", {
+            subscriptionId: subscription.id,
+            error: error.message
+        });
+    }
+}
+
+// 🎯 Handle plan changes
+async function handlePlanChange({ userId, subscriptionId, oldPlan, newPlan, changeType }) {
+    try {
+        log("Processing plan change", {
+            userId,
+            changeType,
+            oldLimit: oldPlan.max_horses,
+            newLimit: newPlan.max_horses
+        });
+
+        // Record the plan change first
+        const { data: planChangeRecord, error: planChangeError } = await supabaseAdmin
+            .from("plan_changes")
+            .insert({
+                user_id: userId,
+                old_plan_id: oldPlan.id,
+                new_plan_id: newPlan.id,
+                old_plan_name: oldPlan.name,
+                new_plan_name: newPlan.name,
+                old_horse_limit: oldPlan.max_horses,
+                new_horse_limit: newPlan.max_horses,
+                change_type: changeType,
+                stripe_subscription_id: subscriptionId
+            })
+            .select()
+            .single();
+
+        if (planChangeError) {
+            log("Error recording plan change", {
+                userId,
+                error: planChangeError.message
+            });
+            return;
+        }
+
+        // Manage horses based on new plan limits
+        const horseResult = await manageUserHorses(userId, newPlan.id, subscriptionId, `plan_${changeType}`);
+
+        // Update plan change record with results
+        if (horseResult.success) {
+            await supabaseAdmin
+                .from("plan_changes")
+                .update({
+                    horses_affected: horseResult.horses_affected || 0,
+                    horses_disabled: horseResult.horses_disabled || 0,
+                    horses_reactivated: horseResult.horses_activated || 0
+                })
+                .eq("id", planChangeRecord.id);
+
+            log("Plan change and horse management completed", {
+                userId,
+                changeType,
+                horsesAffected: horseResult.horses_affected,
+                horsesDisabled: horseResult.horses_disabled,
+                horsesActivated: horseResult.horses_activated
+            });
+        }
+
+    } catch (error) {
+        log("Error handling plan change", {
+            userId,
+            changeType,
+            error: error.message
+        });
+    }
+}
+
+// 🎯 Handle subscription cancellation
+async function handleSubscriptionDeleted(subscription) {
+    try {
+        const { error } = await supabaseAdmin
+            .from("user_subscriptions")
+            .update({
+                is_active: false,
+                ends_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+                cancelled_at: new Date().toISOString()
+            })
+            .eq("stripe_subscription_id", subscription.id);
+
+        if (error) {
+            log("Error deactivating subscription", {
+                subscriptionId: subscription.id,
+                error: error.message
+            });
+        } else {
+            log("Subscription deactivated successfully", {
+                subscriptionId: subscription.id
+            });
+        }
+
+    } catch (error) {
+        log("Error in subscription deletion handler", {
+            subscriptionId: subscription.id,
+            error: error.message
+        });
+    }
+}
+
+// 🎯 Handle successful payments (renewals)
+async function handlePaymentSucceeded(invoice) {
+    if (!invoice.subscription) {
+        return; // Not a subscription payment
+    }
+
+    try {
+        // Get updated subscription details
+        const subscription = await stripe.subscriptions.retrieve(invoice.subscription);
+
+        const { error } = await supabaseAdmin
+            .from("user_subscriptions")
+            .update({
+                is_active: true,
+                ends_at: new Date(subscription.current_period_end * 1000).toISOString(),
+                updated_at: new Date().toISOString()
+            })
+            .eq("stripe_subscription_id", subscription.id);
+
+        if (error) {
+            log("Error updating subscription after payment", {
+                subscriptionId: subscription.id,
+                error: error.message
+            });
+        } else {
+            log("Subscription renewed successfully", {
+                subscriptionId: subscription.id,
+                newEndDate: new Date(subscription.current_period_end * 1000).toISOString()
+            });
+        }
+
+    } catch (error) {
+        log("Error in payment success handler", {
+            invoiceId: invoice.id,
+            error: error.message
+        });
+    }
+}
+
+// 🎯 Handle failed payments
+async function handlePaymentFailed(invoice) {
+    if (!invoice.subscription) {
+        return; // Not a subscription payment
+    }
+
+    try {
+        const { error } = await supabaseAdmin
+            .from("user_subscriptions")
+            .update({
+                is_active: false, // Deactivate on payment failure
+                updated_at: new Date().toISOString()
+            })
+            .eq("stripe_subscription_id", invoice.subscription);
+
+        if (error) {
+            log("Error updating subscription after payment failure", {
+                subscriptionId: invoice.subscription,
+                error: error.message
+            });
+        } else {
+            log("Subscription deactivated due to payment failure", {
+                subscriptionId: invoice.subscription,
+                invoiceId: invoice.id
+            });
+        }
+
+    } catch (error) {
+        log("Error in payment failure handler", {
+            invoiceId: invoice.id,
+            error: error.message
+        });
+    }
+}
+
+// 🎯 CENTRALIZED: Manage user horses based on current plan limit
+async function manageUserHorses(userId, planId, subscriptionId, context = 'subscription_created') {
+    try {
+        log("Managing user horses based on plan limit", { userId, planId, context });
+
+        // Get the current plan details
+        const { data: plan, error: planError } = await supabaseAdmin
+            .from("pricing_plans")
+            .select("*")
+            .eq("id", planId)
+            .single();
+
+        if (planError || !plan) {
+            log("Could not fetch plan details", { planId, error: planError?.message });
+            return { success: false, error: "Plan not found" };
+        }
+
+        const planLimit = plan.max_horses;
+
+        // Get all horses for this user (active and disabled)
+        const { data: allHorses, error: horsesError } = await supabaseAdmin
+            .from('horses')
+            .select('*')
+            .eq('user_id', userId)
+            .order('created_at', { ascending: true }); // Oldest first = higher priority
+
+        if (horsesError) {
+            log(`Error fetching horses for user ${userId}`, { error: horsesError.message });
+            return { success: false, error: "Could not fetch user horses" };
+        }
+
+        if (!allHorses || allHorses.length === 0) {
+            log(`No horses found for user ${userId}`);
+            return {
+                success: true,
+                horses_affected: 0,
+                horses_activated: 0,
+                horses_disabled: 0,
+                message: "No horses to manage"
+            };
+        }
+
+        // Separate active and disabled horses
+        const activeHorses = allHorses.filter(h => h.status === 'active');
+        const disabledHorses = allHorses.filter(h => h.status === 'disabled');
+
+        log("Current horse status", {
+            userId,
+            totalHorses: allHorses.length,
+            activeHorses: activeHorses.length,
+            disabledHorses: disabledHorses.length,
+            planLimit: planLimit
+        });
+
+        let horsesToActivate = [];
+        let horsesToDisable = [];
+
+        if (activeHorses.length < planLimit) {
+            // We can activate more horses
+            const availableSlots = planLimit - activeHorses.length;
+            horsesToActivate = disabledHorses
+                .sort((a, b) => new Date(b.updated_at || b.created_at).getTime() - new Date(a.updated_at || a.created_at).getTime()) // Most recently disabled first
+                .slice(0, availableSlots);
+
+        } else if (activeHorses.length > planLimit) {
+            // We need to disable some horses
+            const excessHorses = activeHorses.length - planLimit;
+            horsesToDisable = activeHorses
+                .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) // Newest first = first to disable
+                .slice(0, excessHorses);
+        }
+
+        // Execute horse status changes
+        let activatedCount = 0;
+        let disabledCount = 0;
+
+        // Activate horses
+        if (horsesToActivate.length > 0) {
+            const { error: activateError } = await supabaseAdmin
+                .from("horses")
+                .update({
+                    status: 'active',
+                    updated_at: new Date().toISOString(),
+                    disabled_at: null,
+                    disabled_reason: null
+                })
+                .in('id', horsesToActivate.map(h => h.id));
+
+            if (activateError) {
+                log(`Error activating horses for user ${userId}`, { error: activateError.message });
+            } else {
+                activatedCount = horsesToActivate.length;
+                log(`Activated ${activatedCount} horses for user ${userId}`, {
+                    horses: horsesToActivate.map(h => ({ id: h.id, name: h.name }))
+                });
+            }
+        }
+
+        // Disable horses
+        if (horsesToDisable.length > 0) {
+            const { error: disableError } = await supabaseAdmin
+                .from("horses")
+                .update({
+                    status: 'disabled',
+                    updated_at: new Date().toISOString(),
+                    disabled_at: new Date().toISOString(),
+                    disabled_reason: context === 'plan_downgrade' ? 'plan_downgrade' : 'plan_limit_exceeded'
+                })
+                .in('id', horsesToDisable.map(h => h.id));
+
+            if (disableError) {
+                log(`Error disabling horses for user ${userId}`, { error: disableError.message });
+            } else {
+                disabledCount = horsesToDisable.length;
+                log(`Disabled ${disabledCount} horses for user ${userId}`, {
+                    horses: horsesToDisable.map(h => ({ id: h.id, name: h.name }))
+                });
+            }
+        }
+
+        // Send appropriate notification email
+        if (activatedCount > 0 || disabledCount > 0) {
+            await sendHorseManagementEmail(userId, {
+                planName: plan.name,
+                planLimit: planLimit,
+                horsesActivated: horsesToActivate,
+                horsesDisabled: horsesToDisable,
+                context: context
+            });
+        }
+
+        const result = {
+            success: true,
+            horses_affected: activatedCount + disabledCount,
+            horses_activated: activatedCount,
+            horses_disabled: disabledCount,
+            plan_limit: planLimit,
+            total_horses: allHorses.length,
+            activated_horses: horsesToActivate.map(h => ({ id: h.id, name: h.name })),
+            disabled_horses: horsesToDisable.map(h => ({ id: h.id, name: h.name })),
+            message: `Horse management completed: ${activatedCount} activated, ${disabledCount} disabled`
+        };
+
+        log("Horse management completed", { userId, result });
+        return result;
+
+    } catch (error) {
+        log(`Error in manageUserHorses for user ${userId}`, { error: error.message });
+        return { success: false, error: error.message };
+    }
+}
+
+// Send email notification for horse management changes
+async function sendHorseManagementEmail(userId, { planName, planLimit, horsesActivated, horsesDisabled, context }) {
+    try {
+        // Get user email
+        const { data: user, error: userError } = await supabaseAdmin.auth.admin.getUserById(userId);
+        if (userError || !user?.user?.email) {
+            log("Could not get user email for horse management notification", { userId });
+            return;
+        }
+
+        const userEmail = user.user.email;
+
+        log("Would send horse management email", {
+            email: userEmail,
+            activated: horsesActivated.length,
+            disabled: horsesDisabled.length,
+            context
+        });
+
+        // TODO: Implement actual email sending here using your email service
+        // This is just logging for now - you can integrate with your email system
+
+    } catch (error) {
+        log("Error sending horse management email", { userId, error: error.message });
+    }
+}
+
+// 🛠️ Helper function to create subscription records
+async function createSubscriptionRecord({ user_email, user_id, plan_id, coupon_id, subscription, source }) {
+    try {
+        // Check if subscription already exists (prevent duplicates)
+        const { data: existing } = await supabaseAdmin
+            .from("user_subscriptions")
+            .select("id, is_active")
+            .eq("stripe_subscription_id", subscription.id)
+            .single();
+
+        if (existing) {
+            log("Subscription already exists, skipping creation", {
+                subscriptionId: subscription.id,
+                source,
+                existingId: existing.id,
+                isActive: existing.is_active
+            });
+            return existing;
+        }
+
+        // Use a transaction to ensure atomicity
+        const { data, error } = await supabaseAdmin.rpc('create_subscription_safely', {
+            p_user_id: user_id,
+            p_plan_id: plan_id,
+            p_stripe_subscription_id: subscription.id,
+            p_is_active: subscription.status === 'active',
+            p_is_trial: subscription.status === 'trialing',
+            p_coupon_id: coupon_id,
+            p_started_at: new Date(subscription.created * 1000).toISOString(),
+            p_ends_at: new Date(subscription.current_period_end * 1000).toISOString()
+        });
+
+        if (error) {
+            log("Failed to create subscription record", {
+                subscriptionId: subscription.id,
+                error: error.message,
+                source
+            });
+            throw error;
+        }
+
+        // Manage horses after subscription creation
+        await manageUserHorses(user_id, plan_id, subscription.id, 'subscription_created');
+
+        // Log subscription history
+        await logSubscriptionHistory({
+            user_id,
+            action: 'subscription_created',
+            new_plan_id: plan_id,
+            stripe_subscription_id: subscription.id,
+            source
+        });
+
+        log("Subscription record created successfully", {
+            subscriptionId: subscription.id,
+            userId: user_id,
+            planId: plan_id,
+            source
+        });
+
+        return data;
+
+    } catch (error) {
+        log("Error in createSubscriptionRecord", {
+            userId: user_id,
+            subscriptionId: subscription.id,
+            error: error.message
+        });
+        throw error;
+    }
+}
+
+// 🛠️ Helper function to log subscription history
+async function logSubscriptionHistory({ user_id, action, new_plan_id, old_plan_id, stripe_subscription_id, source, metadata = {} }) {
+    try {
+        const { error } = await supabaseAdmin
+            .from("subscription_history")
+            .insert({
+                user_id,
+                action,
+                new_plan_id,
+                old_plan_id: old_plan_id || null,
+                stripe_subscription_id,
+                source,
+                metadata,
+                created_at: new Date().toISOString()
+            });
+
+        if (error) {
+            log("Error logging subscription history", {
+                userId: user_id,
+                action,
+                error: error.message
+            });
+        }
+    } catch (error) {
+        // Don't throw here, logging failure shouldn't break the main flow
+        log("Failed to log subscription history", {
+            userId: user_id,
+            action,
+            error: error.message
+        });
+    }
+}

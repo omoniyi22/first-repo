@@ -1,0 +1,133 @@
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
+import ProfileHeader from "@/components/profile/ProfileHeader";
+import PerformanceOverview from "@/components/dashboard/PerformanceOverview";
+import RecentTests from "@/components/dashboard/RecentTests";
+import UpcomingEvents from "@/components/profile/UpcomingEvents";
+import Horses from "@/components/profile/Horses";
+import Goals from "@/components/dashboard/Goals";
+import TrainingFocus from "@/components/dashboard/TrainingFocus";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import { Upload, LayoutDashboard } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { SEO, getPageMetadata } from "@/lib/seo";
+import { supabase } from "@/integrations/supabase/client";
+
+const Profile = () => {
+  const [userDiscipline, setUserDiscipline] = useState<string>("");
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+  const { language } = useLanguage();
+
+  // Get profile SEO metadata
+  const seoMetadata = getPageMetadata("profile", {
+    // Add noindex tag since this is a private page
+    noIndex: true,
+  });
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (!user) return;
+
+      try {
+        // Fetch user profile to get discipline
+        const { data: profileData, error: profileError } = await supabase
+          .from("profiles")
+          .select("discipline")
+          .eq("id", user.id)
+          .single();
+
+        if (profileError && profileError.code !== "PGRST116") {
+          console.error("Error fetching profile:", profileError);
+        } else if (profileData?.discipline) {
+          setUserDiscipline(profileData.discipline);
+        }
+      } catch (error) {
+        console.error("Error fetching horses:", error);
+      } finally {
+      }
+    };
+
+    fetchUserData();
+  }, [user, language]);
+
+  // If not logged in and not loading, redirect to sign in
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate("/sign-in");
+    }
+  }, [user, loading, navigate]);
+
+  // Scroll to top on page load
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  // Show nothing while checking auth status
+  if (loading) {
+    return null;
+  }
+
+  // Only render the profile if we have a user
+  if (!user) {
+    return null;
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+      <SEO {...seoMetadata} />
+      <Navbar />
+      <main className="container mx-auto px-4 pt-20 sm:pt-24 pb-12 sm:pb-16">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0 mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-serif font-semibold text-purple-900">
+            {language === "en" ? "Your Profile" : "Tu Perfil"}
+          </h1>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Button
+              className="text-white bg-purple-600 hover:bg-purple-700 text-sm sm:text-base"
+              onClick={() => navigate("/analysis")}
+            >
+              <Upload className="mr-2 h-4 w-4" />
+              {userDiscipline
+                ? userDiscipline === "dressage"
+                  ? language === "en"
+                    ? "Upload Test"
+                    : "Subir Prueba"
+                  : language === "en"
+                  ? "Upload Video"
+                  : "Subir vídeo"
+                : language === "en"
+                ? "Upload Test"
+                : "Subir Prueba"}
+            </Button>
+            <Button
+              variant="outline"
+              className="text-purple-700 border-purple-200 hover:bg-purple-50 hover:text-purple-700 text-sm sm:text-base"
+              onClick={() => navigate("/dashboard")}
+            >
+              <LayoutDashboard className="mr-2 h-4 w-4" />
+              {language === "en" ? "Dashboard" : "Panel"}
+            </Button>
+          </div>
+        </div>
+
+        <ProfileHeader />
+
+        {/* Main content layout - two columns for desktop, single column for mobile */}
+        <div className="mt-4 grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+          {/* Main column - 2/3 width on desktop */}
+          <div className="lg:col-span-3 space-y-6 sm:space-y-8">
+            {/* Horses Section */}
+            <Horses />
+          </div>
+        </div>
+      </main>
+      <Footer />
+    </div>
+  );
+};
+
+export default Profile;

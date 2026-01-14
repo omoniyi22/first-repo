@@ -1,0 +1,981 @@
+import React, { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Badge } from "../ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ActivityLogger } from "@/utils/activityTracker";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Calendar as CalendarIcon,
+  Upload,
+  Video,
+  X,
+  Loader2,
+  FileText,
+  AlertTriangle,
+  ArrowRight,
+} from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { format, set } from "date-fns";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { v4 as uuidv4 } from "uuid";
+import { jumpingLevels } from "@/lib/formOptions";
+import { useNavigate } from "react-router-dom";
+import { useDocumentLimits } from "@/hooks/useDocumentLimits";
+
+const VideoUploadFormSchema = z.object({
+  discipline: z.enum(["dressage", "jumping"]),
+  videoType: z.enum(["training", "competition"]),
+  date: z.date({
+    required_error: "Please select a date",
+  }),
+  horseId: z.string({
+    required_error: "Please select a horse",
+  }),
+  jumpingLevel: z.string().optional(),
+  notes: z.string().optional(),
+  tags: z.string().optional(),
+});
+
+type VideoUploadFormValues = z.infer<typeof VideoUploadFormSchema>;
+
+interface VideoUploadProps {
+  fetchDocs?: () => void;
+}
+
+const VideoUpload = ({ fetchDocs }: VideoUploadProps) => {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const { language, translations } = useLanguage();
+  const t = translations[language];
+  const navigate = useNavigate();
+  const documentLimits = useDocumentLimits();
+
+  const [selectedVideo, setSelectedVideo] = useState<File | null>(null);
+  const [videoPreviewUrl, setVideoPreviewUrl] = useState<string | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [horses, setHorses] = useState<any[]>([]);
+  const [userDiscipline, setUserDiscipline] = useState<string>("");
+  const [isLoadingProfile, setIsLoadingProfile] = useState<boolean>(true);
+  const [isShowSpinner, setIsShowSpinner] = useState<boolean>(false);
+
+  const form = useForm<VideoUploadFormValues>({
+    resolver: zodResolver(VideoUploadFormSchema),
+    defaultValues: {
+      discipline: "dressage",
+      videoType: "training",
+      date: new Date(),
+    },
+  });
+
+  const discipline = form.watch("discipline");
+
+  // Function to generate custom filename
+  const generateCustomFilename = (
+    data: VideoUploadFormValues,
+    originalFile: File
+  ) => {
+    const dateString = format(data.date, "yyyy-MM-dd");
+    const fileExtension = originalFile.name.split(".").pop() || "mp4";
+
+    if (data.discipline === "jumping" && data.jumpingLevel) {
+      return `${dateString}_${data.jumpingLevel.slice(
+        0,
+        data.jumpingLevel.indexOf("m ")
+      )}.${fileExtension}`;
+    } else {
+      return `${dateString}.${fileExtension}`;
+    }
+  };
+
+  // Fetch user profile and horses
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (!user) return;
+
+      try {
+        setIsLoadingProfile(true);
+
+        // Fetch user profile to get discipline
+        const { data: profileData, error: profileError } = await supabase
+          .from("profiles")
+          .select("discipline")
+          .eq("id", user.id)
+          .single();
+
+        if (profileError && profileError.code !== "PGRST116") {
+          console.error("Error fetching profile:", profileError);
+        } else if (profileData?.discipline) {
+          setUserDiscipline(profileData.discipline);
+          form.setValue(
+            "discipline",
+            profileData.discipline as "dressage" | "jumping"
+          );
+        }
+
+        // Fetch horses from the user's profile
+        const { data: horsesData, error: horsesError } = await supabase
+          .from("horses")
+          .select("id, name, breed, age")
+          .eq("user_id", user.id)
+          .order("name");
+
+        if (horsesError) {
+          console.error("Error fetching horses:", horsesError);
+          toast({
+            title:
+              language === "en"
+                ? "Error loading horses"
+                : "Error al cargar caballos",
+            description:
+              language === "en"
+                ? "Could not load your horses. Please try again."
+                : "No se pudieron cargar tus caballos. Inténtalo de nuevo.",
+            variant: "destructive",
+          });
+          setHorses([]);
+        } else {
+          setHorses(horsesData || []);
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      } finally {
+        setIsLoadingProfile(false);
+      }
+    };
+
+    fetchUserData();
+  }, [user, language, toast, form]);
+
+  const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+
+    if (file) {
+      // Check if file is MP4 or MOV
+      const fileType = file.type;
+      if (fileType === "video/mp4" || fileType === "video/quicktime") {
+        setSelectedVideo(file);
+
+        // Create preview URL
+        const url = URL.createObjectURL(file);
+        setVideoPreviewUrl(url);
+      } else {
+        toast({
+          title:
+            language === "en"
+              ? "Invalid file type"
+              : "Tipo de archivo no válido",
+          description:
+            language === "en"
+              ? "Please upload an MP4 or MOV video file."
+              : "Por favor sube un archivo de video MP4 o MOV.",
+          variant: "destructive",
+        });
+      }
+    }
+  };
+
+  const removeSelectedVideo = () => {
+    if (videoPreviewUrl) {
+      URL.revokeObjectURL(videoPreviewUrl);
+    }
+    setSelectedVideo(null);
+    setVideoPreviewUrl(null);
+
+    // Reset file input
+    const fileInput = document.getElementById(
+      "video-upload"
+    ) as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = "";
+    }
+  };
+
+  const onSubmit = async (data: VideoUploadFormValues) => {
+    // CHECK LIMITS BEFORE PROCEEDING
+    const canUpload = await documentLimits.checkAndEnforce();
+    if (!canUpload) {
+      return;
+    }
+
+    if (!selectedVideo || !user) {
+      toast({
+        title:
+          language === "en" ? "Missing information" : "Información faltante",
+        description:
+          language === "en"
+            ? "Please select a video and fill in all required fields."
+            : "Por favor selecciona un video y completa todos los campos requeridos.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsUploading(true);
+    setUploadProgress(0);
+
+    try {
+      console.log("Starting video upload to Python API");
+      setIsShowSpinner(true);
+      setUploadProgress(10);
+
+      // Find the selected horse name
+      const selectedHorse = horses.find((h) => h.id === data.horseId);
+      const horseName = selectedHorse?.name || "Unknown Horse";
+
+      // Generate custom filename
+      const customFilename = generateCustomFilename(data, selectedVideo);
+      console.log("Custom filename:", customFilename);
+
+      // Step 1: Upload video to Python API
+      const formData = new FormData();
+      formData.append("video", selectedVideo);
+      formData.append("user_id", user.id);
+
+      const PYTHON_API_URL =
+        import.meta.env.VITE_PYTHON_API_URL ||
+        "https://api.equineaintelligence.com";
+
+      // Use it in fetch calls:
+      const uploadRes = await fetch(`${PYTHON_API_URL}/api/upload-video`, {
+        method: "POST",
+        body: formData,
+      });
+
+      // HANDLE LIMIT ERROR
+      if (uploadRes.status === 403) {
+        const errorData = await uploadRes.json();
+        toast({
+          title:
+            language === "en"
+              ? "Upload Limit Reached"
+              : "Límite de Subida Alcanzado",
+          description:
+            errorData.detail?.message ||
+            (language === "en"
+              ? "You have reached your upload limit. Please upgrade your plan."
+              : "Has alcanzado tu límite de subida. Por favor actualiza tu plan."),
+          variant: "destructive",
+        });
+        setIsUploading(false);
+        setIsShowSpinner(false);
+        return;
+      }
+
+      if (!uploadRes.ok) {
+        throw new Error("Failed to upload video to processing server");
+      }
+
+      const { video_id } = await uploadRes.json();
+      console.log("Video uploaded to Python API with ID:", video_id);
+
+      setUploadProgress(40);
+
+      // Step 2: Save metadata to Supabase (without video file)
+      const documentData = {
+        user_id: user.id,
+        horse_id: data.horseId,
+        horse_name: horseName,
+        discipline: data.discipline,
+        video_type: data.videoType,
+        document_date: data.date.toISOString(),
+        document_url: null, // No Supabase storage URL
+        python_video_id: video_id, // Store Python's video ID for reference
+        notes: data.notes,
+        status: "pending",
+        file_name: customFilename,
+        file_type: selectedVideo.type,
+        test_level: data.jumpingLevel,
+      };
+
+      console.log("Saving document analysis record:", documentData);
+
+      const { data: videoAnalysisData, error: dbError } = await supabase
+        .from("document_analysis")
+        .insert(documentData)
+        .select();
+
+      if (dbError) {
+        console.error("Database error:", dbError);
+        throw new Error(dbError.message);
+      }
+
+      console.log("Document analysis record saved successfully");
+      setUploadProgress(60);
+
+      // Step 3: Log activity
+      try {
+        const userName =
+          user?.user_metadata?.full_name || user?.email || "Unknown User";
+        await ActivityLogger.videoAnalyzed(userName, customFilename);
+        console.log("✅ Video analysis activity logged for:", userName);
+      } catch (activityError) {
+        console.error("Failed to log video activity:", activityError);
+      }
+
+      setUploadProgress(80);
+
+      // Step 4: Start processing on Python backend
+      console.log("🚀 Attempting to start processing for video_id:", video_id);
+
+      const processFormData = new FormData();
+      processFormData.append("video_id", video_id);
+
+      try {
+        const processRes = await fetch(`${PYTHON_API_URL}/api/process-video`, {
+          method: "POST",
+          body: processFormData,
+        });
+
+        if (!processRes.ok) {
+          const errorText = await processRes.text();
+          console.error(
+            "❌ Processing start failed:",
+            processRes.status,
+            errorText
+          );
+          throw new Error(`Failed to start processing: ${processRes.status}`);
+        }
+
+        const processResult = await processRes.json();
+        console.log("✅ Processing API response:", processResult);
+
+        if (processResult.message) {
+          console.log("📨 Backend message:", processResult.message);
+        }
+
+        toast({
+          title:
+            language === "en" ? "Processing Started" : "Procesamiento Iniciado",
+          description:
+            language === "en"
+              ? "Your video is being analyzed by AI"
+              : "Tu video está siendo analizado por IA",
+        });
+      } catch (error) {
+        console.error("❌ Error starting processing:", error);
+        toast({
+          title: language === "en" ? "Warning" : "Advertencia",
+          description:
+            language === "en"
+              ? "Video uploaded but processing may not have started. Please check the analysis page."
+              : "Video subido pero el procesamiento puede no haber iniciado. Por favor verifica la página de análisis.",
+          variant: "destructive",
+        });
+      }
+
+      setUploadProgress(100);
+
+      // Step 5: Navigate to analysis page
+      navigate(`/analysis?document_id=${videoAnalysisData[0].id}`);
+
+      if (fetchDocs) {
+        fetchDocs();
+      }
+
+      documentLimits.refreshLimits();
+
+      toast({
+        title:
+          language === "en"
+            ? "Video uploaded successfully"
+            : "Video subido con éxito",
+        description:
+          language === "en"
+            ? `Your video "${customFilename}" is being processed.`
+            : `Tu video "${customFilename}" está siendo procesado.`,
+      });
+
+      // Reset form
+      form.reset({
+        discipline: userDiscipline as "dressage" | "jumping",
+        videoType: "training",
+        date: new Date(),
+      });
+      removeSelectedVideo();
+    } catch (error: any) {
+      console.error("Upload error:", error);
+      toast({
+        title: language === "en" ? "Upload failed" : "Error al subir",
+        description:
+          error.message ||
+          (language === "en"
+            ? "There was an error uploading your video. Please try again."
+            : "Hubo un error al subir tu video. Por favor intenta de nuevo."),
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+      setIsShowSpinner(false);
+      setTimeout(() => setUploadProgress(0), 1000);
+    }
+  };
+
+  if (isLoadingProfile) {
+    return (
+      <Card className="p-6 bg-white shadow-sm border border-gray-100 rounded-lg">
+        <div className="flex justify-center items-center h-32">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-700"></div>
+        </div>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="p-6 bg-white shadow-sm border border-gray-100 rounded-lg">
+      <h2 className="text-2xl font-serif font-semibold mb-6">
+        {language === "en"
+          ? "Upload Video for Analysis"
+          : "Subir Video para Análisis"}
+      </h2>
+
+      {!documentLimits.loading && (
+        <Card className="mb-6 bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <FileText className="h-5 w-5 text-blue-600" />
+                <span className="text-lg">
+                  {language === "en" ? "Upload Limits" : "Límites de Subida"}
+                </span>
+              </div>
+              <Badge
+                variant="outline"
+                className="border-blue-300 text-blue-700"
+              >
+                {documentLimits.planName} {language === "en" ? "Plan" : "Plan"}
+              </Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-3 gap-4 mb-4">
+              <div className="text-center">
+                <p className="text-sm text-gray-600">
+                  {documentLimits.limitType === "one_time"
+                    ? language === "en"
+                      ? "Total Uploaded"
+                      : "Total Subidos"
+                    : language === "en"
+                    ? "This Month"
+                    : "Este Mes"}
+                </p>
+                <p className="text-2xl font-bold text-blue-700">
+                  {documentLimits.currentDocuments}
+                </p>
+              </div>
+              <div className="text-center">
+                <p className="text-sm text-gray-600">
+                  {language === "en" ? "Plan Limit" : "Límite del Plan"}
+                </p>
+                <p className="text-2xl font-bold text-gray-700">
+                  {documentLimits.maxDocuments === "unlimited"
+                    ? "∞"
+                    : documentLimits.maxDocuments}
+                </p>
+              </div>
+              <div className="text-center">
+                <p className="text-sm text-gray-600">
+                  {language === "en" ? "Remaining" : "Restantes"}
+                </p>
+                <p
+                  className={`text-2xl font-bold ${
+                    documentLimits.canUploadDocument
+                      ? "text-green-600"
+                      : "text-red-600"
+                  }`}
+                >
+                  {documentLimits.remainingDocuments === "unlimited"
+                    ? "∞"
+                    : documentLimits.remainingDocuments}
+                </p>
+              </div>
+            </div>
+
+            {/* Progress Bar */}
+            {documentLimits.maxDocuments !== "unlimited" && (
+              <div className="mb-4">
+                <div className="flex justify-between text-sm text-gray-600 mb-1">
+                  <span>{language === "en" ? "Usage" : "Uso"}</span>
+                  <span>
+                    {Math.round(
+                      (documentLimits.currentDocuments /
+                        (documentLimits.maxDocuments as number)) *
+                        100
+                    )}
+                    %
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className={`h-2 rounded-full transition-all duration-300 ${
+                      documentLimits.canUploadDocument
+                        ? "bg-blue-500"
+                        : "bg-red-500"
+                    }`}
+                    style={{
+                      width: `${Math.min(
+                        (documentLimits.currentDocuments /
+                          (documentLimits.maxDocuments as number)) *
+                          100,
+                        100
+                      )}%`,
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Upgrade prompt if at limit */}
+            {!documentLimits.canUploadDocument && (
+              <div className="bg-orange-100 border border-orange-200 rounded-lg p-3 flex items-start gap-3">
+                <AlertTriangle className="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-orange-800">
+                    {language === "en"
+                      ? "Upload Limit Reached"
+                      : "Límite de Subida Alcanzado"}
+                  </p>
+                  <p className="text-sm text-orange-700 mt-1">
+                    {documentLimits.limitType === "one_time"
+                      ? language === "en"
+                        ? `You've reached your lifetime upload limit (${documentLimits.currentDocuments}/${documentLimits.maxDocuments}). This limit does not reset. Upgrade your plan to upload more.`
+                        : `Has alcanzado tu límite vitalicio de subidas (${documentLimits.currentDocuments}/${documentLimits.maxDocuments}). Este límite no se reinicia. Actualiza tu plan para subir más.`
+                      : language === "en"
+                      ? `You've reached your monthly upload limit (${documentLimits.currentDocuments}/${documentLimits.maxDocuments}). Your limit will reset on the 1st of next month.`
+                      : `Has alcanzado tu límite mensual de subidas (${documentLimits.currentDocuments}/${documentLimits.maxDocuments}). Tu límite se reiniciará el 1 del próximo mes.`}
+                  </p>
+                  <Button
+                    size="sm"
+                    className="mt-2 bg-orange-600 hover:bg-orange-700 text-white"
+                    onClick={() => navigate("/pricing")}
+                  >
+                    {language === "en" ? "Upgrade Plan" : "Actualizar Plan"}
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      <div className="mb-6">
+        <Label htmlFor="video-upload">
+          {language === "en"
+            ? "Select Video (MP4, MOV)"
+            : "Seleccionar Video (MP4, MOV)"}
+        </Label>
+        <div
+          className={`mt-2 rounded-lg p-4 bg-gradient-to-r ${
+            selectedVideo ? " bg-purple-50" : " from-[#7857eb] to-[#3b78e8]"
+          }`}
+        >
+          {!selectedVideo ? (
+            <div className="text-center   text-white">
+              <Upload className="mx-auto h-10 w-10 text-white mb-2" />
+              <p className="text-sm text-white mb-2">
+                {language === "en"
+                  ? "Drag and drop your video here, or click to select"
+                  : "Arrastra y suelta tu video aquí, o haz clic para seleccionar"}
+              </p>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => document.getElementById("video-upload")?.click()}
+                className="mt-2 text-purple-900 hover:bg-purple-900"
+              >
+                {language === "en" ? "Browse Files" : "Explorar Archivos"}
+              </Button>
+              <input
+                id="video-upload"
+                type="file"
+                onChange={handleVideoChange}
+                accept=".mp4,.mov,video/mp4,video/quicktime"
+                className="hidden"
+              />
+            </div>
+          ) : (
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center">
+                  <Video className="h-8 w-8 text-purple-500 mr-2" />
+                  <div>
+                    <p className="text-sm font-medium">{selectedVideo.name}</p>
+                    <p className="text-xs text-gray-500">
+                      {(selectedVideo.size / 1024 / 1024).toFixed(2)} MB •{" "}
+                      {selectedVideo.type}
+                    </p>
+                    {/* Show preview of what the filename will be */}
+                    <p className="text-xs text-blue-600 mt-1">
+                      {language === "en"
+                        ? "Will be saved as: "
+                        : "Se guardará como: "}
+                      <span className="font-medium">
+                        {form.watch("date") &&
+                        (userDiscipline !== "jumping" ||
+                          form.watch("jumpingLevel"))
+                          ? generateCustomFilename(
+                              form.getValues(),
+                              selectedVideo
+                            )
+                          : language === "en"
+                          ? "Complete form to see filename"
+                          : "Completa el formulario para ver el nombre"}
+                      </span>
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={removeSelectedVideo}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+
+              {videoPreviewUrl && (
+                <div className="mt-2">
+                  <video
+                    src={videoPreviewUrl}
+                    controls
+                    className="w-full max-h-64 rounded"
+                  />
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Discipline Selector - Read Only */}
+            <FormField
+              control={form.control}
+              name="discipline"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    {language === "en" ? "Discipline" : "Disciplina"}
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      value={
+                        userDiscipline === "dressage"
+                          ? language === "en"
+                            ? "Dressage"
+                            : "Doma Clásica"
+                          : language === "en"
+                          ? "Jumping"
+                          : "Salto"
+                      }
+                      readOnly
+                      className="bg-gray-50 cursor-not-allowed"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Video Type */}
+            <FormField
+              control={form.control}
+              name="videoType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    {language === "en" ? "Video Type" : "Tipo de Video"}
+                  </FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue
+                          placeholder={
+                            language === "en"
+                              ? "Select type"
+                              : "Seleccionar tipo"
+                          }
+                        />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="training">
+                        {language === "en" ? "Training" : "Entrenamiento"}
+                      </SelectItem>
+                      <SelectItem value="competition">
+                        {language === "en" ? "Competition" : "Competición"}
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          {/* Horse Selector */}
+          <FormField
+            control={form.control}
+            name="horseId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{language === "en" ? "Horse" : "Caballo"}</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                  disabled={horses.length === 0}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue
+                        placeholder={
+                          horses.length === 0
+                            ? language === "en"
+                              ? "No horses found - Add horses in your profile"
+                              : "No se encontraron caballos - Añade caballos en tu perfil"
+                            : language === "en"
+                            ? "Select a horse"
+                            : "Seleccionar un caballo"
+                        }
+                      />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {horses.length > 0 ? (
+                      horses.map((horse) => (
+                        <SelectItem key={horse.id} value={horse.id}>
+                          {horse.name} ({horse.breed}, {horse.age} years)
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="no-horses" disabled>
+                        {language === "en"
+                          ? "No horses available"
+                          : "No hay caballos disponibles"}
+                      </SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+                {horses.length === 0 && (
+                  <p className="text-sm text-gray-500 mt-1">
+                    {language === "en"
+                      ? "Please add horses to your profile first to upload videos for analysis."
+                      : "Por favor añade caballos a tu perfil primero para subir videos para análisis."}
+                  </p>
+                )}
+              </FormItem>
+            )}
+          />
+
+          {/* Jumping Level - Only show for jumping discipline */}
+          {userDiscipline === "jumping" && (
+            <FormField
+              control={form.control}
+              name="jumpingLevel"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    {language === "en" ? "Jumping Level" : "Nivel de Salto"}
+                  </FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue
+                          placeholder={
+                            language === "en"
+                              ? "Select jumping level"
+                              : "Seleccionar nivel de salto"
+                          }
+                        />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {jumpingLevels.map((level) => (
+                        <SelectItem key={level} value={level}>
+                          {level}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
+
+          {/* Date Picker */}
+          <FormField
+            control={form.control}
+            name="date"
+            render={({ field }) => (
+              <FormItem className="flex flex-col">
+                <FormLabel>
+                  {language === "en" ? "Recording Date" : "Fecha de Grabación"}
+                </FormLabel>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "pl-3 text-left font-normal",
+                          !field.value && "text-muted-foreground"
+                        )}
+                      >
+                        {field.value ? (
+                          format(field.value, "PPP")
+                        ) : (
+                          <span>
+                            {language === "en" ? "Pick a date" : "Elegir fecha"}
+                          </span>
+                        )}
+                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={field.value}
+                      onSelect={field.onChange}
+                      initialFocus
+                      className="p-3 pointer-events-auto"
+                    />
+                  </PopoverContent>
+                </Popover>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Tags */}
+          <FormField
+            control={form.control}
+            name="tags"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  {language === "en" ? "Tags" : "Etiquetas"}
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder={
+                      language === "en"
+                        ? "Enter tags separated by commas"
+                        : "Ingresa etiquetas separadas por comas"
+                    }
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Notes */}
+          <FormField
+            control={form.control}
+            name="notes"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{language === "en" ? "Notes" : "Notas"}</FormLabel>
+                <FormControl>
+                  <textarea
+                    className="w-full p-2 border rounded-md resize-none h-24"
+                    placeholder={
+                      language === "en"
+                        ? "Add any additional notes about this video"
+                        : "Añade notas adicionales sobre este video"
+                    }
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Upload Progress */}
+          {isUploading && (
+            <div className="space-y-2">
+              <Progress value={uploadProgress} className="h-2 w-full" />
+              <p className="text-sm text-center text-gray-500">
+                {language === "en" ? "Uploading..." : "Subiendo..."}{" "}
+                {Math.round(uploadProgress)}%
+              </p>
+            </div>
+          )}
+
+          {/* Submit Button */}
+          <div className="pt-2">
+            <Button
+              type="submit"
+              className={`w-full bg-gradient-to-r from-[#7857eb] to-[#3b78e8]`}
+              disabled={
+                !selectedVideo ||
+                isUploading ||
+                horses.length === 0 ||
+                !documentLimits.canUploadDocument
+              }
+            >
+              {isUploading
+                ? language === "en"
+                  ? "Uploading..."
+                  : "Subiendo..."
+                : language === "en"
+                ? "Upload Video"
+                : "Subir Video"}
+            </Button>
+          </div>
+        </form>
+      </Form>
+      {isShowSpinner && (
+        <div className="fixed top-0 right-0 w-screen h-full flex justify-center items-center p-12">
+          <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        </div>
+      )}
+    </Card>
+  );
+};
+
+export default VideoUpload;
