@@ -375,11 +375,12 @@ const AuthForm = () => {
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <AnimatedSection animation="fade-in" className="text-center">
           <h1 className="text-3xl font-serif font-semibold text-navy-900">
-            {isSignUp ? "Create your account" : "Sign in to your account"}
+            {isSignUp ? "Start your free trial" : "Sign in to your account"}
           </h1>
+
           <p className="mt-2 text-navy-700">
             {isSignUp
-              ? "Join AI Dressage Trainer to start your journey"
+              ? "No credit card required. Upgrade anytime."
               : "Welcome back! Please enter your details"}
           </p>
         </AnimatedSection>
@@ -669,10 +670,15 @@ const AuthForm = () => {
                       {isSignUp ? "Creating account..." : "Signing in..."}
                     </>
                   ) : (
-                    <>{isSignUp ? "Create Account" : "Sign In"}</>
+                    <>{isSignUp ? "Start Free Trial" : "Sign In"}</>
                   )}
                 </Button>
               </div>
+              {isSignUp && (
+                <p className="mt-3 text-center text-sm text-navy-600">
+                  Free signup • No credit card required
+                </p>
+              )}
             </form>
 
             <div className="mt-6 text-center">

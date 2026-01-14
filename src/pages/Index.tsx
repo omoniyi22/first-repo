@@ -234,23 +234,29 @@ const Index = () => {
                   </Link>
                 </div>
               </div>
+              <div className="mb-14 sm:mb-16 md:mb-20">
+                <div className="flex flex-col sm:flex-row gap-4 justify-center ">
+                  <Link to="/sign-in?signup=true" className="w-full sm:w-auto">
+                    <Button className="navy-button w-full sm:w-auto group flex items-center justify-center gap-2 text-base">
+                      {language === "en"
+                        ? "Start Free Trial"
+                        : "Comience una prueba gratuita"}
 
-              <div className="flex flex-col sm:flex-row gap-4 justify-center mb-14 sm:mb-16 md:mb-20">
-                <Link to="/sign-in?signup=true" className="w-full sm:w-auto">
-                  <Button className="navy-button w-full sm:w-auto group flex items-center justify-center gap-2 text-base">
-                    {language === "en" ? "Get Started" : "Empezar"}
-
-                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                  </Button>
-                </Link>
-                <Link to="/how-it-works" className="w-full sm:w-auto">
-                  <Button
-                    variant="outline"
-                    className="outline-button w-full sm:w-auto text-base"
-                  >
-                    {language === "en" ? "How It Works" : "Cómo funciona"}
-                  </Button>
-                </Link>
+                      <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                    </Button>
+                  </Link>
+                  <Link to="/how-it-works" className="w-full sm:w-auto">
+                    <Button
+                      variant="outline"
+                      className="outline-button w-full sm:w-auto text-base"
+                    >
+                      {language === "en" ? "How It Works" : "Cómo funciona"}
+                    </Button>
+                  </Link>
+                </div>
+                <p className="text-white/80 mt-4 sm:mt-6 text-sm sm:text-base">
+                  Start Free — No Credit Card required
+                </p>
               </div>
             </div>
           </div>

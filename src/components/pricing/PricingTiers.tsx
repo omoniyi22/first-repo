@@ -135,7 +135,13 @@ const PricingTiers = () => {
             .sort((a, b) => a.display_order - b.display_order),
         }));
 
-        setPlans(formattedPlans);
+        // remove free plan for now
+
+        const filteredPlans = formattedPlans.filter(
+          (plan) => plan.name !== "Free" || plan.monthly_price !== 0
+        );
+
+        setPlans(filteredPlans);
       } catch (error) {
         console.error("Error loading pricing data:", error);
       } finally {
@@ -273,7 +279,7 @@ const PricingTiers = () => {
           selectedPlan.id,
           isAnnual ? "annual" : "monthly",
           couponCode.trim() || undefined,
-          selectedPlan.name 
+          selectedPlan.name
         );
 
         if (checkoutUrl) {
