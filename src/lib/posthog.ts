@@ -110,6 +110,22 @@ export const trackSignOut = (userId?: string) => {
 
 
 
+// Subscription events
+export const trackSubscriptionUpgraded = (planName: string, planPrice: number, previousPlan: string) => {
+  if (typeof window !== 'undefined') {
+    posthog.capture('subscription_upgraded', {
+      planName,
+      planPrice,
+      previousPlan,
+      conversionValue: planPrice,
+      timestamp: new Date().toISOString(),
+    });
+  }
+};
+
+
+
+
 // ==========================================
 // PAGE TRACKING
 // ==========================================
@@ -117,14 +133,14 @@ export const trackSignOut = (userId?: string) => {
 /**
  * Manually track page views
  */
-// export const trackPageView = (path?: string, properties?: Record<string, any>) => {
-//   if (typeof window !== 'undefined') {
-//     posthog.capture('$pageview', {
-//       path: path || window.location.pathname,
-//       ...properties,
-//     });
-//   }
-// };
+export const trackPageView = (path?: string, properties?: Record<string, any>) => {
+  if (typeof window !== 'undefined') {
+    posthog.capture('$pageview', {
+      path: path || window.location.pathname,
+      ...properties,
+    });
+  }
+};
 
 // ==========================================
 // CUSTOM EVENT TRACKING
@@ -153,7 +169,8 @@ export const analytics = {
   trackSignUp,
   trackSignIn,
   trackSignOut,
-  // trackPageView,
+  trackSubscriptionUpgraded,
+  trackPageView,
   trackEvent,
   posthog: posthog,
 };
