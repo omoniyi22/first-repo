@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -7,6 +6,7 @@ import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
+import { analytics } from '@/lib/posthog'; // ADD THIS LINE
 
 interface SignUpFormProps {
   onToggleForm: () => void;
@@ -56,6 +56,9 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onToggleForm }) => {
       const { error } = await signUpWithEmail(email, password);
       
       if (!error) {
+        //   TRACK SIGNUP - ADD THIS
+        analytics.conversion.signUp('email');
+        
         toast({
           title: language === 'en' ? "Account created" : "Cuenta creada",
           description: language === 'en' 
@@ -73,6 +76,10 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onToggleForm }) => {
     setIsGoogleLoading(true);
     try {
       await signInWithGoogle();
+      
+      //   TRACK GOOGLE SIGNUP - ADD THIS
+      analytics.conversion.signUp('google');
+      
     } finally {
       setIsGoogleLoading(false);
     }

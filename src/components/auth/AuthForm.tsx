@@ -9,6 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { Provider } from "@supabase/supabase-js";
 import { ActivityLogger } from "@/utils/activityTracker";
+import { analytics } from "@/lib/posthog";
 
 const AuthForm = () => {
   const [searchParams] = useSearchParams();
@@ -148,6 +149,13 @@ const AuthForm = () => {
         if (error) throw error;
 
         if (data.user) {
+          // 🆕 Track signup event
+          analytics.trackSignUp(data.user.id, {
+            email: data.user.email,
+            name: name,
+            signupMethod: "email",
+          });
+
           try {
             // 🆕 Assign Free plan to new user
             const { data: freePlan, error: planError } = await supabase
@@ -202,6 +210,14 @@ const AuthForm = () => {
         });
 
         if (error) throw error;
+
+        // 🆕 Track signin event
+        if (data.user) {
+          analytics.trackSignIn(data.user.id, {
+            email: data.user.email,
+            loginMethod: "email",
+          });
+        }
 
         toast({
           title: "Signed in successfully!",
