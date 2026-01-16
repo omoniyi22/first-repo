@@ -213,7 +213,7 @@ const Analysis = () => {
     window.scrollTo(0, 0);
   }, [selectedDocumentId, selectedVideoId]);
 
-  // 🆕 Track when user views profile page
+  // 🆕 Track when user views analysis page
   useEffect(() => {
     analytics.trackPageView("/analysis", {
       userDiscipline,
