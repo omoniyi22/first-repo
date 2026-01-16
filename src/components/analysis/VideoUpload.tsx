@@ -50,6 +50,7 @@ import { v4 as uuidv4 } from "uuid";
 import { jumpingLevels } from "@/lib/formOptions";
 import { useNavigate } from "react-router-dom";
 import { useDocumentLimits } from "@/hooks/useDocumentLimits";
+import { analytics } from "@/lib/posthog";
 
 const VideoUploadFormSchema = z.object({
   discipline: z.enum(["dressage", "jumping"]),
@@ -296,7 +297,18 @@ const VideoUpload = ({ fetchDocs }: VideoUploadProps) => {
       }
 
       const { video_id } = await uploadRes.json();
+
       console.log("Video uploaded to Python API with ID:", video_id);
+
+      analytics.trackEvent("video_uploaded", {
+        userId: user.id,
+        horseId: data.horseId,
+        horseName: horseName,
+        documentId: video_id,
+        discipline: data.discipline,
+        jumpingLevel: data.jumpingLevel || null,
+        videoType: data.videoType,
+      });
 
       setUploadProgress(40);
 
@@ -367,6 +379,13 @@ const VideoUpload = ({ fetchDocs }: VideoUploadProps) => {
         }
 
         const processResult = await processRes.json();
+
+        analytics.trackEvent("video_processing_start", {
+          userId: user.id,
+          documentId: video_id,
+          processResult,
+        });
+
         console.log("✅ Processing API response:", processResult);
 
         if (processResult.message) {

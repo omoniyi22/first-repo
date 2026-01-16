@@ -544,7 +544,7 @@ const Analysis = () => {
         throw errorData;
       }
 
-      analytics.trackEvent("document_analysis_completed", {
+      analytics.trackEvent("document_analysis_report_generated", {
         userId: user.id,
         documentId: documentId,
         governingBody: userProfile?.governing_body || null,
