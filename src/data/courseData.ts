@@ -4639,4 +4639,4 @@ export const COURSE_DATA = [
             designer: "Cédric LONGIS, Stéphane Paillot, Gauthier Delafontaine"
         }
     }
-]x
+]

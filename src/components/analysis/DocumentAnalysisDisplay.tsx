@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
+
 import { Card } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { RiWhatsappFill } from "react-icons/ri";
@@ -31,6 +32,7 @@ import {
   diagramExtractor,
   IExercise,
 } from "@/utils/diagramGenerator";
+import AnalysisFeedbackComponent from "./AnalysisFeedbackComponent";
 
 // Define proper types for the analysis data
 interface MovementScore {
@@ -164,6 +166,7 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
           }
 
           if (resultdata) {
+            console.log("Result Data:", resultdata.result_json);
             setResultData(resultdata.result_json);
           }
         }
@@ -252,11 +255,11 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
               resultData["en"]["recommendations"][0]?.["exercise"] || "",
             key_points_1:
               typeof resultData["en"]["recommendations"][0]?.["keyPoints"] ==
-              "string"
+                "string"
                 ? resultData["en"]["recommendations"][0]?.["keyPoints"]
                 : resultData["en"]["recommendations"][0]?.["keyPoints"].join(
-                    "; "
-                  ) || "",
+                  "; "
+                ) || "",
             goal_1: resultData["en"]["recommendations"][0]?.["goal"] || "",
             secondary_recommendation:
               "Clean, balanced transitions at precise markers",
@@ -266,11 +269,11 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
               resultData["en"]["recommendations"][1]?.["exercise"] || "",
             key_points_2:
               typeof resultData["en"]["recommendations"][1]?.["keyPoints"] ==
-              "string"
+                "string"
                 ? resultData["en"]["recommendations"][1]?.["keyPoints"]
                 : resultData["en"]["recommendations"][1]?.["keyPoints"].join(
-                    "; "
-                  ) || "",
+                  "; "
+                ) || "",
             goal_2: resultData["en"]["recommendations"][1]?.["goal"] || "",
             current_season: "",
             upcoming_events: "",
@@ -497,8 +500,8 @@ Let me know what you think!`;
                 ? "Analysis Pending"
                 : "Análisis Pendiente"
               : language === "en"
-              ? "Processing Document"
-              : "Procesando Documento"}
+                ? "Processing Document"
+                : "Procesando Documento"}
           </h3>
           <p className="text-gray-500">
             {analysis.status === "pending"
@@ -506,8 +509,8 @@ Let me know what you think!`;
                 ? "Your document is in queue for analysis."
                 : "Tu documento está en cola para análisis."
               : language === "en"
-              ? "We're analyzing your document. This may take several minutes."
-              : "Estamos analizando tu documento. Esto puede tomar varios minutos."}
+                ? "We're analyzing your document. This may take several minutes."
+                : "Estamos analizando tu documento. Esto puede tomar varios minutos."}
           </p>
           <div className="mt-4 p-4 bg-gray-100 rounded text-left">
             <h4 className="font-medium mb-1">{analysis.file_name}</h4>
@@ -517,8 +520,8 @@ Let me know what you think!`;
                   ? "Dressage"
                   : "Doma"
                 : language === "en"
-                ? "Jumping"
-                : "Salto"}
+                  ? "Jumping"
+                  : "Salto"}
               {" - "}
               {analysis.horse_name}
             </p>
@@ -667,6 +670,41 @@ Let me know what you think!`;
             ))}
         </ul>
       </Card>
+
+      {analysis.status === "completed" && resultData && (
+        <Card className="p-6">
+          <div className="mb-4">
+            <h3 className="text-xl font-bold">
+              {language === 'en'
+                ? 'AI-Powered Feedback Analysis'
+                : 'Análisis de Feedback con IA'}
+            </h3>
+            <p className="text-gray-600 mt-1">
+              {language === 'en'
+                ? 'Get deeper insights from judge comments with AI analysis'
+                : 'Obtén información más profunda de los comentarios del juez con análisis IA'}
+            </p>
+          </div>
+
+          <AnalysisFeedbackComponent
+            analysisData={resultData}
+            documentId={documentId}
+            onFeedbackGenerated={(feedback) => {
+              // Optional: You can save this feedback to your database if needed
+              console.log('AI Feedback generated:', feedback);
+
+              // Example: Save to Supabase
+              // await supabase
+              //   .from('analysis_feedback')
+              //   .upsert({
+              //     document_id: documentId,
+              //     feedback_data: feedback,
+              //     created_at: new Date().toISOString()
+              //   });
+            }}
+          />
+        </Card>
+      )}
 
       {/* Personalised Insight */}
       <Card className="p-4 sm:p-6">
@@ -844,9 +882,8 @@ Let me know what you think!`;
           <div className="flex items-center justify-between mb-3 sm:mb-4">
             <h4 className="text-lg sm:text-xl font-semibold">
               {language === "en"
-                ? `Your Top Focus Area${
-                    resultData[language]["focusArea"].length > 1 ? "s" : ""
-                  } `
+                ? `Your Top Focus Area${resultData[language]["focusArea"].length > 1 ? "s" : ""
+                } `
                 : `Tus áreas principales `}
             </h4>
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#F1F5F9] backdrop-blur-sm">
@@ -956,7 +993,7 @@ Let me know what you think!`;
                       <b>{language === "en" ? "Key Points:" : ":"}</b>
                       <br />
                       {recommendation["keyPoints"] &&
-                      typeof recommendation["keyPoints"] == "string" ? (
+                        typeof recommendation["keyPoints"] == "string" ? (
                         <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
                           <li>{recommendation["keyPoints"]}</li>
                         </ul>
@@ -1001,7 +1038,7 @@ Let me know what you think!`;
                   >
                     {diagramExtractor(
                       resultData.en?.recommendations[
-                        index
+                      index
                       ] as unknown as IExercise
                     )}
                   </div>
