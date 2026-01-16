@@ -25,6 +25,7 @@ import { useToast } from "@/hooks/use-toast";
 import ScrollToTop from "@/components/layout/ScrollToTop";
 import { useAnalysisLimit } from "@/hooks/useAnalysisLimit";
 import ExtractionVerification from "@/components/analysis/ExtractionVerification";
+import { analytics } from "@/lib/posthog";
 
 interface DocumentAnalysisItem {
   id: string;
@@ -212,6 +213,14 @@ const Analysis = () => {
     window.scrollTo(0, 0);
   }, [selectedDocumentId, selectedVideoId]);
 
+  // 🆕 Track when user views profile page
+  useEffect(() => {
+    analytics.trackPageView("/analysis", {
+      userDiscipline,
+      analysisType: userDiscipline === "dressage" ? "Documents" : "Videos",
+    });
+  }, [userDiscipline]);
+
   // Auto-refresh video list when videos are processing
   useEffect(() => {
     if (!user?.id) return;
@@ -397,7 +406,7 @@ const Analysis = () => {
     setProcessingDocId(newDocumentId); // TRACK WHICH DOC IS PROCESSING
 
     try {
-      console.log("🔍 Starting data extraction for document:", newDocumentId);
+      // console.log("🔍 Starting data extraction for document:", newDocumentId);
 
       // Convert document to base64
       const canvasImage = documentURL.includes(".pdf")
@@ -415,12 +424,20 @@ const Analysis = () => {
         }
       );
 
+      const extractionResult = extractionResponse.data;
+
+      analytics.trackEvent("document_data_extracted", {
+        userId: user.id,
+        documentId: newDocumentId,
+        extractionId: extractionResult.extractionId,
+        confidenceOverall: extractionResult.confidence.overall,
+        success: extractionResponse.error ? false : true,
+      });
+
       // Check for extraction errors
       if (extractionResponse.error) {
         throw extractionResponse.error;
       }
-
-      const extractionResult = extractionResponse.data;
 
       if (!extractionResult.success) {
         throw new Error(extractionResult.error || "Extraction failed");
@@ -526,6 +543,13 @@ const Analysis = () => {
 
         throw errorData;
       }
+
+      analytics.trackEvent("document_analysis_completed", {
+        userId: user.id,
+        documentId: documentId,
+        governingBody: userProfile?.governing_body || null,
+        country: userProfile?.region || null,
+      });
 
       console.log("✅ Analysis completed with verified data");
 
@@ -843,6 +867,10 @@ const Analysis = () => {
       const initialCheck = await fetch(data.publicUrl, { method: "HEAD" });
 
       if (initialCheck.ok) {
+        analytics.trackEvent("view_podcast", {
+          userId: user.id,
+          documentId: analysis.id,
+        });
         setPodcastMsg("Downloading podcast...");
         setIsPodcastLoading(false);
         await openFileInNewTab(data.publicUrl, analysis);
@@ -864,18 +892,21 @@ const Analysis = () => {
 
       setPodcastMsg("Generating podcast audio file...");
       try {
-        const backendResponse = await fetch("https://podcast.equineaintelligence.com/generate", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            scriptText: ttsScript,
-            userId: user.id,
-            analysisId: analysis.id,
-            language: language,
-          }),
-        });
+        const backendResponse = await fetch(
+          "https://podcast.equineaintelligence.com/generate",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              scriptText: ttsScript,
+              userId: user.id,
+              analysisId: analysis.id,
+              language: language,
+            }),
+          }
+        );
 
         if (!backendResponse.ok) {
           const errMessage = await backendResponse.text();
@@ -886,6 +917,11 @@ const Analysis = () => {
           setIsPodcastLoading(false);
           return;
         }
+
+        analytics.trackEvent("generating_podcast", {
+          userId: user.id,
+          documentId: analysis.id,
+        });
 
         const backendMsg = await backendResponse.json();
         console.log(
