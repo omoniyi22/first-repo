@@ -15,6 +15,7 @@ import { Upload, LayoutDashboard } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { SEO, getPageMetadata } from "@/lib/seo";
 import { supabase } from "@/integrations/supabase/client";
+import { analytics } from "@/lib/posthog";
 
 const Profile = () => {
   const [userDiscipline, setUserDiscipline] = useState<string>("");
@@ -66,6 +67,14 @@ const Profile = () => {
     window.scrollTo(0, 0);
   }, []);
 
+  // 🆕 Track when user views profile page
+  useEffect(() => {
+    analytics.trackPageView("/profile", {
+      pageType: "profile",
+      userDiscipline: userDiscipline,
+    });
+  }, [userDiscipline]);
+  
   // Show nothing while checking auth status
   if (loading) {
     return null;

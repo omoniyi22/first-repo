@@ -7,6 +7,7 @@ import ProfileImage from "./ProfileImage";
 import ProfileForm from "./ProfileForm";
 import ProfileActions from "./ProfileActions";
 import { ActivityLogger } from "@/utils/activityTracker";
+import { analytics } from "@/lib/posthog";
 
 // Define a type for our profile data
 interface ProfileData {
@@ -141,12 +142,25 @@ const ProfileHeader = () => {
           user?.user_metadata?.full_name ||
           user?.email ||
           "Unknown User";
+
         await ActivityLogger.profileUpdated(userName);
+
         console.log("✅ Profile update activity logged for:", userName);
+    
       } catch (activityError) {
         console.error("Failed to log profile activity:", activityError);
         // Don't throw error - just log it, don't break the profile save flow
       }
+
+      // Track profile update event
+
+      analytics.trackEvent("profile_updated", {
+        user_id: user.id,
+        discipline: discipline,
+        rider_category: riderCategory,
+        region: region,
+        governing_body: governingBody,
+      });
 
       toast({
         title: "Profile updated",

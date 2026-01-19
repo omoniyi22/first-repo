@@ -22,6 +22,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { RiWhatsappFill } from "react-icons/ri";
 import { useAnalysisLimit } from "@/hooks/useAnalysisLimit";
+import { analytics } from "@/lib/posthog";
 
 // =========================
 // Interfaces
@@ -181,6 +182,11 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
           if (!resultError && resultData?.result_json) {
             setReportContent(resultData.result_json as ReportContent);
           }
+
+          analytics.trackEvent("view_video_analysis_result", {
+            userId: user.id,
+            videoDocumentId: documentId,
+          });
         }
       } else {
         setError(language === "en" ? "Video not found" : "Video no encontrado");
@@ -234,6 +240,13 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
     if (!videoElement) {
       toast.error("Please wait for video to load");
       return;
+    }
+
+    if (successfulJumps.length == 0 && failedJumps.length == 0) {
+      analytics.trackEvent("jump_marked_start", {
+        userId: user?.id,
+      });
+      console.log("Call event for Jump marked");
     }
 
     const currentTime = videoElement.currentTime;
@@ -343,6 +356,12 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
 
         return;
       }
+
+      analytics.trackEvent("video_analysis_report_generated", {
+        userId: user?.id,
+        videoDocumentId: documentId,
+        success: response.ok,
+      });
 
       if (!response.ok) throw new Error("Failed to generate report");
 

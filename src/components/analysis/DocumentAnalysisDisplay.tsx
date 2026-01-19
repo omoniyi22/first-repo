@@ -31,6 +31,7 @@ import {
   diagramExtractor,
   IExercise,
 } from "@/utils/diagramGenerator";
+import { analytics } from "@/lib/posthog";
 
 // Define proper types for the analysis data
 interface MovementScore {
@@ -162,6 +163,11 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
             console.error("Could not fetch analysis results:", resultError);
             throw resultError;
           }
+
+          analytics.trackEvent("view_document_analysis_result", {
+            userId: user.id,
+            documentId: documentId,
+          });
 
           if (resultdata) {
             setResultData(resultdata.result_json);
@@ -312,18 +318,21 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
 
       setPodcastMsg("Generating podcast audio file...");
       try {
-        const backendResponse = await fetch("https://podcast.equineaintelligence.com/generate", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            scriptText: ttsScript,
-            userId: user.id,
-            analysisId: analysis.id,
-            language: language,
-          }),
-        });
+        const backendResponse = await fetch(
+          "https://podcast.equineaintelligence.com/generate",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              scriptText: ttsScript,
+              userId: user.id,
+              analysisId: analysis.id,
+              language: language,
+            }),
+          }
+        );
 
         if (!backendResponse.ok) {
           const errMessage = await backendResponse.text();

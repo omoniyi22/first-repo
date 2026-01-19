@@ -37,6 +37,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { analytics } from "@/lib/posthog";
 
 interface PricingPlan {
   id: string;
@@ -100,6 +101,15 @@ const PricingTiers = () => {
   const { toast } = useToast();
   const t = translations[language];
 
+  // 🆕 Track when user views pricing page
+  useEffect(() => {
+    analytics.trackPageView("/pricing", {
+      pageType: "pricing",
+      viewedPlans: plans.map((p) => p.name),
+      billingCycle: isAnnual ? "annual" : "monthly",
+    });
+  }, [plans, isAnnual]);
+
   useEffect(() => {
     const fetchPricingData = async () => {
       try {
@@ -157,12 +167,31 @@ const PricingTiers = () => {
       // Show success modal instead of toast
       const planNameFromUrl =
         searchParams.get("plan_name") || planName || "your selected plan";
+      const planPriceFromUrl = searchParams.get("plan_price");
+
       setSubscribedPlanName(planNameFromUrl);
       setShowSuccessModal(true);
+
+      // 🆕 TRACK SUCCESSFUL SUBSCRIPTION UPGRADE (after Stripe payment)
+      if (planPriceFromUrl) {
+        analytics.trackSubscriptionUpgraded(
+          planNameFromUrl,
+          parseFloat(planPriceFromUrl),
+          "Free" // Assuming upgrade from free - you can pass this from Stripe metadata
+        );
+      }
 
       // Clean up the URL
       window.history.replaceState({}, document.title, window.location.pathname);
     } else if (searchParams.get("canceled") === "true") {
+      // 🆕 TRACK CHECKOUT ABANDONED
+      const planNameFromUrl = searchParams.get("plan_name");
+
+      analytics.trackEvent("checkout_abandoned", {
+        planName: planNameFromUrl,
+        timestamp: new Date().toISOString(),
+      });
+
       toast({
         title:
           language === "en" ? "Subscription Canceled" : "Suscripción Cancelada",
@@ -197,6 +226,11 @@ const PricingTiers = () => {
 
   const handleToggle = (annual: boolean) => {
     setIsAnnual(annual);
+
+    analytics.trackEvent("billing_cycle_toggled", {
+      billingCycle: annual ? "annual" : "monthly",
+      location: "pricing_page",
+    });
   };
 
   const calculateDiscountedPrice = (originalPrice: number) => {
@@ -209,6 +243,14 @@ const PricingTiers = () => {
   };
 
   const handlePlanSelect = async (plan: PricingPlan) => {
+    // Track plan selection
+    analytics.trackEvent("plan_selected", {
+      planName: plan.name,
+      planPrice: isAnnual ? plan.annual_price : plan.monthly_price,
+      billingCycle: isAnnual ? "annual" : "monthly",
+      isCurrentPlan: isSubscribed && planId === plan.id,
+    });
+
     if (!session) {
       setShowLoginDialog(true);
       return;
@@ -245,6 +287,13 @@ const PricingTiers = () => {
         );
 
         if (result.success) {
+          // 🆕 TRACK FREE SUBSCRIPTION ACTIVATION
+          analytics.trackSubscriptionUpgraded(
+            selectedPlan.name,
+            0, // Free plan = $0
+            planName || "Free" // Previous plan
+          );
+
           // Show success modal
           setSubscribedPlanName(selectedPlan.name);
           setShowSuccessModal(true);
@@ -275,14 +324,31 @@ const PricingTiers = () => {
         }
       } else {
         // Normal Stripe checkout flow (< 100% discount or no coupon)
+
+        // ✅ FIX: Use the correct price based on billing cycle
+        const planPrice = isAnnual
+          ? selectedPlan.annual_price
+          : selectedPlan.monthly_price;
+
         const checkoutUrl = await checkoutPlan(
           selectedPlan.id,
           isAnnual ? "annual" : "monthly",
           couponCode.trim() || undefined,
-          selectedPlan.name
+          selectedPlan.name,
+          planPrice // ✅ Now passing correct price
         );
 
         if (checkoutUrl) {
+          // 🆕 TRACK CHECKOUT INITIATED (before redirect)
+          analytics.trackEvent("checkout_initiated", {
+            planName: selectedPlan.name,
+            planPrice: planPrice, // ✅ Use the same planPrice variable
+            billingCycle: isAnnual ? "annual" : "monthly",
+            hasCoupon: !!couponCode.trim(),
+            couponCode: couponCode.trim() || null,
+            discountPercent: couponValidation?.discount_percent || 0,
+          });
+
           window.location.href = checkoutUrl;
         }
       }
