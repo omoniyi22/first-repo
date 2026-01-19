@@ -17,9 +17,9 @@ export const initPostHog = () => {
         capture_pageleave: false,
         disable_session_recording: true,
         loaded: (posthog) => {
-          // if (import.meta.env.DEV) {
-          //   posthog.opt_out_capturing(); // Don't track in dev
-          // }
+          if (import.meta.env.DEV) {
+            posthog.opt_out_capturing(); // Don't track in dev
+          }
         }
       }
     );
