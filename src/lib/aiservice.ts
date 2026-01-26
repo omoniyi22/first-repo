@@ -37,6 +37,7 @@ const supabaseUrl = "https://arluwtznxjjmwjftnuhu.supabase.co"
 const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFybHV3dHpueGpqbXdqZnRudWh1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0MTU3NzksImV4cCI6MjA4NDk5MTc3OX0.gxfuYd_e7RZqK79BC7iRcSjQSx3O0utJJCwUEcGDiz8";
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
+
 // =====================
 // Database Service (Supabase)
 // =====================
