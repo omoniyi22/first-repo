@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { createClient } from '@supabase/supabase-js';
-
+const VITE_GEMINI_API_KEY = "AIzaSyDZ6WsChZLWXldvn0OPKYSrVZhw5gs8Rtg";
 
 // =====================
 // Types
@@ -11,6 +11,7 @@ export interface AnalysisFeedback {
     interpretations: string[];
     areas: {
         name: string;
+        
         fix: string;
     }[];
     analysisHash?: string;
@@ -363,7 +364,7 @@ export const analyzeComplaintsWithGemini = async (
     for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
         try {
             const genAI = new GoogleGenerativeAI(
-                import.meta.env.VITE_GEMINI_API_KEY || ''
+                VITE_GEMINI_API_KEY || ''
             );
 
             const model = genAI.getGenerativeModel({
