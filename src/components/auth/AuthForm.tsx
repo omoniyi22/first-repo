@@ -9,6 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { Provider } from "@supabase/supabase-js";
 import { ActivityLogger } from "@/utils/activityTracker";
+import { analytics } from "@/lib/posthog";
 
 const AuthForm = () => {
   const [searchParams] = useSearchParams();
@@ -148,6 +149,13 @@ const AuthForm = () => {
         if (error) throw error;
 
         if (data.user) {
+          // 🆕 Track signup event
+          analytics.trackSignUp(data.user.id, {
+            email: data.user.email,
+            name: name,
+            signupMethod: "email",
+          });
+
           try {
             // 🆕 Assign Free plan to new user
             const { data: freePlan, error: planError } = await supabase
@@ -202,6 +210,14 @@ const AuthForm = () => {
         });
 
         if (error) throw error;
+
+        // 🆕 Track signin event
+        if (data.user) {
+          analytics.trackSignIn(data.user.id, {
+            email: data.user.email,
+            loginMethod: "email",
+          });
+        }
 
         toast({
           title: "Signed in successfully!",
@@ -375,11 +391,12 @@ const AuthForm = () => {
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <AnimatedSection animation="fade-in" className="text-center">
           <h1 className="text-3xl font-serif font-semibold text-navy-900">
-            {isSignUp ? "Create your account" : "Sign in to your account"}
+            {isSignUp ? "Start your free trial" : "Sign in to your account"}
           </h1>
+
           <p className="mt-2 text-navy-700">
             {isSignUp
-              ? "Join AI Dressage Trainer to start your journey"
+              ? "No credit card required. Upgrade anytime."
               : "Welcome back! Please enter your details"}
           </p>
         </AnimatedSection>
@@ -669,10 +686,15 @@ const AuthForm = () => {
                       {isSignUp ? "Creating account..." : "Signing in..."}
                     </>
                   ) : (
-                    <>{isSignUp ? "Create Account" : "Sign In"}</>
+                    <>{isSignUp ? "Start Free Trial" : "Sign In"}</>
                   )}
                 </Button>
               </div>
+              {isSignUp && (
+                <p className="mt-3 text-center text-sm text-navy-600">
+                  Free signup • No credit card required
+                </p>
+              )}
             </form>
 
             <div className="mt-6 text-center">

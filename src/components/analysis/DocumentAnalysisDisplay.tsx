@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useMemo } from "react";
-
 import { Card } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { RiWhatsappFill } from "react-icons/ri";
@@ -32,6 +31,7 @@ import {
   diagramExtractor,
   IExercise,
 } from "@/utils/diagramGenerator";
+import { analytics } from "@/lib/posthog";
 import AnalysisFeedbackComponent from "./AnalysisFeedbackComponent";
 
 // Define proper types for the analysis data
@@ -165,8 +165,12 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
             throw resultError;
           }
 
+          analytics.trackEvent("view_document_analysis_result", {
+            userId: user.id,
+            documentId: documentId,
+          });
+
           if (resultdata) {
-            console.log("Result Data:", resultdata.result_json);
             setResultData(resultdata.result_json);
           }
         }
@@ -315,18 +319,21 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
 
       setPodcastMsg("Generating podcast audio file...");
       try {
-        const backendResponse = await fetch("https://podcast.equineaintelligence.com/generate", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            scriptText: ttsScript,
-            userId: user.id,
-            analysisId: analysis.id,
-            language: language,
-          }),
-        });
+        const backendResponse = await fetch(
+          "https://podcast.equineaintelligence.com/generate",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              scriptText: ttsScript,
+              userId: user.id,
+              analysisId: analysis.id,
+              language: language,
+            }),
+          }
+        );
 
         if (!backendResponse.ok) {
           const errMessage = await backendResponse.text();
@@ -670,7 +677,6 @@ Let me know what you think!`;
             ))}
         </ul>
       </Card>
-
       {analysis.status === "completed" && resultData && (
         <Card className="p-6">
           <div className="mb-4">
@@ -711,7 +717,7 @@ Let me know what you think!`;
         <div className="flex items-center justify-between mb-3 sm:mb-4">
           <h4 className="text-lg sm:text-xl font-semibold">
             {language === "en"
-              ? "Personalised Insight"
+              ? "Personalised Insightq"
               : "Perspectiva personalizada"}
           </h4>
 

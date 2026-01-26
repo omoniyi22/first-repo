@@ -48,6 +48,7 @@ const AnalysisFeedbackComponent: React.FC<AnalysisFeedbackProps> = ({
       const result = await analyzeComplaintsWithGemini({
         previousAnalysis: analysisData,
         language: language as 'en' | 'es',
+        documentId
       });
       
       setFeedback(result);
@@ -116,7 +117,7 @@ const AnalysisFeedbackComponent: React.FC<AnalysisFeedbackProps> = ({
             <Button
               variant="outline"
               size="sm"
-              onClick={generateFeedback}
+              onClick={() => generateFeedback()}
               className="border-red-300 text-red-700 hover:bg-red-100"
             >
               {language === 'en' ? 'Try Again' : 'Intentar de Nuevo'}

@@ -354,7 +354,7 @@ const Navbar = () => {
               <>
                 <Link to="/sign-in?signup=true">
                   <Button className="bg-gradient-to-r from-purple-600 to-blue-500 text-white hover:from-purple-700 hover:to-blue-600 font-sans text-sm">
-                    {t["get-started"]}
+                    {t["get-started-free"]}
                   </Button>
                 </Link>
                 <Link to="/sign-in">

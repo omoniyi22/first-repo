@@ -151,7 +151,7 @@ serve(async (req) => {
               </div>
               <div class="email-footer">
                 <p>If you have any questions, please don't hesitate to reach out to our support team.</p>
-                <p>&copy; 2025 AI Dressage Trainer. All rights reserved.</p>
+                <p>&copy; 2026 AI Dressage Trainer. All rights reserved.</p>
                 <div class="social-links">
                   <a href="#">Facebook</a> | <a href="#">Instagram</a> | <a href="#">YouTube</a>
                 </div>

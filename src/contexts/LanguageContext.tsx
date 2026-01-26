@@ -23,6 +23,7 @@ const defaultTranslations = {
     "sign-in": "Sign In",
     "sign-out": "Sign Out",
     "get-started": "Get Started",
+    "get-started-free": "Start Free",
     
     // Blog page
     "blog-title": "Equestrian Excellence Blog",
@@ -166,6 +167,7 @@ const defaultTranslations = {
     "sign-in": "Iniciar Sesión",
     "sign-out": "Cerrar Sesión",
     "get-started": "Comenzar",
+    "get-started-free": "Empieza gratis",
     
     // Blog page
     "blog-title": "Blog de Excelencia Ecuestre",

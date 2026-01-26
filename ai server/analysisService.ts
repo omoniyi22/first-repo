@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { createClient } from '@supabase/supabase-js';
+import { Pool } from 'pg';
 
 // =====================
 // Types
@@ -14,13 +14,13 @@ export interface AnalysisFeedback {
     }[];
     analysisHash?: string;
     createdAt?: Date;
-    documentId?: string; // Document ID for primary query
+    documentId?: string; // Add if you have document IDs
 }
 
 export interface GeminiAnalysisParams {
     previousAnalysis: any;
     language?: 'en' | 'es';
-    documentId?: string; // Document ID is required for Supabase operations
+    documentId?: string; // Optional: Add this if you have document IDs
 }
 
 // =====================
@@ -30,39 +30,51 @@ const MAX_RETRIES = 3;
 const RETRY_DELAY_MS = 800;
 
 // =====================
-// Supabase Configuration
+// PostgreSQL Connection
 // =====================
-// Initialize Supabase client
-const supabaseUrl = "https://arluwtznxjjmwjftnuhu.supabase.co"
-const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFybHV3dHpueGpqbXdqZnRudWh1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0MTU3NzksImV4cCI6MjA4NDk5MTc3OX0.gxfuYd_e7RZqK79BC7iRcSjQSx3O0utJJCwUEcGDiz8";
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Initialize PostgreSQL connection pool
 
+
+
+const pool = new Pool({
+    connectionString: "postgresql://neondb_owner:npg_C4bEayB0GUhZ@ep-weathered-thunder-ahjkekvt-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require", // <-- use your full URL
+    ssl: {
+        rejectUnauthorized: false, // needed for some managed DBs like Neon
+    },
+});
+
+// Test connection
+(async () => {
+    try {
+        const res = await pool.query('SELECT NOW()');
+        console.log('DB connected:', res.rows[0]);
+    } catch (err) {
+        console.error('DB connection failed', err);
+    }
+})();
 // =====================
-// Database Service (Supabase)
+// Database Service
 // =====================
-class AnalysisSupabaseService {
-    private static instance: AnalysisSupabaseService;
+class AnalysisDatabaseService {
+    private static instance: AnalysisDatabaseService;
     
-    static getInstance(): AnalysisSupabaseService {
-        if (!AnalysisSupabaseService.instance) {
-            AnalysisSupabaseService.instance = new AnalysisSupabaseService();
+    static getInstance(): AnalysisDatabaseService {
+        if (!AnalysisDatabaseService.instance) {
+            AnalysisDatabaseService.instance = new AnalysisDatabaseService();
         }
-        return AnalysisSupabaseService.instance;
+        return AnalysisDatabaseService.instance;
     }
 
     // Create hash from analysis parameters
     generateAnalysisHash(params: GeminiAnalysisParams): string {
-        if (!params.documentId) {
-            throw new Error('documentId is required for Supabase operations');
-        }
-        
         const content = JSON.stringify({
-            documentId: params.documentId,
+            // Normalize the analysis data for consistent hashing
             analysis: this.normalizeForHashing(params.previousAnalysis),
             language: params.language || 'en'
         });
         
-        // Simple hash function
+        // Use SHA-256 for better uniqueness
+        // In Node.js/browser, you could use crypto API
         let hash = 0;
         for (let i = 0; i < content.length; i++) {
             const char = content.charCodeAt(i);
@@ -92,173 +104,123 @@ class AnalysisSupabaseService {
         return sortedObj;
     }
 
-    // Find existing analysis by document ID (Primary query method)
-    async findAnalysisByDocumentId(documentId: string): Promise<AnalysisFeedback | null> {
-        try {
-            if (!documentId) {
-                throw new Error('documentId is required');
-            }
-            
-            const { data, error } = await supabase
-                .from('analysis_feedback')
-                .select('*')
-                .eq('document_id', documentId)
-                .order('created_at', { ascending: false })
-                .limit(1)
-                .single();
-            
-            if (error) {
-                if (error.code === 'PGRST116') { // No rows returned
-                    return null;
-                }
-                console.error('Supabase query error:', error);
-                return null;
-            }
-            
-            if (data) {
-                return this.mapSupabaseToFeedback(data);
-            }
-            
-            return null;
-        } catch (error) {
-            console.error('Error fetching from Supabase:', error);
-            return null;
-        }
-    }
-
-    // Find existing analysis by hash (Alternative method)
+    // Find existing analysis by hash
     async findExistingAnalysis(hash: string): Promise<AnalysisFeedback | null> {
         try {
-            const { data, error } = await supabase
-                .from('analysis_feedback')
-                .select('*')
-                .eq('analysis_hash', hash)
-                .order('created_at', { ascending: false })
-                .limit(1)
-                .single();
+            const query = `
+                SELECT 
+                    id, 
+                    analysis_hash as "analysisHash",
+                    complaints,
+                    interpretations,
+                    areas,
+                    created_at as "createdAt"
+                FROM analysis_feedback 
+                WHERE analysis_hash = $1 
+                ORDER BY created_at DESC 
+                LIMIT 1
+            `;
             
-            if (error) {
-                if (error.code === 'PGRST116') {
-                    return null;
-                }
-                console.error('Supabase query error:', error);
-                return null;
-            }
+            const result = await pool.query(query, [hash]);
             
-            if (data) {
-                return this.mapSupabaseToFeedback(data);
+            if (result.rows.length > 0) {
+                const row = result.rows[0];
+                return {
+                    id: row.id,
+                    complaints: row.complaints,
+                    interpretations: row.interpretations,
+                    areas: row.areas,
+                    analysisHash: row.analysisHash,
+                    createdAt: row.createdAt
+                };
             }
             
             return null;
         } catch (error) {
-            console.error('Error fetching from Supabase:', error);
+            console.error('Error fetching from database:', error);
+            // Don't throw - just return null to continue with new generation
             return null;
         }
     }
 
-    // Save new analysis (Upsert based on documentId)
-    async saveAnalysis(params: GeminiAnalysisParams, feedback: AnalysisFeedback): Promise<void> {
+    // Alternative: Find by document ID if you have it
+    async findAnalysisByDocumentId(documentId: string): Promise<AnalysisFeedback | null> {
         try {
-            if (!params.documentId) {
-                throw new Error('documentId is required for saving analysis');
+            const query = `
+                SELECT 
+                    id, 
+                    analysis_hash as "analysisHash",
+                    complaints,
+                    interpretations,
+                    areas,
+                    created_at as "createdAt"
+                FROM analysis_feedback 
+                WHERE document_id = $1 
+                ORDER BY created_at DESC 
+                LIMIT 1
+            `;
+            
+            const result = await pool.query(query, [documentId]);
+            
+            if (result.rows.length > 0) {
+                const row = result.rows[0];
+                return {
+                    id: row.id,
+                    complaints: row.complaints,
+                    interpretations: row.interpretations,
+                    areas: row.areas,
+                    analysisHash: row.analysisHash,
+                    createdAt: row.createdAt
+                };
             }
             
+            return null;
+        } catch (error) {
+            console.error('Error fetching by document ID:', error);
+            return null;
+        }
+    }
+
+    // Save new analysis (skips fallbacks)
+    async saveAnalysis(params: GeminiAnalysisParams, feedback: AnalysisFeedback): Promise<void> {
+        try {
             // Check if this is a fallback response
             if (this.isFallbackResponse(feedback)) {
                 console.log('Skipping fallback response save');
                 return;
             }
 
-            // Generate hash if not provided
-            const hash = feedback.analysisHash || this.generateAnalysisHash(params);
-            
-            // Prepare data for Supabase
-            const supabaseData = {
-                id: feedback.id || crypto.randomUUID(),
-                document_id: params.documentId,
-                analysis_hash: hash,
-                complaints: JSON.stringify(feedback.complaints),
-                interpretations: JSON.stringify(feedback.interpretations),
-                areas: JSON.stringify(feedback.areas),
-                created_at: new Date().toISOString()
-            };
-            
-            // Upsert based on document_id
-            const { data, error } = await supabase
-                .from('analysis_feedback')
-                .upsert(supabaseData, {
-                    onConflict: 'document_id', // Use document_id as conflict resolution key
-                    ignoreDuplicates: false
-                })
-                .select()
-                .single();
-            
-            if (error) {
-                console.error('Error saving to Supabase:', error);
+            // Check if already exists
+            const existing = await this.findExistingAnalysis(feedback.analysisHash!);
+            if (existing) {
+                console.log('Analysis already exists in DB:', existing.id);
                 return;
             }
+
+            const id = feedback.id || crypto.randomUUID();
+            const hash = feedback.analysisHash || this.generateAnalysisHash(params);
             
-            console.log('Analysis saved to Supabase with ID:', data.id);
+            const query = `
+                INSERT INTO analysis_feedback 
+                (id, analysis_hash, complaints, interpretations, areas, created_at)
+                VALUES ($1, $2, $3, $4, $5, $6)
+                RETURNING id
+            `;
+
+            const result = await pool.query(query, [
+                id,
+                hash,
+                JSON.stringify(feedback.complaints),
+                JSON.stringify(feedback.interpretations),
+                JSON.stringify(feedback.areas),
+                new Date()
+            ]);
+            
+            console.log('Analysis saved to database with ID:', result.rows[0].id);
         } catch (error) {
-            console.error('Error saving to Supabase:', error);
+            console.error('Error saving to database:', error);
             // Silently fail - we don't want to break the flow
         }
-    }
-
-    // Update existing analysis by document ID
-    async updateAnalysisByDocumentId(documentId: string, updates: Partial<AnalysisFeedback>): Promise<AnalysisFeedback | null> {
-        try {
-            if (!documentId) {
-                throw new Error('documentId is required for update');
-            }
-            
-            const updateData: any = {};
-            
-            if (updates.complaints !== undefined) {
-                updateData.complaints = JSON.stringify(updates.complaints);
-            }
-            if (updates.interpretations !== undefined) {
-                updateData.interpretations = JSON.stringify(updates.interpretations);
-            }
-            if (updates.areas !== undefined) {
-                updateData.areas = JSON.stringify(updates.areas);
-            }
-            if (updates.analysisHash !== undefined) {
-                updateData.analysis_hash = updates.analysisHash;
-            }
-            
-            updateData.updated_at = new Date().toISOString();
-            
-            const { data, error } = await supabase
-                .from('analysis_feedback')
-                .update(updateData)
-                .eq('document_id', documentId)
-                .select()
-                .single();
-            
-            if (error) {
-                console.error('Error updating in Supabase:', error);
-                return null;
-            }
-            
-            return this.mapSupabaseToFeedback(data);
-        } catch (error) {
-            console.error('Error updating analysis:', error);
-            return null;
-        }
-    }
-
-    // Map Supabase response to AnalysisFeedback
-    private mapSupabaseToFeedback(data: any): AnalysisFeedback {
-        return {
-            id: data.id,
-            complaints: data.complaints ? JSON.parse(data.complaints) : [],
-            interpretations: data.interpretations ? JSON.parse(data.interpretations) : [],
-            areas: data.areas ? JSON.parse(data.areas) : [],
-            analysisHash: data.analysis_hash,
-            createdAt: new Date(data.created_at),
-            documentId: data.document_id
-        };
     }
 
     // Determine if response is a fallback
@@ -296,19 +258,11 @@ class AnalysisSupabaseService {
     // Optional: Cleanup old analyses
     async cleanupOldAnalyses(daysToKeep: number = 30): Promise<void> {
         try {
-            const cutoffDate = new Date();
-            cutoffDate.setDate(cutoffDate.getDate() - daysToKeep);
-            
-            const { error } = await supabase
-                .from('analysis_feedback')
-                .delete()
-                .lt('created_at', cutoffDate.toISOString());
-            
-            if (error) {
-                console.error('Error cleaning up old analyses:', error);
-                return;
-            }
-            
+            const query = `
+                DELETE FROM analysis_feedback 
+                WHERE created_at < NOW() - INTERVAL '${daysToKeep} days'
+            `;
+            await pool.query(query);
             console.log(`Cleaned up analyses older than ${daysToKeep} days`);
         } catch (error) {
             console.error('Error cleaning up old analyses:', error);
@@ -317,42 +271,28 @@ class AnalysisSupabaseService {
 }
 
 // =====================
-// Main Function (Enhanced for Supabase)
+// Main Function (Enhanced)
 // =====================
 export const analyzeComplaintsWithGemini = async (
     params: GeminiAnalysisParams
 ): Promise<AnalysisFeedback> => {
-    const db = AnalysisSupabaseService.getInstance();
+    const db = AnalysisDatabaseService.getInstance();
     
-    // Validate documentId is provided for Supabase
-    if (!params.documentId) {
-        throw new Error('documentId is required for Supabase operations');
+    // Strategy 1: Check by document ID if provided
+    if (params.documentId) {
+        const existingByDoc = await db.findAnalysisByDocumentId(params.documentId);
+        if (existingByDoc) {
+            console.log('Found analysis by document ID:', params.documentId);
+            return existingByDoc;
+        }
     }
     
-    // Strategy 1: First check by document ID (primary method)
-    const existingByDoc = await db.findAnalysisByDocumentId(params.documentId);
-    if (existingByDoc) {
-        console.log('Found analysis by document ID:', params.documentId);
-        return existingByDoc;
-    }
-    
-    // Strategy 2: Check by content hash as fallback
+    // Strategy 2: Check by content hash
     const analysisHash = db.generateAnalysisHash(params);
     
     const existingByHash = await db.findExistingAnalysis(analysisHash);
     if (existingByHash) {
         console.log('Found analysis by content hash:', analysisHash);
-        
-        // Update the found analysis with the documentId for future queries
-        const updatedAnalysis = await db.updateAnalysisByDocumentId(
-            params.documentId,
-            { ...existingByHash, documentId: params.documentId }
-        );
-        
-        if (updatedAnalysis) {
-            return updatedAnalysis;
-        }
-        
         return existingByHash;
     }
     
@@ -418,17 +358,16 @@ IMPORTANT: Return ONLY valid JSON.
             
             const normalizedFeedback = normalizeFeedback(feedback);
             
-            // Add metadata including documentId
+            // Add metadata
             const finalFeedback: AnalysisFeedback = {
                 ...normalizedFeedback,
                 analysisHash,
-                createdAt: new Date(),
-                documentId: params.documentId
+                createdAt: new Date()
             };
             
-            // Save to Supabase (non-blocking)
+            // Save to database (non-blocking)
             db.saveAnalysis(params, finalFeedback)
-                .then(() => console.log('Analysis saved successfully to Supabase'))
+                .then(() => console.log('Analysis saved successfully'))
                 .catch(err => console.error('Background save error:', err));
             
             return finalFeedback;
@@ -448,16 +387,13 @@ IMPORTANT: Return ONLY valid JSON.
         getFallbackAnalysis(params.previousAnalysis, params.language)
     );
     
-    // Add documentId to fallback for consistency
-    fallbackFeedback.documentId = params.documentId;
-    
     console.log('Returning fallback response (not saved to DB)');
     
     return fallbackFeedback;
 };
 
 // =====================
-// Helper Functions
+// Helper Functions (Unchanged)
 // =====================
 const delay = (ms: number) =>
     new Promise(resolve => setTimeout(resolve, ms));
@@ -521,6 +457,7 @@ const getFallbackAnalysis = (
     analysis: any,
     language: 'en' | 'es' = 'en'
 ): AnalysisFeedback => {
+    // ... existing fallback implementation remains the same ...
     const data = analysis?.[language] || analysis?.en;
 
     if (!data) {
@@ -594,61 +531,24 @@ const shuffleArray = <T,>(array: T[]): T[] => {
 };
 
 // =====================
-// Setup Instructions for Supabase
+// Setup Instructions
 // =====================
 /*
 1. Install dependencies:
-   npm install @supabase/supabase-js @google/generative-ai
+   npm install pg @google/generative-ai
 
 2. Set environment variables:
-   VITE_SUPABASE_URL=your_project_url
-   VITE_SUPABASE_ANON_KEY=your_anon_key
+   DB_HOST=localhost
+   DB_PORT=5432
+   DB_NAME=equestrian_analysis
+   DB_USER=postgres
+   DB_PASSWORD=your_password
    VITE_GEMINI_API_KEY=your_gemini_key
 
-3. Create the analysis_feedback table in Supabase SQL Editor:
-   
-   CREATE TABLE analysis_feedback (
-     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-     document_id TEXT NOT NULL,
-     analysis_hash TEXT,
-     complaints JSONB NOT NULL DEFAULT '[]',
-     interpretations JSONB NOT NULL DEFAULT '[]',
-     areas JSONB NOT NULL DEFAULT '[]',
-     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-     
-     -- Add unique constraint on document_id if you want one analysis per document
-     CONSTRAINT unique_document UNIQUE (document_id)
-   );
+3. Run the SQL schema in your PostgreSQL database
 
-4. Create indexes for better performance:
-   
-   CREATE INDEX idx_analysis_feedback_document_id ON analysis_feedback (document_id);
-   CREATE INDEX idx_analysis_feedback_hash ON analysis_feedback (analysis_hash);
-   CREATE INDEX idx_analysis_feedback_created_at ON analysis_feedback (created_at);
-
-5. Set up Row Level Security (RLS) if needed:
-   
-   -- Enable RLS
-   ALTER TABLE analysis_feedback ENABLE ROW LEVEL SECURITY;
-   
-   -- Create policy for read access
-   CREATE POLICY "Allow public read access" 
-   ON analysis_feedback FOR SELECT 
-   USING (true);
-   
-   -- Create policy for insert/update access
-   CREATE POLICY "Allow public insert/update" 
-   ON analysis_feedback FOR ALL 
-   USING (true);
-   
-6. Update your Supabase client config in code if needed:
-   - You can add auth token if using authenticated access
-   - Adjust timeout settings as needed
-
-7. Usage:
-   - Always provide documentId when calling analyzeComplaintsWithGemini
-   - The system will automatically use documentId for queries and updates
-   - Falls back to hash-based lookup if documentId query fails
-   - Automatically updates documentId on hash-based matches
+4. If you have document IDs, modify the schema:
+   ALTER TABLE analysis_feedback 
+   ADD COLUMN document_id VARCHAR(255),
+   ADD INDEX idx_document_id (document_id);
 */

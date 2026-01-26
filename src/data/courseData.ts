@@ -5,23 +5,23 @@
 //     name: "Paris Grand Indoor 1.60m",
 //     competition_level: "grand_prix",
 //     jumping_discipline: 'showjumping',
-//     arena: { inline-size: 100, length: 60 },
+//     arena: { width: 100, length: 60 },
 //     jumps: [
 //         {
 //             id: "jump_1",
 //             number: 1,
 //             x: 45,
 //             y: 25,
+
 //             block-size: 0.8,
-//             type: "vertical",
-//             rotation: -1.5707963267948963
+
+//             height: 0.8,
 //         },
-//         {
 //             id: "jump_2",
 //             number: 2,
 //             x: 39,
 //             y: 12,
-//             block-size: 0.8,
+//             height: 0.8,
 //             type: "vertical",
 //             rotation: 1.0471975511965976,
 //             manualRotation: true
@@ -31,16 +31,16 @@
 //             number: 3,
 //             x: 17,
 //             y: 20,
+
 //             block-size: 0.8,
-//             type: "vertical",
-//             rotation: 1.308996938995747
+
+//             height: 0.8,
 //         },
-//         {
 //             id: "jump_4a",
 //             number: "4a",
 //             x: 14,
 //             y: 5,
-//             block-size: 0.8,
+//             height: 0.8,
 //             type: "vertical",
 //             rotation: -1.5707963267948963
 //         },
@@ -49,16 +49,16 @@
 //             number: "4b",
 //             x: 22,
 //             y: 5,
+
 //             block-size: 0.8,
-//             type: "vertical",
-//             rotation: -1.5707963267948963
+
+//             height: 0.8,
 //         },
-//         {
 //             id: "jump_4c",
 //             number: "4c",
 //             x: 34,
 //             y: 5,
-//             block-size: 0.8,
+//             height: 0.8,
 //             type: "vertical",
 //             rotation: -1.5707963267948963
 //         },
@@ -67,16 +67,20 @@
 //             number: 5,
 //             x: 47,
 //             y: 5,
+
 //             block-size: 0.8,
-//             type: "vertical",
-//             rotation: -1.5707963267948963
+
+//             height: 0.8,
 //         },
-//         {
 //             id: "jump_6",
 //             number: 6,
 //             x: 45,
 //             y: 31,
+
 //             block-size: 0.8,
+
+//             height: 0.8,
+
 //             type: "vertical",
 //             rotation: 1.8325957145940457
 //         },
@@ -85,7 +89,7 @@
 //             number: 7,
 //             x: 29,
 //             y: 21,
-//             block-size: 0.8,
+//             height: 0.8,
 //             type: "vertical",
 //             rotation: 2.0943951023931953
 //         },
@@ -94,16 +98,20 @@
 //             number: 8,
 //             x: 12,
 //             y: 14,
+
 //             block-size: 0.8,
-//             type: "vertical",
-//             rotation: 1.308996938995747
+
+//             height: 0.8,
 //         },
-//         {
 //             id: "jump_9",
 //             number: 9,
 //             x: 23,
 //             y: 30,
+
 //             block-size: 0.8,
+
+//             height: 0.8,
+
 //             type: "vertical",
 //             rotation: 1.308996938995747
 //         },
@@ -112,7 +120,7 @@
 //             number: "10a",
 //             x: 37,
 //             y: 22,
-//             block-size: 0.8,
+//             height: 0.8,
 //             type: "vertical",
 //             rotation: 1.308996938995747,
 //             manualRotation: true
@@ -122,17 +130,17 @@
 //             number: "10b",
 //             x: 44,
 //             y: 16,
+
 //             block-size: 0.8,
-//             type: "vertical",
-//             rotation: 1.308996938995747,
+
+//             height: 0.8,
 //             manualRotation: true
-//         },
 //         {
 //             id: "jump_11a",
 //             number: "11a",
 //             x: 41,
 //             y: 35,
-//             block-size: 0.8,
+//             height: 0.8,
 //             type: "vertical",
 //             rotation: 1.5707963267948963
 //         },
@@ -141,16 +149,20 @@
 //             number: "11b",
 //             x: 30,
 //             y: 35,
+
 //             block-size: 0.8,
-//             type: "vertical",
-//             rotation: -1.5707963267948963
+
+//             height: 0.8,
 //         },
-//         {
 //             id: "jump_12",
 //             number: 12,
 //             x: 8,
 //             y: 26,
+
 //             block-size: 0.8,
+
+//             height: 0.8,
+
 //             type: "vertical",
 //             rotation: -0.2617993877991494
 //         }
@@ -169,23 +181,27 @@
 //     name: "Paris Grand Indoor 1.60m - Rotated 20°",
 //     competition_level: "grand_prix",
 //     jumping_discipline: 'showjumping',
-//     arena: { inline-size: 100, length: 60 },
+//     arena: { width: 100, length: 60 },
 //     jumps: [
 //         {
 //             id: "jump_1",
 //             number: 1,
 //             x: 40.8,
 //             y: 28.5,
+
 //             block-size: 1.6,
-//             type: "vertical",
-//             rotation: -1.2217
+
+//             height: 1.6,
 //         },
-//         {
 //             id: "jump_2",
 //             number: 2,
 //             x: 38.1,
 //             y: 16.2,
+
 //             block-size: 1.6,
+
+//             height: 1.6,
+    
 //             type: "vertical",
 //             rotation: 1.3963
 //         },
@@ -194,7 +210,7 @@
 //             number: 3,
 //             x: 13.4,
 //             y: 22.8,
-//             block-size: 1.6,
+//             height: 1.6,
 //             type: "vertical",
 //             rotation: 1.9198993877991493,
 //             manualRotation: true

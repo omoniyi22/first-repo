@@ -112,8 +112,8 @@ const Footer = () => {
             <p className="text-white/80">
               &copy;
               {language === "en"
-                ? "2026 AI Equestrian. All rights reserved"
-                : "2026 AI Equestrian. Todos los derechos reservados."}
+                ? `${new Date().getFullYear()} AI Equestrian. All rights reserved.`
+                : `${new Date().getFullYear()} AI Equestrian. Todos los derechos reservados.`}
             </p>
           </div>
           <div className="flex space-x-6">

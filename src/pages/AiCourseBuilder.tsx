@@ -23,6 +23,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { COURSE_DATA } from "@/data/courseData";
+import { analytics } from "@/lib/posthog";
 // Type definitions
 interface GeneratedJump {
   id: string;
@@ -120,6 +121,13 @@ const AiCourseBuilder = () => {
     }
   }, [userDiscipline, navigate]);
 
+  // 🆕 Track when user views ai-course-builder page
+  useEffect(() => {
+    analytics.trackPageView("/ai-course-builder", {
+      user_id: user?.id || null,
+    });
+  }, [user?.id]);
+
   // Get current level configuration
   const getCurrentLevel = () => {
     const levels = competitionLevels[discipline];
@@ -208,6 +216,14 @@ const AiCourseBuilder = () => {
 
       // 4. Set jumps state
       setJumps(convertedJumps);
+
+      analytics.trackEvent("ai_course_generated", {
+        userId: user.id,
+        discipline: discipline,
+        level: level,
+        courseName: selectedCourse.name,
+        success: true,
+      });
 
       setGenerationMethod(`Professional Course: ${selectedCourse.name}`);
     } catch (error) {

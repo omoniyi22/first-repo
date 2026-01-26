@@ -66,6 +66,7 @@ import { useNavigate } from "react-router-dom";
 import { ActivityLogger } from "@/utils/activityTracker";
 import { Badge } from "../ui/badge";
 import { useAnalysisLimit } from "@/hooks/useAnalysisLimit";
+import { analytics } from "@/lib/posthog";
 
 const DocumentUploadFormSchema = z.object({
   discipline: z.enum(["dressage", "jumping"]),
@@ -444,6 +445,18 @@ const DocumentUpload = ({
       // setBase64Image(pdfBase64);
       // setNewDocumentId(documentData[0].id);
       // setShowConfirmModal(true);
+
+      analytics.trackEvent("document_uploaded", {
+        userId: user.id,
+        horseId: data.horseId,
+        horseName: horseName,
+        documentId: documentData[0].id,
+        discipline: data.discipline,
+        testLevel: data.testLevel || null,
+        competitionType: data.competitionType || null,
+        governingBody: userProfile?.governing_body || null,
+        country: userProfile?.region || null,
+      });
 
       toast({
         title: language === "en" ? "Upload Successful" : "Subida Exitosa",
