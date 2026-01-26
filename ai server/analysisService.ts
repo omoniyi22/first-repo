@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Pool } from 'pg';
-
+const VITE_GEMINI_API_KEY="AIzaSyDZ6WsChZLWXldvn0OPKYSrVZhw5gs8Rtg"
 // =====================
 // Types
 // =====================
@@ -300,7 +300,7 @@ export const analyzeComplaintsWithGemini = async (
     for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
         try {
             const genAI = new GoogleGenerativeAI(
-                import.meta.env.VITE_GEMINI_API_KEY || ''
+                VITE_GEMINI_API_KEY 
             );
 
             const model = genAI.getGenerativeModel({
@@ -543,7 +543,7 @@ const shuffleArray = <T,>(array: T[]): T[] => {
    DB_NAME=equestrian_analysis
    DB_USER=postgres
    DB_PASSWORD=your_password
-   VITE_GEMINI_API_KEY=your_gemini_key
+   
 
 3. Run the SQL schema in your PostgreSQL database
 
