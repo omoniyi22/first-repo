@@ -150,20 +150,7 @@ const AnalysisFeedbackComponent: React.FC<AnalysisFeedbackProps> = ({
               : 'Análisis con IA basado en los comentarios de tu competencia'}
           </p>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleRegenerate}
-          disabled={isRegenerating}
-          className="gap-2"
-        >
-          {isRegenerating ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <TrendingUp className="h-4 w-4" />
-          )}
-          {language === 'en' ? 'Regenerate' : 'Regenerar'}
-        </Button>
+      
       </div>
 
       {/* Judge Complaints Section */}
