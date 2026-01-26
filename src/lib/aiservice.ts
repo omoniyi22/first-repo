@@ -24,6 +24,7 @@ export interface GeminiAnalysisParams {
     documentId?: string; // Document ID is required for Supabase operations
 }
 
+
 // =====================
 // Constants
 // =====================
