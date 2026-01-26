@@ -717,7 +717,7 @@ Let me know what you think!`;
         <div className="flex items-center justify-between mb-3 sm:mb-4">
           <h4 className="text-lg sm:text-xl font-semibold">
             {language === "en"
-              ? "Personalised Insightq"
+              ? "Personalised Insight"
               : "Perspectiva personalizada"}
           </h4>
 
