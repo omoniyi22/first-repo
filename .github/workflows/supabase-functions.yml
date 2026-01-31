@@ -1,9 +1,11 @@
 name: Deploy Supabase Edge Functions
 
 on:
+  # Automatically on any push that changes any file
   push:
-    paths:
-      - "supabase/functions/**"
+
+  # Manual trigger from the GitHub Actions UI
+  workflow_dispatch:
 
 jobs:
   deploy:
