@@ -34,10 +34,10 @@ class DebugLogger {
       message,
       data: data || null
     };
-    
+
     // Console output
     console.log(JSON.stringify(logEntry));
-    
+
     // Store for final response
     this.logs.push(logEntry);
   }
@@ -134,7 +134,7 @@ async function getGoogleAccessToken(serviceAccount: any, logger: DebugLogger): P
 
     logger.debug('Requesting access token from Google');
     const tokenStart = Date.now();
-    
+
     const res = await fetch('https://oauth2.googleapis.com/token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -146,7 +146,7 @@ async function getGoogleAccessToken(serviceAccount: any, logger: DebugLogger): P
 
     const tokenDuration = Date.now() - tokenStart;
     const responseText = await res.text();
-    
+
     logger.debug('Google token response received', {
       status: res.status,
       duration: `${tokenDuration}ms`,
@@ -180,296 +180,6 @@ async function getGoogleAccessToken(serviceAccount: any, logger: DebugLogger): P
   }
 }
 
-// Calculate confidence scores based on extraction quality
-function calculateConfidenceScores(extractedData: any, logger: DebugLogger): any {
-  logger.debug('Calculating confidence scores', {
-    dataFields: Object.keys(extractedData),
-    hasMovements: !!extractedData.movements,
-    movementCount: extractedData.movements?.length || 0
-  });
-
-  const confidenceScores: any = {
-    overall: 0,
-    fields: {},
-    fieldStats: {
-      totalFields: 0,
-      highConfidence: 0,
-      mediumConfidence: 0,
-      lowConfidence: 0
-    }
-  };
-
-  let totalConfidence = 0;
-  let fieldCount = 0;
-  const lowConfidenceFields: string[] = [];
-
-  // Helper to add field confidence
-  const addFieldConfidence = (fieldName: string, value: any, baseConfidence: number, reason?: string) => {
-    let confidence = baseConfidence;
-    let adjustmentReason = reason || 'base';
-
-    if (!value || value === '' || value === 'null' || value === null) {
-      confidence = 0.3;
-      adjustmentReason = 'empty_or_null';
-    } else if (typeof value === 'string' && value.length < 2) {
-      confidence = confidence * 0.7;
-      adjustmentReason = 'short_string';
-    } else if (typeof value === 'number' && (value < 0 || value > 10)) {
-      confidence = confidence * 0.6;
-      adjustmentReason = 'invalid_score_range';
-    }
-
-    confidenceScores.fields[fieldName] = {
-      confidence,
-      value: typeof value === 'string' ? value.substring(0, 50) : value,
-      baseConfidence,
-      adjustmentReason
-    };
-    
-    totalConfidence += confidence;
-    fieldCount++;
-
-    // Track confidence levels
-    if (confidence >= 0.8) {
-      confidenceScores.fieldStats.highConfidence++;
-    } else if (confidence >= 0.5) {
-      confidenceScores.fieldStats.mediumConfidence++;
-    } else {
-      confidenceScores.fieldStats.lowConfidence++;
-      lowConfidenceFields.push(fieldName);
-    }
-  };
-
-  // Check horse name
-  addFieldConfidence('horseName', extractedData.horse, 0.90, 'primary_field');
-
-  // Check percentage (critical field)
-  if (extractedData.percentage !== undefined && extractedData.percentage !== null) {
-    if (!isNaN(extractedData.percentage) && extractedData.percentage >= 0 && extractedData.percentage <= 100) {
-      addFieldConfidence('percentage', extractedData.percentage, 0.85, 'valid_percentage');
-    } else {
-      addFieldConfidence('percentage', extractedData.percentage, 0.50, 'invalid_percentage');
-    }
-  } else {
-    addFieldConfidence('percentage', extractedData.percentage, 0.30, 'missing_percentage');
-  }
-
-  // Check movements
-  if (extractedData.movements && Array.isArray(extractedData.movements)) {
-    extractedData.movements.forEach((movement: any, index: number) => {
-      const movementKey = `movement${index + 1}`;
-      
-      addFieldConfidence(
-        `${movementKey}_name`,
-        movement.name,
-        movement.name ? 0.85 : 0.60,
-        movement.name ? 'has_name' : 'missing_name'
-      );
-
-      if (movement.scores) {
-        ['judgeA', 'judgeB', 'judgeC'].forEach(judge => {
-          const score = movement.scores[judge];
-          const isValidScore = score !== null && score !== undefined && score >= 0 && score <= 10;
-          
-          addFieldConfidence(
-            `${movementKey}_score_${judge.toUpperCase()}`,
-            score,
-            isValidScore ? 0.90 : 0.50,
-            isValidScore ? 'valid_score' : 'invalid_score'
-          );
-        });
-      }
-    });
-  }
-
-  // Check judge comments (lower confidence, harder to OCR)
-  ['judgeA', 'judgeB', 'judgeC'].forEach(judge => {
-    const comment = extractedData.generalComments?.[judge];
-    const hasComment = comment && comment.trim().length > 0;
-    
-    addFieldConfidence(
-      `${judge}_comment`,
-      comment,
-      hasComment ? 0.70 : 0.50,
-      hasComment ? 'has_comment' : 'no_comment'
-    );
-  });
-
-  // Calculate overall confidence
-  confidenceScores.overall = fieldCount > 0 ? parseFloat((totalConfidence / fieldCount).toFixed(3)) : 0;
-  confidenceScores.lowConfidenceFields = lowConfidenceFields;
-  confidenceScores.lowConfidenceCount = lowConfidenceFields.length;
-  confidenceScores.fieldStats.totalFields = fieldCount;
-
-  logger.debug('Confidence scores calculated', {
-    overall: confidenceScores.overall,
-    totalFields: fieldCount,
-    lowConfidenceFields: lowConfidenceFields.length,
-    fieldStats: confidenceScores.fieldStats
-  });
-
-  return confidenceScores;
-}
-
-// Create fallback data when extraction fails or no dressage sheet is found
-function createFallbackData(documentData: any, errorMessage?: string, rawResponse?: string) {
-  logger.info('Creating fallback data due to extraction failure', {
-    errorMessage,
-    rawResponseLength: rawResponse?.length,
-    documentData: {
-      horse: documentData.horse_name,
-      filename: documentData.file_name
-    }
-  });
-
-  return {
-    horse: documentData.horse_name || "Unknown",
-    rider: "Not Found",
-    testDate: documentData.document_date ? new Date(documentData.document_date).toISOString().split('T')[0] : "Unknown",
-    testLevel: documentData.test_level || documentData.competition_type || "Unknown",
-    percentage: null,
-    movements: [],
-    collectiveMarks: {
-      paces: { judgeA: null, judgeB: null, judgeC: null },
-      impulsion: { judgeA: null, judgeB: null, judgeC: null },
-      submission: { judgeA: null, judgeB: null, judgeC: null },
-      riderPosition: { judgeA: null, judgeB: null, judgeC: null }
-    },
-    generalComments: {
-      judgeA: errorMessage || "No dressage test score sheet detected in the document.",
-      judgeB: "Please verify you have uploaded a dressage test score sheet.",
-      judgeC: "Supported formats: FEI, British Dressage, USDF, or other standard dressage tests."
-    },
-    highestScore: {
-      score: null,
-      movement: ["Not available"]
-    },
-    lowestScore: {
-      score: null,
-      movement: ["Not available"]
-    },
-    extractionError: errorMessage || "No dressage score sheet detected",
-    rawResponseSample: rawResponse ? rawResponse.substring(0, 500) : null,
-    isFallback: true
-  };
-}
-
-// Parse Gemini response and handle non-JSON responses
-function parseGeminiResponse(resultText: string, documentData: any, logger: DebugLogger) {
-  logger.debug('Parsing Gemini response', {
-    responseLength: resultText.length,
-    first200Chars: resultText.substring(0, 200),
-    last200Chars: resultText.substring(Math.max(0, resultText.length - 200))
-  });
-
-  // First, try to parse as JSON
-  try {
-    // Clean the response
-    const cleanText = resultText
-      .replace(/^```(?:json)?\n?/, '')
-      .replace(/\n?```$/, '')
-      .trim();
-
-    logger.debug('Cleaned response for JSON parsing', {
-      cleanedLength: cleanText.length,
-      startsWith: cleanText.substring(0, 50)
-    });
-
-    // Try to parse JSON
-    const extractedData = JSON.parse(cleanText);
-    
-    logger.info('Successfully parsed JSON response', {
-      documentType: extractedData.documentType,
-      hasHorse: !!extractedData.horse,
-      hasMovements: !!extractedData.movements,
-      hasPercentage: extractedData.percentage !== undefined
-    });
-
-    // Validate it has at least some dressage-like structure
-    const hasDressageStructure = extractedData.horse || 
-                                 extractedData.movements || 
-                                 extractedData.percentage ||
-                                 extractedData.documentType === 'dressage_test';
-
-    if (hasDressageStructure) {
-      logger.success('Valid dressage-like structure found');
-      return {
-        success: true,
-        data: extractedData,
-        error: null,
-        parsingMethod: 'json_success'
-      };
-    } else {
-      logger.warn('JSON parsed but no dressage structure found', {
-        extractedKeys: Object.keys(extractedData),
-        documentType: extractedData.documentType
-      });
-      
-      return {
-        success: false,
-        data: createFallbackData(documentData, "Document parsed but no dressage score data found", resultText),
-        error: "No dressage score data in parsed JSON",
-        parsingMethod: 'json_no_structure'
-      };
-    }
-    
-  } catch (jsonError) {
-    logger.warn('JSON parsing failed', {
-      error: jsonError.message,
-      responseStart: resultText.substring(0, 100)
-    });
-
-    // JSON parsing failed, analyze the response text
-    const lowerText = resultText.toLowerCase();
-    
-    // Check for specific error patterns
-    const errorPatterns = [
-      { pattern: 'dressage.*not present', type: 'no_dressage_sheet' },
-      { pattern: 'unable.*perform.*task', type: 'unable_to_perform' },
-      { pattern: 'sorry', type: 'apology_response' },
-      { pattern: 'no dressage', type: 'no_dressage' },
-      { pattern: 'cannot.*extract', type: 'cannot_extract' },
-      { pattern: 'invalid.*document', type: 'invalid_document' }
-    ];
-
-    let detectedErrorType = 'unknown';
-    for (const { pattern, type } of errorPatterns) {
-      const regex = new RegExp(pattern, 'i');
-      if (regex.test(lowerText)) {
-        detectedErrorType = type;
-        break;
-      }
-    }
-
-    logger.info('Analyzed non-JSON response', {
-      errorType: detectedErrorType,
-      containsDressage: lowerText.includes('dressage'),
-      containsSorry: lowerText.includes('sorry'),
-      containsUnable: lowerText.includes('unable')
-    });
-
-    if (detectedErrorType !== 'unknown') {
-      return {
-        success: false,
-        data: createFallbackData(documentData, `AI could not process document: ${detectedErrorType}`, resultText),
-        error: `Gemini error: ${detectedErrorType}`,
-        parsingMethod: 'error_pattern'
-      };
-    } else {
-      // Some other error or non-JSON response
-      return {
-        success: false,
-        data: createFallbackData(documentData, "Could not parse document as a dressage test score sheet", resultText),
-        error: "Invalid JSON response from AI",
-        parsingMethod: 'invalid_json'
-      };
-    }
-  }
-}
-
-// Global logger reference
-let logger: DebugLogger;
-
 serve(async (req) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
@@ -477,7 +187,7 @@ serve(async (req) => {
   }
 
   const requestId = `extract-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  logger = new DebugLogger(requestId);
+  const logger = new DebugLogger(requestId);
 
   let documentId: string | null = null;
   let requestBody: any = null;
@@ -492,22 +202,33 @@ serve(async (req) => {
     // Parse request body
     try {
       requestBody = await req.json();
-      documentId = requestBody.documentId;
-      const base64Image = requestBody.base64Image;
+      logger.debug('Raw request body received', {
+        keys: Object.keys(requestBody),
+        bodyPreview: JSON.stringify(requestBody).substring(0, 200)
+      });
       
+      // Support both input formats
+      documentId = requestBody.documentId || requestBody.newDocumentId;
+      const base64Image = requestBody.base64Image || requestBody.canvasImage;
+
       logger.info('Request body parsed', {
         hasDocumentId: !!documentId,
         hasBase64Image: !!base64Image,
         base64ImageLength: base64Image?.length || 0,
-        base64ImageStart: base64Image ? base64Image.substring(0, 50) : 'none'
+        base64ImageStart: base64Image ? base64Image.substring(0, 50) : 'none',
+        inputFormat: requestBody.newDocumentId ? 'newDocumentId/canvasImage' : 'documentId/base64Image'
       });
 
       if (!documentId || !base64Image) {
         const error = 'Missing documentId or base64Image';
-        logger.error('Invalid request', { documentId, hasBase64Image: !!base64Image });
+        logger.error('Invalid request', { 
+          documentId, 
+          hasBase64Image: !!base64Image,
+          requestBodyKeys: Object.keys(requestBody)
+        });
         return new Response(
-          JSON.stringify({ 
-            success: false, 
+          JSON.stringify({
+            success: false,
             error,
             requestId,
             logs: logger.getLogs()
@@ -518,8 +239,8 @@ serve(async (req) => {
     } catch (parseError) {
       logger.error('Failed to parse request body', parseError);
       return new Response(
-        JSON.stringify({ 
-          success: false, 
+        JSON.stringify({
+          success: false,
           error: 'Invalid JSON request body',
           requestId,
           logs: logger.getLogs()
@@ -539,13 +260,13 @@ serve(async (req) => {
       .single();
 
     if (docError || !documentData) {
-      logger.error('Document not found in database', { 
+      logger.error('Document not found in database', {
         error: docError?.message,
-        documentId 
+        documentId
       });
       return new Response(
-        JSON.stringify({ 
-          success: false, 
+        JSON.stringify({
+          success: false,
           error: 'Document not found',
           requestId,
           logs: logger.getLogs()
@@ -606,15 +327,15 @@ serve(async (req) => {
     }
 
     const accessToken = await getGoogleAccessToken(serviceAccount, logger);
-    
+
     // STEP 4: Prepare Gemini API request
     const model = 'gemini-2.0-flash';
     const geminiUrl = `https://us-central1-aiplatform.googleapis.com/v1/projects/${serviceAccount.project_id}/locations/us-central1/publishers/google/models/${model}:generateContent`;
-    
+
     logger.info('STEP 4: Preparing Gemini API request', {
       model,
       url: geminiUrl,
-      base64ImageLength: requestBody.base64Image.length
+      base64ImageLength: (requestBody.base64Image || requestBody.canvasImage).length
     });
 
     const extractionPrompt = `
@@ -697,7 +418,7 @@ Return the JSON now.
     // STEP 5: Call Gemini API
     logger.info('STEP 5: Calling Gemini API');
     const startTime = Date.now();
-    
+
     const geminiResponse = await fetch(geminiUrl, {
       method: 'POST',
       headers: {
@@ -709,17 +430,19 @@ Return the JSON now.
           role: 'user',
           parts: [
             { text: extractionPrompt },
-            { inlineData: { 
-              mimeType: 'application/pdf', 
-              data: requestBody.base64Image 
-            } }
+            {
+              inlineData: {
+                mimeType: 'application/pdf',
+                data: requestBody.base64Image || requestBody.canvasImage
+              }
+            }
           ]
         }]
       })
     });
 
     const extractionDuration = Date.now() - startTime;
-    
+
     logger.info('Gemini API response received', {
       status: geminiResponse.status,
       duration: `${extractionDuration}ms`,
@@ -737,18 +460,324 @@ Return the JSON now.
     }
 
     const geminiResult = await geminiResponse.json();
-    let resultText = geminiResult.candidates[0].content.parts[0].text;
+    let resultText = geminiResult.candidates[0]?.content?.parts[0]?.text || '';
+
+    // ALWAYS LOG THE RAW RESPONSE - EVEN IF IT'S NOT JSON
+    console.log('🔵🔵🔵 RAW GEMINI RESPONSE START 🔵🔵🔵');
+    console.log(resultText);
+    console.log('🔵🔵🔵 RAW GEMINI RESPONSE END 🔵🔵🔵');
 
     logger.info('Gemini response parsed', {
       responseLength: resultText.length,
       responsePreview: resultText.substring(0, 200),
-      hasCandidates: geminiResult.candidates?.length > 0
+      hasCandidates: geminiResult.candidates?.length > 0,
+      fullResponseSaved: true
     });
+
+    // ========== FUNCTIONS THAT NEED ACCESS TO LOGGER ==========
+    
+    // Create fallback data when extraction fails or no dressage sheet is found
+    function createFallbackData(documentData: any, errorMessage?: string, rawResponse?: string) {
+      logger.info('Creating fallback data due to extraction failure', {
+        errorMessage,
+        rawResponseLength: rawResponse?.length,
+        documentData: {
+          horse: documentData.horse_name,
+          filename: documentData.file_name
+        }
+      });
+
+      return {
+        horse: documentData.horse_name || "Unknown",
+        rider: "Not Found",
+        testDate: documentData.document_date ? new Date(documentData.document_date).toISOString().split('T')[0] : "Unknown",
+        testLevel: documentData.test_level || documentData.competition_type || "Unknown",
+        percentage: null,
+        movements: [],
+        collectiveMarks: {
+          paces: { judgeA: null, judgeB: null, judgeC: null },
+          impulsion: { judgeA: null, judgeB: null, judgeC: null },
+          submission: { judgeA: null, judgeB: null, judgeC: null },
+          riderPosition: { judgeA: null, judgeB: null, judgeC: null }
+        },
+        generalComments: {
+          judgeA: errorMessage || "No dressage test score sheet detected in the document.",
+          judgeB: "Please verify you have uploaded a dressage test score sheet.",
+          judgeC: "Supported formats: FEI, British Dressage, USDF, or other standard dressage tests."
+        },
+        highestScore: {
+          score: null,
+          movement: ["Not available"]
+        },
+        lowestScore: {
+          score: null,
+          movement: ["Not available"]
+        },
+        extractionError: errorMessage || "No dressage score sheet detected",
+        rawResponseSample: rawResponse ? rawResponse.substring(0, 500) : null,
+        isFallback: true
+      };
+    }
+
+    // Parse Gemini response and handle non-JSON responses
+    function parseGeminiResponse(resultText: string, documentData: any): any {
+      logger.debug('Parsing Gemini response', {
+        responseLength: resultText.length,
+        first200Chars: resultText.substring(0, 200),
+        last200Chars: resultText.substring(Math.max(0, resultText.length - 200))
+      });
+
+      // First, try to parse as JSON
+      try {
+        // Clean the response - remove markdown code blocks
+        let cleanText = resultText.trim();
+        
+        // Remove ```json and ``` markers
+        if (cleanText.startsWith('```')) {
+          const lines = cleanText.split('\n');
+          if (lines[0].includes('json')) {
+            lines.shift(); // Remove first line
+          }
+          if (lines[lines.length - 1].includes('```')) {
+            lines.pop(); // Remove last line
+          }
+          cleanText = lines.join('\n').trim();
+        }
+
+        logger.debug('Cleaned response for JSON parsing', {
+          cleanedLength: cleanText.length,
+          startsWith: cleanText.substring(0, 50)
+        });
+
+        // Try to parse JSON
+        const extractedData = JSON.parse(cleanText);
+
+        logger.info('Successfully parsed JSON response', {
+          documentType: extractedData.documentType,
+          hasHorse: !!extractedData.horse,
+          hasMovements: !!extractedData.movements,
+          hasPercentage: extractedData.percentage !== undefined
+        });
+
+        // Validate it has at least some dressage-like structure
+        const hasDressageStructure = extractedData.horse ||
+          extractedData.movements ||
+          extractedData.percentage ||
+          extractedData.documentType === 'dressage_test';
+
+        if (hasDressageStructure) {
+          logger.success('Valid dressage-like structure found');
+          return {
+            success: true,
+            data: extractedData,
+            error: null,
+            parsingMethod: 'json_success'
+          };
+        } else {
+          logger.warn('JSON parsed but no dressage structure found', {
+            extractedKeys: Object.keys(extractedData),
+            documentType: extractedData.documentType
+          });
+
+          return {
+            success: false,
+            data: createFallbackData(documentData, "Document parsed but no dressage score data found", resultText),
+            error: "No dressage score data in parsed JSON",
+            parsingMethod: 'json_no_structure'
+          };
+        }
+
+      } catch (jsonError) {
+        logger.warn('JSON parsing failed', {
+          error: jsonError.message,
+          responseStart: resultText.substring(0, 100)
+        });
+
+        // JSON parsing failed, analyze the response text
+        const lowerText = resultText.toLowerCase();
+
+        // Check for specific error patterns
+        const errorPatterns = [
+          { pattern: 'dressage.*not present', type: 'no_dressage_sheet' },
+          { pattern: 'unable.*perform.*task', type: 'unable_to_perform' },
+          { pattern: 'sorry', type: 'apology_response' },
+          { pattern: 'no dressage', type: 'no_dressage' },
+          { pattern: 'cannot.*extract', type: 'cannot_extract' },
+          { pattern: 'invalid.*document', type: 'invalid_document' }
+        ];
+
+        let detectedErrorType = 'unknown';
+        for (const { pattern, type } of errorPatterns) {
+          const regex = new RegExp(pattern, 'i');
+          if (regex.test(lowerText)) {
+            detectedErrorType = type;
+            break;
+          }
+        }
+
+        logger.info('Analyzed non-JSON response', {
+          errorType: detectedErrorType,
+          containsDressage: lowerText.includes('dressage'),
+          containsSorry: lowerText.includes('sorry'),
+          containsUnable: lowerText.includes('unable')
+        });
+
+        if (detectedErrorType !== 'unknown') {
+          return {
+            success: false,
+            data: createFallbackData(documentData, `AI could not process document: ${detectedErrorType}`, resultText),
+            error: `Gemini error: ${detectedErrorType}`,
+            parsingMethod: 'error_pattern'
+          };
+        } else {
+          // Some other error or non-JSON response
+          return {
+            success: false,
+            data: createFallbackData(documentData, "Could not parse document as a dressage test score sheet", resultText),
+            error: "Invalid JSON response from AI",
+            parsingMethod: 'invalid_json'
+          };
+        }
+      }
+    }
+
+    // Calculate confidence scores based on extraction quality
+    function calculateConfidenceScores(extractedData: any): any {
+      logger.debug('Calculating confidence scores', {
+        dataFields: Object.keys(extractedData),
+        hasMovements: !!extractedData.movements,
+        movementCount: extractedData.movements?.length || 0
+      });
+
+      const confidenceScores: any = {
+        overall: 0,
+        fields: {},
+        fieldStats: {
+          totalFields: 0,
+          highConfidence: 0,
+          mediumConfidence: 0,
+          lowConfidence: 0
+        }
+      };
+
+      let totalConfidence = 0;
+      let fieldCount = 0;
+      const lowConfidenceFields: string[] = [];
+
+      // Helper to add field confidence
+      const addFieldConfidence = (fieldName: string, value: any, baseConfidence: number, reason?: string) => {
+        let confidence = baseConfidence;
+        let adjustmentReason = reason || 'base';
+
+        if (!value || value === '' || value === 'null' || value === null) {
+          confidence = 0.3;
+          adjustmentReason = 'empty_or_null';
+        } else if (typeof value === 'string' && value.length < 2) {
+          confidence = confidence * 0.7;
+          adjustmentReason = 'short_string';
+        } else if (typeof value === 'number' && (value < 0 || value > 10)) {
+          confidence = confidence * 0.6;
+          adjustmentReason = 'invalid_score_range';
+        }
+
+        confidenceScores.fields[fieldName] = {
+          confidence,
+          value: typeof value === 'string' ? value.substring(0, 50) : value,
+          baseConfidence,
+          adjustmentReason
+        };
+
+        totalConfidence += confidence;
+        fieldCount++;
+
+        // Track confidence levels
+        if (confidence >= 0.8) {
+          confidenceScores.fieldStats.highConfidence++;
+        } else if (confidence >= 0.5) {
+          confidenceScores.fieldStats.mediumConfidence++;
+        } else {
+          confidenceScores.fieldStats.lowConfidence++;
+          lowConfidenceFields.push(fieldName);
+        }
+      };
+
+      // Check horse name
+      addFieldConfidence('horseName', extractedData.horse, 0.90, 'primary_field');
+
+      // Check percentage (critical field)
+      if (extractedData.percentage !== undefined && extractedData.percentage !== null) {
+        if (!isNaN(extractedData.percentage) && extractedData.percentage >= 0 && extractedData.percentage <= 100) {
+          addFieldConfidence('percentage', extractedData.percentage, 0.85, 'valid_percentage');
+        } else {
+          addFieldConfidence('percentage', extractedData.percentage, 0.50, 'invalid_percentage');
+        }
+      } else {
+        addFieldConfidence('percentage', extractedData.percentage, 0.30, 'missing_percentage');
+      }
+
+      // Check movements
+      if (extractedData.movements && Array.isArray(extractedData.movements)) {
+        extractedData.movements.forEach((movement: any, index: number) => {
+          const movementKey = `movement${index + 1}`;
+
+          addFieldConfidence(
+            `${movementKey}_name`,
+            movement.name,
+            movement.name ? 0.85 : 0.60,
+            movement.name ? 'has_name' : 'missing_name'
+          );
+
+          if (movement.scores) {
+            ['judgeA', 'judgeB', 'judgeC'].forEach(judge => {
+              const score = movement.scores[judge];
+              const isValidScore = score !== null && score !== undefined && score >= 0 && score <= 10;
+
+              addFieldConfidence(
+                `${movementKey}_score_${judge.toUpperCase()}`,
+                score,
+                isValidScore ? 0.90 : 0.50,
+                isValidScore ? 'valid_score' : 'invalid_score'
+              );
+            });
+          }
+        });
+      }
+
+      // Check judge comments (lower confidence, harder to OCR)
+      ['judgeA', 'judgeB', 'judgeC'].forEach(judge => {
+        const comment = extractedData.generalComments?.[judge];
+        const hasComment = comment && comment.trim().length > 0;
+
+        addFieldConfidence(
+          `${judge}_comment`,
+          comment,
+          hasComment ? 0.70 : 0.50,
+          hasComment ? 'has_comment' : 'no_comment'
+        );
+      });
+
+      // Calculate overall confidence
+      confidenceScores.overall = fieldCount > 0 ? parseFloat((totalConfidence / fieldCount).toFixed(3)) : 0;
+      confidenceScores.lowConfidenceFields = lowConfidenceFields;
+      confidenceScores.lowConfidenceCount = lowConfidenceFields.length;
+      confidenceScores.fieldStats.totalFields = fieldCount;
+
+      logger.debug('Confidence scores calculated', {
+        overall: confidenceScores.overall,
+        totalFields: fieldCount,
+        lowConfidenceFields: lowConfidenceFields.length,
+        fieldStats: confidenceScores.fieldStats
+      });
+
+      return confidenceScores;
+    }
+
+    // ========== END OF FUNCTIONS ==========
 
     // STEP 6: Parse Gemini response
     logger.info('STEP 6: Parsing Gemini response');
-    const parseResult = parseGeminiResponse(resultText, documentData, logger);
-    
+    const parseResult = parseGeminiResponse(resultText, documentData);
+
     let extractedData = parseResult.data;
     const extractionError = parseResult.error;
     const extractionSuccess = parseResult.success;
@@ -765,7 +794,7 @@ Return the JSON now.
     logger.info('STEP 7: Calculating confidence scores');
     let confidenceScores;
     if (extractionSuccess) {
-      confidenceScores = calculateConfidenceScores(extractedData, logger);
+      confidenceScores = calculateConfidenceScores(extractedData);
     } else {
       // Low confidence for failed extractions
       confidenceScores = {
@@ -834,7 +863,7 @@ Return the JSON now.
     // STEP 10: Update document status
     logger.info('STEP 10: Updating document status');
     const documentStatus = extractionSuccess ? 'awaiting_verification' : 'extraction_failed';
-    
+
     const { error: docUpdateError } = await supabase
       .from('document_analysis')
       .update({
@@ -887,7 +916,11 @@ Return the JSON now.
     );
 
   } catch (error: any) {
-    logger.error('❌ CRITICAL: Extraction process failed', error);
+    logger.error('❌ CRITICAL: Extraction process failed', {
+      message: error.message,
+      name: error.name,
+      stack: error.stack
+    });
 
     // Try to update document status if we have documentId
     if (documentId) {
@@ -901,8 +934,11 @@ Return the JSON now.
           })
           .eq('id', documentId);
         logger.info('Document status updated to error');
-      } catch (e) {
-        logger.error('Failed to update document status after error', e);
+      } catch (e: any) {
+        logger.error('Failed to update document status after error', {
+          message: e.message,
+          name: e.name
+        });
       }
     }
 
@@ -918,7 +954,12 @@ Return the JSON now.
       userMessage: 'An unexpected error occurred during extraction. Please try again or contact support.'
     };
 
-    logger.error('Sending error response', errorResponse);
+    // Don't log the full errorResponse with logs included - that creates circular reference!
+    logger.error('Sending error response', {
+      success: false,
+      error: error.message,
+      requestId
+    });
 
     return new Response(
       JSON.stringify(errorResponse),
