@@ -89,7 +89,7 @@ function calculateConfidenceScores(extractedData: any): any {
   const addFieldConfidence = (fieldName: string, value: any, baseConfidence: number) => {
     let confidence = baseConfidence;
 
-    if (!value || value === '' || value === 'null') {
+    if (!value || value === '' || value === 'null' || value === null) {
       confidence = 0.3;
     } else if (typeof value === 'string' && value.length < 2) {
       confidence = confidence * 0.7;
@@ -150,6 +150,95 @@ function calculateConfidenceScores(extractedData: any): any {
   return confidenceScores;
 }
 
+// Create fallback data when extraction fails or no dressage sheet is found
+function createFallbackData(documentData: any, errorMessage?: string) {
+  return {
+    horse: documentData.horse_name || "Unknown",
+    rider: "Not Found",
+    testDate: documentData.document_date ? new Date(documentData.document_date).toISOString().split('T')[0] : "Unknown",
+    testLevel: documentData.test_level || documentData.competition_type || "Unknown",
+    percentage: null,
+    movements: [],
+    collectiveMarks: {
+      paces: { judgeA: null, judgeB: null, judgeC: null },
+      impulsion: { judgeA: null, judgeB: null, judgeC: null },
+      submission: { judgeA: null, judgeB: null, judgeC: null },
+      riderPosition: { judgeA: null, judgeB: null, judgeC: null }
+    },
+    generalComments: {
+      judgeA: errorMessage || "No dressage test score sheet detected in the document.",
+      judgeB: "Please verify you have uploaded a dressage test score sheet.",
+      judgeC: "Supported formats: FEI, British Dressage, USDF, or other standard dressage tests."
+    },
+    highestScore: {
+      score: null,
+      movement: ["Not available"]
+    },
+    lowestScore: {
+      score: null,
+      movement: ["Not available"]
+    },
+    extractionError: errorMessage || "No dressage score sheet detected"
+  };
+}
+
+// Parse Gemini response and handle non-JSON responses
+function parseGeminiResponse(resultText: string, documentData: any) {
+  // First, try to parse as JSON
+  try {
+    // Clean the response
+    const cleanText = resultText
+      .replace(/^```(?:json)?\n?/, '')
+      .replace(/\n?```$/, '')
+      .trim();
+    
+    // Try to parse JSON
+    const extractedData = JSON.parse(cleanText);
+    
+    // Validate it has at least some dressage-like structure
+    if (extractedData.horse || extractedData.movements || extractedData.percentage) {
+      return {
+        success: true,
+        data: extractedData,
+        error: null
+      };
+    } else {
+      // JSON is valid but doesn't have expected structure
+      return {
+        success: false,
+        data: createFallbackData(documentData, "Document parsed but no dressage score data found"),
+        error: "No dressage score data in parsed JSON"
+      };
+    }
+    
+  } catch (jsonError) {
+    // JSON parsing failed, check if it's the "no dressage sheet" message
+    const lowerText = resultText.toLowerCase();
+    
+    if (lowerText.includes('dressage') && 
+        (lowerText.includes('not present') || 
+         lowerText.includes('unable') || 
+         lowerText.includes('sorry') ||
+         lowerText.includes('no dressage'))) {
+      
+      // It's the specific error about no dressage sheet
+      return {
+        success: false,
+        data: createFallbackData(documentData, "No dressage test score sheet detected in the document"),
+        error: "No dressage sheet detected"
+      };
+    } else {
+      // Some other error or non-JSON response
+      console.log("Non-JSON response from Gemini:", resultText.substring(0, 200));
+      return {
+        success: false,
+        data: createFallbackData(documentData, "Could not parse document as a dressage test score sheet"),
+        error: "Invalid JSON response from AI"
+      };
+    }
+  }
+}
+
 serve(async (req) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
@@ -176,7 +265,7 @@ serve(async (req) => {
     // Get document info
     const { data: documentData, error: docError } = await supabase
       .from("document_analysis")
-      .select("user_id, horse_id, horse_name, test_level, discipline, document_date, competition_type")
+      .select("user_id, horse_id, horse_name, test_level, discipline, document_date, competition_type, file_name")
       .eq("id", documentId)
       .single();
 
@@ -186,6 +275,12 @@ serve(async (req) => {
         { status: 404, headers: corsHeaders }
       );
     }
+
+    console.log('📄 Document info:', {
+      filename: documentData.file_name,
+      horse: documentData.horse_name,
+      level: documentData.test_level
+    });
 
     // Update document status to 'extracting'
     await supabase
@@ -206,41 +301,45 @@ serve(async (req) => {
     const model = 'gemini-2.0-flash';
     const geminiUrl = `https://us-central1-aiplatform.googleapis.com/v1/projects/${serviceAccount.project_id}/locations/us-central1/publishers/google/models/${model}:generateContent`;
 
-    // EXTRACTION-FOCUSED PROMPT
+    // UPDATED: More flexible extraction prompt
     const extractionPrompt = `
-You are a data extraction specialist for equestrian dressage test score sheets.
+ANALYSIS INSTRUCTIONS:
+You are analyzing an equestrian competition document. This could be a dressage test score sheet, show jumping results, or other equestrian competition paperwork.
 
-Your ONLY job is to extract ALL visible data from this document with high accuracy. Do NOT provide coaching or recommendations yet.
+TASK: Extract ALL visible competition data from this document.
 
-IMPORTANT: The user has already provided some information about this document:
+USER HAS PROVIDED THIS CONTEXT:
 - Horse name: ${documentData.horse_name || 'Unknown'}
+- File name: ${documentData.file_name || 'Unknown'}
 - Test date: ${documentData.document_date ? new Date(documentData.document_date).toISOString().split('T')[0] : 'Unknown'}
 - Test level: ${documentData.test_level || documentData.competition_type || 'Unknown'}
 - Discipline: ${documentData.discipline || 'dressage'}
 
-Use this information as a STARTING POINT. If you can read these values from the document and they match, use high confidence. If they differ, use the document's values but flag with lower confidence.
+USE THIS CONTEXT AS GUIDANCE but extract EXACT values from the document when visible.
 
-Extract the following fields in JSON format:
+DOCUMENT TYPES TO LOOK FOR:
+1. Dressage test score sheets (with movements, judge scores, percentages)
+2. Show jumping results (with jump-by-jump scores, faults, times)
+3. Competition entry forms
+4. Training session notes
+5. Veterinary or health records
 
+IF THIS IS A DRESSAGE TEST SCORE SHEET, extract in this format:
 {
-  "horse": "${documentData.horse_name || 'Horse name from document'}",
-  "rider": "Rider name (string)",
-  "testDate": "${documentData.document_date ? new Date(documentData.document_date).toISOString().split('T')[0] : 'Test date from document (YYYY-MM-DD)'}",
-  "testLevel": "${documentData.test_level || documentData.competition_type || 'Test level from document'}",
-  "percentage": "Overall percentage score (number, e.g., 68.5)",
+  "documentType": "dressage_test",
+  "horse": "Horse name from document",
+  "rider": "Rider name if visible",
+  "testDate": "Date from document (YYYY-MM-DD)",
+  "testLevel": "Test level from document",
+  "percentage": "Overall percentage score (number)",
   "movements": [
     {
       "number": 1,
-      "name": "Movement name (e.g., 'Halt at X', 'Medium Trot')",
+      "name": "Movement name",
       "scores": {
         "judgeA": 7.0,
         "judgeB": 6.5,
         "judgeC": 7.5
-      },
-      "comments": {
-        "judgeA": "Judge A comment if visible",
-        "judgeB": "Judge B comment if visible",
-        "judgeC": "Judge C comment if visible"
       }
     }
   ],
@@ -251,32 +350,48 @@ Extract the following fields in JSON format:
     "riderPosition": { "judgeA": 7.0, "judgeB": 7.5, "judgeC": 7.0 }
   },
   "generalComments": {
-    "judgeA": "General comment from Judge A",
-    "judgeB": "General comment from Judge B",
-    "judgeC": "General comment from Judge C"
-  },
-  "highestScore": {
-    "score": 8.0,
-    "movement": ["Movement name(s) with highest score"]
-  },
-  "lowestScore": {
-    "score": 5.5,
-    "movement": ["Movement name(s) with lowest score"]
+    "judgeA": "Comment if visible",
+    "judgeB": "Comment if visible",
+    "judgeC": "Comment if visible"
   }
 }
 
-CRITICAL RULES:
-1. Use the pre-filled information above as defaults
-2. Extract EXACTLY what you see from the document
-3. If a field is unclear or missing, use the pre-filled value if available
-4. If the document is in Spanish, translate movement names to English
-5. Extract ALL movements - do not skip any
-6. Preserve original judge comments exactly as written
-7. Return ONLY valid JSON, no additional text
-8. Ensure all scores are numbers (0-10 range)
-9. If percentage is missing, calculate it from scores if possible
+IF THIS IS A JUMPING COMPETITION RESULT, extract:
+{
+  "documentType": "jumping_results",
+  "horse": "Horse name",
+  "rider": "Rider name",
+  "competitionDate": "Date",
+  "roundNumber": 1,
+  "totalFaults": 4,
+  "timeFaults": 1,
+  "clearRound": false,
+  "placing": "5th",
+  "jumps": [
+    {
+      "number": 1,
+      "result": "clear",
+      "faults": 0
+    }
+  ]
+}
 
-Return the complete JSON structure with all extracted data.
+IF THIS IS A DIFFERENT TYPE OF DOCUMENT, extract:
+{
+  "documentType": "other",
+  "extractedText": "Key text from document",
+  "confidence": "Document does not appear to be a competition score sheet"
+}
+
+CRITICAL RULES:
+1. First identify what type of document this is
+2. Extract only what you can actually see in the document
+3. If something isn't visible, use null or empty values
+4. Translate Spanish terms to English if needed
+5. Return ONLY valid JSON, no additional commentary
+6. If you cannot identify this as a competition document, set documentType to "unknown"
+
+Return the JSON now.
 `;
 
     const startTime = Date.now();
@@ -303,125 +418,133 @@ Return the complete JSON structure with all extracted data.
 
     if (!geminiResponse.ok) {
       const errorText = await geminiResponse.text();
-      console.error('❌ Gemini extraction error:', errorText);
+      console.error('❌ Gemini API error:', errorText);
       throw new Error(`Gemini API Error: ${geminiResponse.status}`);
     }
 
     const geminiResult = await geminiResponse.json();
     let resultText = geminiResult.candidates[0].content.parts[0].text;
 
-    // Clean JSON response
-    resultText = resultText.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
+    console.log('📋 Gemini response (first 500 chars):', resultText.substring(0, 500));
 
-    let extractedData;
-    try {
-      extractedData = JSON.parse(resultText);
-    } catch (err) {
-      console.error('❌ Failed to parse JSON:', resultText);
-      throw new Error('Gemini returned invalid JSON format');
+    // Parse the response (handles both JSON and error cases)
+    const parseResult = parseGeminiResponse(resultText, documentData);
+    
+    let extractedData = parseResult.data;
+    const extractionError = parseResult.error;
+    const extractionSuccess = parseResult.success;
+
+    console.log('✅ Extraction result:', {
+      success: extractionSuccess,
+      documentType: extractedData.documentType || 'unknown',
+      error: extractionError
+    });
+
+    // Calculate confidence scores (lower for failed extractions)
+    let confidenceScores;
+    if (extractionSuccess) {
+      confidenceScores = calculateConfidenceScores(extractedData);
+    } else {
+      // Low confidence for failed extractions
+      confidenceScores = {
+        overall: 0.2,
+        fields: {},
+        lowConfidenceFields: ['all_fields'],
+        lowConfidenceCount: 1,
+        extractionError: extractionError
+      };
     }
 
-    console.log('✅ Data extracted successfully');
-
-    // Calculate confidence scores
-    const confidenceScores = calculateConfidenceScores(extractedData);
-
-    // Count total fields
-    let totalFields = 0;
-    if (extractedData.movements) {
-      totalFields = extractedData.movements.length * 4;
-    }
-    totalFields += 10;
-
-    // Create extraction record
-    // After extraction, merge with user-provided data
+    // Merge with user-provided data if available
     const mergedData = {
       ...extractedData,
       horse: extractedData.horse || documentData.horse_name,
       testDate: extractedData.testDate || (documentData.document_date ? new Date(documentData.document_date).toISOString().split('T')[0] : null),
       testLevel: extractedData.testLevel || documentData.test_level || documentData.competition_type,
+      extractionMetadata: {
+        success: extractionSuccess,
+        error: extractionError,
+        durationMs: extractionDuration,
+        documentType: extractedData.documentType || 'unknown'
+      }
     };
 
-    // Update confidence scores for pre-filled fields
-    if (mergedData.horse === documentData.horse_name) {
-      confidenceScores.fields.horseName = 0.99; // High confidence for user-provided
-    }
-    if (mergedData.testDate && documentData.document_date) {
-      confidenceScores.fields.testDate = 0.99;
-    }
-    if (mergedData.testLevel ===`` (documentData.test_level || documentData.competition_type)) {
-      confidenceScores.fields.testLevel = 0.99;
-    }
-
-    // Use merged data instead of extractedData
-    const { data: extractionRecord, error: extractionError } = await supabase
+    // Create extraction record
+    const { data: extractionRecord, error: extractionErrorDb } = await supabase
       .from('document_extractions')
       .insert({
         document_id: documentId,
         user_id: documentData.user_id,
-        extraction_status: 'extracted',
-        extracted_data: mergedData, // Use merged data
+        extraction_status: extractionSuccess ? 'extracted' : 'failed',
+        extracted_data: mergedData,
         confidence_scores: confidenceScores,
-        // ... rest of the fields
+        extraction_error: extractionError,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       })
       .select()
       .single();
 
-    if (extractionError) {
-      console.error('❌ Failed to save extraction:', extractionError);
+    if (extractionErrorDb) {
+      console.error('❌ Failed to save extraction:', extractionErrorDb);
       throw new Error('Failed to save extraction data');
     }
 
     console.log('💾 Extraction saved with ID:', extractionRecord.id);
 
-    // Update document with extraction_id and status
-    console.log('📝 Attempting to update document:', documentId);
-    console.log('Update payload:', {
-      extraction_id: extractionRecord.id,
-      status: 'awaiting_verification',
-      extraction_confidence: confidenceScores.overall
-    });
-
-    const { data: updateResult, error: docUpdateError } = await supabase
+    // Update document status based on extraction success
+    const documentStatus = extractionSuccess ? 'awaiting_verification' : 'extraction_failed';
+    
+    const { error: docUpdateError } = await supabase
       .from('document_analysis')
       .update({
         extraction_id: extractionRecord.id,
-        status: 'awaiting_verification',
+        status: documentStatus,
         extraction_confidence: confidenceScores.overall,
+        extraction_error: extractionError,
         updated_at: new Date().toISOString()
       })
-      .eq('id', documentId)
-      .select(); // ADD .select() to see what was updated
-
-    console.log('Update result:', updateResult);
-    console.log('Update error:', docUpdateError);
+      .eq('id', documentId);
 
     if (docUpdateError) {
       console.error('❌ Failed to update document status:', docUpdateError);
       throw new Error(`Failed to update document: ${docUpdateError.message}`);
     }
 
-    if (!updateResult || updateResult.length === 0) {
-      console.error('❌ No rows were updated!');
-      throw new Error('Document update returned no rows');
+    console.log(`✅ Document updated to status: ${documentStatus}`);
+
+    // Return appropriate response based on success
+    if (extractionSuccess) {
+      return new Response(
+        JSON.stringify({
+          success: true,
+          extractionId: extractionRecord.id,
+          data: extractedData,
+          confidence: confidenceScores,
+          message: 'Data extracted successfully - ready for verification',
+          documentType: extractedData.documentType || 'dressage_test'
+        }),
+        { status: 200, headers: corsHeaders }
+      );
+    } else {
+      // Still return success to frontend but with error info
+      return new Response(
+        JSON.stringify({
+          success: false,
+          extractionId: extractionRecord.id,
+          data: extractedData,
+          confidence: confidenceScores,
+          error: extractionError,
+          message: 'Could not extract dressage score data from this document',
+          documentType: extractedData.documentType || 'unknown',
+          userMessage: 'This document does not appear to be a dressage test score sheet. Please verify your upload.'
+        }),
+        { status: 200, headers: corsHeaders } // Still 200 so frontend can handle it
+      );
     }
 
-    console.log('✅ Document updated successfully:', updateResult[0]);
-
-    // Return extraction data to frontend
-    return new Response(
-      JSON.stringify({
-        success: true,
-        extractionId: extractionRecord.id,
-        data: extractedData,
-        confidence: confidenceScores,
-        message: 'Data extracted successfully - ready for verification'
-      }),
-      { status: 200, headers: corsHeaders }
-    );
-
   } catch (error: any) {
-    console.error('❌ Extraction error:', error);
+    console.error('❌ Extraction function error:', error);
 
     // Try to update document status if we have documentId
     if (documentId) {
@@ -441,7 +564,8 @@ Return the complete JSON structure with all extracted data.
     return new Response(
       JSON.stringify({
         success: false,
-        error: error.message || 'Extraction failed'
+        error: error.message || 'Extraction failed',
+        userMessage: 'An unexpected error occurred during extraction.'
       }),
       { status: 500, headers: corsHeaders }
     );

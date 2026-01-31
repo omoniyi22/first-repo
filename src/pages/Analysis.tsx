@@ -353,6 +353,7 @@ const Analysis = () => {
       console.error("❌ Error fetching documents:", error);
       return;
     }
+    console.log({ analysisData })
 
     if (analysisData) {
       console.log("📄 Documents fetched:", analysisData.length);
@@ -426,6 +427,8 @@ const Analysis = () => {
 
       const extractionResult = extractionResponse.data;
 
+      console.log({ extractionResult })
+
       analytics.trackEvent("document_data_extracted", {
         userId: user.id,
         documentId: newDocumentId,
@@ -471,9 +474,9 @@ const Analysis = () => {
         description:
           language === "en"
             ? err.message ||
-              "Failed to extract document data. Please try again."
+            "Failed to extract document data. Please try again."
             : err.message ||
-              "No se pudo extraer los datos del documento. Por favor intenta de nuevo.",
+            "No se pudo extraer los datos del documento. Por favor intenta de nuevo.",
         variant: "destructive",
       });
     }
@@ -578,7 +581,7 @@ const Analysis = () => {
           language === "en"
             ? err.message || "Failed to generate analysis. Please try again."
             : err.message ||
-              "No se pudo generar el análisis. Por favor intenta de nuevo.",
+            "No se pudo generar el análisis. Por favor intenta de nuevo.",
         variant: "destructive",
       });
     }
@@ -826,11 +829,11 @@ const Analysis = () => {
               resultData["en"]["recommendations"][0]?.["exercise"] || "",
             key_points_1:
               typeof resultData["en"]["recommendations"][0]?.["keyPoints"] ==
-              "string"
+                "string"
                 ? resultData["en"]["recommendations"][0]?.["keyPoints"]
                 : resultData["en"]["recommendations"][0]?.["keyPoints"].join(
-                    "; "
-                  ) || "",
+                  "; "
+                ) || "",
             goal_1: resultData["en"]["recommendations"][0]?.["goal"] || "",
             secondary_recommendation:
               "Clean, balanced transitions at precise markers",
@@ -840,11 +843,11 @@ const Analysis = () => {
               resultData["en"]["recommendations"][1]?.["exercise"] || "",
             key_points_2:
               typeof resultData["en"]["recommendations"][1]?.["keyPoints"] ==
-              "string"
+                "string"
                 ? resultData["en"]["recommendations"][1]?.["keyPoints"]
                 : resultData["en"]["recommendations"][1]?.["keyPoints"].join(
-                    "; "
-                  ) || "",
+                  "; "
+                ) || "",
             goal_2: resultData["en"]["recommendations"][1]?.["goal"] || "",
             current_season: "Summer",
             upcoming_events: "National Eventing Championship",
@@ -1089,9 +1092,8 @@ const Analysis = () => {
                     {language === "en" ? "Remaining" : "Restante"}
                   </p>
                   <p
-                    className={`text-xl font-semibold ${
-                      !canAnalyze ? "text-red-600" : "text-green-600"
-                    }`}
+                    className={`text-xl font-semibold ${!canAnalyze ? "text-red-600" : "text-green-600"
+                      }`}
                   >
                     {remainingAnalyses === "unlimited"
                       ? "∞"
@@ -1119,19 +1121,17 @@ const Analysis = () => {
           )}
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList
-              className={`mb-6 ${
-                isMobile
-                  ? "flex flex-wrap gap-1"
-                  : userDiscipline === "dressage"
+              className={`mb-6 ${isMobile
+                ? "flex flex-wrap gap-1"
+                : userDiscipline === "dressage"
                   ? "grid grid-cols-2"
                   : "grid grid-cols-2"
-              } w-full`}
+                } w-full`}
             >
               <TabsTrigger
                 value="upload"
-                className={`flex justify-center items-center gap-2 ${
-                  isMobile ? "flex-grow text-xs py-1 px-2 " : ""
-                } data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#7857eb] data-[state=active]:to-[#3b78e8] data-[state=active]:text-white`}
+                className={`flex justify-center items-center gap-2 ${isMobile ? "flex-grow text-xs py-1 px-2 " : ""
+                  } data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#7857eb] data-[state=active]:to-[#3b78e8] data-[state=active]:text-white`}
               >
                 <CloudUpload className="h-4 w-4 text-inherit" />
                 {userDiscipline === "dressage"
@@ -1139,14 +1139,13 @@ const Analysis = () => {
                     ? "Upload Document"
                     : "Subir Documento"
                   : language === "en"
-                  ? "Upload Video (MP4, MOV, etc.)"
-                  : "Subir Video"}
+                    ? "Upload Video (MP4, MOV, etc.)"
+                    : "Subir Video"}
               </TabsTrigger>
               <TabsTrigger
                 value="analysis-list"
-                className={`flex justify-center items-center gap-2 ${
-                  isMobile ? "flex-grow text-xs py-1 px-2" : ""
-                } data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#7857eb] data-[state=active]:to-[#3b78e8] data-[state=active]:text-white`}
+                className={`flex justify-center items-center gap-2 ${isMobile ? "flex-grow text-xs py-1 px-2" : ""
+                  } data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#7857eb] data-[state=active]:to-[#3b78e8] data-[state=active]:text-white`}
                 onClick={() => {
                   selectedDocumentId && setSelectedDocumentId(null);
                   selectedVideoId && setSelectedVideoId(null);
@@ -1157,8 +1156,8 @@ const Analysis = () => {
                     ? "My Documents"
                     : "Mis Documentos"
                   : language === "en"
-                  ? "My Videos"
-                  : "Mis Videos"}
+                    ? "My Videos"
+                    : "Mis Videos"}
                 <span className="h-4 w-4 bg-gradient-to-r from-[#7857eb] to-[#3b78e8] rounded-full text-white flex items-center justify-center text-xs">
                   {userDiscipline === "dressage"
                     ? documents.length
@@ -1285,8 +1284,8 @@ const Analysis = () => {
                                   ? "Deselect All"
                                   : "Deseleccionar Todo"
                                 : language === "en"
-                                ? "Select All"
-                                : "Seleccionar Todo"}
+                                  ? "Select All"
+                                  : "Seleccionar Todo"}
                             </Button>
                             {selectedItems.length > 0 && (
                               <span className="text-sm text-gray-600">
@@ -1325,7 +1324,7 @@ const Analysis = () => {
                                     type="checkbox"
                                     checked={
                                       selectedItems.length ===
-                                        documents.length && documents.length > 0
+                                      documents.length && documents.length > 0
                                     }
                                     onChange={handleSelectAll}
                                     className="rounded"
@@ -1444,15 +1443,15 @@ const Analysis = () => {
                                         doc.status === "extracting" ||
                                         (doc.status !== "completed" &&
                                           doc.status !==
-                                            "awaiting_verification" &&
+                                          "awaiting_verification" &&
                                           doc.status !==
-                                            "verification_complete" &&
+                                          "verification_complete" &&
                                           !canAnalyze)
                                       }
                                       className="text-purple-700 border-purple-200"
                                     >
                                       {processingDocId === doc.id ||
-                                      doc.status === "extracting" ? (
+                                        doc.status === "extracting" ? (
                                         <>
                                           <Loader2 className="h-4 w-4 animate-spin mr-2" />
                                           {language === "en"
@@ -1462,7 +1461,7 @@ const Analysis = () => {
                                       ) : doc.status !== "completed" &&
                                         !canAnalyze &&
                                         doc.status !==
-                                          "awaiting_verification" ? (
+                                        "awaiting_verification" ? (
                                         language === "en" ? (
                                           "Limit Reached"
                                         ) : (
@@ -1497,221 +1496,221 @@ const Analysis = () => {
                   </Card>
                 )
               ) : // Videos view for jumping users
-              videos.length > 0 ? (
-                <div className="space-y-6">
-                  {selectedVideoId ? (
-                    <div>
-                      <Button
-                        variant="ghost"
-                        onClick={() => {
-                          navigate("/analysis");
-                          setSelectedVideoId(null);
-                        }}
-                        className="mb-4"
-                      >
-                        ←{" "}
-                        {language === "en"
-                          ? "Back to Videos"
-                          : "Volver a Videos"}
-                      </Button>
-                      <VideoAnalysisDisplay videoId={selectedVideoId} />
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {/* Selection and Delete Controls */}
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={handleSelectAll}
-                          >
-                            {selectedItems.length === videos.length
-                              ? language === "en"
-                                ? "Deselect All"
-                                : "Deseleccionar Todo"
-                              : language === "en"
-                              ? "Select All"
-                              : "Seleccionar Todo"}
-                          </Button>
+                videos.length > 0 ? (
+                  <div className="space-y-6">
+                    {selectedVideoId ? (
+                      <div>
+                        <Button
+                          variant="ghost"
+                          onClick={() => {
+                            navigate("/analysis");
+                            setSelectedVideoId(null);
+                          }}
+                          className="mb-4"
+                        >
+                          ←{" "}
+                          {language === "en"
+                            ? "Back to Videos"
+                            : "Volver a Videos"}
+                        </Button>
+                        <VideoAnalysisDisplay videoId={selectedVideoId} />
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {/* Selection and Delete Controls */}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-4">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={handleSelectAll}
+                            >
+                              {selectedItems.length === videos.length
+                                ? language === "en"
+                                  ? "Deselect All"
+                                  : "Deseleccionar Todo"
+                                : language === "en"
+                                  ? "Select All"
+                                  : "Seleccionar Todo"}
+                            </Button>
+                            {selectedItems.length > 0 && (
+                              <span className="text-sm text-gray-600">
+                                {selectedItems.length}{" "}
+                                {language === "en" ? "selected" : "seleccionados"}
+                              </span>
+                            )}
+                          </div>
                           {selectedItems.length > 0 && (
-                            <span className="text-sm text-gray-600">
-                              {selectedItems.length}{" "}
-                              {language === "en" ? "selected" : "seleccionados"}
-                            </span>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={handleDeleteSelected}
+                              disabled={isDeleting}
+                            >
+                              {isDeleting ? (
+                                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                              ) : (
+                                <Trash2 className="h-4 w-4 mr-2" />
+                              )}
+                              {language === "en"
+                                ? "Delete Selected"
+                                : "Eliminar Seleccionados"}
+                            </Button>
                           )}
                         </div>
-                        {selectedItems.length > 0 && (
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            onClick={handleDeleteSelected}
-                            disabled={isDeleting}
-                          >
-                            {isDeleting ? (
-                              <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                            ) : (
-                              <Trash2 className="h-4 w-4 mr-2" />
-                            )}
-                            {language === "en"
-                              ? "Delete Selected"
-                              : "Eliminar Seleccionados"}
-                          </Button>
-                        )}
-                      </div>
 
-                      <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
-                          <thead>
-                            <tr>
-                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                <input
-                                  type="checkbox"
-                                  checked={
-                                    selectedItems.length === videos.length &&
-                                    videos.length > 0
-                                  }
-                                  onChange={handleSelectAll}
-                                  className="rounded"
-                                />
-                              </th>
-                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                {language === "en" ? "Name" : "Nombre"}
-                              </th>
-                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                {language === "en" ? "Horse" : "Caballo"}
-                              </th>
-                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                {language === "en" ? "Type" : "Tipo"}
-                              </th>
-                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                {language === "en" ? "Date" : "Fecha"}
-                              </th>
-                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                {language === "en" ? "Status" : "Estado"}
-                              </th>
-                              <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                {language === "en" ? "Action" : "Acción"}
-                              </th>
-                            </tr>
-                          </thead>
-                          <tbody className="bg-white divide-y divide-gray-200">
-                            {videos.map((video) => (
-                              <tr key={video.id} className="hover:bg-gray-50">
-                                <td className="px-4 py-3 whitespace-nowrap">
+                        <div className="overflow-x-auto">
+                          <table className="min-w-full divide-y divide-gray-200">
+                            <thead>
+                              <tr>
+                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                   <input
                                     type="checkbox"
-                                    checked={selectedItems.includes(video.id)}
-                                    onChange={() => handleSelectItem(video.id)}
+                                    checked={
+                                      selectedItems.length === videos.length &&
+                                      videos.length > 0
+                                    }
+                                    onChange={handleSelectAll}
                                     className="rounded"
                                   />
-                                </td>
-                                <td className="px-4 py-3 whitespace-nowrap">
-                                  <span className="text-sm font-medium text-gray-900">
-                                    {video.file_name}
-                                  </span>
-                                </td>
-                                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
-                                  {video.horse_name}
-                                </td>
-                                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
-                                  {video.video_type && (
-                                    <>
-                                      {video.video_type === "training"
-                                        ? language === "en"
-                                          ? "Training"
-                                          : "Entrenamiento"
-                                        : language === "en"
-                                        ? "Competition"
-                                        : "Competición"}
-                                    </>
-                                  )}
-                                </td>
-                                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
-                                  {formatDate(video.document_date)}
-                                </td>
-                                {/* Status Column - Enhanced */}
-                                <td className="px-4 py-3 whitespace-nowrap">
-                                  {(() => {
-                                    const statusInfo = getStatusInfo(
-                                      video.status
-                                    );
-                                    return (
-                                      <div className="flex flex-col gap-1">
-                                        <span
-                                          className={`px-2 inline-flex text-xs leading-5 font-medium rounded-full w-max ${statusInfo.color}`}
-                                        >
-                                          {statusInfo.text}
-                                        </span>
-                                        {/* Show progress for processing/analyzing */}
-                                        {(video.status === "processing" ||
-                                          video.status === "analyzing") &&
-                                          video.processing_progress !==
-                                            undefined && (
-                                            <div className="flex items-center gap-1">
-                                              <div className="w-full bg-gray-200 rounded-full h-1.5">
-                                                <div
-                                                  className="bg-blue-600 h-1.5 rounded-full transition-all duration-300"
-                                                  style={{
-                                                    width: `${video.processing_progress}%`,
-                                                  }}
-                                                />
-                                              </div>
-                                              <span className="text-xs text-gray-600">
-                                                {video.processing_progress}%
-                                              </span>
-                                            </div>
-                                          )}
-                                      </div>
-                                    );
-                                  })()}
-                                </td>
-
-                                {/* Action Column - Dynamic Button */}
-                                <td className="px-4 py-3 whitespace-nowrap text-sm text-center">
-                                  {(() => {
-                                    const actionButton = getVideoActionButton(
-                                      video.status
-                                    );
-                                    return (
-                                      <Button
-                                        size="sm"
-                                        variant={actionButton.variant}
-                                        onClick={() => {
-                                          setSelectedVideoId(video.id);
-                                        }}
-                                        disabled={actionButton.disabled}
-                                        className={
-                                          actionButton.variant === "default"
-                                            ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white"
-                                            : ""
-                                        }
-                                      >
-                                        {actionButton.text}
-                                      </Button>
-                                    );
-                                  })()}
-                                </td>
+                                </th>
+                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                  {language === "en" ? "Name" : "Nombre"}
+                                </th>
+                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                  {language === "en" ? "Horse" : "Caballo"}
+                                </th>
+                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                  {language === "en" ? "Type" : "Tipo"}
+                                </th>
+                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                  {language === "en" ? "Date" : "Fecha"}
+                                </th>
+                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                  {language === "en" ? "Status" : "Estado"}
+                                </th>
+                                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                  {language === "en" ? "Action" : "Acción"}
+                                </th>
                               </tr>
-                            ))}
-                          </tbody>
-                        </table>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                              {videos.map((video) => (
+                                <tr key={video.id} className="hover:bg-gray-50">
+                                  <td className="px-4 py-3 whitespace-nowrap">
+                                    <input
+                                      type="checkbox"
+                                      checked={selectedItems.includes(video.id)}
+                                      onChange={() => handleSelectItem(video.id)}
+                                      className="rounded"
+                                    />
+                                  </td>
+                                  <td className="px-4 py-3 whitespace-nowrap">
+                                    <span className="text-sm font-medium text-gray-900">
+                                      {video.file_name}
+                                    </span>
+                                  </td>
+                                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                                    {video.horse_name}
+                                  </td>
+                                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                                    {video.video_type && (
+                                      <>
+                                        {video.video_type === "training"
+                                          ? language === "en"
+                                            ? "Training"
+                                            : "Entrenamiento"
+                                          : language === "en"
+                                            ? "Competition"
+                                            : "Competición"}
+                                      </>
+                                    )}
+                                  </td>
+                                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                                    {formatDate(video.document_date)}
+                                  </td>
+                                  {/* Status Column - Enhanced */}
+                                  <td className="px-4 py-3 whitespace-nowrap">
+                                    {(() => {
+                                      const statusInfo = getStatusInfo(
+                                        video.status
+                                      );
+                                      return (
+                                        <div className="flex flex-col gap-1">
+                                          <span
+                                            className={`px-2 inline-flex text-xs leading-5 font-medium rounded-full w-max ${statusInfo.color}`}
+                                          >
+                                            {statusInfo.text}
+                                          </span>
+                                          {/* Show progress for processing/analyzing */}
+                                          {(video.status === "processing" ||
+                                            video.status === "analyzing") &&
+                                            video.processing_progress !==
+                                            undefined && (
+                                              <div className="flex items-center gap-1">
+                                                <div className="w-full bg-gray-200 rounded-full h-1.5">
+                                                  <div
+                                                    className="bg-blue-600 h-1.5 rounded-full transition-all duration-300"
+                                                    style={{
+                                                      width: `${video.processing_progress}%`,
+                                                    }}
+                                                  />
+                                                </div>
+                                                <span className="text-xs text-gray-600">
+                                                  {video.processing_progress}%
+                                                </span>
+                                              </div>
+                                            )}
+                                        </div>
+                                      );
+                                    })()}
+                                  </td>
+
+                                  {/* Action Column - Dynamic Button */}
+                                  <td className="px-4 py-3 whitespace-nowrap text-sm text-center">
+                                    {(() => {
+                                      const actionButton = getVideoActionButton(
+                                        video.status
+                                      );
+                                      return (
+                                        <Button
+                                          size="sm"
+                                          variant={actionButton.variant}
+                                          onClick={() => {
+                                            setSelectedVideoId(video.id);
+                                          }}
+                                          disabled={actionButton.disabled}
+                                          className={
+                                            actionButton.variant === "default"
+                                              ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white"
+                                              : ""
+                                          }
+                                        >
+                                          {actionButton.text}
+                                        </Button>
+                                      );
+                                    })()}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
                       </div>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <Card className="p-6 text-center bg-gray-50">
-                  <p className="text-gray-600 mb-4">
-                    {language === "en"
-                      ? "You haven't uploaded any videos for analysis yet"
-                      : "Aún no has subido ningún video para análisis"}
-                  </p>
-                  <Button onClick={() => setActiveTab("upload")}>
-                    {language === "en" ? "Upload Video" : "Subir Video"}
-                  </Button>
-                </Card>
-              )}
+                    )}
+                  </div>
+                ) : (
+                  <Card className="p-6 text-center bg-gray-50">
+                    <p className="text-gray-600 mb-4">
+                      {language === "en"
+                        ? "You haven't uploaded any videos for analysis yet"
+                        : "Aún no has subido ningún video para análisis"}
+                    </p>
+                    <Button onClick={() => setActiveTab("upload")}>
+                      {language === "en" ? "Upload Video" : "Subir Video"}
+                    </Button>
+                  </Card>
+                )}
             </TabsContent>
           </Tabs>
         </div>
