@@ -410,10 +410,13 @@ const Analysis = () => {
       // console.log("🔍 Starting data extraction for document:", newDocumentId);
 
       // Convert document to base64
+
       const canvasImage = documentURL.includes(".pdf")
         ? await fetchPdfAsBase64(documentURL)
         : await imageToBase64PDF(documentURL);
 
+
+      console.log({ newDocumentId, canvasImage })
       // Call EXTRACTION function
       const extractionResponse = await supabase.functions.invoke(
         "extract-document-data",
