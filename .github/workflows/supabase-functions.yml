@@ -2,9 +2,6 @@ name: Deploy Supabase Edge Functions
 
 on:
   push:
-    branches:
-      - main
-      - ai-interpretations
     paths:
       - "supabase/functions/**"
 
