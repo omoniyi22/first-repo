@@ -15,6 +15,8 @@ import {
   TrendingUp,
   Trophy,
   User,
+  Sparkles,
+  AlertCircle,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -33,6 +35,7 @@ import {
 } from "@/utils/diagramGenerator";
 import { analytics } from "@/lib/posthog";
 import AnalysisFeedbackComponent from "./AnalysisFeedbackComponent";
+import { Badge } from "@/components/ui/badge";
 
 // Define proper types for the analysis data
 interface MovementScore {
@@ -71,6 +74,26 @@ interface AnalysisResultData {
     jumpTypes?: string[];
     commonErrors?: string[];
     personalInsight?: string;
+    aiInterpretation?: {
+      complaints: string[];
+      interpretations: string[];
+      areas: Array<{name: string, fix: string}>;
+    };
+    highestScore?: {
+      score: number;
+      movement: string[];
+    };
+    lowestScore?: {
+      score: number;
+      movement: string[];
+    };
+    focusArea?: Array<{
+      area: string;
+      tip: {
+        quickFix: string;
+        Exercise: string;
+      };
+    }>;
   };
   es: {
     scores?: MovementScore[];
@@ -91,6 +114,26 @@ interface AnalysisResultData {
     jumpTypes?: string[];
     commonErrors?: string[];
     personalInsight?: string;
+    aiInterpretation?: {
+      complaints: string[];
+      interpretations: string[];
+      areas: Array<{name: string, fix: string}>;
+    };
+    highestScore?: {
+      score: number;
+      movement: string[];
+    };
+    lowestScore?: {
+      score: number;
+      movement: string[];
+    };
+    focusArea?: Array<{
+      area: string;
+      tip: {
+        quickFix: string;
+        Exercise: string;
+      };
+    }>;
   };
 }
 
@@ -155,7 +198,7 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
           const { data: resultdata, error: resultError } = await supabase
             .from("analysis_results")
             .select("result_json")
-            .eq("document_id", documentId) // USE documentId prop
+            .eq("document_id", documentId)
             .order("created_at", { ascending: false })
             .limit(1)
             .single();
@@ -192,7 +235,6 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
       } catch (error: any) {
         console.error("Error fetching analysis:", error);
         toast({
-          title: language === "en" ? "Error" : "Error",
           description: error.message || "Failed to load analysis",
           variant: "destructive",
         });
@@ -322,7 +364,7 @@ const DocumentAnalysisDisplay: React.FC<DocumentAnalysisDisplayProps> = ({
         const backendResponse = await fetch(
           "https://podcast.equineaintelligence.com/generate",
           {
-            method: "POST",
+            method: 'POST',
             headers: {
               "Content-Type": "application/json",
             },
@@ -554,14 +596,37 @@ Let me know what you think!`;
     );
   }
 
+  // Get current language data
+  const currentLangData = resultData[language] || resultData.en;
+  const hasAIInterpretation = !!currentLangData?.aiInterpretation;
+
   return (
     <Card className="space-y-6 sm:space-y-8 p-4 sm:p-6">
-      {/* Analysis Results */}
-      <div className="text-start">
-        <h2 className="text-xl font-semibold ">
-          {language === "en" ? "Analysis Results" : "Resultados del análisis"}
-        </h2>
+      {/* Header with AI Badge */}
+      <div className="flex items-start justify-between">
+        <div>
+          <h2 className="text-2xl font-bold flex items-center gap-2">
+            {language === "en" ? "Analysis Results" : "Resultados del análisis"}
+            {hasAIInterpretation && (
+              <Badge className="bg-gradient-to-r from-purple-600 to-pink-600 text-white border-0">
+                <Sparkles className="h-3 w-3 mr-1" />
+                AI Enhanced
+              </Badge>
+            )}
+          </h2>
+          <p className="text-gray-600 mt-1">
+            {hasAIInterpretation
+              ? language === "en"
+                ? "Complete analysis with AI-powered feedback"
+                : "Análisis completo con feedback impulsado por IA"
+              : language === "en"
+                ? "Performance analysis results"
+                : "Resultados del análisis de rendimiento"}
+          </p>
+        </div>
       </div>
+
+      {/* Score Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
         {/* Total Score Card */}
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#7658EB] to-[#3C78EB] p-6 text-white shadow-lg">
@@ -574,9 +639,9 @@ Let me know what you think!`;
             <h3 className="text-lg font-medium opacity-90">
               {language === "en" ? "Total Score" : "Puntuación Total"}
             </h3>
-            {resultData[language].percentage ? (
+            {currentLangData.percentage ? (
               <p className="text-4xl font-bold text-white">
-                {resultData[language].percentage.toFixed(2)}%
+                {currentLangData.percentage.toFixed(2)}%
               </p>
             ) : (
               <p className="text-lg text-white">
@@ -593,22 +658,15 @@ Let me know what you think!`;
           <div className="absolute top-4 right-4">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
               <TrendingUp className="h-6 w-6 text-white" />
-              {/* <img
-                src="/TrendingUp.svg"
-                className="h-6 w-6"
-                alt=""
-              /> */}
             </div>
           </div>
           <div className="space-y-2">
             <h3 className="text-lg font-medium opacity-90">
               {language === "en" ? "Highest Score" : "Puntuación más alta"}
             </h3>
-            {resultData.en.highestScore.score ? (
+            {currentLangData.highestScore?.score ? (
               <p className="text-4xl font-bold text-white">
-                {language === "en"
-                  ? resultData.en["highestScore"].score
-                  : resultData.es["highestScore"].score}
+                {currentLangData.highestScore.score}
               </p>
             ) : (
               <p className="text-lg text-white">
@@ -617,8 +675,8 @@ Let me know what you think!`;
                   : "Puntuación no disponible"}
               </p>
             )}
-            <p className="text-white">
-              {resultData[language]["highestScore"].movement[0]}
+            <p className="text-white text-sm">
+              {currentLangData.highestScore?.movement?.[0] || "-"}
             </p>
           </div>
         </div>
@@ -634,11 +692,9 @@ Let me know what you think!`;
             <h3 className="text-lg font-medium opacity-90">
               {language === "en" ? "Lowest Score" : "Puntuación más baja"}
             </h3>
-            {resultData[language].lowestScore.score ? (
+            {currentLangData.lowestScore?.score ? (
               <p className="text-4xl font-bold text-white">
-                {language === "en"
-                  ? resultData.en["lowestScore"].score
-                  : resultData.es["lowestScore"].score}
+                {currentLangData.lowestScore.score}
               </p>
             ) : (
               <p className="text-lg text-white">
@@ -647,25 +703,25 @@ Let me know what you think!`;
                   : "Puntuación no disponible"}
               </p>
             )}
-            <p className="text-white">
-              {resultData[language]["lowestScore"].movement[0]}
+            <p className="text-white text-sm">
+              {currentLangData.lowestScore?.movement?.[0] || "-"}
             </p>
           </div>
         </div>
       </div>
+
       {/* Judge Comments */}
       <Card className="p-4 sm:p-6">
         <div className="flex items-center justify-between mb-3 sm:mb-4">
           <h4 className="text-lg sm:text-xl font-semibold">
             {language === "en" ? "Judge Comments" : "Comentarios del Juez"}
           </h4>
-
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#F1F5F9] backdrop-blur-sm">
             <User className="h-6 w-6 text-[#7658EB]" />
           </div>
         </div>
         <ul className="text-sm sm:text-base space-y-2">
-          {Object.entries(resultData[language].generalComments)
+          {Object.entries(currentLangData.generalComments || {})
             .filter(([_, comment]) => !!comment && comment.trim() !== "")
             .map(([judge, comment], index) => (
               <li
@@ -677,36 +733,31 @@ Let me know what you think!`;
             ))}
         </ul>
       </Card>
-      {analysis.status === "completed" && resultData && (
-        <Card className="p-6">
+
+      {/* AI Interpretation Section */}
+      {hasAIInterpretation && (
+        <Card className="p-6 border-2 border-purple-200">
           <div className="mb-4">
-            <h3 className="text-xl font-bold">
+            <h3 className="text-xl font-bold flex items-center gap-2">
+              <Sparkles className="h-6 w-6 text-purple-600" />
               {language === 'en'
                 ? 'AI-Powered Feedback Analysis'
                 : 'Análisis de Feedback con IA'}
             </h3>
             <p className="text-gray-600 mt-1">
               {language === 'en'
-                ? 'Get deeper insights from judge comments with AI analysis'
-                : 'Obtén información más profunda de los comentarios del juez con análisis IA'}
+                ? 'AI analysis of judge comments and performance patterns'
+                : 'Análisis IA de comentarios del juez y patrones de rendimiento'}
             </p>
           </div>
 
           <AnalysisFeedbackComponent
-            analysisData={resultData}
+            analysisData={currentLangData}
+            language={language}
+            analysisType="document"
             documentId={documentId}
             onFeedbackGenerated={(feedback) => {
-              // Optional: You can save this feedback to your database if needed
-              console.log('AI Feedback generated:', feedback);
-
-              // Example: Save to Supabase
-              // await supabase
-              //   .from('analysis_feedback')
-              //   .upsert({
-              //     document_id: documentId,
-              //     feedback_data: feedback,
-              //     created_at: new Date().toISOString()
-              //   });
+              console.log('AI Feedback loaded:', feedback);
             }}
           />
         </Card>
@@ -720,7 +771,6 @@ Let me know what you think!`;
               ? "Personalised Insight"
               : "Perspectiva personalizada"}
           </h4>
-
           <img
             src="/lovable-uploads/1000010999.png"
             alt="Horse and rider jumping over competition obstacle"
@@ -729,14 +779,16 @@ Let me know what you think!`;
         </div>
         <div className="max-w-[900px]">
           <p>
-            {language === "en"
-              ? resultData.en["personalInsight"]
-              : resultData.es["personalInsight"]}
+            {currentLangData.personalInsight || 
+              (language === "en"
+                ? "Personal insights not available"
+                : "Perspectivas personales no disponibles")}
           </p>
         </div>
       </Card>
 
-      {resultData.en.scores && resultData.en.scores.length > 0 && (
+      {/* Movement Scores (if available) */}
+      {currentLangData.scores && currentLangData.scores.length > 0 && (
         <Card className="p-4 sm:p-6 overflow-hidden">
           <h4 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
             {language === "en"
@@ -762,7 +814,7 @@ Let me know what you think!`;
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {resultData[language].scores.map((score, index) => (
+                {currentLangData.scores.map((score, index) => (
                   <tr
                     key={index}
                     className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}
@@ -795,56 +847,7 @@ Let me know what you think!`;
         </Card>
       )}
 
-      {resultData[language].faults &&
-        resultData[language].faults.length > 0 && (
-          <Card className="p-4 sm:p-6 overflow-hidden">
-            <h4 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
-              {language === "en" ? "Jumping Faults" : "Faltas de Salto"}
-            </h4>
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead>
-                  <tr>
-                    <th className="py-2 px-3 text-left text-sm font-medium text-gray-500">
-                      {language === "en" ? "Jump" : "Salto"}
-                    </th>
-                    <th className="py-2 px-3 text-left text-sm font-medium text-gray-500">
-                      {language === "en" ? "Faults" : "Faltas"}
-                    </th>
-                    <th className="py-2 px-3 text-left text-sm font-medium text-gray-500">
-                      {language === "en" ? "Type" : "Tipo"}
-                    </th>
-                    <th className="py-2 px-3 text-left text-sm font-medium text-gray-500">
-                      {language === "en" ? "Description" : "Descripción"}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {resultData[language].faults.map((fault, index) => (
-                    <tr
-                      key={index}
-                      className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}
-                    >
-                      <td className="py-2 px-3 text-sm">
-                        {fault.jumpNumber || fault.jump || "-"}
-                      </td>
-                      <td className="py-2 px-3 text-sm">
-                        {fault.faults || "-"}
-                      </td>
-                      <td className="py-2 px-3 text-sm">
-                        {fault.faultType || "-"}
-                      </td>
-                      <td className="py-2 px-3 text-sm">
-                        {fault.description || "-"}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </Card>
-        )}
-
+      {/* Strengths and Weaknesses */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 ">
         <Card className="p-4 sm:p-6 bg-gradient-to-r from-[#A38DFC] to-[#7658EB] border-0">
           <div className="flex items-center justify-between mb-3 sm:mb-4">
@@ -856,11 +859,15 @@ Let me know what you think!`;
             </div>
           </div>
           <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
-            {resultData[language]?.strengths?.map((strength, index) => (
+            {currentLangData?.strengths?.map((strength, index) => (
               <li key={index} className="text-sm sm:text-base text-white">
                 {strength}
               </li>
-            ))}
+            )) || (
+              <li className="text-sm sm:text-base text-white opacity-75">
+                {language === "en" ? "No strengths listed" : "No hay fortalezas listadas"}
+              </li>
+            )}
           </ul>
         </Card>
 
@@ -874,31 +881,35 @@ Let me know what you think!`;
             </div>
           </div>
           <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
-            {resultData[language]?.weaknesses?.map((weakness, index) => (
+            {currentLangData?.weaknesses?.map((weakness, index) => (
               <li key={index} className="text-sm sm:text-base text-white">
                 {weakness}
               </li>
-            ))}
+            )) || (
+              <li className="text-sm sm:text-base text-white opacity-75">
+                {language === "en" ? "No weaknesses listed" : "No hay debilidades listadas"}
+              </li>
+            )}
           </ul>
         </Card>
       </div>
 
-      {resultData[language]["focusArea"] && (
+      {/* Focus Areas */}
+      {currentLangData.focusArea && currentLangData.focusArea.length > 0 && (
         <Card className="p-4 sm:p-6">
           <div className="flex items-center justify-between mb-3 sm:mb-4">
             <h4 className="text-lg sm:text-xl font-semibold">
               {language === "en"
-                ? `Your Top Focus Area${resultData[language]["focusArea"].length > 1 ? "s" : ""
-                } `
-                : `Tus áreas principales `}
+                ? `Your Top Focus Area${currentLangData.focusArea.length > 1 ? "s" : ""}`
+                : `Tus áreas principales`}
             </h4>
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#F1F5F9] backdrop-blur-sm">
               <LocateFixed className="h-6 w-6 text-[#7658EB]" />
             </div>
           </div>
           <ol className="pl-6">
-            {resultData[language]["focusArea"].map((item, index) => (
-              <li key={index} className="list-none font-semibold">
+            {currentLangData.focusArea.map((item, index) => (
+              <li key={index} className="list-none font-semibold mb-6 last:mb-0">
                 <div className="flex items-center space-x-2 mb-2">
                   <span className="!min-w-8 !min-h-8 flex justify-center items-center rounded-full bg-gradient-to-r from-[#7658EB] to-[#3C78EB] text-white">
                     {index + 1}
@@ -922,6 +933,8 @@ Let me know what you think!`;
           </ol>
         </Card>
       )}
+
+      {/* Recommendations */}
       <Card className="p-4 sm:p-6">
         <div className="flex flex-col lg:flex-row gap-4 items-center justify-between mb-3 sm:mb-4">
           <h4 className="text-lg sm:text-xl font-semibold">
@@ -945,7 +958,6 @@ Let me know what you think!`;
                       backgroundImage: `linear-gradient(to right, ${color.from}, ${color.to})`,
                     }}
                   />
-
                   <span className="text-gray-700">{label}</span>
                 </div>
               ))}
@@ -953,105 +965,109 @@ Let me know what you think!`;
           </div>
         </div>
         <ul className="space-y-2 sm:space-y-5">
-          {resultData[language]?.recommendations
-            ?.slice(0, 2)
-            .map((recommendation, index) => (
-              <li
-                key={index}
-                className="text-sm sm:text-base bg-[#f1f5f9] p-2 md:p-5 rounded-lg flex gap-2 md:gap-5"
-              >
-                <img
-                  src="/lovable-uploads/1000010999.png"
-                  alt="Horse and rider jumping over competition obstacle"
-                  className="w-8 h-8 object-cover object-center"
-                />
-                <div className="flex flex-col lg:flex-row gap-8">
+          {currentLangData?.recommendations?.slice(0, 2).map((recommendation, index) => (
+            <li
+              key={index}
+              className="text-sm sm:text-base bg-[#f1f5f9] p-2 md:p-5 rounded-lg flex gap-2 md:gap-5"
+            >
+              <img
+                src="/lovable-uploads/1000010999.png"
+                alt="Horse and rider jumping over competition obstacle"
+                className="w-8 h-8 object-cover object-center"
+              />
+              <div className="flex flex-col lg:flex-row gap-8">
+                <div>
                   <div>
-                    <div>
-                      <b>{recommendation["exercise"]} </b> -{" "}
-                      {recommendation["goal"]}
-                    </div>
+                    <b>{recommendation["exercise"]} </b> -{" "}
+                    {recommendation["goal"]}
+                  </div>
+                  <br />
+                  <div>
+                    <b>
+                      {language === "en" ? "To improve:" : "Para mejorar:"}
+                    </b>{" "}
+                    {recommendation["setup"]}
+                  </div>
+                  <br />
+                  <div>
+                    <b>{language === "en" ? "Method:" : "Método:"}</b>
                     <br />
-                    <div>
-                      <b>
-                        {language === "en" ? "To improve:" : "Para mejorar:"}
-                      </b>{" "}
-                      {recommendation["setup"]}
-                    </div>
-                    <br />
-                    <div>
-                      <b>{language === "en" ? "Method:" : ":"}</b>
-                      <br />
-                      <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
-                        {Array.isArray(recommendation["method"]) ? (
-                          recommendation["method"].map((method, key) => (
-                            <li key={key}>{method}</li>
-                          ))
-                        ) : typeof recommendation["method"] === "string" ? (
-                          <li>{recommendation["method"]}</li>
-                        ) : (
-                          <li>No method provided</li>
-                        )}
-                      </ul>
-                    </div>
-                    <br />
-                    <div>
-                      <b>{language === "en" ? "Key Points:" : ":"}</b>
-                      <br />
-                      {recommendation["keyPoints"] &&
-                        typeof recommendation["keyPoints"] == "string" ? (
-                        <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
-                          <li>{recommendation["keyPoints"]}</li>
-                        </ul>
+                    <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
+                      {Array.isArray(recommendation["method"]) ? (
+                        recommendation["method"].map((method, key) => (
+                          <li key={key}>{method}</li>
+                        ))
+                      ) : typeof recommendation["method"] === "string" ? (
+                        <li>{recommendation["method"]}</li>
                       ) : (
-                        <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
-                          {recommendation["keyPoints"].map((point, key) => (
-                            <li key={key}>{point}</li>
-                          ))}
-                        </ul>
+                        <li>No method provided</li>
                       )}
-                    </div>
+                    </ul>
+                  </div>
+                  <br />
+                  <div>
+                    <b>{language === "en" ? "Key Points:" : "Puntos Clave:"}</b>
                     <br />
-                    <div>
-                      <b>{language === "en" ? "Watch For:" : ":"}</b>{" "}
-                      <span>{recommendation["watchFor"]}</span>
-                    </div>
-                    <br />
-                    <div>
-                      <b>{language === "en" ? "Goal:" : ":"}</b>{" "}
-                      <span>{recommendation["goal"]}</span>
-                    </div>
-                    <br />
-                    <div>
-                      <b>{language === "en" ? "Quick Fix:" : ":"}</b>{" "}
-                      <span>{recommendation["quickFix"]}</span>
-                    </div>
-                    <br />
-                    {recommendation["reasoning"] && (
-                      <>
-                        <div>
-                          <b>{language === "en" ? "Reasoning:" : ":"}</b>{" "}
-                          <span>{recommendation["reasoning"]}</span>
-                        </div>
-                        <br />
-                      </>
+                    {recommendation["keyPoints"] &&
+                      typeof recommendation["keyPoints"] == "string" ? (
+                      <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
+                        <li>{recommendation["keyPoints"]}</li>
+                      </ul>
+                    ) : (
+                      <ul className="list-disc pl-5 space-y-1 sm:space-y-2">
+                        {recommendation["keyPoints"].map((point, key) => (
+                          <li key={key}>{point}</li>
+                        ))}
+                      </ul>
                     )}
                   </div>
-
-                  <div
-                    className="bg-white py-8 rounded-xl mx-auto w-full"
-                    style={{ maxWidth: "300px" }}
-                  >
-                    {diagramExtractor(
-                      resultData.en?.recommendations[
-                      index
-                      ] as unknown as IExercise
-                    )}
+                  <br />
+                  <div>
+                    <b>{language === "en" ? "Watch For:" : "Observa:"}</b>{" "}
+                    <span>{recommendation["watchFor"]}</span>
                   </div>
+                  <br />
+                  <div>
+                    <b>{language === "en" ? "Goal:" : "Objetivo:"}</b>{" "}
+                    <span>{recommendation["goal"]}</span>
+                  </div>
+                  <br />
+                  <div>
+                    <b>{language === "en" ? "Quick Fix:" : "Solución Rápida:"}</b>{" "}
+                    <span>{recommendation["quickFix"]}</span>
+                  </div>
+                  <br />
+                  {recommendation["reasoning"] && (
+                    <>
+                      <div>
+                        <b>{language === "en" ? "Reasoning:" : "Razonamiento:"}</b>{" "}
+                        <span>{recommendation["reasoning"]}</span>
+                      </div>
+                      <br />
+                    </>
+                  )}
                 </div>
-              </li>
-            )) || "No Recommendations!"}
+
+                <div
+                  className="bg-white py-8 rounded-xl mx-auto w-full"
+                  style={{ maxWidth: "300px" }}
+                >
+                  {diagramExtractor(
+                    resultData.en?.recommendations[
+                      index
+                    ] as unknown as IExercise
+                  )}
+                </div>
+              </div>
+            </li>
+          )) || (
+            <li className="text-center py-8 text-gray-500">
+              {language === "en" ? "No recommendations available" : "No hay recomendaciones disponibles"}
+            </li>
+          )}
         </ul>
+        
+        {/* Podcast Download CTA */}
         <Card className="w-full bg-gradient-to-r from-[#7658EB] to-[#3C78EB] text-white p-6 mt-6 flex items-center justify-between rounded-lg shadow-lg flex-col-reverse sm:flex-row gap-5 sm:gap-0">
           <div className="">
             <h2 className="text-xl font-medium">
@@ -1068,10 +1084,18 @@ Let me know what you think!`;
               onClick={async () => {
                 await getPromptForTTS();
               }}
+              disabled={isPodcastLoading}
             >
-              {language === "en"
-                ? "Download Now – Your Personal Training Session"
-                : "Descarga ahora: Tu sesión de entrenamiento personal"}
+              {isPodcastLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  {language === "en" ? "Generating..." : "Generando..."}
+                </>
+              ) : (
+                language === "en"
+                  ? "Download Now – Your Personal Training Session"
+                  : "Descarga ahora: Tu sesión de entrenamiento personal"
+              )}
             </Button>
           </div>
           <div className="relative z-10 w-40 h-40 rounded-full bg-[#3f77eb]/20 backdrop-blur-sm flex items-center justify-center">
@@ -1084,26 +1108,16 @@ Let me know what you think!`;
         </Card>
       </Card>
 
+      {/* Share and Footer */}
       <Card className="p-4 sm:p-6 border-0">
         <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-4 mb-3 sm:mb-4">
           <Button
             className="bg-gradient-to-r from-[#3AD55A] to-[#00AE23] flex items-center"
             onClick={handleWhatsAppShare}
           >
-            {/* <MessageCircle className="h-10 w-10 text-white" /> */}
             <RiWhatsappFill className="!h-7 !w-7 text-white" size={50} />
             {language === "en" ? "Share on WhatsApp" : "Compartir en WhatsApp"}
           </Button>
-
-          {/* <Button
-            className="bg-purple-600 hover:bg-purple-600 flex flex-col items-center p-8"
-            onClick={async () => {
-              await getPromptForTTS();
-            }}
-          >
-            <CloudDownload className="!h-7 !w-7 text-white " />
-            Get your personal ride along training class here
-          </Button> */}
 
           <div className="space-x-2 flex items-center">
             <p className="text-center">

@@ -1,10 +1,10 @@
-// Supabase Edge Function with manual JWT authentication for Gemini Pro Vision (fixed base64 key handling)
+// Supabase Edge Function with manual JWT authentication for Gemini Pro Vision 
+// WITH AI INTERPRETATION (judge feedback) added - FULL VERSION
 import { serve } from 'https://deno.land/std@0.192.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.4';
 import { encode as base64Encode } from 'https://deno.land/std@0.192.0/encoding/base64.ts';
 import { crypto } from 'https://deno.land/std@0.192.0/crypto/mod.ts';
 import { decode as base64Decode } from 'https://deno.land/std@0.192.0/encoding/base64.ts';
-
 
 import {
   getSkillsByDifficulty,
@@ -13,20 +13,28 @@ import {
 
 import { getLevelsByCountry } from './countriesData.ts';
 
-
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
   'Content-Type': 'application/json'
 };
-const supabase = createClient(Deno.env.get('SUPABASE_URL') || '', Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '');
-function pemToArrayBuffer(pem) {
-  const base64 = pem.replace(/-----BEGIN PRIVATE KEY-----/, '').replace(/-----END PRIVATE KEY-----/, '').replace(/\\n/g, '') // escape newline characters
-    .replace(/\r?\n/g, '') // strip real line breaks
+
+const supabase = createClient(
+  Deno.env.get('SUPABASE_URL') || '', 
+  Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
+);
+
+function pemToArrayBuffer(pem: string): ArrayBuffer {
+  const base64 = pem
+    .replace(/-----BEGIN PRIVATE KEY-----/, '')
+    .replace(/-----END PRIVATE KEY-----/, '')
+    .replace(/\\n/g, '')
+    .replace(/\r?\n/g, '')
     .trim();
   return base64Decode(base64).buffer;
 }
-async function getGoogleAccessToken(serviceAccount) {
+
+async function getGoogleAccessToken(serviceAccount: any): Promise<string> {
   const now = Math.floor(Date.now() / 1000);
   const header = {
     alg: 'RS256',
@@ -39,18 +47,31 @@ async function getGoogleAccessToken(serviceAccount) {
     exp: now + 3600,
     iat: now
   };
+  
   const encoder = new TextEncoder();
   const encodedHeader = base64Encode(encoder.encode(JSON.stringify(header)));
   const encodedPayload = base64Encode(encoder.encode(JSON.stringify(payload)));
   const unsignedToken = `${encodedHeader}.${encodedPayload}`;
-  const keyData = await crypto.subtle.importKey('pkcs8', pemToArrayBuffer(serviceAccount.private_key), {
-    name: 'RSASSA-PKCS1-v1_5',
-    hash: 'SHA-256'
-  }, false, [
-    'sign'
-  ]);
-  const signature = await crypto.subtle.sign('RSASSA-PKCS1-v1_5', keyData, encoder.encode(unsignedToken));
+  
+  const keyData = await crypto.subtle.importKey(
+    'pkcs8',
+    pemToArrayBuffer(serviceAccount.private_key),
+    {
+      name: 'RSASSA-PKCS1-v1_5',
+      hash: 'SHA-256'
+    },
+    false,
+    ['sign']
+  );
+  
+  const signature = await crypto.subtle.sign(
+    'RSASSA-PKCS1-v1_5',
+    keyData,
+    encoder.encode(unsignedToken)
+  );
+  
   const signedJWT = `${unsignedToken}.${base64Encode(new Uint8Array(signature))}`;
+  
   const res = await fetch('https://oauth2.googleapis.com/token', {
     method: 'POST',
     headers: {
@@ -61,26 +82,186 @@ async function getGoogleAccessToken(serviceAccount) {
       assertion: signedJWT
     })
   });
+  
   const json = await res.json();
   if (!json.access_token) throw new Error('Failed to get access token');
   return json.access_token;
 }
-serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response(null, {
-      headers: corsHeaders
+
+// Helper function to generate fallback AI interpretation for document analysis
+function generateFallbackDocumentFeedback(documentAnalysis: any) {
+  const complaints: string[] = [];
+  const interpretations: string[] = [];
+  const areas: Array<{name: string, fix: string}> = [];
+
+  // Extract complaints from generalComments
+  if (documentAnalysis.generalComments && typeof documentAnalysis.generalComments === 'object') {
+    Object.entries(documentAnalysis.generalComments).forEach(([judge, comment]) => {
+      if (comment && typeof comment === 'string' && comment.trim()) {
+        complaints.push(`${judge}: ${comment}`);
+        
+        if (comment.toLowerCase().includes('forward') || comment.toLowerCase().includes('energy')) {
+          interpretations.push("The horse needs more impulsion and engagement from behind");
+          if (!areas.some(a => a.name === "Forward Energy")) {
+            areas.push({
+              name: "Forward Energy",
+              fix: "Practice transitions with more leg aid and maintain forward thinking"
+            });
+          }
+        } else if (comment.toLowerCase().includes('rhythm') || comment.toLowerCase().includes('tempo')) {
+          interpretations.push("Tempo fluctuations affecting balance and geometry");
+          if (!areas.some(a => a.name === "Rhythm Consistency")) {
+            areas.push({
+              name: "Rhythm Consistency",
+              fix: "Use counting out loud to maintain steady tempo throughout exercises"
+            });
+          }
+        } else if (comment.toLowerCase().includes('balance') || comment.toLowerCase().includes('straight')) {
+          interpretations.push("Alignment issues affecting movement quality");
+          if (!areas.some(a => a.name === "Balance & Straightness")) {
+            areas.push({
+              name: "Balance & Straightness",
+              fix: "Focus on equal rein contact and leg pressure for better alignment"
+            });
+          }
+        } else if (comment.toLowerCase().includes('contact') || comment.toLowerCase().includes('connection')) {
+          interpretations.push("Rein contact and connection needs improvement");
+          if (!areas.some(a => a.name === "Contact Quality")) {
+            areas.push({
+              name: "Contact Quality",
+              fix: "Work on consistent, elastic contact with soft, following hands"
+            });
+          }
+        }
+      }
     });
   }
+
+  // Extract from weaknesses
+  if (documentAnalysis.weaknesses && Array.isArray(documentAnalysis.weaknesses)) {
+    documentAnalysis.weaknesses.slice(0, 2).forEach((weakness: string) => {
+      if (weakness && typeof weakness === 'string') {
+        if (!areas.some(a => a.name.toLowerCase().includes(weakness.toLowerCase().slice(0, 10)))) {
+          areas.push({
+            name: weakness,
+            fix: `Practice targeted exercises to improve ${weakness.toLowerCase()}`
+          });
+        }
+      }
+    });
+  }
+
+  // Fallback if no specific complaints found
+  if (complaints.length === 0 && documentAnalysis.weaknesses && documentAnalysis.weaknesses.length > 0) {
+    complaints.push(`Analysis identified weaknesses in: ${documentAnalysis.weaknesses.slice(0, 3).join(', ')}`);
+    interpretations.push("Specific technical areas need focused attention");
+  }
+
+  if (complaints.length === 0) {
+    const percentage = documentAnalysis.percentage || "unknown";
+    complaints.push(`Document analysis scored ${percentage}%`);
+    interpretations.push("Overall performance needs refinement");
+  }
+
+  if (areas.length === 0) {
+    areas.push({
+      name: "Overall Execution",
+      fix: "Practice targeted exercises focusing on consistency and quality"
+    });
+  }
+
+  return {
+    complaints: complaints.slice(0, 5),
+    interpretations: interpretations.slice(0, 5),
+    areas: areas.slice(0, 3)
+  };
+}
+
+// Helper function to generate fallback judge feedback
+function generateFallbackJudgeFeedback(analysisResult: any) {
+  const complaints: string[] = [];
+  const interpretations: string[] = [];
+  const areas: Array<{name: string, fix: string}> = [];
+
+  if (analysisResult.generalComments) {
+    Object.entries(analysisResult.generalComments).forEach(([judge, comment]) => {
+      if (comment && typeof comment === 'string' && comment.trim()) {
+        complaints.push(`${judge}: ${comment}`);
+        
+        if (comment.toLowerCase().includes('forward') || comment.toLowerCase().includes('energy')) {
+          interpretations.push("The horse needs more impulsion and engagement from behind");
+          if (!areas.some(a => a.name === "Forward Energy")) {
+            areas.push({
+              name: "Forward Energy",
+              fix: "Practice transitions with more leg aid and maintain forward thinking"
+            });
+          }
+        } else if (comment.toLowerCase().includes('rhythm') || comment.toLowerCase().includes('tempo')) {
+          interpretations.push("Tempo fluctuations affecting balance and geometry");
+          if (!areas.some(a => a.name === "Rhythm Consistency")) {
+            areas.push({
+              name: "Rhythm Consistency",
+              fix: "Use counting out loud to maintain steady tempo throughout exercises"
+            });
+          }
+        } else if (comment.toLowerCase().includes('balance') || comment.toLowerCase().includes('straight')) {
+          interpretations.push("Alignment issues affecting movement quality");
+          if (!areas.some(a => a.name === "Balance & Straightness")) {
+            areas.push({
+              name: "Balance & Straightness",
+              fix: "Focus on equal rein contact and leg pressure for better alignment"
+            });
+          }
+        } else if (comment.toLowerCase().includes('contact') || comment.toLowerCase().includes('connection')) {
+          interpretations.push("Rein contact and connection needs improvement");
+          if (!areas.some(a => a.name === "Contact Quality")) {
+            areas.push({
+              name: "Contact Quality",
+              fix: "Work on consistent, elastic contact with soft, following hands"
+            });
+          }
+        }
+      }
+    });
+  }
+
+  if (analysisResult.weaknesses && Array.isArray(analysisResult.weaknesses)) {
+    analysisResult.weaknesses.slice(0, 2).forEach((weakness: string) => {
+      if (!areas.some(a => a.name.toLowerCase().includes(weakness.toLowerCase().slice(0, 10)))) {
+        areas.push({
+          name: weakness,
+          fix: `Practice targeted exercises to improve ${weakness.toLowerCase()}`
+        });
+      }
+    });
+  }
+
+  return {
+    complaints: complaints.length > 0 ? complaints.slice(0, 5) : ["No specific complaints recorded"],
+    interpretations: interpretations.length > 0 ? interpretations.slice(0, 5) : ["General execution needs improvement"],
+    areas: areas.length > 0 ? areas.slice(0, 3) : [
+      {
+        name: "Overall Execution",
+        fix: "Practice targeted exercises focusing on consistency and quality"
+      }
+    ]
+  };
+}
+
+serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
+  }
+  
   try {
     const raw = Deno.env.get('GEMINI_SERVICE_ACCOUNT_JSON');
     if (!raw) throw new Error('GEMINI_SERVICE_ACCOUNT_JSON is not set');
+    
     const serviceAccount = JSON.parse(raw);
     console.log("Using project:", serviceAccount.project_id);
 
-
     const { documentId, base64Image, extractionId, useVerifiedData } = await req.json();
 
-    // If using verified data, we don't need base64Image
     if (!documentId) {
       return new Response(
         JSON.stringify({ error: 'Missing documentId' }),
@@ -88,7 +269,6 @@ serve(async (req) => {
       );
     }
 
-    // Only require base64Image if NOT using verified data
     if (!useVerifiedData && !base64Image) {
       return new Response(
         JSON.stringify({ error: 'Missing base64Image for fresh extraction' }),
@@ -97,7 +277,6 @@ serve(async (req) => {
     }
 
     // === START: ANALYSIS LIMIT CHECK ===
-    // Get test level and find its difficulty + health data
     const { data: documentData, error: docError } = await supabase
       .from("document_analysis")
       .select("user_id, horse_id, horse_name, test_level, discipline, document_date, competition_type, user_country, health_status, health_details")
@@ -115,7 +294,6 @@ serve(async (req) => {
 
     const userId = documentData.user_id;
 
-    // Get user's subscription and plan details
     const { data: subscriptionData, error: subscriptionError } = await supabase
       .from('user_subscriptions')
       .select('plan_id, pricing_plans(analysis_limit, name)')
@@ -133,9 +311,8 @@ serve(async (req) => {
     }
 
     const analysisLimit = subscriptionData?.pricing_plans?.analysis_limit || 0;
-    const currentMonth = new Date().toISOString().substring(0, 7); // YYYY-MM
+    const currentMonth = new Date().toISOString().substring(0, 7);
 
-    // Get current month usage
     const { data: usageData } = await supabase
       .from('analysis_usage')
       .select('analysis_count')
@@ -145,7 +322,6 @@ serve(async (req) => {
 
     const currentCount = usageData?.analysis_count || 0;
 
-    // Check if limit exceeded (skip check if unlimited: -1)
     if (analysisLimit !== -1 && currentCount >= analysisLimit) {
       await supabase
         .from('document_analysis')
@@ -167,8 +343,7 @@ serve(async (req) => {
     }
     // === END: ANALYSIS LIMIT CHECK ===
 
-
-    // === START: CHECK FOR VERIFIED DATA (USE AS GUIDE) ===
+    // === START: CHECK FOR VERIFIED DATA ===
     let verifiedDataGuide = null;
     let hasVerifiedData = false;
 
@@ -190,8 +365,6 @@ serve(async (req) => {
       }
     }
     // === END: CHECK FOR VERIFIED DATA ===
-
-
 
     // Update status to processing
     await supabase.from('document_analysis').update({
@@ -224,12 +397,10 @@ serve(async (req) => {
       `;
     }
 
-
-
-    // === NEW: FIND DIFFICULTY LEVEL ===
+    // === FIND DIFFICULTY LEVEL ===
     const userCountry = documentData.user_country || "United Kingdom";
     const testLevel = documentData.test_level;
-    let difficulty = 5; // Default to intermediate if not found
+    let difficulty = 5;
     let levelRestrictionsPrompt = "";
 
     if (testLevel && userCountry) {
@@ -254,11 +425,8 @@ serve(async (req) => {
         console.log("Will proceed with default difficulty 5");
       }
     }
-    // === END NEW SECTION ===
 
-
-
-    // === NEW: BUILD HEALTH SAFETY PROMPT ===
+    // === BUILD HEALTH SAFETY PROMPT ===
     let healthSafetyPrompt = "";
     const healthStatus = documentData.health_status || "healthy";
     const healthDetails = documentData.health_details || {};
@@ -422,8 +590,6 @@ serve(async (req) => {
 
             `;
     }
-    // === END HEALTH SAFETY PROMPT ===
-
 
     const mainPrompt = `
 
@@ -431,8 +597,7 @@ serve(async (req) => {
       You should get the name of horse from document like Frapp, Varadero, Pagasus, Han, Lolo and so on.
       If the document is in Spanish or partially contains Spanish text, you must translate all extracted terms, movement labels, and judge comments into English before using them.
       
-      
-            ${levelRestrictionsPrompt ? `
+      ${levelRestrictionsPrompt ? `
       ⚠️ CRITICAL LEVEL-APPROPRIATE RECOMMENDATIONS ⚠️
 
       The rider competed at: ${testLevel} (${userCountry})
@@ -468,8 +633,7 @@ serve(async (req) => {
       ---
       ` : ''}
 
-
-        ${healthSafetyPrompt}
+      ${healthSafetyPrompt}
       
       You can get that in the first part of PDF, normally it is next of the rider name.
       Each movement is evaluated by several judges.
@@ -737,7 +901,7 @@ serve(async (req) => {
             "size": "Small || Large",
             "gait": "Walk" || "Trot" || "Canter" || "Walk/Trot" || "Trot/Canter" || etc.
             "type": "Lateral-A",
-            "reasoning": "Selected to improve lateral alignment and bend. Movements 6 and 9 scored below 6.0, with Judge A noting “loss of alignment” and “insufficient bend.” This exercise develops correct bend, straightness, and control, helping maintain balance and rhythm during lateral movements."
+            "reasoning": "Selected to improve lateral alignment and bend. Movements 6 and 9 scored below 6.0, with Judge A noting "loss of alignment" and "insufficient bend." This exercise develops correct bend, straightness, and control, helping maintain balance and rhythm during lateral movements."
           },
           {
             "exercise": [Exercise Name],
@@ -751,7 +915,7 @@ serve(async (req) => {
             "size": "Small || Large",
             "gait": "Walk" || "Trot" || "Canter" || "Walk/Trot" || "Trot/Canter" || etc.
             "type": "Transition-A",
-             "reasoning": "Chosen to improve transition quality and responsiveness. Movements 3, 7, and 11 scored below 6.0, with Judge A commenting “late reaction to aids.” This exercise sharpens the response to aids, improves balance, and creates clearer, more controlled transitions."
+             "reasoning": "Chosen to improve transition quality and responsiveness. Movements 3, 7, and 11 scored below 6.0, with Judge A commenting "late reaction to aids." This exercise sharpens the response to aids, improves balance, and creates clearer, more controlled transitions."
           }, // Note: Size for each exercise should be consistant in one document.
         ],
         "focusArea": [
@@ -781,7 +945,33 @@ serve(async (req) => {
           // All movement names (like in "highestScore.movement" and "lowestScore.movement") must be fully translated to English, even if the source document includes them in Spanish. For example, return "Halt at X" instead of "Parada en X".
           },
         "personalInsight": "You seem to be a rider who excels at precise technical elements, especially halts and geometry. However, if you focus more on relaxation and expression during transitions and medium gaits, you could significantly improve your overall performance."
-           
+
+      ===========================================
+      CRITICAL: ADD AI INTERPRETATION SECTION
+      ===========================================
+      
+      "aiInterpretation": {
+        "complaints": [
+          "Extract specific complaints from judge comments",
+          "Focus on critical feedback that needs addressing",
+          "Be specific about issues mentioned by judges"
+        ],
+        "interpretations": [
+          "Explain what each complaint means in practical terms",
+          "Provide clear interpretation for improvement",
+          "Connect judge feedback to technical improvements"
+        ],
+        "areas": [
+          {
+            "name": "Specific area that needs work based on judge comments",
+            "fix": "Actionable, practical fix for this area"
+          },
+          {
+            "name": "Another area needing attention", 
+            "fix": "Clear, actionable fix with specific exercises"
+          }
+        ]
+      }
       }
       Percentage, strengths (at least 2 strengths), weaknesses (at least 2 weaknesses), recommendations, focus area and personal insight(Your personal thoughts) must be required in results.
       And also you should extract the highest and lowest scores and extract all movements of that.
@@ -898,10 +1088,6 @@ serve(async (req) => {
       In other words, riders can get the attractive recommendations, focus area and personal insight from your analysis - you should make them to love this tool.
       REMINDER:
       * All contents of the JSON — including generalComments, strengths, weaknesses, instructions, recommendations, movement names (in highestScore, lowestScore, and detailed movements), and any other fields — must be fully in English. If any part of the document is in Spanish (such as "Parada en X" or "Trote Medio"), you must translate it into accurate, fluent English before including it in the result.
-
-
-
-
     `;
 
     const fullPrompt = promptPrefix + mainPrompt;
@@ -944,7 +1130,14 @@ serve(async (req) => {
     let finalResult;
     try {
       finalResult = JSON.parse(resultText);
-      console.log("✅ Analysis completed successfully");
+      
+      // Ensure aiInterpretation exists in the result
+      if (!finalResult.aiInterpretation) {
+        console.warn("⚠️ AI didn't include aiInterpretation, generating fallback...");
+        finalResult.aiInterpretation = generateFallbackDocumentFeedback(finalResult);
+      }
+      
+      console.log("✅ Analysis completed successfully with AI interpretation");
     } catch (err) {
       console.error("❌ Failed to parse JSON:", resultText);
       throw new Error("Gemini returned invalid JSON format");
@@ -958,6 +1151,7 @@ serve(async (req) => {
 
     const localizationPrompt = `
 You will be given a JSON object. Translate all text content to Spanish, preserving keys and structure.
+IMPORTANT: Also translate the "aiInterpretation" section.
 Return only the updated JSON, nothing else.
 JSON:
 ${JSON.stringify(finalResult, null, 2)}
@@ -990,7 +1184,21 @@ ${JSON.stringify(finalResult, null, 2)}
     let localizedResult;
     try {
       localizedResult = JSON.parse(localizedText);
-      console.log("✅ Spanish translation completed");
+      
+      // Ensure Spanish version has aiInterpretation
+      if (!localizedResult.aiInterpretation && finalResult.aiInterpretation) {
+        console.warn("⚠️ Spanish translation missing aiInterpretation, creating placeholder...");
+        localizedResult.aiInterpretation = {
+          complaints: ["Interpretación IA no disponible en español"],
+          interpretations: ["Los detalles están disponibles en la versión en inglés"],
+          areas: [{
+            name: "Análisis Completo",
+            fix: "Consulte la versión en inglés para la interpretación detallada"
+          }]
+        };
+      }
+      
+      console.log("✅ Spanish translation completed with AI interpretation");
     } catch (err) {
       console.error("❌ Failed to parse localized JSON:", localizedText);
       throw new Error("Gemini returned invalid localized JSON format");
@@ -1027,7 +1235,7 @@ ${JSON.stringify(finalResult, null, 2)}
 
     // Insert goals
     if (finalResult.recommendations && finalResult.recommendations.length > 0) {
-      await Promise.all(finalResult.recommendations.slice(0, 2).map(async (recommendation) => {
+      await Promise.all(finalResult.recommendations.slice(0, 2).map(async (recommendation: any) => {
         const oneMonthLater = new Date();
         oneMonthLater.setMonth(oneMonthLater.getMonth() + 1);
         const targetDate = oneMonthLater.toISOString().split("T")[0];
@@ -1068,10 +1276,23 @@ ${JSON.stringify(finalResult, null, 2)}
       status: 200,
       headers: corsHeaders
     });
+
   } catch (err) {
     console.error('❌ Edge Function error:', err);
+    
+    // Update document status to failed
+    try {
+      await supabase.from('document_analysis').update({
+        status: 'failed',
+        updated_at: new Date().toISOString()
+      }).eq('id', documentId);
+    } catch (updateErr) {
+      console.error('Failed to update document status:', updateErr);
+    }
+
     return new Response(JSON.stringify({
-      error: err.message
+      error: err.message,
+      success: false
     }), {
       status: 500,
       headers: corsHeaders

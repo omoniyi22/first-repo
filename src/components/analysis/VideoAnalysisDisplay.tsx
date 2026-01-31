@@ -5,6 +5,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
 import {
   Loader2,
   CheckCircle,
@@ -17,12 +18,17 @@ import {
   PlayCircle,
   AlertTriangle,
   ArrowRight,
+  Target,
+  MessageSquare,
+  Lightbulb,
+  Users,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { RiWhatsappFill } from "react-icons/ri";
 import { useAnalysisLimit } from "@/hooks/useAnalysisLimit";
 import { analytics } from "@/lib/posthog";
+import AnalysisFeedbackComponent from "./AnalysisFeedbackComponent";
 
 // =========================
 // Interfaces
@@ -68,9 +74,8 @@ interface AIAnalysis {
 interface ReportContent {
   video_id: string;
   timestamp: string;
-
   personalised_insight: string;
-
+  
   biomechanical_analysis: {
     rider_position_stability: string[];
     horse_takeoff_analysis: string[];
@@ -100,6 +105,26 @@ interface ReportContent {
     has_angle_data: boolean;
     representative_frames_used: boolean;
   };
+
+  // AI Interpretation from edge function
+  aiInterpretation?: {
+    complaints: string[];
+    interpretations: string[];
+    areas: Array<{name: string, fix: string}>;
+  };
+}
+
+interface AnalysisResults {
+  en?: ReportContent;
+  es?: ReportContent;
+  // For backward compatibility
+  personalised_insight?: string;
+  biomechanical_analysis?: any;
+  jump_by_jump?: any[];
+  pattern_recognition?: string[];
+  personalized_training?: string[];
+  course_stats?: any;
+  aiInterpretation?: any;
 }
 
 interface VideoAnalysisDisplayProps {
@@ -134,11 +159,10 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
 
   // State
   const [analysis, setAnalysis] = useState<VideoAnalysisData | null>(null);
-  const [reportContent, setReportContent] = useState<ReportContent | null>(
-    null
-  );
+  const [reportContent, setReportContent] = useState<ReportContent | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [resultData, setResultData] = useState<AnalysisResults | null>(null);
 
   // Jump marking state
   const [successfulJumps, setSuccessfulJumps] = useState<JumpMark[]>([]);
@@ -168,7 +192,7 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
       if (error) throw error;
 
       if (data) {
-        // console.log("📊 Fetched analysis data:", data);
+        console.log("📊 Fetched analysis data:", data);
         setAnalysis(data as VideoAnalysisData);
 
         // If completed, fetch report
@@ -180,7 +204,12 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
             .single();
 
           if (!resultError && resultData?.result_json) {
-            setReportContent(resultData.result_json as ReportContent);
+            const results = resultData.result_json as AnalysisResults;
+            setResultData(results);
+            
+            // Set report content based on language
+            const langData = results[language] || results.en || results;
+            setReportContent(langData as ReportContent);
           }
 
           analytics.trackEvent("view_video_analysis_result", {
@@ -294,8 +323,8 @@ const VideoAnalysisDisplay: React.FC<VideoAnalysisDisplayProps> = ({
   const generateReport = async () => {
     if (!analysis?.python_video_id || !documentId) return;
 
-    const totalJumps = successfulJumps.length + failedJumps.length;
-    if (totalJumps === 0) {
+    const totalMarked = successfulJumps.length + failedJumps.length;
+    if (totalMarked === 0) {
       toast.error("Please mark at least one jump");
       return;
     }
@@ -1025,303 +1054,309 @@ Let me know what you think!`;
   // =========================
 
   if (analysis.status === "completed" && reportContent) {
+    const hasAIInterpretation = !!reportContent.aiInterpretation;
+
     return (
-      <Card className="space-y-6 sm:space-y-8 p-4 sm:p-6">
-        {/* Analysis Results */}
-
-        <div className="text-start">
-          <h2 className="text-xl font-semibold ">
-            {language === "en" ? "Analysis Results" : "Resultados del análisis"}
-          </h2>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
-          {/* Total Score Card */}
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#7658EB] to-[#3C78EB] p-6 text-white shadow-lg w-full h-full">
-            <div className="w-full h-full flex flex-col justify-between">
-              <h3 className="text-lg font-medium opacity-90 mb-8">
-                {language === "en" ? "Course Stats" : "Estadísticas del curso"}
-              </h3>
-              <p className="text-base text-white mt-auto">
-                {reportContent.course_stats.total_jumps} Jumps Total | Average
-                Height: {reportContent.course_stats.average_height}
-              </p>
-            </div>
-          </div>
-
-          {/* Highest Score Card */}
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#7658EB] to-[#3C78EB] p-6 text-white shadow-lg">
-            <div className="w-full h-full flex flex-col justify-between">
-              <h3 className="text-lg font-medium opacity-90 mb-8">
-                {language === "en" ? "Points System" : "Estadísticas del curso"}
-              </h3>
-              <p className="text-base text-white mt-auto">
-                {reportContent.course_stats.points_lost} Points
-              </p>
-            </div>
-          </div>
-
-          {/* Lowest Score Card */}
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#5E92FA] to-[#3C77EC] p-6 text-white shadow-lg">
-            <div className="w-full h-full flex flex-col justify-between">
-              <h3 className="text-lg font-medium opacity-90 mb-8">
-                {language === "en" ? "Clear Rate" : "Estadísticas del curso"}
-              </h3>
-              <p className="text-base text-white mt-auto">
-                {reportContent.course_stats.clear_rate}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Personalised Insight */}
-        <Card className="p-4 sm:p-6  bg-gradient-to-r from-[#7658EB] to-[#3C78EB]">
-          <div className="flex items-center justify-between mb-3 sm:mb-4">
-            <h4 className="text-lg sm:text-xl font-semibold text-white">
-              {language === "en"
-                ? "Personalised Insight"
-                : "Perspectiva personalizada"}
-            </h4>
-
-            <img
-              src="/lovable-uploads/transpareant-logo.png"
-              alt="Horse and rider jumping over competition obstacle"
-              className="w-12 h-12 object-cover object-center"
-            />
-          </div>
-          <div className="max-w-[900px]">
-            <p className="text-white text-base">
-              {reportContent.personalised_insight}
+      <div className="space-y-6 max-w-7xl mx-auto">
+        {/* Header with AI Badge */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold flex items-center gap-2">
+              {language === "en" ? "Video Analysis Results" : "Resultados del Análisis de Video"}
+              {hasAIInterpretation && (
+                <Badge className="bg-gradient-to-r from-purple-600 to-pink-600 text-white border-0">
+                  <Sparkles className="h-3 w-3 mr-1" />
+                  AI Enhanced
+                </Badge>
+              )}
+            </h1>
+            <p className="text-gray-600 mt-1">
+              {hasAIInterpretation
+                ? language === "en"
+                  ? "Complete video analysis with AI-powered feedback"
+                  : "Análisis completo de video con feedback impulsado por IA"
+                : language === "en"
+                  ? "Performance analysis results"
+                  : "Resultados del análisis de rendimiento"}
             </p>
           </div>
-        </Card>
+        </div>
 
-        {/* Biomechanical Analysis */}
-        <Card className="p-4 sm:p-6 ">
-          <div className="flex items-center justify-between mb-3 sm:mb-4 ">
-            <h4 className="text-lg sm:text-xl font-semibold">
-              {language === "en"
-                ? "Biomechanical Analysis"
-                : "Análisis biomecánico"}
-            </h4>
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f1f5f9] backdrop-blur-sm">
-              <img src="/icon/search-document-icon.svg" alt="" />
+        <Card className="space-y-6 sm:space-y-8 p-4 sm:p-6">
+          {/* Score Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+            {/* Course Stats Card */}
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#7658EB] to-[#3C78EB] p-6 text-white shadow-lg w-full h-full">
+              <div className="w-full h-full flex flex-col justify-between">
+                <h3 className="text-lg font-medium opacity-90 mb-8">
+                  {language === "en" ? "Course Stats" : "Estadísticas del curso"}
+                </h3>
+                <p className="text-base text-white mt-auto">
+                  {reportContent.course_stats.total_jumps} {language === "en" ? "Jumps Total" : "Saltos Total"} | {language === "en" ? "Average Height:" : "Altura Promedio:"} {reportContent.course_stats.average_height}
+                </p>
+              </div>
+            </div>
+
+            {/* Points System Card */}
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#7658EB] to-[#3C78EB] p-6 text-white shadow-lg">
+              <div className="w-full h-full flex flex-col justify-between">
+                <h3 className="text-lg font-medium opacity-90 mb-8">
+                  {language === "en" ? "Points System" : "Sistema de Puntos"}
+                </h3>
+                <p className="text-base text-white mt-auto">
+                  {reportContent.course_stats.points_lost} {language === "en" ? "Points Lost" : "Puntos Perdidos"}
+                </p>
+              </div>
+            </div>
+
+            {/* Clear Rate Card */}
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#5E92FA] to-[#3C77EC] p-6 text-white shadow-lg">
+              <div className="w-full h-full flex flex-col justify-between">
+                <h3 className="text-lg font-medium opacity-90 mb-8">
+                  {language === "en" ? "Clear Rate" : "Tasa de Éxito"}
+                </h3>
+                <p className="text-base text-white mt-auto">
+                  {reportContent.course_stats.clear_rate}
+                </p>
+              </div>
             </div>
           </div>
-          <div className="w-full bg-[#F1F5F9] rounded-lg p-6">
-            <h3 className="text-lg font-semibold">Rider Position Stability</h3>
-            <ul className="mb-4 list-disc pl-5">
-              {reportContent.biomechanical_analysis.rider_position_stability.map(
-                (item, index) => (
-                  <li key={index}>{item}</li>
-                )
-              )}
-            </ul>
-            <h3 className="text-lg font-semibold">Horse Takeoff Analysis</h3>
-            <ul className="mb-4 list-disc pl-5">
-              {reportContent.biomechanical_analysis.horse_takeoff_analysis.map(
-                (item, index) => (
-                  <li key={index}>{item}</li>
-                )
-              )}
-            </ul>
-            <h3 className="text-lg font-semibold">Landing Form</h3>
-            <ul className="mb-4 list-disc pl-5">
-              {reportContent.biomechanical_analysis.landing_form.map(
-                (item, index) => (
-                  <li key={index}>{item}</li>
-                )
-              )}
-            </ul>
-            <h3 className="text-lg font-semibold">Jumps Approach</h3>
-            <ul className="mb-4 list-disc pl-5">
-              {reportContent.biomechanical_analysis.jump_approach.map(
-                (item, index) => (
-                  <li key={index}>{item}</li>
-                )
-              )}
-            </ul>
-          </div>
-        </Card>
 
-        {/* Jump by jump Analysis */}
-        <Card className="my-4 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="min-w-full border border-gray-300 rounded-lg">
-              <thead className="bg-[#f1f5f9]">
-                <tr>
-                  <th className="px-4 py-2 text-left text-sm text-gray-700 font-bold">
-                    {language === "en" ? "Individual Jump Analysis" : "Salto #"}
-                  </th>
-                  <th className="px-4 py-2 text-left text-sm text-gray-700 font-bold">
-                    {language === "en" ? "Result Badge" : "Tipo"}
-                  </th>
-                  <th className="px-4 py-2 text-left text-sm text-gray-700 font-bold">
-                    {language === "en" ? "Technical Insight" : "Resultado"}
-                  </th>
-                  <th className="px-4 py-2 text-left text-sm text-gray-700 font-bold">
-                    {language === "en" ? "Biomechanical Data" : "Resultado"}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {reportContent.jump_by_jump.map((jump, index) => (
-                  <tr key={index} className="border-none border-gray-200">
-                    <td className="px-4 py-2 text-sm border border-gray-200 capitalize">
-                      Jump {jump.jump_number}
-                    </td>
-                    <td className="px-4 py-2 text-sm border border-gray-200 uppercase">
-                      {jump.result}
-                    </td>
-                    <td className="px-4 py-2 text-sm border border-gray-200 capitalize">
-                      {jump.technical_insight}
-                    </td>
-                    <td className="px-4 py-2 text-sm border border-gray-200 capitalize">
-                      {jump.biomechanical_data}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </Card>
-
-        {/* Pattern Recognition */}
-        <Card className="p-4 sm:p-6 ">
-          <div className="flex items-center justify-between mb-3 sm:mb-4 ">
-            <h4 className="text-lg sm:text-xl font-semibold">
-              {language === "en"
-                ? "Pattern Recognition"
-                : "Reconocimiento de patrones"}
-            </h4>
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f1f5f9] backdrop-blur-sm">
-              <img src="/icon/eye-icon.svg" alt="" />
-            </div>
-          </div>
-          <div className="w-full p-6">
-            <ul className="mb-4 list-disc pl-5">
-              {reportContent.pattern_recognition.map((item, index) => {
-                const parts = item.split(/[:\-]/);
-                const label = parts[0].trim();
-                const value = item.replace(parts[0], "").trim();
-
-                return (
-                  <li key={index}>
-                    <b>{label}</b> {value}
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        </Card>
-
-        {/* Personalised Training */}
-        <Card className="p-4 sm:p-6 ">
-          <div className="flex items-center justify-between mb-3 sm:mb-4 ">
-            <h4 className="text-lg sm:text-xl font-semibold">
-              {language === "en"
-                ? "Personalised Training"
-                : "Entrenamiento personalizado"}
-            </h4>
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f1f5f9] backdrop-blur-sm">
-              <img src="/icon/space-shuttle-icon.svg" alt="" />
-            </div>
-          </div>
-          <Card className="w-full p-6 bg-[#F1F5F9]">
-            <ul className="list-disc pl-5">
-              {reportContent.personalized_training.map((item, index) => {
-                const parts = item.split(/[:\-]/);
-                const label = parts[0].trim();
-                const value = item.replace(parts[0], "").trim();
-
-                return (
-                  <li key={index}>
-                    <b>{label}</b> {value}
-                  </li>
-                );
-              })}
-              {/* <li>
-                <b>This Week's Focus:</b>
-                Practice grid work - 4 bounces to improve rhythm
-              </li>
-              <li>
-                <b>Biomechanical Goal:</b> Increase takeoff impulsion - front
-                leg extension needs 21
-              </li>
-              <li>
-                <b>Next Session Plan:</b> Work on approach consistency with
-                ground pole exercises
-              </li> */}
-            </ul>
-          </Card>
-        </Card>
-
-        {/* Want more guidance? */}
-        {/* <Card className="w-full bg-gradient-to-r from-[#7658EB] to-[#3C78EB] text-white p-6 mt-6 flex items-center justify-between rounded-lg shadow-lg flex-col-reverse sm:flex-row gap-5 sm:gap-0">
-          <div className="">
-            <h2 className="text-xl font-medium">
-              Based on today's analysis, we've created a 20-minute
-              <br />
-              exercise routine focusing on approach rhythm
-            </h2>
-            <Button
-              className="bg-white text-[#2C1A5C] h-auto hover:bg-white mt-4 text-wrap"
-              onClick={async () => {
-                // await getPromptForTTS();
-              }}
-            >
-              {language === "en"
-                ? "Get Your Ride-Along Podcast"
-                : "Obtén tu podcast Ride-Along"}
-            </Button>
-          </div>
-          <div className="relative z-10 w-40 h-40 rounded-full bg-[#3f77eb]/20 backdrop-blur-sm flex items-center justify-center">
-            <img
-              src={"/lovable-uploads/report-cta.png"}
-              alt="Horse and rider jumping over competition obstacle"
-              className="w-full h-full object-cover object-center rounded-full"
-            />
-          </div>
-        </Card> */}
-
-        {/* WhatsApp Share Button */}
-
-        <Card className="p-4 sm:p-6 border-0">
-          <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-4 mb-3 sm:mb-4">
-            <Button
-              className="bg-gradient-to-r from-[#3AD55A] to-[#00AE23] flex items-center"
-              onClick={handleWhatsAppShare}
-            >
-              {/* <MessageCircle className="h-10 w-10 text-white" /> */}
-              <RiWhatsappFill className="!h-7 !w-7 text-white" size={50} />
-              {language === "en"
-                ? "Send Results to Coach"
-                : "Compartir en WhatsApp"}
-            </Button>
-
-            {/* <Button
-            className="bg-purple-600 hover:bg-purple-600 flex flex-col items-center p-8"
-            onClick={async () => {
-              await getPromptForTTS();
-            }}
-          >
-            <CloudDownload className="!h-7 !w-7 text-white " />
-            Get your personal ride along training class here
-          </Button> */}
-
-            <div className="space-x-2 flex items-center">
-              <p className="text-center">
-                {language === "en" ? "Powered by" : "Desarrollado por"}
-              </p>
+          {/* Personalised Insight */}
+          <Card className="p-4 sm:p-6 bg-gradient-to-r from-[#7658EB] to-[#3C78EB]">
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
+              <h4 className="text-lg sm:text-xl font-semibold text-white">
+                {language === "en"
+                  ? "Personalised Insight"
+                  : "Perspectiva personalizada"}
+              </h4>
               <img
-                src="/lovable-uploads/1000010999.png"
+                src="/lovable-uploads/transparent-logo.png"
                 alt="Horse and rider jumping over competition obstacle"
                 className="w-12 h-12 object-cover object-center"
               />
             </div>
-          </div>
+            <div className="max-w-[900px]">
+              <p className="text-white text-base">
+                {reportContent.personalised_insight}
+              </p>
+            </div>
+          </Card>
+
+          {/* AI Interpretation Section */}
+          {hasAIInterpretation && (
+            <Card className="p-6 border-2 border-purple-200">
+              <div className="mb-4">
+                <h3 className="text-xl font-bold flex items-center gap-2">
+                  <Sparkles className="h-6 w-6 text-purple-600" />
+                  {language === 'en'
+                    ? 'AI Performance Analysis'
+                    : 'Análisis de Rendimiento con IA'}
+                </h3>
+                <p className="text-gray-600 mt-1">
+                  {language === 'en'
+                    ? 'AI analysis of your jumping technique and performance patterns'
+                    : 'Análisis IA de tu técnica de salto y patrones de rendimiento'}
+                </p>
+              </div>
+
+              <AnalysisFeedbackComponent
+                analysisData={resultData}
+                language={language}
+                analysisType="video"
+                documentId={documentId}
+                onFeedbackGenerated={(feedback) => {
+                  console.log('AI Feedback loaded:', feedback);
+                }}
+              />
+            </Card>
+          )}
+
+          {/* Biomechanical Analysis */}
+          <Card className="p-4 sm:p-6">
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
+              <h4 className="text-lg sm:text-xl font-semibold">
+                {language === "en"
+                  ? "Biomechanical Analysis"
+                  : "Análisis biomecánico"}
+              </h4>
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f1f5f9] backdrop-blur-sm">
+                <img src="/icon/search-document-icon.svg" alt="Analysis icon" />
+              </div>
+            </div>
+            <div className="w-full bg-[#F1F5F9] rounded-lg p-6">
+              <h3 className="text-lg font-semibold">{language === "en" ? "Rider Position Stability" : "Estabilidad de Posición del Jinete"}</h3>
+              <ul className="mb-4 list-disc pl-5">
+                {reportContent.biomechanical_analysis.rider_position_stability.map(
+                  (item, index) => (
+                    <li key={index}>{item}</li>
+                  )
+                )}
+              </ul>
+              <h3 className="text-lg font-semibold">{language === "en" ? "Horse Takeoff Analysis" : "Análisis de Despegue del Caballo"}</h3>
+              <ul className="mb-4 list-disc pl-5">
+                {reportContent.biomechanical_analysis.horse_takeoff_analysis.map(
+                  (item, index) => (
+                    <li key={index}>{item}</li>
+                  )
+                )}
+              </ul>
+              <h3 className="text-lg font-semibold">{language === "en" ? "Landing Form" : "Forma de Aterrizaje"}</h3>
+              <ul className="mb-4 list-disc pl-5">
+                {reportContent.biomechanical_analysis.landing_form.map(
+                  (item, index) => (
+                    <li key={index}>{item}</li>
+                  )
+                )}
+              </ul>
+              <h3 className="text-lg font-semibold">{language === "en" ? "Jump Approach" : "Enfoque del Salto"}</h3>
+              <ul className="mb-4 list-disc pl-5">
+                {reportContent.biomechanical_analysis.jump_approach.map(
+                  (item, index) => (
+                    <li key={index}>{item}</li>
+                  )
+                )}
+              </ul>
+            </div>
+          </Card>
+
+          {/* Jump by jump Analysis */}
+          <Card className="my-4 overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="min-w-full border border-gray-300 rounded-lg">
+                <thead className="bg-[#f1f5f9]">
+                  <tr>
+                    <th className="px-4 py-2 text-left text-sm text-gray-700 font-bold">
+                      {language === "en" ? "Individual Jump Analysis" : "Análisis Individual de Saltos"}
+                    </th>
+                    <th className="px-4 py-2 text-left text-sm text-gray-700 font-bold">
+                      {language === "en" ? "Result" : "Resultado"}
+                    </th>
+                    <th className="px-4 py-2 text-left text-sm text-gray-700 font-bold">
+                      {language === "en" ? "Technical Insight" : "Perspectiva Técnica"}
+                    </th>
+                    <th className="px-4 py-2 text-left text-sm text-gray-700 font-bold">
+                      {language === "en" ? "Biomechanical Data" : "Datos Biomecánicos"}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {reportContent.jump_by_jump.map((jump, index) => (
+                    <tr key={index} className="border-none border-gray-200">
+                      <td className="px-4 py-2 text-sm border border-gray-200 capitalize">
+                        {language === "en" ? "Jump" : "Salto"} {jump.jump_number}
+                      </td>
+                      <td className="px-4 py-2 text-sm border border-gray-200">
+                        <Badge 
+                          className={
+                            jump.result === "Clear" 
+                              ? "bg-green-100 text-green-800 border-green-200" 
+                              : "bg-red-100 text-red-800 border-red-200"
+                          }
+                        >
+                          {jump.result === "Clear" 
+                            ? language === "en" ? "Clear" : "Limpio"
+                            : language === "en" ? "Fault" : "Falta"}
+                        </Badge>
+                      </td>
+                      <td className="px-4 py-2 text-sm border border-gray-200 capitalize">
+                        {jump.technical_insight}
+                      </td>
+                      <td className="px-4 py-2 text-sm border border-gray-200 capitalize">
+                        {jump.biomechanical_data}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+
+          {/* Pattern Recognition */}
+          <Card className="p-4 sm:p-6">
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
+              <h4 className="text-lg sm:text-xl font-semibold">
+                {language === "en"
+                  ? "Pattern Recognition"
+                  : "Reconocimiento de patrones"}
+              </h4>
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f1f5f9] backdrop-blur-sm">
+                <img src="/icon/eye-icon.svg" alt="Pattern recognition icon" />
+              </div>
+            </div>
+            <div className="w-full p-6">
+              <ul className="mb-4 list-disc pl-5">
+                {reportContent.pattern_recognition.map((item, index) => {
+                  const parts = item.split(/[:\-]/);
+                  const label = parts[0].trim();
+                  const value = item.replace(parts[0], "").trim();
+
+                  return (
+                    <li key={index}>
+                      <b>{label}</b> {value}
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          </Card>
+
+          {/* Personalised Training */}
+          <Card className="p-4 sm:p-6">
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
+              <h4 className="text-lg sm:text-xl font-semibold">
+                {language === "en"
+                  ? "Personalised Training"
+                  : "Entrenamiento personalizado"}
+              </h4>
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f1f5f9] backdrop-blur-sm">
+                <img src="/icon/space-shuttle-icon.svg" alt="Training icon" />
+              </div>
+            </div>
+            <Card className="w-full p-6 bg-[#F1F5F9]">
+              <ul className="list-disc pl-5">
+                {reportContent.personalized_training.map((item, index) => {
+                  const parts = item.split(/[:\-]/);
+                  const label = parts[0].trim();
+                  const value = item.replace(parts[0], "").trim();
+
+                  return (
+                    <li key={index}>
+                      <b>{label}</b> {value}
+                    </li>
+                  );
+                })}
+              </ul>
+            </Card>
+          </Card>
+
+          {/* WhatsApp Share Button */}
+          <Card className="p-4 sm:p-6 border-0">
+            <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-4 mb-3 sm:mb-4">
+              <Button
+                className="bg-gradient-to-r from-[#3AD55A] to-[#00AE23] flex items-center"
+                onClick={handleWhatsAppShare}
+              >
+                <RiWhatsappFill className="!h-7 !w-7 text-white" size={50} />
+                {language === "en"
+                  ? "Send Results to Coach"
+                  : "Enviar Resultados al Entrenador"}
+              </Button>
+
+              <div className="space-x-2 flex items-center">
+                <p className="text-center">
+                  {language === "en" ? "Powered by" : "Desarrollado por"}
+                </p>
+                <img
+                  src="/lovable-uploads/1000010999.png"
+                  alt="Horse and rider jumping over competition obstacle"
+                  className="w-12 h-12 object-cover object-center"
+                />
+              </div>
+            </div>
+          </Card>
         </Card>
-      </Card>
+      </div>
     );
   }
 
